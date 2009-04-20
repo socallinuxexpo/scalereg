@@ -95,7 +95,8 @@ class Ticket(models.Model):
 
 
 class PromoCode(models.Model):
-  name = models.CharField(maxlength=5)
+  name = models.CharField(maxlength=5, primary_key=True,
+    help_text='Up to 5 letters')
   description = models.CharField(maxlength=60)
 
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
@@ -142,7 +143,7 @@ class Attendee(models.Model):
   phone = models.CharField(maxlength=20, blank=True)
 
   # etc
-  survey_answers = models.CharField(maxlength=60,
+  survey_answers = models.CharField(maxlength=60, blank=True,
     help_text='comma separated list of key=value')
   order = models.ForeignKey(Order)
 
