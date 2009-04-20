@@ -97,6 +97,19 @@ def object_list(request, queryset, paginate_by=None, page=None,
   allow_empty=False, template_name=None, template_loader=loader,
   extra_context=None, context_processors=None, template_object_name='object',
   mimetype=None):
+  can_access = reports_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  model_list = get_model_list(request.user)
+  can_access = False
+  for f in model_list:
+    if re.compile('/reports/%s.*' % f['url']).match(request.path):
+      can_access = True
+      break
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   all_fields = [f.name for f in queryset.model._meta.fields]
 
   if not extra_context:
