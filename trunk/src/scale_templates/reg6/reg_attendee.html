@@ -1,0 +1,95 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if ticket and total %}
+    {% if promo %}
+    <p>
+    You are using promo code <b>{{ promo }}</b>.
+    </p>
+    {% endif %}
+
+    <p>
+    Your {{ ticket.description }} costs {{ ticket.price|money }}.
+    </p>
+
+    <p>
+    You added the following additional items:
+    </p>
+
+    <ul>
+    {% for item in items %}
+        <li>{{ item.description }} ({{ item.price|money }})</li>
+    {% endfor %}
+    </ul>
+
+    <p>
+    Your total is {{ total|money }}.
+    </p>
+
+    <p>
+    We now need the following information from you. The items in bold are
+    required.
+    </p>
+
+    <form method="post" action=".">
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    <input type="hidden" name="ticket" value="{{ ticket.name }}" />
+    {% for item in items %}
+        <input type="hidden" name="item{{ forloop.counter0 }}" value="{{ item.name }}" />
+    {% endfor %}
+
+{% if form.has_errors %}
+<h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
+{% endif %}
+
+    <table>
+    <tr>
+        <td><label for="id_salutation">Salutation:</label></td>
+        <td>{{ form.salutation }}</td>
+        {% if form.salutation.errors %}*** {{ form.salutation.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_first_name"><b>First Name:</b></label></td>
+        <td>{{ form.first_name }}</td>
+        {% if form.first_name.errors %}*** {{ form.first_name.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_last_name"><b>Last Name:</b></label></td>
+        <td>{{ form.last_name }}</td>
+        {% if form.last_name.errors %}*** {{ form.last_name.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_title">Title:</label></td>
+        <td>{{ form.title }}</td>
+        {% if form.title.errors %}*** {{ form.title.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_org">Organization:</label></td>
+        <td>{{ form.org }}</td>
+        {% if form.org.errors %}*** {{ form.org.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_phone">Phone:</label></td>
+        <td>{{ form.phone }}</td>
+        {% if form.phone.errors %}*** {{ form.phone.errors|join:", " }}{% endif %}
+    </tr>
+    <tr>
+        <td><label for="id_email"><b>Email:</b></label></td>
+        <td>{{ form.email }}</td>
+        {% if form.email.errors %}*** {{ form.email.errors|join:", " }}{% endif %}
+    </tr>
+    </table>
+
+    <p>
+    <input type="submit" value="Continue" />
+    </p>
+    </form>
+{% else %}
+Registration is closed.
+{% endif %}
+</div>
+{% endblock %}
+

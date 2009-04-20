@@ -1,5 +1,6 @@
 # Create your views here.
 
+from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 import models
@@ -88,5 +89,78 @@ def AddItems(request):
 
 
 def AddAttendee(request):
-  return render_to_response('reg6/index.html',
-    {'title': 'Blar'})
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+
+  action = None
+  if '/reg6/add_items/' in request.META['HTTP_REFERER']:
+    action = 'add'
+  elif '/reg6/add_attendee/' in request.META['HTTP_REFERER']:
+    action = 'check'
+
+  if not action:
+    return HttpResponseRedirect('/reg6/')
+
+  required_vars = ['ticket', 'promo']
+  for var in required_vars:
+    if var not in request.POST:
+      return render_to_response('reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'No %s information.' % var,
+        })
+
+  ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  active_promocode_set = models.PromoCode.active_objects
+  avail_promocodes = active_promocode_set.names()
+  
+  promo_in_use = None
+  if request.POST['promo'] in avail_promocodes:
+    promo_in_use = active_promocode_set.get(name=request.POST['promo'])
+
+  promo_name = ApplyPromoToTickets(promo_in_use, ticket)
+  avail_items = ticket[0].item_set.all().order_by('description')
+
+  selected_items = []
+  for i in xrange(len(avail_items)):
+    item_number = 'item%d' % i
+    if item_number in request.POST:
+      item = models.Item.objects.get(name=request.POST[item_number])
+      if item in avail_items:
+        selected_items.append(item)
+  ApplyPromoToItems(promo_in_use, selected_items)
+
+  total = ticket[0].price
+  for item in selected_items:
+    total += item.price
+
+  manipulator = models.Attendee.AddManipulator()
+
+  if action == 'add':
+    errors = new_data = {}
+  else:
+    new_data = request.POST.copy()
+    # add badge type
+    new_data['badge_type'] = new_data['ticket']
+    # add ordered items
+    # add promo?
+    # add other fields
+    new_data['obtained_items'] = new_data['survey_answers'] = ''
+
+    errors = manipulator.get_validation_errors(new_data)
+    if not errors:
+      manipulator.do_html2python(new_data)
+      new_place = manipulator.save(new_data)
+      print new_place
+      return HttpResponseRedirect('/reg6/finish_registration/')
+
+  form = forms.FormWrapper(manipulator, new_data, errors)
+  return render_to_response('reg6/reg_attendee.html',
+    {'title': 'Register Attendee',
+     'ticket': ticket[0],
+     'promo': promo_name,
+     'items': selected_items,
+     'total': total,
+     'form': form,
+     'step': 3,
+     'steps_total': STEPS_TOTAL,
+    })
