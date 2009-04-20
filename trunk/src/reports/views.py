@@ -37,7 +37,7 @@ def index(request):
   for t in tables:
     if request.user.is_superuser or "reg6.view_%s" % t.lower() in perms:
       def foo(match):
-	return '%s %s' % match.groups()
+        return '%s %s' % match.groups()
       name = re.sub('([a-z])([A-Z])', foo, t)
       if not name.endswith('s'):
         name = name + 's'
