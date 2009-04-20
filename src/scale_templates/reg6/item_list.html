@@ -25,6 +25,7 @@
         <td>{{ o.price }}</td>
         <td>{{ o.active }}</td>
         <td>{{ o.pickup }}</td>
+        <td>{{ o.promo }}</td>
         <td>
         {% for t in o.applies_to.all %}
             {{ t.name }}

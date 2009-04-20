@@ -127,7 +127,7 @@ class PromoCode(models.Model):
     permissions = (('view_promocode', 'Can view promo code'),)
 
   def __str__(self):
-    return self.description
+    return self.name
 
 
 class Item(models.Model):
@@ -141,11 +141,12 @@ class Item(models.Model):
 
   active = models.BooleanField()
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
+  promo = models.BooleanField(help_text='Price affected by promo code?')
   applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
 
   class Admin:
-    list_display = ('name', 'description', 'price', 'active', 'pickup')
-    list_filter = ('active', 'pickup')
+    list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo')
+    list_filter = ('active', 'pickup', 'promo')
     save_on_top = True
 
   class Meta:
@@ -176,6 +177,7 @@ class Attendee(models.Model):
   phone = models.CharField(maxlength=20, blank=True)
 
   # etc
+  promo = models.ForeignKey(PromoCode, blank=True, null=True)
   ordered_items = models.ManyToManyField(Item, blank=True, null=True)
   obtained_items = models.CharField(maxlength=60, blank=True,
     validator_list = [validators.isValidObtainedItems],
@@ -189,10 +191,10 @@ class Attendee(models.Model):
       ('Contact Info', {'fields': ('email', 'phone')}),
       ('Badge Info', {'fields': ('badge_id', 'badge_type', 'valid', 'checked_in')}),
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
-      ('Misc', {'fields': ('survey_answers', 'order')}),
+      ('Misc', {'fields': ('survey_answers', 'promo', 'order')}),
     )
-    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order')
-    list_filter = ('order', 'badge_type', 'valid', 'checked_in')
+    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
+    list_filter = ('order', 'badge_type', 'valid', 'checked_in', 'promo')
     save_on_top = True
 
   class Meta:
