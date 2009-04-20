@@ -451,6 +451,9 @@ def Sale(request):
 #    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
 #    return HttpResponseRedirect('/reg6/')
 
+  ScaleDebug(request.META)
+  ScaleDebug(request.POST)
+
   required_vars = [
     'NAME',
     'ADDRESS',
@@ -526,8 +529,10 @@ def Sale(request):
       result=request.POST['RESULT'],
     )
     order.save()
-  except: # FIXME catch the specific db exceptions
+  except Exception, inst: # FIXME catch the specific db exceptions
     ScaleDebug('cannot save order')
+    ScaleDebug(inst.args)
+    ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
 
   for person in all_attendees_data:
