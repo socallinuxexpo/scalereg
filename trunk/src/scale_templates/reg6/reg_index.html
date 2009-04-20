@@ -27,7 +27,13 @@
     </table>
 
     {% if promo %}
-    <input type="hidden" name="promo" value="{{ promo }}" />
+    <p>
+    Using promo code:
+    </p>
+
+    <p>
+    <input type="text" name="promo" value="{{ promo }}" size="5" readonly />
+    </p>
     {% else %}
     <p>
     If you have a promo code, enter it here:
@@ -42,6 +48,16 @@
     <input type="submit" value="Continue" />
     </p>
     </form>
+
+    {% if promo %}
+    <h2>
+    Other Options:
+    </h2>
+
+    <form method="post" action=".">
+    <input type="submit" value="Change promo code" />
+    </form>
+    {% endif %}
 {% else %}
 Registration is closed.
 {% endif %}
