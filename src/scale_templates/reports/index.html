@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block content %}
+<div id="content-main">
+
+{% if model_list %}
+    <div class="module">
+    <table>
+    {% for model in model_list %}
+        <tr>
+            <th scope="row"><a href={{ model.url }} >{{ model.name }}</a></th>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% else %}
+    <p>{% trans "You don't have permission to view anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
