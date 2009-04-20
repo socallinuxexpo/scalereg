@@ -185,6 +185,11 @@ def AddAttendee(request):
       manipulator.do_html2python(new_data)
       new_place = manipulator.save(new_data)
       request.session['attendee'] = new_place.id
+
+      if 'payment' not in request.session:
+        request.session['payment'] = [new_place.id]
+      else:
+        request.session['payment'].append(new_place.id)
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
   form = forms.FormWrapper(manipulator, new_data, errors)
