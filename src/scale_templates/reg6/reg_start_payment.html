@@ -85,7 +85,7 @@
     Total: {{ total|money }}
     </p>
 
-    <h2>Add another attendee:</h2>
+    <h2>Add another attendee to this order:</h2>
 {% else %}
     <h2>Add an attendee:</h2>
 
@@ -103,15 +103,20 @@
     </tr>
     </table>
 
-    <input type="submit" value="Add attendee" />
+    <input type="submit" value="Add Attendee" />
     </form>
 
 {% if attendees and total %}
     <h2>Payment:</h2>
     <form method="post" action="../payment/">
-    <input type="submit" value="Pay for this order" />
+    <input type="submit" value="Pay For This Order" />
     </form>
 {% endif %}
+
+    <h2>Other Options:</h2>
+    <form method="post" action="..">
+    <input type="submit" value="Register Another Attendee" />
+    </form>
 
 </div>
 {% endblock %}

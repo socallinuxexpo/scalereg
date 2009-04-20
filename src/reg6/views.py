@@ -104,7 +104,7 @@ def AddItems(request):
   ApplyPromoToItems(promo_in_use, items)
 
   return render_to_response('reg6/reg_items.html',
-    {'title': 'Add Items',
+    {'title': 'Registration - Add Items',
      'ticket': ticket[0],
      'promo': promo_name,
      'items': items,
@@ -285,7 +285,7 @@ def StartPayment(request):
     total += person.ticket_cost()
 
   return render_to_response('reg6/reg_start_payment.html',
-    {'title': 'Start Payment',
+    {'title': 'Place Your Order',
      'bad_attendee': bad_attendee,
      'new_attendee': new_attendee,
      'paid_attendee': paid_attendee,
