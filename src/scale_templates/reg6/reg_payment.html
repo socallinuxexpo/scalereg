@@ -54,6 +54,12 @@
     <input type="hidden" name="USER1" value="{{ order }}">
     <input type="submit" value="Continue" />
     </form>
+
+    <form method="post" action="../">
+    <p>
+    <input type="submit" value="Start Over" />
+    </p>
+    </form>
 {% else %}
     <h2>Not Enough Information</h2>
 {% endif %}
