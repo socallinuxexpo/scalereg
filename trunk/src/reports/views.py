@@ -15,11 +15,19 @@ import re
 def index(request):
   # figure out what services are available
   services_user = Service.objects.filter(users=request.user)
-  services_group = None
+  services_user = services_user.filter(active=True)
+
+  services_group = []
   for f in request.user.groups.all():
-    services_group = services_group or Service.objects.filter(groups=f)
-  services = services_group or services_user
-  services = services.filter(active=True).order_by('name')
+    group_s = Service.objects.filter(groups=f)
+    group_s = group_s.filter(active=True)
+    for s in group_s:
+      services_group.append(s)
+
+  services = []
+  for f in services_user:
+    services.append(f)
+  services = set(services + services_group)
 
   can_access = False
   for f in services.values():
