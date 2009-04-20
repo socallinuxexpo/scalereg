@@ -10,4 +10,5 @@ urlpatterns = patterns('',
     (r'^payment/$', 'scale.reg6.views.Payment'),
     (r'^sale/$', 'scale.reg6.views.Sale'),
     (r'^failed_payment/$', 'scale.reg6.views.FailedPayment'),
+    (r'^finish_payment/$', 'scale.reg6.views.FinishPayment'),
 )

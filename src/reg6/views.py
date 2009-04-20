@@ -7,7 +7,7 @@ import models
 import random
 import string
 
-STEPS_TOTAL = 6
+STEPS_TOTAL = 7
 
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
@@ -448,4 +448,45 @@ def Sale(request):
 def FailedPayment(request):
   return render_to_response('reg6/reg_failed.html',
     {'title': 'Registration Payment Failed',
+    })
+
+
+def FinishPayment(request):
+  PAYMENT_STEP = 7
+
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+#  if 'HTTP_REFERER' not in request.META  or \
+#    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
+#    return HttpResponseRedirect('/reg6/')
+
+  required_vars = [
+    'NAME',
+    'EMAIL',
+    'AMOUNT',
+    'USER1',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  try:
+    order = models.Order.objects.get(order_num=request.POST['USER1'])
+  except models.Order.DoesNotExist:
+    return HttpResponseServerError('Your order cannot be found')
+
+  all_attendees_data = models.Attendee.objects.get(order=order.order_num)
+  if type(all_attendees_data) == models.Attendee:
+    all_attendees_data = [ all_attendees_data ]
+
+  return render_to_response('reg6/reg_receipt.html',
+    {'title': 'Registration Payment Receipt',
+     'name': request.POST['NAME'],
+     'email': request.POST['EMAIL'],
+     'attendees': all_attendees_data,
+     'order': request.POST['USER1'],
+     'step': PAYMENT_STEP,
+     'steps_total': STEPS_TOTAL,
+     'total': request.POST['AMOUNT'],
     })
