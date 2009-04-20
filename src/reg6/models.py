@@ -27,6 +27,7 @@ TICKET_CHOICES = (
   ('press', 'Press'),
   ('speaker', 'Speaker'),
   ('exhibitor', 'Exhibitor'),
+  ('staff', 'Staff'),
 )
 
 class Order(models.Model):
