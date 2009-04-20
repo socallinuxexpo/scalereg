@@ -232,7 +232,7 @@ class Attendee(models.Model):
   checked_in = models.BooleanField()
 
   # attendee name
-  salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES)
+  salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES, blank=True)
   first_name = models.CharField(maxlength=60)
   last_name = models.CharField(maxlength=60)
   title = models.CharField(maxlength=60, blank=True)
