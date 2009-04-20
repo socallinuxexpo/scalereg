@@ -4,6 +4,8 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 import models
+import random
+import string
 
 STEPS_TOTAL = 6
 
@@ -40,6 +42,11 @@ def CheckVars(request, post, cookies):
          'error_message': 'No %s information.' % var,
         })
   return None
+
+
+def GenerateOrderID():
+  valid_chars = string.ascii_uppercase + string.digits
+  return ''.join([random.choice(valid_chars) for x in xrange(10)])
 
 
 def index(request):
@@ -281,6 +288,66 @@ def StartPayment(request):
      'paid_attendee': paid_attendee,
      'removed_attendee': removed_attendee,
      'attendees': all_attendees_data,
+     'step': PAYMENT_STEP,
+     'steps_total': STEPS_TOTAL,
+     'total': total,
+    })
+
+
+def Payment(request):
+  PAYMENT_STEP = 6
+
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+  if 'HTTP_REFERER' not in request.META  or \
+    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
+    return HttpResponseRedirect('/reg6/')
+
+  required_cookies = ['payment']
+  r = CheckVars(request, [], required_cookies)
+  if r:
+    return r
+
+  total = 0
+
+  all_attendees = request.session['payment']
+  all_attendees_data = []
+  for id in all_attendees:
+    try:
+      attendee = models.Attendee.objects.get(id=id)
+      if not attendee.valid:
+        all_attendees_data.append(attendee)
+    except models.Attendee.DoesNotExist:
+      pass
+
+  all_attendees = [attendee.id for attendee in all_attendees_data]
+  request.session['payment'] = all_attendees
+
+  for person in all_attendees_data:
+    total += person.ticket_cost()
+
+  csv = ','.join([str(x) for x in all_attendees])
+
+  order_tries = 0
+  order_saved = False
+  while not order_saved:
+    try:
+      order_num = GenerateOrderID()
+      temp_order = models.TempOrder(order_num=order_num, attendees=csv)
+      temp_order.save()
+      order_saved = True
+    except: # FIXME catch the specific db exceptions
+      order_tries += 1
+      if order_tries > 10:
+        return render_to_response('reg6/reg_error.html',
+          {'title': 'Registration Problem',
+           'error_message': 'We cannot generate an order ID for you.',
+          })
+
+  return render_to_response('reg6/reg_payment.html',
+    {'title': 'Registration Payment',
+     'attendees': all_attendees_data,
+     'order': order_num,
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
      'total': total,

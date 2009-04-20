@@ -280,3 +280,18 @@ class Attendee(models.Model):
 
   def __str__(self):
     return "%s (%s) " % (self.id, self.email)
+
+
+class TempOrder(models.Model):
+  order_num = models.CharField(maxlength=10, primary_key=True,
+    validator_list = [validators.isValidOrderNumber],
+    help_text='Unique 10 upper-case letters + numbers code')
+  attendees = models.TextField(
+    validator_list = [validators.isCommaSeparatedInts])
+  date = models.DateTimeField(auto_now_add=True)
+
+  def attendees_list(self):
+    return [int(x) for x in self.attendees.split(',')]
+
+  def __str__(self):
+    return "%s" % self.order_num

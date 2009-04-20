@@ -1,0 +1,54 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendees and total %}
+    <h2>
+    You are paying for the follow attendees:
+    </h2>
+    
+    <table border="1">
+    <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    </tr>
+    {% for person  in attendees %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+
+    <p>
+    Total: {{ total|money }}
+    </p>
+
+    <h2>Payment Through Paypal:</h2>
+
+    <p>
+    You will now be redirected to Paypal to make the payment. Remember to
+    return back to the SCALE site to complete the payment process.
+    </p>
+
+    <form method="post" action="https://payflowlink.paypal.com/">
+    <input type="hidden" name="LOGIN" value="PAYFLOW_LOGIN">
+    <input type="hidden" name="PARTNER" value="verisign">
+    <input type="hidden" name="AMOUNT" value="{{ total }}">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order }}">
+    <input type="submit" value="Continue" />
+    </form>
+{% else %}
+    <h2>Not Enough Information</h2>
+{% endif %}
+
+</div>
+{% endblock %}
+
