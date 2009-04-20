@@ -30,10 +30,10 @@ TICKET_CHOICES = (
 
 class Order(models.Model):
   # basic info
-  date = models.DateTimeField(auto_now_add=True)
   order_num = models.CharField(maxlength=10, primary_key=True,
     help_text='Unique 10 digit alphanumeric code')
   valid = models.BooleanField()
+  date = models.DateTimeField(auto_now_add=True)
 
   # name and address
   name = models.CharField(maxlength=120)
@@ -125,52 +125,6 @@ class PromoCode(models.Model):
     return self.description
 
 
-class Attendee(models.Model):
-  # badge info
-  badge_id = models.PositiveIntegerField(maxlength=5, primary_key=True,
-    help_text='5 digit badge id, must be unique')
-  badge_type = models.ForeignKey(Ticket)
-  valid = models.BooleanField()
-  checked_in = models.BooleanField()
-  ordered_items = models.CharField(maxlength=60, blank=True,
-    help_text='comma separated list of items')
-  obtained_items = models.CharField(maxlength=60, blank=True,
-    help_text='comma separated list of items')
-
-  # attendee name
-  salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES)
-  first_name = models.CharField(maxlength=60)
-  last_name = models.CharField(maxlength=60)
-  title = models.CharField(maxlength=60, blank=True)
-  org = models.CharField(maxlength=60, blank=True)
-
-  # contact info
-  email = models.EmailField(unique=True, help_text='Must be unique')
-  phone = models.CharField(maxlength=20, blank=True)
-
-  # etc
-  survey_answers = models.CharField(maxlength=60, blank=True,
-    help_text='comma separated list of key=value')
-  order = models.ForeignKey(Order, blank=True, null=True)
-
-  class Admin:
-    fields = (
-      ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
-      ('Contact Info', {'fields': ('email', 'phone')}),
-      ('Badge Info', {'fields': ('badge_id', 'badge_type', 'valid', 'checked_in')}),
-      ('Items', {'fields': ('ordered_items', 'obtained_items')}),
-      ('Misc', {'fields': ('survey_answers', 'order')}),
-    )
-    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'ordered_items', 'obtained_items', 'order')
-    list_filter = ('order', 'badge_type', 'valid', 'checked_in')
-
-  class Meta:
-    permissions = (('view_attendee', 'Can view attendee'),)
-
-  def __str__(self):
-    return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
-
-
 class Item(models.Model):
   name = models.CharField(maxlength=4, help_text='up to 4 letters')
   description = models.CharField(maxlength=60)
@@ -191,3 +145,48 @@ class Item(models.Model):
 
   def __str__(self):
     return self.description
+
+
+class Attendee(models.Model):
+  # badge info
+  badge_id = models.PositiveIntegerField(maxlength=5, primary_key=True,
+    help_text='5 digit badge id, must be unique')
+  badge_type = models.ForeignKey(Ticket)
+  order = models.ForeignKey(Order, blank=True, null=True)
+  valid = models.BooleanField()
+  checked_in = models.BooleanField()
+
+  # attendee name
+  salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES)
+  first_name = models.CharField(maxlength=60)
+  last_name = models.CharField(maxlength=60)
+  title = models.CharField(maxlength=60, blank=True)
+  org = models.CharField(maxlength=60, blank=True)
+
+  # contact info
+  email = models.EmailField(unique=True, help_text='Must be unique')
+  phone = models.CharField(maxlength=20, blank=True)
+
+  # etc
+  ordered_items = models.ManyToManyField(Item, blank=True, null=True)
+  obtained_items = models.CharField(maxlength=60, blank=True,
+    help_text='comma separated list of items')
+  survey_answers = models.CharField(maxlength=60, blank=True,
+    help_text='comma separated list of key=value')
+
+  class Admin:
+    fields = (
+      ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
+      ('Contact Info', {'fields': ('email', 'phone')}),
+      ('Badge Info', {'fields': ('badge_id', 'badge_type', 'valid', 'checked_in')}),
+      ('Items', {'fields': ('ordered_items', 'obtained_items')}),
+      ('Misc', {'fields': ('survey_answers', 'order')}),
+    )
+    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order')
+    list_filter = ('order', 'badge_type', 'valid', 'checked_in')
+
+  class Meta:
+    permissions = (('view_attendee', 'Can view attendee'),)
+
+  def __str__(self):
+    return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
