@@ -15,6 +15,7 @@
     Your {{ ticket.description }} costs {{ ticket.price|money }}.
     </p>
 
+    {% if items %}
     <p>
     You added the following additional items:
     </p>
@@ -24,6 +25,7 @@
         <li>{{ item.description }} ({{ item.price|money }})</li>
     {% endfor %}
     </ul>
+    {% endif %}
 
     <p>
     Your total is {{ total|money }}.
@@ -83,9 +85,21 @@
         </td>
     </tr>
     <tr>
+        <td><label for="id_zip"><b>Zip:</b></label></td>
+        <td>{{ form.zip }}<br />
+        {% if form.zip.errors %}<b>{{ form.zip.errors|join:", " }}</b>{% endif %}
+        </td>
+    </tr>
+    <tr>
         <td><label for="id_email"><b>Email:</b></label></td>
         <td>{{ form.email }}<br />
         {% if form.email.errors %}<b>{{ form.email.errors|join:", " }}</b>{% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2"><label for="id_can_email">Add me to the SCALE mailing list:</label> &nbsp;&nbsp;&nbsp;&nbsp;
+        {{ form.can_email }}<br />
+        {% if form.can_email.errors %}<b>{{ form.can_email.errors|join:", " }}</b>{% endif %}
         </td>
     </tr>
     </table>
