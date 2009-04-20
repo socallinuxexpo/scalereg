@@ -139,10 +139,16 @@ def AddAttendee(request):
     errors = new_data = {}
   else:
     new_data = request.POST.copy()
+
     # add badge type
     new_data['badge_type'] = new_data['ticket']
     # add ordered items
-    # add promo?
+    selected_items_ids = []
+    for s in selected_items:
+      new_data.appendlist('ordered_items', str(s.id))
+    # add promo
+    if new_data['promo'] == 'None':
+      new_data['promo'] = ''
     # add other fields
     new_data['obtained_items'] = new_data['survey_answers'] = ''
 
@@ -150,7 +156,6 @@ def AddAttendee(request):
     if not errors:
       manipulator.do_html2python(new_data)
       new_place = manipulator.save(new_data)
-      print new_place
       return HttpResponseRedirect('/reg6/finish_registration/')
 
   form = forms.FormWrapper(manipulator, new_data, errors)
