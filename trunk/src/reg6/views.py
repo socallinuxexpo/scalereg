@@ -182,9 +182,10 @@ def AddItems(request):
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
+  promo = request.POST['promo'].upper()
   promo_in_use = None
-  if request.POST['promo'] in avail_promocodes:
-    promo_in_use = active_promocode_set.get(name=request.POST['promo'])
+  if promo in avail_promocodes:
+    promo_in_use = active_promocode_set.get(name=promo)
 
   promo_name = ApplyPromoToTickets(promo_in_use, ticket)
   items = GetTicketItems(ticket[0])
