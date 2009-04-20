@@ -1,0 +1,44 @@
+{% extends "reg6/list.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="/">{% trans "Home" %}</a> &rsaquo;
+     <a href="/reports/">Reports</a> &rsaquo;
+     Items &rsaquo;
+</div>
+{% endif %}{% endblock %}
+{% block content %}<div id="content-main">
+
+{% if object_list %}
+    <table border="1">
+    <tr>
+        {% for field in field_list %}
+            <th>{{ field }}</th>
+        {% endfor %}
+	<th>applies to</th>
+    </tr>
+    {% for o in object_list %}
+    <tr>
+        <td>{{ o.id }}</td>
+        <td>{{ o.name }}</td>
+        <td>{{ o.description }}</td>
+        <td>{{ o.price }}</td>
+        <td>{{ o.active }}</td>
+        <td>{{ o.pickup }}</td>
+        <td>
+        {% for t in o.applies_to.all %}
+            {{ t.name }}
+	    {% if not forloop.last %}
+	    ,
+	    {% endif %}
+        {% endfor %}
+	</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No items available.</p>
+{% endif %}
+
+</div>
+{% endblock %}

@@ -3,6 +3,8 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.template import loader
+from django.views.generic.list_detail import object_list as django_object_list
 from scale.auth_helper.models import Service
 from scale.reg6 import models
 import inspect
@@ -26,7 +28,7 @@ def index(request):
 
   if not request.user.is_superuser and not can_access:
     return HttpResponseRedirect('/accounts/profile/')
-  
+
   perms = request.user.get_all_permissions()
   tables = [ m[0] for m in inspect.getmembers(models, inspect.isclass) ]
   model_list = []
@@ -42,3 +44,12 @@ def index(request):
 
   return render_to_response('reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
+
+@login_required
+def object_list(request, queryset, paginate_by=None, page=None,
+  allow_empty=False, template_name=None, template_loader=loader,
+  extra_context=None, context_processors=None, template_object_name='object',
+  mimetype=None):
+  return django_object_list(request, queryset, paginate_by, page, allow_empty,
+    template_name, template_loader, extra_context, context_processors,
+    template_object_name, mimetype)

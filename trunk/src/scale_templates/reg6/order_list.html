@@ -1,0 +1,45 @@
+{% extends "reg6/list.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="/">{% trans "Home" %}</a> &rsaquo;
+     <a href="/reports/">Reports</a> &rsaquo;
+     Attendees &rsaquo;
+</div>
+{% endif %}{% endblock %}
+{% block content %}<div id="content-main">
+
+{% if object_list %}
+    <table border="1">
+    <tr>
+        {% for field in field_list %}
+            <th>{{ field }}</th>
+        {% endfor %}
+    </tr>
+    {% for o in object_list %}
+    <tr>
+        <td>{{ o.order_num }}</td>
+        <td>{{ o.valud }}</td>
+        <td>{{ o.date }}</td>
+        <td>{{ o.name }}</td>
+        <td>{{ o.address }}</td>
+        <td>{{ o.city }}</td>
+        <td>{{ o.state }}</td>
+        <td>{{ o.zip }}</td>
+        <td>{{ o.country }}</td>
+        <td>{{ o.email }}</td>
+        <td>{{ o.phone }}</td>
+        <td>{{ o.amount }}</td>
+        <td>{{ o.payment_type }}</td>
+        <td>{{ o.auth_code }}</td>
+        <td>{{ o.resp_msg }}</td>
+        <td>{{ o.result }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No attendees available.</p>
+{% endif %}
+
+</div>
+{% endblock %}
