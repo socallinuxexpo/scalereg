@@ -507,3 +507,32 @@ def FinishPayment(request):
      'steps_total': STEPS_TOTAL,
      'total': request.POST['AMOUNT'],
     })
+
+
+def RegLookup(request):
+  if request.method != 'POST':
+    return render_to_response('reg6/reg_lookup.html',
+      {'title': 'Registration Lookup',
+      })
+
+  required_vars = [
+    'email',
+    'zip',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  attendees = []
+  if request.POST['zip'] and request.POST['email']:
+    attendees = models.Attendee.objects.filter(zip=request.POST['zip'],
+      email=request.POST['email'])
+
+  return render_to_response('reg6/reg_lookup.html',
+    {'title': 'Registration Lookup',
+     'attendees': attendees,
+     'email': request.POST['email'],
+     'zip': request.POST['zip'],
+     'search': 1,
+    })
