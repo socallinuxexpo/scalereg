@@ -4,6 +4,10 @@ urlpatterns = patterns('',
     # Example:
     # (r'^scale/', include('scale.apps.foo.urls.foo')),
 
-    # Uncomment this for admin:
-     (r'^admin/', include('django.contrib.admin.urls')),
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+    (r'^accounts/password_change/$', 'django.contrib.auth.views.password_change'),
+    (r'^accounts/password_change/done/$', 'django.contrib.auth.views.password_change_done'),
+    (r'^admin/', include('django.contrib.admin.urls')),
+
 )
