@@ -21,6 +21,15 @@
 <td>Amount:</td>
 <td>{{ total|money }}</td>
 </tr>
+</table>
+
+<table border="1">
+    <tr>
+        <th>Attendee ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Amount</th>
+    </tr>
     {% for person in attendees %}
     <tr>
         <td>{{ person.id }}</td>
