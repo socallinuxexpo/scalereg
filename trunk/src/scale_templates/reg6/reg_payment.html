@@ -20,17 +20,17 @@
     </tr>
     {% for person  in attendees %}
     <tr>
-        <td>{{ person.id }}</td>
-        <td>{{ person.first_name }} {{ person.last_name }}</td>
-        <td>{{ person.email }}</td>
-        <td>{{ person.ticket_cost|money }}</td>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        <td>{{ person.ticket_cost|money|escape }}</td>
     </tr>
     {% endfor %}
     </table>
     </p>
 
     <p>
-    Total: {{ total|money }}
+    Total: {{ total|money|escape }}
     </p>
 
     <h2>Payment Through Paypal Payflow Link:</h2>
@@ -49,9 +49,9 @@
     <form method="post" action="https://payflowlink.paypal.com/">
     <input type="hidden" name="LOGIN" value="PAYFLOW_LOGIN">
     <input type="hidden" name="PARTNER" value="verisign">
-    <input type="hidden" name="AMOUNT" value="{{ total }}">
+    <input type="hidden" name="AMOUNT" value="{{ total|escape }}">
     <input type="hidden" name="TYPE" value="S">
-    <input type="hidden" name="USER1" value="{{ order }}">
+    <input type="hidden" name="USER1" value="{{ order|escape }}">
     <input type="submit" value="Continue" />
     </form>
 

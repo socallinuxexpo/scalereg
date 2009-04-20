@@ -11,8 +11,8 @@
     <table border="1">
     <tr>
     <td>
-    Registration Number: {{ bad_attendee.0 }},
-    Email: {{ bad_attendee.1 }}.
+    Registration Number: {{ bad_attendee.0|escape }},
+    Email: {{ bad_attendee.1|escape }}.
     </td>
     </tr>
     </table>
@@ -26,8 +26,8 @@
     <table border="1">
     <tr>
     <td>
-    Registration Number: {{ new_attendee.id }},
-    Email: {{ new_attendee.email }}.
+    Registration Number: {{ new_attendee.id|escape }},
+    Email: {{ new_attendee.email|escape }}.
     </td>
     </tr>
     </table>
@@ -41,8 +41,8 @@
     <table border="1">
     <tr>
     <td>
-    Registration Number: {{ paid_attendee.id }},
-    Email: {{ paid_attendee.email }}.
+    Registration Number: {{ paid_attendee.id|escape }},
+    Email: {{ paid_attendee.email|escape }}.
     </td>
     </tr>
     </table>
@@ -56,8 +56,8 @@
     <table border="1">
     <tr>
     <td>
-    Registration Number: {{ removed_attendee.id }},
-    Email: {{ removed_attendee.email }}.
+    Registration Number: {{ removed_attendee.id|escape }},
+    Email: {{ removed_attendee.email|escape }}.
     </td>
     </tr>
     </table>
@@ -83,13 +83,13 @@
     </tr>
     {% for person  in attendees %}
     <tr>
-        <td>{{ person.id }}</td>
-        <td>{{ person.first_name }} {{ person.last_name }}</td>
-        <td>{{ person.email }}</td>
-        <td>{{ person.ticket_cost|money }}</td>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        <td>{{ person.ticket_cost|money|escape }}</td>
         <td>
         <form method="post" action=".">
-        <input type="hidden" name="remove" value="{{ person.id }}" />
+        <input type="hidden" name="remove" value="{{ person.id|escape }}" />
         <input type="submit" value="Remove" />
         </form>
         </td>
@@ -98,7 +98,7 @@
     </table>
 
     <p>
-    Total: {{ total|money }}
+    Total: {{ total|money|escape }}
     </p>
 
     <h2>Add another attendee to this order:</h2>

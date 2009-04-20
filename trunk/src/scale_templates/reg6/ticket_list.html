@@ -13,18 +13,18 @@
     <table border="1">
     <tr>
         {% for field in field_list %}
-           <th>{{ field }}</th>
+           <th>{{ field|escape }}</th>
         {% endfor %}
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.name }}</td>
-        <td>{{ o.description }}</td>
-        <td>{{ o.type }}</td>
-        <td>{{ o.price }}</td>
-        <td>{{ o.public }}</td>
-        <td>{{ o.start_date }}</td>
-        <td>{{ o.end_date }}</td>
+        <td>{{ o.name|escape }}</td>
+        <td>{{ o.description|escape }}</td>
+        <td>{{ o.type|escape }}</td>
+        <td>{{ o.price|escape }}</td>
+        <td>{{ o.public|escape }}</td>
+        <td>{{ o.start_date|escape }}</td>
+        <td>{{ o.end_date|escape }}</td>
     </tr>
     {% endfor %}
     </table>

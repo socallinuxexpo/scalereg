@@ -7,19 +7,19 @@
 <table>
 <tr>
 <td>Name:</td>
-<td>{{ name }}</td>
+<td>{{ name|escape }}</td>
 </tr>
 <tr>
 <td>Email:</td>
-<td>{{ email }}</td>
+<td>{{ email|escape }}</td>
 </tr>
 <tr>
 <td>Order Number:</td>
-<td>{{ order }}</td>
+<td>{{ order|escape }}</td>
 </tr>
 <tr>
 <td>Amount:</td>
-<td>{{ total|money }}</td>
+<td>{{ total|money|escape }}</td>
 </tr>
 </table>
 
@@ -32,10 +32,10 @@
     </tr>
     {% for person in attendees %}
     <tr>
-        <td>{{ person.id }}</td>
-        <td>{{ person.first_name }} {{ person.last_name }}</td>
-        <td>{{ person.email }}</td>
-        <td>{{ person.ticket_cost|money }}</td>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        <td>{{ person.ticket_cost|money|escape }}</td>
     </tr>
     {% endfor %}
 </table>

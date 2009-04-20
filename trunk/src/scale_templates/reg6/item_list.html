@@ -13,22 +13,22 @@
     <table border="1">
     <tr>
         {% for field in field_list %}
-            <th>{{ field }}</th>
+            <th>{{ field|escape }}</th>
         {% endfor %}
 	<th>applies to</th>
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.id }}</td>
-        <td>{{ o.name }}</td>
-        <td>{{ o.description }}</td>
-        <td>{{ o.price }}</td>
-        <td>{{ o.active }}</td>
-        <td>{{ o.pickup }}</td>
-        <td>{{ o.promo }}</td>
+        <td>{{ o.id|escape }}</td>
+        <td>{{ o.name|escape }}</td>
+        <td>{{ o.description|escape }}</td>
+        <td>{{ o.price|escape }}</td>
+        <td>{{ o.active|escape }}</td>
+        <td>{{ o.pickup|escape }}</td>
+        <td>{{ o.promo|escape }}</td>
         <td>
         {% for t in o.applies_to.all %}
-            {{ t.name }}
+            {{ t.name|escape }}
 	    {% if not forloop.last %}
 	    ,
 	    {% endif %}
