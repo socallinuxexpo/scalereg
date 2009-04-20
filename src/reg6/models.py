@@ -78,6 +78,24 @@ class Order(models.Model):
     return "%s" % self.order_num
 
 
+class TicketManager(models.Manager):
+  def get_query_set(self):
+    exclude = []
+    set = super(TicketManager, self).get_query_set()
+    for item in set:
+      if not item.is_public():
+        exclude.append(item)
+    for item in exclude:
+      set = set.exclude(name=item.name)
+    return set
+
+  def names(self):
+    name_list = []
+    for f in self.get_query_set():
+      name_list.append(f.name)
+    return name_list
+
+
 class Ticket(models.Model):
   name = models.CharField(maxlength=5, primary_key=True,
     validator_list = [validators.isAllCapsDigits],
@@ -92,6 +110,9 @@ class Ticket(models.Model):
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
+
+  objects = models.Manager()
+  public_objects = TicketManager()
 
   def is_public(self):
     if not self.public:
@@ -116,6 +137,23 @@ class Ticket(models.Model):
     return "%s" % self.name
 
 
+class PromoCodeManager(models.Manager):
+  def get_query_set(self):
+    exclude = []
+    set = super(PromoCodeManager, self).get_query_set()
+    for item in set:
+      if not item.is_active():
+        exclude.append(item)
+    for item in exclude:
+      set = set.exclude(name=item.name)
+    return set
+
+  def names(self):
+    name_list = []
+    for f in self.get_query_set():
+      name_list.append(f.name)
+    return name_list
+
 class PromoCode(models.Model):
   name = models.CharField(maxlength=5, primary_key=True,
     validator_list = [validators.isAllCapsDigits],
@@ -132,6 +170,9 @@ class PromoCode(models.Model):
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
+
+  objects = models.Manager()
+  active_objects = PromoCodeManager()
 
   def is_active(self):
     if not self.active:
