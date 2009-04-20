@@ -5,10 +5,12 @@
 <div id="content-main">
 
 {% if attendees and total %}
+    <br />
     <h2>
     You are paying for the follow attendees:
     </h2>
-    
+
+    <p>
     <table border="1">
     <tr>
     <th>Attendee ID</th>
@@ -25,6 +27,7 @@
     </tr>
     {% endfor %}
     </table>
+    </p>
 
     <p>
     Total: {{ total|money }}
