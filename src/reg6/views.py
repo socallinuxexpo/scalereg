@@ -483,7 +483,7 @@ def Sale(request):
   if request.POST['RESULT'] != "0":
     ScaleDebug('transaction did not succeed')
     return HttpResponseServerError('transaction did not succeed')
-  if request.POST['RESPMSG'] == "CSCDECLINED":
+  if request.POST['RESPMSG'] != "Approved":
     ScaleDebug('transaction declined')
     return HttpResponseServerError('transaction declined')
 
