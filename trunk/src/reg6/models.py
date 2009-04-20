@@ -238,7 +238,7 @@ class Attendee(models.Model):
   org = models.CharField(maxlength=60, blank=True)
 
   # contact info
-  email = models.EmailField(unique=True, help_text='Must be unique')
+  email = models.EmailField()
   zip = models.PositiveIntegerField(maxlength=10)
   phone = models.CharField(maxlength=20, blank=True)
 
@@ -272,7 +272,7 @@ class Attendee(models.Model):
       ('Misc', {'fields': ('promo', 'order')}),
     )
     list_display = ('id', 'first_name', 'last_name', 'email', 'zip', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
-    list_filter = ('order', 'badge_type', 'valid', 'checked_in', 'promo')
+    list_filter = ('badge_type', 'valid', 'checked_in', 'promo')
     save_on_top = True
 
   class Meta:
