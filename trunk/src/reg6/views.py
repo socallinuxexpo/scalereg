@@ -341,6 +341,7 @@ def Payment(request):
   while not order_saved:
     try:
       bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+      bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
       order_num = GenerateOrderID(bad_order_nums)
       temp_order = models.TempOrder(order_num=order_num, attendees=csv)
       temp_order.save()
