@@ -60,6 +60,17 @@ def object_list(request, queryset, paginate_by=None, page=None,
   allow_empty=False, template_name=None, template_loader=loader,
   extra_context=None, context_processors=None, template_object_name='object',
   mimetype=None):
+  if 'order' in request.GET:
+    if request.GET['order'] in [f.name for f in queryset.model._meta.fields]:
+      ordering = request.GET['order']
+      extra_context['order'] = ordering
+      if 'dec' in request.GET:
+        ordering = '-' + ordering
+        extra_context['dec'] = 1
+      else:
+        extra_context['dec'] = 0
+      queryset = queryset.order_by(ordering)
+
   return django_object_list(request, queryset, paginate_by, page, allow_empty,
     template_name, template_loader, extra_context, context_processors,
     template_object_name, mimetype)
