@@ -246,10 +246,8 @@ def StartPayment(request):
     try:
       id = int(request.POST['id'])
       new_attendee = models.Attendee.objects.get(id=id)
-    except ValueError:
-      pass
-    except models.Attendee.DoesNotExist:
-      pass
+    except ValueError, models.Attendee.DoesNotExist:
+      id = None
 
     if id in all_attendees:
       new_attendee = None
@@ -391,7 +389,7 @@ def Sale(request):
 
   try:
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
-  except models.Attendee.DoesNotExist:
+  except models.TempOrder.DoesNotExist:
     return HttpResponseServerError('cannot get temp order')
 
   order_exists = True
