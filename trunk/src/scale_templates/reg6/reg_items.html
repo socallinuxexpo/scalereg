@@ -15,11 +15,12 @@
     Your {{ ticket.description }} costs {{ ticket.price|money }}.
     </p>
 
+    <form method="post" action="../add_attendee/">
+    {% if items %}
     <p>
     Would you like to add any additional items?
     </p>
 
-    <form method="post" action="../add_attendee/">
     <table border="1">
     <tr>
         <th>&nbsp;</th>
@@ -34,6 +35,11 @@
         </tr>
     {% endfor %}
     </table>
+    {% else %}
+    <p>
+    No add on items available.
+    </p>
+    {% endif %}
 
     <input type="hidden" name="promo" value="{{ promo }}" />
     <input type="hidden" name="ticket" value="{{ ticket.name }}" />
