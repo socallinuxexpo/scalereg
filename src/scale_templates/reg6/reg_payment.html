@@ -47,6 +47,7 @@
     </p>
 
     <form method="post" action="https://payflowlink.paypal.com/">
+    <p>
     <input type="hidden" name="LOGIN" value="PAYFLOW_LOGIN">
     <input type="hidden" name="PARTNER" value="verisign">
     <input type="hidden" name="AMOUNT" value="{{ total|escape }}">
@@ -58,7 +59,24 @@
     <input type="hidden" name="USER2" value="N">
     {% endif %}
     <input type="submit" value="Continue" />
+    </p>
     </form>
+
+    <h2>Pay With A Coupon:</h2>
+
+    <p>
+    If you have a coupon to redeem, please enter the code below:
+    </p>
+
+    <form method="post" action="../redeem_coupon/">
+    <p>
+    <input type="text" name="code" maxlength="15">
+    <input type="hidden" name="order" value="{{ order|escape }}">
+    <input type="submit" value="Redeem" />
+    </p>
+    </form>
+
+    <h2>Other Options:</h2>
 
     <form method="post" action="../">
     <p>

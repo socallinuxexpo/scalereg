@@ -743,3 +743,76 @@ def FinishCheckIn(request):
     {'title': 'Checked In',
      'attendee': attendee,
     })
+
+def RedeemCoupon(request):
+  PAYMENT_STEP = 7
+
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+  if 'HTTP_REFERER' not in request.META  or \
+    '/reg6/payment/' not in request.META['HTTP_REFERER']:
+    return HttpResponseRedirect('/reg6/')
+
+  required_vars = [
+    'code',
+    'order',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  try:
+    coupon = models.Coupon.objects.get(code=request.POST['code'])
+  except models.Coupon.DoesNotExist:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid coupon'
+      })
+
+  if not coupon.is_valid():
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'This coupon has expired'
+      })
+
+  try:
+    temp_order = models.TempOrder.objects.get(order_num=request.POST['order'])
+  except models.TempOrder.DoesNotExist:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'cannot get temp order'
+      })
+
+  if len(temp_order.attendees_list()) > coupon.max_attendees:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'coupon not valid for the number of attendees'
+      })
+
+  all_attendees_data = []
+  for id in temp_order.attendees_list():
+    try:
+      attendee = models.Attendee.objects.get(id=id)
+      if not attendee.valid:
+        all_attendees_data.append(attendee)
+    except models.Attendee.DoesNotExist:
+      return HttpResponseServerError('cannot find an attendee')
+
+  for person in all_attendees_data:
+    person.valid = True
+    person.order = coupon.order
+    person.badge_type = coupon.badge_type
+    person.promo = None
+    person.save()
+
+  coupon.used = True
+  coupon.save()
+
+  return scale_render_to_response(request, 'reg6/reg_receipt.html',
+    {'title': 'Registration Payment Receipt',
+     'attendees': all_attendees_data,
+     'code': request.POST['code'],
+     'step': PAYMENT_STEP,
+     'steps_total': STEPS_TOTAL,
+    })

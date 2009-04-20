@@ -15,4 +15,5 @@ urlpatterns = patterns('',
     (r'^kiosk/$', 'scale.reg6.views.kiosk_index'),
     (r'^checkin/$', 'scale.reg6.views.CheckIn'),
     (r'^finish_checkin/$', 'scale.reg6.views.FinishCheckIn'),
+    (r'^redeem_coupon/$', 'scale.reg6.views.RedeemCoupon'),
 )
