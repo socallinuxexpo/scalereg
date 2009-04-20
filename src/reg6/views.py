@@ -166,7 +166,6 @@ def AddAttendee(request):
   for item in selected_items:
     total += item.price
 
-  answers = []
   questions = []
   all_active_questions = models.Question.objects.filter(active=True)
   for q in all_active_questions:
@@ -177,15 +176,6 @@ def AddAttendee(request):
         if item in q.applies_to_items.all():
           questions.append(q)
           break
-
-  for i in xrange(len(questions)):
-    i = 'q%d' % i
-    if i in request.POST:
-      #try:
-      #  ans = models.Answer.objects.get(id=request.POST[i])
-      #except models.Answer.DoesNotExist:
-      #  continue
-      answers.append(request.POST[i])
 
   manipulator = models.Attendee.AddManipulator()
 
@@ -205,8 +195,15 @@ def AddAttendee(request):
     # add other fields
     new_data['obtained_items'] = new_data['survey_answers'] = ''
     # add survey answers
-    for ans in answers:
-      new_data.appendlist('answers', ans)
+
+    for i in xrange(len(questions)):
+      i = 'q%d' % i
+      if i in request.POST:
+        try:
+          ans = models.Answer.objects.get(id=request.POST[i])
+        except models.Answer.DoesNotExist:
+          continue
+        new_data.appendlist('answers', request.POST[i])
 
     try:
       errors = manipulator.get_validation_errors(new_data)
