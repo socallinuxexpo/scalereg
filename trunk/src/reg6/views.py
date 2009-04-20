@@ -1,5 +1,6 @@
 # Create your views here.
 
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 import models
 
@@ -41,6 +42,9 @@ def index(request):
 
 
 def AddItems(request):
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+
   return render_to_response('reg6/reg_items.html',
     {'title': 'Blar',
     })
