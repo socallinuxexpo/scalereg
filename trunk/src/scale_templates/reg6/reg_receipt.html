@@ -4,6 +4,11 @@
 {% block content %}
 <div id="content-main">
 
+{% if code %}
+<p>
+Coupon code: {{ code|escape|upper }}
+</p>
+{% else %}
 <table>
 <tr>
 <td>Name:</td>
@@ -22,20 +27,25 @@
 <td>{{ total|money|escape }}</td>
 </tr>
 </table>
+{% endif %}
 
 <table border="1">
     <tr>
         <th>Registration Number</th>
         <th>Name</th>
         <th>Email</th>
+        {% if not code %}
         <th>Amount</th>
+        {% endif %}
     </tr>
     {% for person in attendees %}
     <tr>
         <td>{{ person.id|escape }}</td>
         <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
         <td>{{ person.email|escape }}</td>
+        {% if not code %}
         <td>{{ person.ticket_cost|money|escape }}</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
