@@ -213,18 +213,10 @@ def RegisteredAttendee(request):
 def StartPayment(request):
   PAYMENT_STEP = 5
 
-  action = 'start'
-  if 'HTTP_REFERER' in request.META:
-    if '/reg6/start_payment/' in request.META['HTTP_REFERER']:
-      action = 'add'
-
-  if action == 'start':
+  if 'payment' not in request.session:
     request.session['payment'] = []
-  else:
-    if 'payment' not in request.session:
-      request.session['payment'] = []
 
-  attendee = None
+  new_attendee = None
   all_attendees = request.session['payment']
   bad_attendee = None
   paid_attendee = None
@@ -234,52 +226,59 @@ def StartPayment(request):
   if 'remove' in request.POST:
     try:
       remove_id = int(request.POST['remove'])
-      for person in all_attendees:
-        if person.id == remove_id:
-          removed_attendee = person
-          all_attendees.remove(person)
-          break
+      if remove_id in all_attendees:
+        all_attendees.remove(remove_id)
     except ValueError:
       pass
   elif 'id' in request.POST and 'email' in request.POST:
     try:
       id = int(request.POST['id'])
-      attendee = models.Attendee.objects.get(id=id)
+      new_attendee = models.Attendee.objects.get(id=id)
     except ValueError:
       pass
     except models.Attendee.DoesNotExist:
       pass
 
-    if attendee and attendee.email == request.POST['email']:
-      if not attendee.valid:
-        if attendee not in all_attendees:
-          all_attendees.append(attendee)
+    if new_attendee and new_attendee.email == request.POST['email']:
+      if not new_attendee.valid:
+        if new_attendee not in all_attendees:
+          all_attendees.append(id)
       else:
-        paid_attendee = attendee
-        attendee = None
+        paid_attendee = new_attendee
+        new_attendee = None
     else:
       bad_attendee = [request.POST['id'], request.POST['email']]
-      attendee = None
+      new_attendee = None
 
   # sanity check
   checksum = 0
-  for f in [attendee, bad_attendee, paid_attendee, removed_attendee]:
+  for f in [new_attendee, bad_attendee, paid_attendee, removed_attendee]:
     if f:
       checksum += 1
   assert checksum <= 1
 
-  if all_attendees:
-    request.session['payment'] = all_attendees
-    for person in all_attendees:
-      total += person.ticket_cost()
+  all_attendees_data = []
+  for id in all_attendees:
+    try:
+      attendee = models.Attendee.objects.get(id=id)
+      if not attendee.valid:
+        all_attendees_data.append(attendee)
+    except models.Attendee.DoesNotExist:
+      pass
+
+  all_attendees = [attendee.id for attendee in all_attendees_data]
+
+  request.session['payment'] = all_attendees
+  for person in all_attendees_data:
+    total += person.ticket_cost()
 
   return render_to_response('reg6/reg_start_payment.html',
     {'title': 'Start Payment',
      'bad_attendee': bad_attendee,
-     'new_attendee': attendee,
+     'new_attendee': new_attendee,
      'paid_attendee': paid_attendee,
      'removed_attendee': removed_attendee,
-     'attendees': all_attendees,
+     'attendees': all_attendees_data,
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
      'total': total,
