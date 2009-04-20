@@ -239,7 +239,9 @@ def StartPayment(request):
     except models.Attendee.DoesNotExist:
       pass
 
-    if new_attendee and new_attendee.email == request.POST['email']:
+    if id in all_attendees:
+      new_attendee = None
+    elif new_attendee and new_attendee.email == request.POST['email']:
       if not new_attendee.valid:
         if new_attendee not in all_attendees:
           all_attendees.append(id)
