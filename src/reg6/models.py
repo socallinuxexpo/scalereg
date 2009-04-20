@@ -222,25 +222,9 @@ class Item(models.Model):
     return '%s (%s)' % (self.description, self.name)
 
 
-class Question(models.Model):
-  text = models.CharField(maxlength=200)
-  active = models.BooleanField()
-
-  class Admin:
-    save_on_top = True
-
-  class Meta:
-    permissions = (('view_question', 'Can view question'),)
-
-  def __str__(self):
-    if len(self.text) > 37:
-      return '%s...' % self.text[:37]
-    return '%s' % self.text
-
-
 class Answer(models.Model):
-  question = models.ForeignKey(Question, edit_inline=models.TABULAR,
-    num_in_admin=3, core=True)
+  question = models.ForeignKey("Question", edit_inline=models.TABULAR,
+    num_in_admin=3)
   text = models.CharField(maxlength=200, core=True)
 
   class Admin:
@@ -256,7 +240,26 @@ class Answer(models.Model):
     return '%s' % self.text
 
   def __str__(self):
-    return '(%d) %s...' % (self.question.id, self.__str_text__())
+    return '(%d) %s' % (self.question.id, self.__str_text__())
+
+
+class Question(models.Model):
+  text = models.CharField(maxlength=200)
+  active = models.BooleanField()
+
+  class Admin:
+    save_on_top = True
+
+  class Meta:
+    permissions = (('view_question', 'Can view question'),)
+
+  def get_answers(self):
+    return Answer.objects.filter(question=self.id)
+
+  def __str__(self):
+    if len(self.text) > 37:
+      return '%s...' % self.text[:37]
+    return '%s' % self.text
 
 
 class Attendee(models.Model):

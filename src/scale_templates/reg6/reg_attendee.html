@@ -104,6 +104,33 @@
     </tr>
     </table>
 
+    {% if questions %}
+    <p>
+    Survey Questions:
+    </p>
+
+    {% if form.answers.errors %}
+    <p>
+    <b>{{ form.answers.errors|join:", " }}</b>
+    </p>
+    {% endif %}
+
+    <p>
+    <table>
+    {% for q in questions %}
+    <tr>
+        <td colspan="2">{{ q.text|escape }}</td>
+    </tr>
+        {% for ans in q.get_answers %}
+        <tr>
+            <td><input type="radio" name="q{{ forloop.parentloop.counter0 }}" value="{{ ans.id }}" /></td>
+            <td>{{ ans.text }}</td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+    </p>
+    {% endif %}
     <p>
     <input type="submit" value="Continue" />
     </p>
