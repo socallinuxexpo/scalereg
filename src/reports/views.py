@@ -31,8 +31,8 @@ def index(request):
     return HttpResponseRedirect('/accounts/profile/')
 
   perms = request.user.get_all_permissions()
-  tables = [ m[0] for m in inspect.getmembers(models, inspect.isclass)
-             if type(m[1]) == ModelBase ]
+  tables = [m[0] for m in inspect.getmembers(models, inspect.isclass)
+             if type(m[1]) == ModelBase and m[1]._meta.admin]
   model_list = []
   for t in tables:
     if request.user.is_superuser or "reg6.view_%s" % t.lower() in perms:
