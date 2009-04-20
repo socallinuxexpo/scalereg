@@ -93,21 +93,27 @@ def index(request):
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
+  kiosk_mode = False
   promo_in_use = None
   if request.method == 'GET':
     if 'promo' in request.GET and request.GET['promo'] in avail_promocodes:
       promo_in_use = active_promocode_set.get(name=request.GET['promo'])
     if 'kiosk' in request.GET:
-      request.session['kiosk'] = True
+      kiosk_mode = True
   elif request.method == 'POST':
     if 'promo' in request.POST and request.POST['promo'] in avail_promocodes:
       promo_in_use = active_promocode_set.get(name=request.POST['promo'])
     if 'kiosk' in request.POST:
-      request.session['kiosk'] = True
+      kiosk_mode = True
 
   promo_name = ApplyPromoToTickets(promo_in_use, avail_tickets)
 
   request.session.set_test_cookie()
+
+  if kiosk_mode:
+    request.session['kiosk'] = True
+    return render_to_response('reg6/reg_kiosk.html')
+
   return scale_render_to_response(request, 'reg6/reg_index.html',
     {'title': 'Registration',
      'tickets': avail_tickets,
