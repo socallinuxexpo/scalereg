@@ -15,19 +15,19 @@
     <table>
     <tr>
     <td>Name:</td>
-    <td>{{ attendee.first_name }} {{ attendee.last_name }}</td>
+    <td>{{ attendee.first_name|escape }} {{ attendee.last_name|escape }}</td>
     </tr>
     <tr>
     <td>Email:</td>
-    <td>{{ attendee.email }}</td>
+    <td>{{ attendee.email|escape }}</td>
     </tr>
     <tr>
     <td>Registration Number:</td>
-    <td>{{ attendee.id }}</td>
+    <td>{{ attendee.id|escape }}</td>
     </tr>
     <tr>
     <td>Ticket Type:</td>
-    <td>{{ attendee.badge_type.description }}</td>
+    <td>{{ attendee.badge_type.description|escape }}</td>
     </tr>
     </table>
 
@@ -48,7 +48,7 @@
     <p>
     <form action="../" method="post">
     {% if attendee.promo %}
-    <input type="hidden" name="promo" value="{{ attendee.promo }}" />
+    <input type="hidden" name="promo" value="{{ attendee.promo|escape }}" />
     {% endif %}
     <input type="submit" value="Register Another Attendee" />
     </form>

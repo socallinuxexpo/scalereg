@@ -8,7 +8,7 @@
 
 <p>
 {% if error_message %}
-    {{ error_message }}
+    {{ error_message|escape }}
 {% else %}
 Error 0xBADBEEF1
 {% endif %}

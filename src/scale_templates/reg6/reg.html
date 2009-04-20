@@ -7,7 +7,7 @@
 <div class="breadcrumbs">
      {% if step and steps_total %}
      <p>
-     Step {{ step }} of {{ steps_total }}
+     Step {{ step|escape }} of {{ steps_total|escape }}
      </p>
      {% endif %}
 </div>

@@ -16,34 +16,34 @@
 	{% ifequal field "obtained_items" %}
             <th>ordered_items</th>
 	{% endifequal %}
-            <th>{{ field }}</th>
+            <th>{{ field|escape }}</th>
         {% endfor %}
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.id }}</td>
-        <td>{{ o.badge_type }}</td>
-        <td>{{ o.order }}</td>
-        <td>{{ o.valid }}</td>
-        <td>{{ o.checked_in }}</td>
-        <td>{{ o.salutation }}</td>
-        <td>{{ o.first_name }}</td>
-        <td>{{ o.last_name }}</td>
-        <td>{{ o.title }}</td>
-        <td>{{ o.org }}</td>
-        <td>{{ o.email }}</td>
-        <td>{{ o.phone }}</td>
-        <td>{{ o.promo }}</td>
+        <td>{{ o.id|escape }}</td>
+        <td>{{ o.badge_type|escape }}</td>
+        <td>{{ o.order|escape }}</td>
+        <td>{{ o.valid|escape }}</td>
+        <td>{{ o.checked_in|escape }}</td>
+        <td>{{ o.salutation|escape }}</td>
+        <td>{{ o.first_name|escape }}</td>
+        <td>{{ o.last_name|escape }}</td>
+        <td>{{ o.title|escape }}</td>
+        <td>{{ o.org|escape }}</td>
+        <td>{{ o.email|escape }}</td>
+        <td>{{ o.phone|escape }}</td>
+        <td>{{ o.promo|escape }}</td>
 	<td>
         {% for item in o.ordered_items.all %}
-            {{ item.name }}
+            {{ item.name|escape }}
 	    {% if not forloop.last %}
 	    ,
 	    {% endif %}
         {% endfor %}
 	</td>
-        <td>{{ o.obtained_items }}</td>
-        <td>{{ o.survey_answers }}</td>
+        <td>{{ o.obtained_items|escape }}</td>
+        <td>{{ o.survey_answers|escape }}</td>
     </tr>
     {% endfor %}
     </table>

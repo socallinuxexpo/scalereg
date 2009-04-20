@@ -31,9 +31,9 @@
     </tr>
     {% for t in tickets %}
         <tr>
-        <td><input type="radio" name="ticket" value="{{ t.name }}" /></td>
-        <td>{{ t.description}}</td>
-        <td>{{ t.price|money }}</td>
+        <td><input type="radio" name="ticket" value="{{ t.name|escape }}" /></td>
+        <td>{{ t.description|escape }}</td>
+        <td>{{ t.price|money|escape }}</td>
         </tr>
     {% endfor %}
     </table>
@@ -41,8 +41,8 @@
     {% if promo %}
     <p>
     Using promo code:
-    <b>{{ promo }}</b>.
-    <input type="hidden" name="promo" value="{{ promo }}" />
+    <b>{{ promo|escape }}</b>.
+    <input type="hidden" name="promo" value="{{ promo|escape }}" />
     </p>
     {% else %}
     <p>
