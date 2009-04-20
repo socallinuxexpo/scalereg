@@ -3,6 +3,10 @@ from scale.reg6 import models
 
 attendee_dict = {
     'queryset': models.Attendee.objects.all(),
+    'extra_context': {
+    'valid': len(models.Attendee.objects.all().filter(valid=True)),
+    'checkin': len(models.Attendee.objects.all().filter(checked_in=True)),
+    },
     'allow_empty': True,
 }
 
