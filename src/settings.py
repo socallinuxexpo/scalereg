@@ -71,5 +71,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'scale.auth_helper',
     'scale.reg6',
 )
