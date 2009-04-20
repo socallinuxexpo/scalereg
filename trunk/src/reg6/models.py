@@ -164,13 +164,14 @@ class PromoCode(models.Model):
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
     validator_list = [validators.isPositive],
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
-  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
   active = models.BooleanField()
   start_date = models.DateField(null=True, blank=True,
     validator_list = [validators.isValidStartStopDates],
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
+  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
+  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   objects = models.Manager()
   active_objects = PromoCodeManager()
@@ -184,6 +185,11 @@ class PromoCode(models.Model):
     if self.end_date and self.end_date <= today:
       return False
     return True
+
+  def is_applicable_to(self, ticket):
+    if self.applies_to_all:
+      return True
+    return ticket in self.applies_to.all()
 
   class Admin:
     list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
@@ -210,6 +216,7 @@ class Item(models.Model):
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
   promo = models.BooleanField(help_text='Price affected by promo code?')
   applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
+  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   class Admin:
     list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo')
