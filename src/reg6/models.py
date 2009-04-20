@@ -145,7 +145,7 @@ class Attendee(models.Model):
   # etc
   survey_answers = models.CharField(maxlength=60, blank=True,
     help_text='comma separated list of key=value')
-  order = models.ForeignKey(Order)
+  order = models.ForeignKey(Order, null=True)
 
   class Admin:
     fields = (
