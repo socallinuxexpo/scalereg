@@ -44,9 +44,14 @@ def CheckVars(request, post, cookies):
   return None
 
 
-def GenerateOrderID():
+def GenerateOrderID(bad_nums):
   valid_chars = string.ascii_uppercase + string.digits
-  return ''.join([random.choice(valid_chars) for x in xrange(10)])
+  id = ''.join([random.choice(valid_chars) for x in xrange(10)])
+  if not bad_nums:
+    return id
+  while id in bad_nums:
+    id = ''.join([random.choice(valid_chars) for x in xrange(10)])
+  return id
 
 
 def index(request):
@@ -332,7 +337,8 @@ def Payment(request):
   order_saved = False
   while not order_saved:
     try:
-      order_num = GenerateOrderID()
+      bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+      order_num = GenerateOrderID(bad_order_nums)
       temp_order = models.TempOrder(order_num=order_num, attendees=csv)
       temp_order.save()
       order_saved = True
