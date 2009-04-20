@@ -78,8 +78,10 @@ class Ticket(models.Model):
   type = models.CharField(maxlength=10, choices=TICKET_CHOICES)
   price = models.FloatField(max_digits=5, decimal_places=2)
   public = models.BooleanField(help_text='Publicly available on the order page')
-  start_date = models.DateField(blank=True, help_text='Available on this day')
-  end_date = models.DateField(blank=True, help_text='Not Usable on this day')
+  start_date = models.DateField(null=True, blank=True,
+    help_text='Available on this day')
+  end_date = models.DateField(null=True, blank=True,
+    help_text='Not Usable on this day')
 
   class Admin:
     list_display = ('name', 'type', 'price', 'start_date', 'end_date')
@@ -100,8 +102,10 @@ class PromoCode(models.Model):
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
   applies_to = models.ManyToManyField(Ticket)
   active = models.BooleanField()
-  start_date = models.DateField(blank=True, help_text='Available on this day')
-  end_date = models.DateField(blank=True, help_text='Not Usable on this day')
+  start_date = models.DateField(null=True, blank=True,
+    help_text='Available on this day')
+  end_date = models.DateField(null=True, blank=True,
+    help_text='Not Usable on this day')
 
   class Admin:
     list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
