@@ -70,7 +70,8 @@ def index(request):
 def AddItems(request):
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
-  if '/reg6/' not in request.META['HTTP_REFERER']:
+  if 'HTTP_REFERER' not in request.META or \
+    '/reg6/' not in request.META['HTTP_REFERER']:
     return HttpResponseRedirect('/reg6/')
 
   required_vars = ['promo', 'ticket']
@@ -105,10 +106,11 @@ def AddAttendee(request):
     return HttpResponseRedirect('/reg6/')
 
   action = None
-  if '/reg6/add_items/' in request.META['HTTP_REFERER']:
-    action = 'add'
-  elif '/reg6/add_attendee/' in request.META['HTTP_REFERER']:
-    action = 'check'
+  if 'HTTP_REFERER' in request.META:
+    if '/reg6/add_items/' in request.META['HTTP_REFERER']:
+      action = 'add'
+    elif '/reg6/add_attendee/' in request.META['HTTP_REFERER']:
+      action = 'check'
 
   if not action:
     return HttpResponseRedirect('/reg6/')
@@ -189,7 +191,8 @@ def AddAttendee(request):
 def FinishRegistration(request):
   if request.method != 'GET':
     return HttpResponseRedirect('/reg6/')
-  if '/reg6/add_attendee/' not in request.META['HTTP_REFERER']:
+  if 'HTTP_REFERER' not in request.META  or \
+    '/reg6/add_attendee/' not in request.META['HTTP_REFERER']:
     return HttpResponseRedirect('/reg6/')
 
   required_cookies = ['attendee']
