@@ -25,18 +25,26 @@ def index(request):
       promo_in_use = avail_promocodes[request.POST['promo']]
 
   if promo_in_use:
+    promo_name = promo_in_use.name
     promo_applies_to = promo_in_use.applies_to.all()
     for t in avail_tickets:
       if t in promo_applies_to:
         t.price *= promo_in_use.price_modifier
+  else:
+    promo_name = None
 
   return render_to_response('reg6/reg_index.html',
-    {'title': 'Registration', 'tickets': avail_tickets,
-     'promo': promo_in_use.name})
+    {'title': 'Registration',
+     'tickets': avail_tickets,
+     'promo': promo_name,
+    })
+
 
 def AddItems(request):
   return render_to_response('reg6/reg_items.html',
-    {'title': 'Blar'})
+    {'title': 'Blar',
+    })
+
 
 def AddAttendee(request):
   return render_to_response('reg6/index.html',
