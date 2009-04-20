@@ -157,7 +157,17 @@ def AddAttendee(request):
     total += item.price
 
   answers = []
-  questions = models.Question.objects.filter(active=True)
+  questions = []
+  all_active_questions = models.Question.objects.filter(active=True)
+  for q in all_active_questions:
+    if q.applies_to_all or ticket[0] in q.applies_to_tickets.all():
+      questions.append(q)
+    else:
+      for item in selected_items:
+        if item in q.applies_to_items.all():
+          questions.append(q)
+          break
+
   for i in xrange(len(questions)):
     i = 'q%d' % i
     if i in request.POST:

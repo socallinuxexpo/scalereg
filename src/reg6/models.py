@@ -246,6 +246,9 @@ class Answer(models.Model):
 class Question(models.Model):
   text = models.CharField(maxlength=200)
   active = models.BooleanField()
+  applies_to_tickets = models.ManyToManyField(Ticket, blank=True, null=True)
+  applies_to_items = models.ManyToManyField(Item, blank=True, null=True)
+  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   class Admin:
     save_on_top = True
