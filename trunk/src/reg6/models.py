@@ -31,7 +31,8 @@ TICKET_CHOICES = (
 class Order(models.Model):
   # basic info
   order_num = models.CharField(maxlength=10, primary_key=True,
-    help_text='Unique 10 digit alphanumeric code')
+    validator_list = [validators.isValidOrderNumber],
+    help_text='Unique 10 upper-case letters + numbers code')
   valid = models.BooleanField()
   date = models.DateTimeField(auto_now_add=True)
 
@@ -100,7 +101,8 @@ class Ticket(models.Model):
 
 class PromoCode(models.Model):
   name = models.CharField(maxlength=5, primary_key=True,
-    help_text='Up to 5 letters')
+    validator_list = [validators.isAllCapsDigits],
+    help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(maxlength=60)
 
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
@@ -126,7 +128,9 @@ class PromoCode(models.Model):
 
 
 class Item(models.Model):
-  name = models.CharField(maxlength=4, help_text='up to 4 letters')
+  name = models.CharField(maxlength=4,
+    validator_list = [validators.isAllCapsDigits],
+    help_text='Unique, up to 4 upper-case letters / numbers')
   description = models.CharField(maxlength=60)
 
   price = models.FloatField(max_digits=5, decimal_places=2,
@@ -144,7 +148,7 @@ class Item(models.Model):
     permissions = (('view_item', 'Can view item'),)
 
   def __str__(self):
-    return self.description
+    return '%s (%s)' % (self.description, self.name)
 
 
 class Attendee(models.Model):
@@ -170,6 +174,7 @@ class Attendee(models.Model):
   # etc
   ordered_items = models.ManyToManyField(Item, blank=True, null=True)
   obtained_items = models.CharField(maxlength=60, blank=True,
+    validator_list = [validators.isValidObtainedItems],
     help_text='comma separated list of items')
   survey_answers = models.CharField(maxlength=60, blank=True,
     help_text='comma separated list of key=value')
