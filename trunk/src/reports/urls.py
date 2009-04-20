@@ -53,4 +53,5 @@ urlpatterns = patterns('',
     (r'^order/$', 'scale.reports.views.object_list', order_dict),
     (r'^promocode/$', 'scale.reports.views.object_list', promocode_dict),
     (r'^ticket/$', 'scale.reports.views.object_list', ticket_dict),
+    (r'^reg6log/$', 'scale.reports.views.reg6log'),
 )
