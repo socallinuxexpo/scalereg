@@ -173,6 +173,19 @@ def object_list(request, queryset, paginate_by=None, page=None,
     template_object_name, mimetype)
 
 @login_required
+def dashboard(request):
+  # FIXME figure out what perms are needed here
+  if not request.user.is_superuser:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  sales = {}
+
+  return render_to_response('reports/dashboard.html',
+    {'title': 'Dashboard',
+     'sales': sales,
+    })
+
+@login_required
 def reg6log(request):
   if not request.user.is_superuser:
     return HttpResponseRedirect('/accounts/profile/')
