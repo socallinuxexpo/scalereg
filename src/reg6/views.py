@@ -105,8 +105,6 @@ def index(request):
   elif request.method == 'POST':
     if 'promo' in request.POST and request.POST['promo'] in avail_promocodes:
       promo_in_use = active_promocode_set.get(name=request.POST['promo'])
-    if 'kiosk' in request.POST:
-      kiosk_mode = True
 
   promo_name = ApplyPromoToTickets(promo_in_use, avail_tickets)
 
@@ -123,6 +121,48 @@ def index(request):
      'step': 1,
      'steps_total': STEPS_TOTAL,
     })
+
+
+def kiosk_index(request):
+  response = HttpResponse()
+  response.write("""<html><head></head>
+  <body>
+  <div align="center">
+  <h1>Welcome to SCALE 6X</h1>
+  <h1>February 8 - 12, 2008</h1>
+
+  <hr noshade width="60%">
+
+  <h1>Please make a selection below:</h1>
+
+  <table border="0" cellpadding="4">
+  <tr>
+  <td valign="top">
+  <form method="get" action="../checkin/">
+  <input type="submit" value="&nbsp;&nbsp;Check In&nbsp;&nbsp;">
+  <input type="hidden" name="kiosk" value="1">
+  </form>
+  </td>
+  <td valign="top">
+  If you already registered with SCALE<br />
+  and would like to pick up your badge.
+  </td>
+  </tr>
+  <tr>
+  <td valign="top">
+  <form method="get" action="../">
+  <input type="submit" value="Registration">
+  <input type="hidden" name="kiosk" value="1">
+  </form>
+  </td>
+  <td valign="top">If you have not registered with SCALE.</td>
+  </tr>
+  </table>
+
+  <p>If you are a speaker, exhibitor, or a member of the press, please go to
+  the registration desk.</p>
+  </div></body></html>""")
+  return response
 
 
 def AddItems(request):
@@ -629,4 +669,77 @@ def RegLookup(request):
      'email': request.POST['email'],
      'zip': request.POST['zip'],
      'search': 1,
+    })
+
+
+def CheckIn(request):
+  kiosk_mode = False
+  if request.method == 'GET':
+    if 'kiosk' in request.GET:
+      request.session['kiosk'] = True
+      return render_to_response('reg6/reg_kiosk.html')
+
+    return scale_render_to_response(request, 'reg6/reg_checkin.html',
+      {'title': 'Check In',
+      })
+
+  attendees = []
+  attendees_email = []
+  attendees_zip = []
+  if request.POST['zip'] and request.POST['email']:
+    attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
+      zip=request.POST['zip'],
+      email=request.POST['email'])
+  if not attendees:
+    if request.POST['first'] and request.POST['last']:
+      attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
+        first_name=request.POST['first'],
+        last_name=request.POST['last'])
+    if attendees:
+      if request.POST['email']:
+        attendees_email = attendees.filter(email=request.POST['email'])
+      if request.POST['zip']:
+        attendees_zip = attendees.filter(zip=request.POST['zip'])
+      if attendees_email:
+        attendees = attendees_email
+      elif attendees_zip:
+        attendees = attendees_zip
+
+  return scale_render_to_response(request, 'reg6/reg_checkin.html',
+    {'title': 'Check In',
+     'attendees': attendees,
+     'first': request.POST['first'],
+     'last': request.POST['last'],
+     'email': request.POST['email'],
+     'zip': request.POST['zip'],
+     'search': 1,
+    })
+
+
+def FinishCheckIn(request):
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+
+  required_vars = [
+    'id',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  try:
+    attendee = models.Attendee.objects.get(id=request.POST['id'])
+  except models.Attendee.DoesNotExist:
+    return HttpResponseServerError('We could not find your registration')
+
+  try:
+    attendee.checked_in = True
+    attendee.save()
+  except:
+    return HttpResponseServerError('We encountered a problem with your checkin')
+
+  return scale_render_to_response(request, 'reg6/reg_finish_checkin.html',
+    {'title': 'Checked In',
+     'attendee': attendee,
     })

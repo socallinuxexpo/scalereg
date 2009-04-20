@@ -12,4 +12,7 @@ urlpatterns = patterns('',
     (r'^failed_payment/$', 'scale.reg6.views.FailedPayment'),
     (r'^finish_payment/$', 'scale.reg6.views.FinishPayment'),
     (r'^reg_lookup/$', 'scale.reg6.views.RegLookup'),
+    (r'^kiosk/$', 'scale.reg6.views.kiosk_index'),
+    (r'^checkin/$', 'scale.reg6.views.CheckIn'),
+    (r'^finish_checkin/$', 'scale.reg6.views.FinishCheckIn'),
 )
