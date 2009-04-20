@@ -257,7 +257,7 @@ class Attendee(models.Model):
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
       ('Misc', {'fields': ('survey_answers', 'promo', 'order')}),
     )
-    list_display = ('first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
     list_filter = ('order', 'badge_type', 'valid', 'checked_in', 'promo')
     save_on_top = True
 
@@ -265,4 +265,4 @@ class Attendee(models.Model):
     permissions = (('view_attendee', 'Can view attendee'),)
 
   def __str__(self):
-    return "%s" % self.email
+    return "%s (%s) " % (self.id, self.email)
