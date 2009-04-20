@@ -1,0 +1,58 @@
+1. INTRODUCTION
+
+Scalereg is the registration system used by SCALE, the Southern
+California Linux Expo. This registration software helped us run a
+smooth show for over 1000 attendees during SCALE 6X and SCALE 7X. We
+are releasing this code so other Open Source conferences can benefit
+from it as well.
+
+The SCALE Registration System (scalereg) is written in Python and uses
+the Django framework.
+
+You can find more about the projects mentioned above at their
+respective websites:
+Scalereg - http://code.google.com/p/scalereg/
+SCALE - http://www.socallinuxexpo.org/
+Django - http://www.djangoproject.com/
+
+2. REQUIREMENTS
+
+To run Scalereg, you need the following:
+
+- Django 0.96 [1] which in turn requires:
+  - any Python version from 2.3 to 2.6 [2]
+  - a database (SQLite, PostgreSQL, MySQL, Oracle, etc)
+  
+  
+[1] We started writing Scalereg 2 years ago, before Django 1.0. We
+    hope to update Scalereg to Django 1.0 soon. Post 0.96 Django
+    releases have not been tested.
+[2] Most testing has been with Python 2.4.
+
+3. GETTING STARTED
+
+After extracting the Scalereg tarball, from the top-level directory
+of the Scalereg source (which contains this file), run the following
+commands to start the project:
+
+django-admin.py startproject scalereg
+cp scalereg/settings.py scalereg/settings.py.bak
+cp -a src/* scalereg
+
+Now edit scalereg/settings.py and make sure all the settings look
+correct. By default, we use a SQLite database since it requires
+minimal setup. Please use the SECRET_KEY in scalereg/settings.py.bak,
+and then delete scalereg/settings.py.bak. With the application
+configured, run the following commands to initial the database and
+start the webserver:
+
+cd scalereg
+python manage.py syncdb
+python manage.py runserver 8080
+
+Assuming all went smoothly, go to http://webserver:8080/admin to
+configure the registration site, and http://webserver:8080/reg7
+to try out the registration software.
+
+If you want to integrate Scalereg with your web server software or
+your database software, please see the Django website for more info.
