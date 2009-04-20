@@ -30,7 +30,8 @@ TICKET_CHOICES = (
 class Order(models.Model):
   # basic info
   date = models.DateTimeField(auto_now_add=True)
-  order_num = models.CharField(maxlength=10, primary_key=True)
+  order_num = models.CharField(maxlength=10, primary_key=True,
+    help_text='Unique 10 digit alphanumeric code')
   valid = models.BooleanField()
 
   # name and address
@@ -48,21 +49,25 @@ class Order(models.Model):
   # payment info
   amount = models.FloatField(max_digits=4, decimal_places=2)
   payment_type = models.CharField(maxlength=10, choices=PAYMENT_CHOICES)
-  auth_code = models.CharField(maxlength=30, blank=True)
-  resp_msg = models.CharField(maxlength=60, blank=True)
-  result = models.CharField(maxlength=60, blank=True)
+  auth_code = models.CharField(maxlength=30, blank=True,
+    help_text='Only used by Verisign')
+  resp_msg = models.CharField(maxlength=60, blank=True,
+    help_text='Only used by Verisign')
+  result = models.CharField(maxlength=60, blank=True,
+    help_text='Only used by Verisign')
 
   class Admin:
     fields = (
-      ('Attendee Info', {'fields': ('name', 'address', 'city', 'state', 'zip', 'country')}),
+      ('Billing Info', {'fields': ('name', 'address', 'city', 'state', 'zip', 'country')}),
       ('Contact Info', {'fields': ('email', 'phone')}),
       ('Order Info', {'fields': ('order_num', 'valid')}),
       ('Payment Info', {'fields': ('amount', 'payment_type', 'auth_code', 'resp_msg', 'result')}),
     )
-    list_display = ('name', 'address', 'city', 'state', 'zip', 'country')
+    list_display = ('order_num', 'date', 'name', 'address', 'city', 'state', 'zip', 'country', 'email', 'phone', 'amount', 'payment_type', 'valid')
+    list_filter = ('date', 'payment_type', 'valid')
 
   def __str__(self):
-    return "%s (%s)" % (self.name, self.order_num)
+    return "%s" % self.order_num
 
 
 class Ticket(models.Model):
@@ -78,7 +83,7 @@ class Ticket(models.Model):
     list_filter = ('public', 'start_date', 'end_date')
 
   def __str__(self):
-    return self.code
+    return "%s" % self.name
 
 
 class PromoCode(models.Model):
@@ -120,7 +125,7 @@ class Attendee(models.Model):
   org = models.CharField(maxlength=60, blank=True)
 
   # contact info
-  email = models.EmailField(unique=True)
+  email = models.EmailField(unique=True, help_text='Must be unique')
   phone = models.CharField(maxlength=20, blank=True)
 
   # etc
@@ -136,8 +141,8 @@ class Attendee(models.Model):
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
       ('Misc', {'fields': ('survey_answers', 'order')}),
     )
-    #list_filter = ('code',)
-    #search_fields = ['code']
+    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'ordered_items', 'obtained_items', 'order')
+    list_filter = ('order', 'badge_type', 'valid', 'checked_in')
 
   def __str__(self):
     return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
