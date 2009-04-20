@@ -49,6 +49,14 @@ def AddItems(request):
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
 
+  required_vars = ['ticket', 'promo']
+  for var in required_vars:
+    if var not in request.POST:
+      return render_to_response('reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'No %s information.' % var,
+        })
+
   return render_to_response('reg6/reg_items.html',
     {'title': 'Blar',
      'step': 2,
