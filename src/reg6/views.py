@@ -6,8 +6,26 @@ from django.shortcuts import render_to_response
 import models
 import random
 import string
+import sys
 
+DEBUG_LOGGING = False
 STEPS_TOTAL = 7
+
+def ScaleDebug(msg):
+  if not DEBUG_LOGGING:
+    return
+
+  frame = sys._getframe(1)
+
+  name = frame.f_code.co_name
+  line_number = frame.f_lineno
+  filename = frame.f_code.co_filename
+
+  line = 'File "%s", line %d, in %s: %s\n' % (filename, line_number, name, msg)
+  handle = open('/tmp/scale_reg.log', 'a')
+  handle.write(line)
+  handle.close()
+
 
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
@@ -415,6 +433,7 @@ def Payment(request):
 
 def Sale(request):
   if request.method != 'POST':
+    ScaleDebug('not POST')
     return HttpResponseServerError('not POST')
 #  if 'HTTP_REFERER' in request.META:
 #    print request.META['HTTP_REFERER']
@@ -440,15 +459,19 @@ def Sale(request):
 
   r = CheckVars(request, required_vars, [])
   if r:
+    ScaleDebug('required vars missing')
     return HttpResponseServerError('required vars missing')
   if request.POST['RESULT'] != "0":
+    ScaleDebug('transaction did not succeed')
     return HttpResponseServerError('transaction did not succeed')
   if request.POST['RESPMSG'] == "CSCDECLINED":
+    ScaleDebug('transaction declined')
     return HttpResponseServerError('transaction declined')
 
   try:
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
   except models.TempOrder.DoesNotExist:
+    ScaleDebug('cannot get temp order')
     return HttpResponseServerError('cannot get temp order')
 
   order_exists = True
@@ -457,6 +480,7 @@ def Sale(request):
   except models.Order.DoesNotExist:
     order_exists = False
   if order_exists:
+    ScaleDebug('order already exists')
     return HttpResponseServerError('order already exists')
 
   all_attendees_data = []
@@ -466,6 +490,7 @@ def Sale(request):
       if not attendee.valid:
         all_attendees_data.append(attendee)
     except models.Attendee.DoesNotExist:
+      ScaleDebug('cannot find an attendee')
       return HttpResponseServerError('cannot find an attendee')
 
   total = 0
@@ -492,6 +517,7 @@ def Sale(request):
     )
     order.save()
   except: # FIXME catch the specific db exceptions
+    ScaleDebug('cannot save order')
     return HttpResponseServerError('cannot save order')
 
   for person in all_attendees_data:
@@ -531,6 +557,7 @@ def FinishPayment(request):
   try:
     order = models.Order.objects.get(order_num=request.POST['USER1'])
   except models.Order.DoesNotExist:
+    ScaleDebug('Your order cannot be found')
     return HttpResponseServerError('Your order cannot be found')
 
   all_attendees_data = models.Attendee.objects.filter(order=order.order_num)
