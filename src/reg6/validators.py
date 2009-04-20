@@ -54,3 +54,8 @@ def isValidOrderNumber(field_data, all_data):
   if len(field_data) != 10:
     raise validators.ValidationError('Value must be exactly 10 digits')
   isAllCapsDigits(field_data, all_data)
+
+def isValidAttendeeCheckin(field_data, all_data):
+  if field_data == 'on':
+    if 'valid' not in all_data:
+      raise validators.ValidationError('Cannot check in invalid attendee')
