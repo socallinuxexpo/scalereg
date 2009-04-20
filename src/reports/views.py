@@ -38,14 +38,16 @@ def paranoid_strip(value):
       raise ValueError
   return value
 
-@login_required
-def index(request):
+def reports_perm_checker(user, path):
   # figure out what services are available
-  services_user = Service.objects.filter(users=request.user)
+  if user.is_superuser:
+    return True
+
+  services_user = Service.objects.filter(users=user)
   services_user = services_user.filter(active=True)
 
   services_group = []
-  for f in request.user.groups.all():
+  for f in user.groups.all():
     group_s = Service.objects.filter(groups=f)
     group_s = group_s.filter(active=True)
     for s in group_s:
@@ -58,11 +60,15 @@ def index(request):
 
   can_access = False
   for f in services:
-    if re.compile('%s/.*' % f.url).match(request.path):
+    if re.compile('%s/.*' % f.url).match(path):
       can_access = True
       break
+  return can_access
 
-  if not request.user.is_superuser and not can_access:
+@login_required
+def index(request):
+  can_access = reports_perm_checker(request.user, request.path)
+  if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
   perms = request.user.get_all_permissions()
