@@ -23,11 +23,11 @@
     You added the following additional items:
     </p>
 
-    <ul>
+    <p>
     {% for item in items %}
-        <li>{{ item.description|escape }} ({{ item.price|money|escape }})</li>
+        * {{ item.description|escape }} ({{ item.price|money|escape }})<br />
     {% endfor %}
-    </ul>
+    </p>
     {% endif %}
 
     <p>
