@@ -474,9 +474,7 @@ def FinishPayment(request):
   except models.Order.DoesNotExist:
     return HttpResponseServerError('Your order cannot be found')
 
-  all_attendees_data = models.Attendee.objects.get(order=order.order_num)
-  if type(all_attendees_data) == models.Attendee:
-    all_attendees_data = [ all_attendees_data ]
+  all_attendees_data = models.Attendee.objects.filter(order=order.order_num)
 
   return render_to_response('reg6/reg_receipt.html',
     {'title': 'Registration Payment Receipt',
