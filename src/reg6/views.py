@@ -25,7 +25,7 @@ def index(request):
       if t in promo_applies_to:
         t.price *= promo_in_use.price_modifier
 
-  return render_to_response('reg6/index.html',
+  return render_to_response('reg6/reg_index.html',
     {'title': 'Registration', 'tickets': available_tickets,
      'promo': promo})
 
