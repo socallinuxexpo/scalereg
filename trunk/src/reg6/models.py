@@ -66,6 +66,9 @@ class Order(models.Model):
     list_display = ('order_num', 'date', 'name', 'address', 'city', 'state', 'zip', 'country', 'email', 'phone', 'amount', 'payment_type', 'valid')
     list_filter = ('date', 'payment_type', 'valid')
 
+  class Meta:
+    permissions = (('view_order', 'Can View Orders'),)
+
   def __str__(self):
     return "%s" % self.order_num
 
@@ -81,6 +84,9 @@ class Ticket(models.Model):
   class Admin:
     list_display = ('name', 'type', 'price', 'start_date', 'end_date')
     list_filter = ('public', 'start_date', 'end_date')
+
+  class Meta:
+    permissions = (('view_ticket', 'Can View Tickets'),)
 
   def __str__(self):
     return "%s" % self.name
@@ -100,6 +106,9 @@ class PromoCode(models.Model):
   class Admin:
     list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
     list_filter = ('active', 'start_date', 'end_date')
+
+  class Meta:
+    permissions = (('view_promocode', 'Can View Promo Codes'),)
 
   def __str__(self):
     return self.description
@@ -144,6 +153,9 @@ class Attendee(models.Model):
     list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'ordered_items', 'obtained_items', 'order')
     list_filter = ('order', 'badge_type', 'valid', 'checked_in')
 
+  class Meta:
+    permissions = (('view_attendee', 'Can View Attendees'),)
+
   def __str__(self):
     return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
 
@@ -161,6 +173,9 @@ class Item(models.Model):
   class Admin:
     list_display = ('name', 'description', 'price', 'active', 'pickup')
     list_filter = ('active', 'pickup')
+
+  class Meta:
+    permissions = (('view_item', 'Can View Items'),)
 
   def __str__(self):
     return self.description
