@@ -2,7 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import Context, loader
+from django.shortcuts import render_to_response
 from scale.auth_helper.models import Service
 from scale.reg6 import models
 import inspect
@@ -40,6 +40,5 @@ def index(request):
       url = t.lower() + '/'
       model_list.append({'name': name, 'url': url})
 
-  t = loader.get_template('reports/index.html')
-  c = Context({'user': request.user, 'title': 'Reports', 'model_list': model_list})
-  return HttpResponse(t.render(c))
+  return render_to_response('reports/index.html',
+    {'user': request.user, 'title': 'Reports', 'model_list': model_list})
