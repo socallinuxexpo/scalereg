@@ -73,4 +73,5 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'scale.auth_helper',
     'scale.reg6',
+    'scale.reports',
 )
