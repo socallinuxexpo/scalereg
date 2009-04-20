@@ -416,8 +416,8 @@ def Payment(request):
 def Sale(request):
   if request.method != 'POST':
     return HttpResponseServerError('not POST')
-  if 'HTTP_REFERER' in request.META:
-    print request.META['HTTP_REFERER']
+#  if 'HTTP_REFERER' in request.META:
+#    print request.META['HTTP_REFERER']
 #  if 'HTTP_REFERER' not in request.META  or \
 #    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
 #    return HttpResponseRedirect('/reg6/')
@@ -441,6 +441,10 @@ def Sale(request):
   r = CheckVars(request, required_vars, [])
   if r:
     return HttpResponseServerError('required vars missing')
+  if request.POST['RESULT'] != "0":
+    return HttpResponseServerError('transaction did not succeed')
+  if request.POST['RESPMSG'] == "CSCDECLINED":
+    return HttpResponseServerError('transaction declined')
 
   try:
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
@@ -467,7 +471,7 @@ def Sale(request):
   total = 0
   for person in all_attendees_data:
     total += person.ticket_cost()
-  assert total == float(request.POST['AMOUNT'])
+  assert int(total) == int(float(request.POST['AMOUNT']))
 
   try:
     order = models.Order(order_num=request.POST['USER1'],
