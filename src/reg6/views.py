@@ -10,7 +10,7 @@ import re
 
 @login_required
 def index(request):
-  # figure out what servers are available
+  # figure out what services are available
   services_user = Service.objects.filter(users=request.user)
   services_group = None
   for f in request.user.groups.all():
@@ -24,14 +24,14 @@ def index(request):
       can_access = True
       break
 
-  if not can_access:
+  if not request.user.is_superuser and not can_access:
     return HttpResponseRedirect('/accounts/profile/')
   
   perms = request.user.get_all_permissions()
   tables = [ m[0] for m in inspect.getmembers(models, inspect.isclass) ]
   model_list = []
   for t in tables:
-    if "reg6.view_%s" % t.lower() in perms:
+    if request.user.is_superuser or "reg6.view_%s" % t.lower() in perms:
       def foo(match):
 	return '%s %s' % match.groups()
       name = re.sub('([a-z])([A-Z])', foo, t)
