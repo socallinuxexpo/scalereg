@@ -32,6 +32,16 @@
     </table>
 
     <p>
+    <form action="../start_payment/" method="post">
+    <input type="hidden" name="id" value="{{ attendee.id }}" />
+    <input type="hidden" name="email" value="{{ attendee.email }}" />
+    <input type="submit" value="Registration Payment" />
+    </form>
+    </p>
+
+    <h2>Other Options</h2>
+
+    <p>
     <form action="../" method="post">
     {% if attendee.promo %}
     <input type="hidden" name="promo" value="{{ attendee.promo }}" />
