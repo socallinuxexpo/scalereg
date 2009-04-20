@@ -350,3 +350,30 @@ class TempOrder(models.Model):
 
   def __str__(self):
     return "%s" % self.order_num
+
+
+class Coupon(models.Model):
+  code = models.CharField(maxlength=10, primary_key=True,
+    validator_list = [validators.isValidOrderNumber],
+    help_text='Unique 10 upper-case letters + numbers code')
+  badge_type = models.ForeignKey(Ticket)
+  order = models.ForeignKey(Order)
+  used = models.BooleanField()
+  max_attendees = models.PositiveIntegerField(maxlength=3)
+  expiration = models.DateField(null=True, blank=True,
+    help_text='Not usable on this day')
+
+  def is_valid(self):
+    if self.used:
+      return False
+    if self.expiration and self.expiration <= datetime.date.today():
+      return False
+    return True
+
+  class Admin:
+    list_display = ('code', 'badge_type', 'order', 'used', 'max_attendees', 'expiration')
+    list_filter = ('code', 'used', 'badge_type')
+    save_on_top = True
+
+  class Meta:
+    permissions = (('view_coupon', 'Can view coupon'),)
