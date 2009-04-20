@@ -2,7 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.db.models.base import ModelBase
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
@@ -55,3 +55,17 @@ def object_list(request, queryset, paginate_by=None, page=None,
   return django_object_list(request, queryset, paginate_by, page, allow_empty,
     template_name, template_loader, extra_context, context_processors,
     template_object_name, mimetype)
+
+@login_required
+def reg6log(request):
+  if not request.user.is_superuser:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  response = HttpResponse(mimetype='text/plain')
+  try:
+    f = open('/tmp/scale_reg.log')
+    response.write(f.read())
+    f.close()
+  except:
+    response.write('error reading log files\n')
+  return response
