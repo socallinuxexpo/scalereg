@@ -234,11 +234,20 @@ def StartPayment(request):
     request.session['payment'] = []
 
   new_attendee = None
-  all_attendees = request.session['payment']
+  all_attendees = []
   bad_attendee = None
   paid_attendee = None
   removed_attendee = None
   total = 0
+
+  # sanitize session data first
+  for id in request.session['payment']:
+    try:
+      person = models.Attendee.objects.get(id=id)
+    except models.Attendee.DoesNotExist:
+      continue
+    if not person.valid:
+      all_attendees.append(id)
 
   if 'remove' in request.POST:
     try:
