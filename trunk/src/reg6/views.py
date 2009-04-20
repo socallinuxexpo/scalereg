@@ -791,7 +791,8 @@ def RedeemCoupon(request):
        'error_message': 'cannot get temp order'
       })
 
-  if len(temp_order.attendees_list()) > coupon.max_attendees:
+  num_attendees = len(temp_order.attendees_list())
+  if num_attendees > coupon.max_attendees:
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
        'error_message': 'coupon not valid for the number of attendees'
@@ -813,7 +814,9 @@ def RedeemCoupon(request):
     person.promo = None
     person.save()
 
-  coupon.used = True
+  coupon.max_attendees = coupon.max_attendees - num_attendees
+  if coupon.max_attendees == 0:
+    coupon.used = True
   coupon.save()
 
   return scale_render_to_response(request, 'reg6/reg_receipt.html',
