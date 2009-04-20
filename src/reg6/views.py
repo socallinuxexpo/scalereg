@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 import datetime
 import models
 import random
+import re
 import string
 import sys
 
@@ -520,13 +521,16 @@ def Sale(request):
   assert int(total) == int(float(request.POST['AMOUNT']))
 
   try:
+    # a zip code like "12345-6789" will fail, workaround that
+    zip = int(re.sub("[^0-9]", "", request.POST['ZIP']))
+
     order = models.Order(order_num=request.POST['USER1'],
       valid=True,
       name=request.POST['NAME'],
       address=request.POST['ADDRESS'],
       city=request.POST['CITY'],
       state=request.POST['STATE'],
-      zip=int(request.POST['ZIP']),
+      zip=zip,
       country=request.POST['COUNTRY'],
       email=request.POST['EMAIL'],
       phone=request.POST['PHONE'],
