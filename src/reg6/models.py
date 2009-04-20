@@ -1,5 +1,6 @@
 from django.db import models
 from scale.reg6 import validators
+import datetime
 
 # Create your models here.
 
@@ -92,6 +93,16 @@ class Ticket(models.Model):
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
 
+  def is_public(self):
+    if not self.public:
+      return False
+    today = datetime.date.today()
+    if self.start_date and self.start_date > today:
+      return False
+    if self.end_date and self.end_date <= today:
+      return False
+    return True
+
   class Admin:
     list_display = ('name', 'description', 'type', 'price', 'public',
       'start_date', 'end_date')
@@ -121,6 +132,16 @@ class PromoCode(models.Model):
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
+
+  def is_active(self):
+    if not self.active:
+      return False
+    today = datetime.date.today()
+    if self.start_date and self.start_date > today:
+      return False
+    if self.end_date and self.end_date <= today:
+      return False
+    return True
 
   class Admin:
     list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
