@@ -1,0 +1,99 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if bad_attendee %}
+    <h2>Bad Attendee</h2>
+    <table border="1">
+    <tr>
+    <td>
+    Registration ID: {{ bad_attendee.0 }},
+    Email: {{ bad_attendee.1 }}.
+    </td>
+    </tr>
+    </table>
+{% endif %}
+
+{% if new_attendee %}
+    <h2>Added Attendee</h2>
+    <table border="1">
+    <tr>
+    <td>
+    Registration ID: {{ new_attendee.id }},
+    Email: {{ new_attendee.email }}.
+    </td>
+    </tr>
+    </table>
+{% endif %}
+
+{% if paid_attendee %}
+    <h2>Attendee already paid for</h2>
+    <table border="1">
+    <tr>
+    <td>
+    Registration ID: {{ paid_attendee.id }},
+    Email: {{ paid_attendee.email }}.
+    </td>
+    </tr>
+    </table>
+{% endif %}
+
+{% if attendees and total %}
+    <h2>
+    You are paying for the follow attendees:
+    </h2>
+    
+    <table border="1">
+    <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    </tr>
+    {% for person  in attendees %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+
+    <p>
+    Total: {{ total|money }}
+    </p>
+
+    <h2>Add another attendee:</h2>
+{% else %}
+    <h2>Add an attendee:</h2>
+
+{% endif %}
+
+    <form method="post" action=".">
+    <table>
+    <tr>
+    <td><b>Registration ID:</b></td>
+    <td><input type="text" name="id" maxlength="10" size="10" /></td>
+    </tr>
+    <tr>
+    <td><b>Email:</b></td>
+    <td><input type="text" name="email" maxlength="75" size="50" /></td>
+    </tr>
+    </table>
+
+    <input type="submit" value="Add attendee" />
+    </form>
+
+{% if attendees and total %}
+    <h2>Payment:</h2>
+    <form>
+    <input type="submit" value="Pay for this order" />
+    </form>
+{% endif %}
+
+</div>
+{% endblock %}
+

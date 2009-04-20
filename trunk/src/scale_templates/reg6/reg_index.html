@@ -46,11 +46,17 @@
     </p>
     </form>
 
-    {% if promo %}
     <h2>
     Other Options:
     </h2>
 
+    <p>
+    <form method="post" action="start_payment/">
+    <input type="submit" value="Registration payment" />
+    </form>
+    </p>
+
+    {% if promo %}
     <form method="post" action=".">
     <input type="submit" value="Change promo code" />
     </form>

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 import models
 
-STEPS_TOTAL = 5
+STEPS_TOTAL = 6
 
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
@@ -207,4 +207,70 @@ def RegisteredAttendee(request):
      'attendee': attendee,
      'step': 4,
      'steps_total': STEPS_TOTAL,
+    })
+
+
+def StartPayment(request):
+  PAYMENT_STEP = 5
+
+  action = 'start'
+  if 'HTTP_REFERER' in request.META:
+    if '/reg6/start_payment/' in request.META['HTTP_REFERER']:
+      action = 'add'
+
+  if action == 'start':
+    request.session['payment'] = []
+  else:
+    if 'payment' not in request.session:
+      request.session['payment'] = []
+
+  attendee = None
+  all_attendees = request.session['payment']
+  bad_attendee = None
+  paid_attendee = None
+  total = 0
+
+  required_vars = ['id', 'email']
+  r = CheckVars(request, required_vars, [])
+  if not r:
+    try:
+      id = int(request.POST['id'])
+      attendee = models.Attendee.objects.get(id=id)
+    except ValueError:
+      pass
+    except models.Attendee.DoesNotExist:
+      pass
+
+    if attendee and attendee.email == request.POST['email']:
+      if not attendee.valid:
+        if attendee not in all_attendees:
+          all_attendees.append(attendee)
+      else:
+        paid_attendee = attendee
+        attendee = None
+    else:
+      bad_attendee = [request.POST['id'], request.POST['email']]
+      attendee = None
+
+  # sanity check
+  checksum = 0
+  for f in [attendee, bad_attendee, paid_attendee]:
+    if f:
+      checksum += 1
+  assert checksum <= 1
+
+  if all_attendees:
+    request.session['payment'] = all_attendees
+    for person in all_attendees:
+      total += person.ticket_cost()
+
+  return render_to_response('reg6/reg_start_payment.html',
+    {'title': 'Start Payment',
+     'bad_attendee': bad_attendee,
+     'new_attendee': attendee,
+     'paid_attendee': paid_attendee,
+     'attendees': all_attendees,
+     'step': PAYMENT_STEP,
+     'steps_total': STEPS_TOTAL,
+     'total': total,
     })
