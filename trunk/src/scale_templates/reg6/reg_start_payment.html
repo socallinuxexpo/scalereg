@@ -5,7 +5,7 @@
 <div id="content-main">
 
 {% if bad_attendee %}
-    <h2>Bad Attendee</h2>
+    <h2>Attendee Not Found</h2>
     <table border="1">
     <tr>
     <td>
@@ -29,7 +29,7 @@
 {% endif %}
 
 {% if paid_attendee %}
-    <h2>Attendee already paid for</h2>
+    <h2>Attendee Already Paid For</h2>
     <table border="1">
     <tr>
     <td>
@@ -41,7 +41,7 @@
 {% endif %}
 
 {% if removed_attendee %}
-    <h2>Attendee removed</h2>
+    <h2>Attendee Removed</h2>
     <table border="1">
     <tr>
     <td>
@@ -108,7 +108,7 @@
 
 {% if attendees and total %}
     <h2>Payment:</h2>
-    <form>
+    <form method="post" action=".">
     <input type="submit" value="Pay for this order" />
     </form>
 {% endif %}
