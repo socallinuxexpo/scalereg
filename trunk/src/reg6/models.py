@@ -227,7 +227,8 @@ class Attendee(models.Model):
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order, blank=True, null=True)
   valid = models.BooleanField()
-  checked_in = models.BooleanField()
+  checked_in = models.BooleanField(help_text='Only for valid attendees',
+    validator_list = [validators.isValidAttendeeCheckin])
 
   # attendee name
   salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES, blank=True)
