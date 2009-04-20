@@ -24,7 +24,7 @@ def isValidObtainedItems(field_data, all_data):
       raise validators.ValidationError('Item listed twice')
     obtained_items[f] = None
 
-  obj = models.Attendee.objects.get(badge_id=all_data['badge_id'])
+  obj = models.Attendee.objects.get(id=all_data['id'])
   for item in obj.ordered_items.all():
     if item.name in obtained_items:
       del obtained_items[item.name]

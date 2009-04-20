@@ -224,8 +224,6 @@ class Item(models.Model):
 
 class Attendee(models.Model):
   # badge info
-  badge_id = models.PositiveIntegerField(maxlength=5, primary_key=True,
-    help_text='5 digit badge id, must be unique')
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order, blank=True, null=True)
   valid = models.BooleanField()
@@ -255,11 +253,11 @@ class Attendee(models.Model):
     fields = (
       ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
       ('Contact Info', {'fields': ('email', 'phone')}),
-      ('Badge Info', {'fields': ('badge_id', 'badge_type', 'valid', 'checked_in')}),
+      ('Badge Info', {'fields': ('badge_type', 'valid', 'checked_in')}),
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
       ('Misc', {'fields': ('survey_answers', 'promo', 'order')}),
     )
-    list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
+    list_display = ('first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
     list_filter = ('order', 'badge_type', 'valid', 'checked_in', 'promo')
     save_on_top = True
 
@@ -267,4 +265,4 @@ class Attendee(models.Model):
     permissions = (('view_attendee', 'Can view attendee'),)
 
   def __str__(self):
-    return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
+    return "%s" % self.email
