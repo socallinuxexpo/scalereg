@@ -44,7 +44,7 @@ class Order(models.Model):
   city = models.CharField(maxlength=60)
   state = models.CharField(maxlength=60)
   zip = models.PositiveIntegerField(maxlength=10)
-  country = models.CharField(maxlength=60)
+  country = models.CharField(maxlength=60, blank=True)
 
   # contact info
   email = models.EmailField()
