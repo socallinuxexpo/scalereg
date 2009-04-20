@@ -29,10 +29,8 @@
     {% if promo %}
     <p>
     Using promo code:
-    </p>
-
-    <p>
-    <input type="text" name="promo" value="{{ promo }}" size="5" readonly />
+    <b>{{ promo }}</b>.
+    <input type="hidden" name="promo" value="{{ promo }}" />
     </p>
     {% else %}
     <p>
