@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 import models
 
+STEPS_TOTAL = 5
+
 def index(request):
   avail_tickets = []
   avail_promocodes = {}
@@ -38,6 +40,8 @@ def index(request):
     {'title': 'Registration',
      'tickets': avail_tickets,
      'promo': promo_name,
+     'step': 1,
+     'steps_total': STEPS_TOTAL,
     })
 
 
@@ -47,6 +51,8 @@ def AddItems(request):
 
   return render_to_response('reg6/reg_items.html',
     {'title': 'Blar',
+     'step': 2,
+     'steps_total': STEPS_TOTAL,
     })
 
 

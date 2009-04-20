@@ -6,5 +6,8 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
      <a href="/">{% trans "Home" %}</a> &rsaquo; Registration
+     {% if step and steps_total %}
+     &rsaquo; Step {{ step }} of {{ steps_total }}
+     {% endif %}
 </div>
 {% endblock %}
