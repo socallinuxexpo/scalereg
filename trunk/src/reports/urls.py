@@ -24,7 +24,7 @@ order_dict = {
     'extra_context': {
     'field_list': [f.name for f in models.Order._meta.fields],
     'title': 'Orders',
-    'total': sum([x.amount for x in models.Order.objects.filter(valid=True)]),
+    'total': sum([x.amount for x in models.Order.objects.all().filter(valid=True)]),
     },
     'allow_empty': True,
 }
