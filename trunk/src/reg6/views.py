@@ -563,7 +563,11 @@ def Sale(request):
 
   try:
     # a zip code like "12345-6789" will fail, workaround that
-    zip = int(re.sub("[^0-9]", "", request.POST['ZIP']))
+    zip = re.sub("[^0-9]", "", request.POST['ZIP'])
+    if zip:
+      zip = int(zip)
+    else:
+      zip = "00000"
 
     order = models.Order(order_num=request.POST['USER1'],
       valid=True,
@@ -584,6 +588,7 @@ def Sale(request):
     order.save()
   except Exception, inst: # FIXME catch the specific db exceptions
     ScaleDebug('cannot save order')
+    print inst
     ScaleDebug(inst.args)
     ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
