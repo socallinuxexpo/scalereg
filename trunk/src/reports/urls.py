@@ -3,27 +3,17 @@ from scale.reg6 import models
 
 attendee_dict = {
     'queryset': models.Attendee.objects.all(),
-    'extra_context': {
-    'field_list': [f.name for f in models.Attendee._meta.fields],
-    'title': 'Attendees',
-    },
     'allow_empty': True,
 }
 
 item_dict = {
     'queryset': models.Item.objects.all(),
-    'extra_context': {
-    'field_list': [f.name for f in models.Item._meta.fields],
-    'title': 'Items',
-    },
     'allow_empty': True,
 }
 
 order_dict = {
     'queryset': models.Order.objects.all(),
     'extra_context': {
-    'field_list': [f.name for f in models.Order._meta.fields],
-    'title': 'Orders',
     'total': sum([x.amount for x in models.Order.objects.all().filter(valid=True)]),
     },
     'allow_empty': True,
@@ -31,19 +21,11 @@ order_dict = {
 
 promocode_dict = {
     'queryset': models.PromoCode.objects.all(),
-    'extra_context': {
-    'field_list': [f.name for f in models.PromoCode._meta.fields],
-    'title': 'Promo codes',
-    },
     'allow_empty': True,
 }
 
 ticket_dict = {
     'queryset': models.Ticket.objects.all(),
-    'extra_context': {
-    'field_list': [f.name for f in models.Ticket._meta.fields],
-    'title': 'Tickets',
-    },
     'allow_empty': True,
 }
 

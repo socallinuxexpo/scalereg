@@ -60,6 +60,15 @@ def object_list(request, queryset, paginate_by=None, page=None,
   allow_empty=False, template_name=None, template_loader=loader,
   extra_context=None, context_processors=None, template_object_name='object',
   mimetype=None):
+  if not extra_context:
+    extra_context = {}
+
+  if 'title' not in extra_context:
+    extra_context['title'] = queryset.model._meta.verbose_name_plural.title()
+
+  if 'field_list' not in extra_context:
+    extra_context['field_list'] = [f.name for f in queryset.model._meta.fields]
+
   if 'order' in request.GET:
     if request.GET['order'] in [f.name for f in queryset.model._meta.fields]:
       ordering = request.GET['order']
