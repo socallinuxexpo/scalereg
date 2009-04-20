@@ -40,6 +40,18 @@
     </table>
 {% endif %}
 
+{% if removed_attendee %}
+    <h2>Attendee removed</h2>
+    <table border="1">
+    <tr>
+    <td>
+    Registration ID: {{ removed_attendee.id }},
+    Email: {{ removed_attendee.email }}.
+    </td>
+    </tr>
+    </table>
+{% endif %}
+
 {% if attendees and total %}
     <h2>
     You are paying for the follow attendees:
@@ -51,6 +63,7 @@
     <th>Name</th>
     <th>Email</th>
     <th>Amount</th>
+    <th>Remove</th>
     </tr>
     {% for person  in attendees %}
     <tr>
@@ -58,6 +71,12 @@
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.email }}</td>
         <td>{{ person.ticket_cost|money }}</td>
+        <td>
+        <form method="post" action=".">
+        <input type="hidden" name="remove" value="{{ person.id }}" />
+        <input type="submit" value="Remove" />
+        </form>
+        </td>
     </tr>
     {% endfor %}
     </table>
