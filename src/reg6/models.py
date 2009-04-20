@@ -51,7 +51,7 @@ class Order(models.Model):
   phone = models.CharField(maxlength=20, blank=True)
 
   # payment info
-  amount = models.FloatField(max_digits=4, decimal_places=2,
+  amount = models.FloatField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
   payment_type = models.CharField(maxlength=10, choices=PAYMENT_CHOICES)
   auth_code = models.CharField(maxlength=30, blank=True,
