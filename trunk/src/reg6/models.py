@@ -68,6 +68,7 @@ class Order(models.Model):
     )
     list_display = ('order_num', 'date', 'name', 'address', 'city', 'state', 'zip', 'country', 'email', 'phone', 'amount', 'payment_type', 'valid')
     list_filter = ('date', 'payment_type', 'valid')
+    save_on_top = True
 
   class Meta:
     permissions = (('view_order', 'Can view order'),)
@@ -91,6 +92,7 @@ class Ticket(models.Model):
   class Admin:
     list_display = ('name', 'type', 'price', 'start_date', 'end_date')
     list_filter = ('public', 'start_date', 'end_date')
+    save_on_top = True
 
   class Meta:
     permissions = (('view_ticket', 'Can view ticket'),)
@@ -119,6 +121,7 @@ class PromoCode(models.Model):
   class Admin:
     list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
     list_filter = ('active', 'start_date', 'end_date')
+    save_on_top = True
 
   class Meta:
     permissions = (('view_promocode', 'Can view promo code'),)
@@ -143,6 +146,7 @@ class Item(models.Model):
   class Admin:
     list_display = ('name', 'description', 'price', 'active', 'pickup')
     list_filter = ('active', 'pickup')
+    save_on_top = True
 
   class Meta:
     permissions = (('view_item', 'Can view item'),)
@@ -189,6 +193,7 @@ class Attendee(models.Model):
     )
     list_display = ('badge_id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order')
     list_filter = ('order', 'badge_type', 'valid', 'checked_in')
+    save_on_top = True
 
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
