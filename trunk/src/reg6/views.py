@@ -174,7 +174,13 @@ def AddAttendee(request):
     # add other fields
     new_data['obtained_items'] = new_data['survey_answers'] = ''
 
-    errors = manipulator.get_validation_errors(new_data)
+    try:
+      errors = manipulator.get_validation_errors(new_data)
+    except: # FIXME sometimes we get an exception, not sure how to reproduce
+      return render_to_response('reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'An unexpected error occurred, please try again.'
+        })
     if not errors:
       if not request.session.test_cookie_worked():
         return render_to_response('reg6/reg_error.html',
