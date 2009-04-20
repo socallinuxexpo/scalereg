@@ -9,6 +9,23 @@ SALUTATION_CHOICES = (
   ('Dr', 'Dr.'),
 )
 
+PAYMENT_CHOICES = (
+  ('VS', 'Verisign'),
+  ('GC', 'Google Checkout'),
+  ('CS', 'Cash'),
+  ('IV', 'Invitee'),
+  ('EX', 'Exhibitor'),
+  ('SP', 'Speaker'),
+  ('PR', 'Press'),
+)
+
+TICKET_CHOICES = (
+  ('e', 'Expo Only'),
+  ('r', 'Full'),
+  ('p', 'Press'),
+  ('s', 'Speaker'),
+  ('x', 'Exhibitor'),
+)
 class Order(models.Model):
   # basic info
   date = models.DateTimeField(auto_now_add=True)
@@ -29,28 +46,33 @@ class Order(models.Model):
 
   # payment info
   amount = models.FloatField(max_digits=4, decimal_places=2)
-  payment_type = models.CharField(maxlength=10)
-  auth_code = models.CharField(maxlength=30)
-  resp_msg = models.CharField(maxlength=60)
-  result = models.CharField(maxlength=60)
+  payment_type = models.CharField(maxlength=2, choices=PAYMENT_CHOICES)
+  auth_code = models.CharField(maxlength=30, blank=True)
+  resp_msg = models.CharField(maxlength=60, blank=True)
+  result = models.CharField(maxlength=60, blank=True)
 
   class Admin:
-    pass
+    fields = (
+      ('Attendee Info', {'fields': ('name', 'address', 'city', 'state', 'zip', 'country')}),
+      ('Contact Info', {'fields': ('email', 'phone')}),
+      ('Order Info', {'fields': ('order_num', 'valid')}),
+      ('Payment Info', {'fields': ('amount', 'payment_type', 'auth_code', 'resp_msg', 'result')}),
+    )
+    list_display = ('name', 'address', 'city', 'state', 'zip', 'country')
 
   def __str__(self):
     return "%s (%s)" % (self.name, self.order_num)
 
 
 class Ticket(models.Model):
-  code = models.CharField(maxlength=1, primary_key=True)
-  description = models.CharField(maxlength=60)
+  code = models.CharField(maxlength=1, primary_key=True, choices=TICKET_CHOICES)
   price = models.FloatField(max_digits=5, decimal_places=2)
 
   class Admin:
     pass
 
   def __str__(self):
-    return self.description
+    return self.code
 
 
 class Attendee(models.Model):
@@ -78,7 +100,13 @@ class Attendee(models.Model):
   order = models.ForeignKey(Order)
 
   class Admin:
-    pass
+    fields = (
+      ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
+      ('Contact Info', {'fields': ('email', 'phone')}),
+      ('Badge Info', {'fields': ('badge_id', 'badge_type', 'valid', 'checked_in')}),
+      ('Items', {'fields': ('ordered_items', 'obtained_items')}),
+      ('Misc', {'fields': ('survey_answers', 'order')}),
+    )
 
   def __str__(self):
     return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
