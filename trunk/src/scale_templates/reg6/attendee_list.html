@@ -18,12 +18,12 @@
     {% endifequal %}
         {% ifequal field order %}
             {% ifequal dec 1 %}
-            <th><a href="?order={{ field|escape }}">{{ field|escape }}&nbsp;&#x25BC;</a></th>
+            <th><a href="?order={{ field|escape }}&{{ urlpart }}">{{ field|escape }}&nbsp;&#x25BC;</a></th>
             {% else %}
-            <th><a href="?order={{ field|escape }}&dec">{{ field|escape }}&nbsp;&#x25B2;</a></th>
+            <th><a href="?order={{ field|escape }}&dec&{{ urlpart }}">{{ field|escape }}&nbsp;&#x25B2;</a></th>
             {% endifequal %}
         {% else %}
-            <th><a href="?order={{ field|escape }}">{{ field|escape }}</a></th>
+            <th><a href="?order={{ field|escape }}&{{ urlpart }}">{{ field|escape }}</a></th>
         {% endifequal %}
         {% endfor %}
     </tr>
