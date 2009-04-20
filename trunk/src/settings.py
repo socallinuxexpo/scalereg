@@ -75,3 +75,5 @@ INSTALLED_APPS = (
     'scale.reg6',
     'scale.reports',
 )
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
