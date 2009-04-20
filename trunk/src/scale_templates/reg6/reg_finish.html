@@ -31,6 +31,14 @@
     </tr>
     </table>
 
+    <p>
+    <form action="../" method="post">
+    {% if attendee.promo %}
+    <input type="hidden" name="promo" value="{{ attendee.promo }}" />
+    {% endif %}
+    <input type="submit" value="Add another attendee" />
+    </form>
+    </p>
 {% else %}
 <b>We cannot pull up your registration data. Please contact us with your full name and this error message.</b>
 {% endif %}
