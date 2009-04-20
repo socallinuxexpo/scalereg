@@ -14,4 +14,7 @@ urlpatterns = patterns('',
     (r'^reg6/', include('scale.reg6.urls')),
     (r'^reports/', include('scale.reports.urls')),
 
+    # dummy index page
+    (r'^$', 'scale.auth_helper.views.index'),
+
 )
