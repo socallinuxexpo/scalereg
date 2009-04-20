@@ -238,6 +238,7 @@ class Attendee(models.Model):
 
   # contact info
   email = models.EmailField(unique=True, help_text='Must be unique')
+  zip = models.PositiveIntegerField(maxlength=10)
   phone = models.CharField(maxlength=20, blank=True)
 
   # etc
@@ -246,8 +247,7 @@ class Attendee(models.Model):
   obtained_items = models.CharField(maxlength=60, blank=True,
     validator_list = [validators.isValidObtainedItems],
     help_text='comma separated list of items')
-  survey_answers = models.CharField(maxlength=60, blank=True,
-    help_text='comma separated list of key=value')
+  can_email = models.BooleanField()
 
   def ticket_cost(self):
     price_modifier = 1
@@ -265,12 +265,12 @@ class Attendee(models.Model):
   class Admin:
     fields = (
       ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
-      ('Contact Info', {'fields': ('email', 'phone')}),
+      ('Contact Info', {'fields': ('email', 'zip', 'phone')}),
       ('Badge Info', {'fields': ('badge_type', 'valid', 'checked_in')}),
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
-      ('Misc', {'fields': ('survey_answers', 'promo', 'order')}),
+      ('Misc', {'fields': ('promo', 'order')}),
     )
-    list_display = ('id', 'first_name', 'last_name', 'email', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'zip', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
     list_filter = ('order', 'badge_type', 'valid', 'checked_in', 'promo')
     save_on_top = True
 
