@@ -1,4 +1,5 @@
 from django.db import models
+from scale.reg6 import validators
 
 # Create your models here.
 
@@ -47,7 +48,8 @@ class Order(models.Model):
   phone = models.CharField(maxlength=20, blank=True)
 
   # payment info
-  amount = models.FloatField(max_digits=4, decimal_places=2)
+  amount = models.FloatField(max_digits=4, decimal_places=2,
+    validator_list = [validators.isNotNegative])
   payment_type = models.CharField(maxlength=10, choices=PAYMENT_CHOICES)
   auth_code = models.CharField(maxlength=30, blank=True,
     help_text='Only used by Verisign')
@@ -76,9 +78,11 @@ class Order(models.Model):
 class Ticket(models.Model):
   name = models.CharField(maxlength=60, primary_key=True)
   type = models.CharField(maxlength=10, choices=TICKET_CHOICES)
-  price = models.FloatField(max_digits=5, decimal_places=2)
+  price = models.FloatField(max_digits=5, decimal_places=2,
+    validator_list = [validators.isNotNegative])
   public = models.BooleanField(help_text='Publicly available on the order page')
   start_date = models.DateField(null=True, blank=True,
+    validator_list = [validators.isValidStartStopDates],
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
@@ -100,10 +104,12 @@ class PromoCode(models.Model):
   description = models.CharField(maxlength=60)
 
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
+    validator_list = [validators.isPositive],
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
   applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
   active = models.BooleanField()
   start_date = models.DateField(null=True, blank=True,
+    validator_list = [validators.isValidStartStopDates],
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
@@ -169,7 +175,8 @@ class Item(models.Model):
   name = models.CharField(maxlength=4, help_text='up to 4 letters')
   description = models.CharField(maxlength=60)
 
-  price = models.FloatField(max_digits=5, decimal_places=2)
+  price = models.FloatField(max_digits=5, decimal_places=2,
+    validator_list = [validators.isNotNegative])
 
   active = models.BooleanField()
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
