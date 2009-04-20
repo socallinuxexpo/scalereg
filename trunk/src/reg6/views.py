@@ -173,7 +173,7 @@ def AddAttendee(request):
       manipulator.do_html2python(new_data)
       new_place = manipulator.save(new_data)
       request.session['attendee'] = new_place.id
-      return HttpResponseRedirect('/reg6/finish_registration/')
+      return HttpResponseRedirect('/reg6/registered_attendee/')
 
   form = forms.FormWrapper(manipulator, new_data, errors)
   return render_to_response('reg6/reg_attendee.html',
@@ -188,7 +188,7 @@ def AddAttendee(request):
     })
 
 
-def FinishRegistration(request):
+def RegisteredAttendee(request):
   if request.method != 'GET':
     return HttpResponseRedirect('/reg6/')
   if 'HTTP_REFERER' not in request.META  or \
