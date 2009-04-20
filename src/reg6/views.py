@@ -12,9 +12,8 @@ STEPS_TOTAL = 7
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
     return None
-  promo_applies_to = promo.applies_to.all()
   for t in tickets:
-    if t in promo_applies_to:
+    if promo.is_applicable_to(t):
       t.price *= promo.price_modifier
   return promo.name
 
@@ -26,6 +25,17 @@ def ApplyPromoToItems(promo, items):
     if item.promo:
       item.price *= promo.price_modifier
   return promo.name
+
+
+def GetTicketItems(ticket):
+  set1 = ticket.item_set.all()
+  set2 = models.Item.objects.filter(applies_to_all=True)
+  combined_set = [ s for s in set1 ]
+  for s in set2:
+    if s not in combined_set:
+      combined_set.append(s)
+  combined_set.sort()
+  return combined_set
 
 
 def CheckVars(request, post, cookies):
@@ -100,7 +110,7 @@ def AddItems(request):
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
 
   promo_name = ApplyPromoToTickets(promo_in_use, ticket)
-  items = ticket[0].item_set.all().order_by('description')
+  items = GetTicketItems(ticket[0])
   ApplyPromoToItems(promo_in_use, items)
 
   return render_to_response('reg6/reg_items.html',
@@ -141,7 +151,7 @@ def AddAttendee(request):
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
 
   promo_name = ApplyPromoToTickets(promo_in_use, ticket)
-  avail_items = ticket[0].item_set.all().order_by('description')
+  avail_items = GetTicketItems(ticket[0])
 
   selected_items = []
   for i in xrange(len(avail_items)):

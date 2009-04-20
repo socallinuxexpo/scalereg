@@ -26,12 +26,16 @@
         <td>{{ o.start_date|escape }}</td>
         <td>{{ o.end_date|escape }}</td>
         <td>
+        {% if o.applies_to_all %}
+        ALL
+        {% else %}
         {% for t in o.applies_to.all %}
             {{ t.name|escape }}
 	    {% if not forloop.last %}
 	    ,
 	    {% endif %}
         {% endfor %}
+        {% endif %}
 	</td>
     </tr>
     {% endfor %}

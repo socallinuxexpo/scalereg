@@ -27,12 +27,16 @@
         <td>{{ o.pickup|escape }}</td>
         <td>{{ o.promo|escape }}</td>
         <td>
+        {% if o.applies_to_all %}
+        ALL
+        {% else %}
         {% for t in o.applies_to.all %}
             {{ t.name|escape }}
 	    {% if not forloop.last %}
 	    ,
 	    {% endif %}
         {% endfor %}
+        {% endif %}
 	</td>
     </tr>
     {% endfor %}
