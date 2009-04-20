@@ -1,6 +1,7 @@
 # Create your views here.
 
 from django import forms
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 import datetime
@@ -816,3 +817,115 @@ def RedeemCoupon(request):
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
     })
+
+
+@login_required
+def AddCoupon(request):
+  can_access = False
+  if request.user.is_superuser:
+    can_access = True
+  else:
+    perms = request.user.get_all_permissions()
+    if 'reg6.add_order' in perms and 'reg6.add_coupon' in perms:
+      can_access = True
+
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  ticket_types = {
+    'expo': 'invitee',
+    'full': 'invitee',
+    'press': 'press',
+    'speaker': 'speaker',
+    'exhibitor': 'exhibitor',
+    'friday': 'invitee',
+  }
+
+  if request.method == 'GET':
+    tickets = []
+    for ticket_type in ticket_types.keys():
+      try:
+        temp_tickets = models.Ticket.objects.get(type=ticket_type)
+        if type(temp_tickets) == models.Ticket:
+          tickets.append(temp_tickets)
+        else:
+          for t in temp_tickets:
+            tickets.append(t)
+      except:
+        pass
+    return scale_render_to_response(request, 'reg6/add_coupon.html',
+      {'title': 'Add Coupon',
+       'tickets': tickets,
+      })
+
+  required_vars = [
+    'NAME',
+    'ADDRESS',
+    'CITY',
+    'STATE',
+    'ZIP',
+    'EMAIL',
+    'COUNTRY',
+    'PHONE',
+    'TICKET',
+    'MAX_ATTENDEES',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return HttpResponseServerError('required vars missing')
+
+  try:
+    ticket = models.Ticket.objects.get(name=request.POST['TICKET'])
+  except:
+    return HttpResponseServerError('cannot find ticket %s')
+
+  bad_order_nums = [ x.order_num for x in models.Order.objects.all() ]
+  order = models.Order(order_num=GenerateOrderID(bad_order_nums),
+    valid=False,
+    name=request.POST['NAME'],
+    address=request.POST['ADDRESS'],
+    city=request.POST['CITY'],
+    state=request.POST['STATE'],
+    zip=request.POST['ZIP'],
+    country=request.POST['COUNTRY'],
+    email=request.POST['EMAIL'],
+    phone=request.POST['PHONE'],
+    amount='0',
+    payment_type=ticket_types[ticket.type],
+  )
+
+  try:
+    order.save()
+  except: # FIXME catch the specific db exceptions
+    return HttpResponseServerError('error saving the order')
+
+  try:
+    invalid = order.validate()
+  except:
+    invalid = True
+  if invalid:
+    order.delete()
+    return HttpResponseServerError('parts of the form is not filled out, please try again')
+
+  coupon = models.Coupon(code=order.order_num,
+    badge_type = ticket,
+    order = order,
+    used = False,
+    max_attendees = request.POST['MAX_ATTENDEES'],
+  )
+  try:
+    coupon.save()
+  except: # FIXME catch the specific db exceptions
+    order.delete()
+    return HttpResponseServerError('error saving the coupon')
+
+  try:
+    order.valid = True
+    order.save()
+  except: # FIXME catch the specific db exceptions
+    order.delete()
+    coupon.delete()
+    return HttpResponseServerError('error saving the order')
+
+  return HttpResponse('Success! Your coupon code is: %s' % order.order_num)
