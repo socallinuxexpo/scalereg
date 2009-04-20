@@ -1,7 +1,7 @@
 # Create your views here.
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
