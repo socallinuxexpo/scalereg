@@ -30,8 +30,8 @@ def index(request):
   services = set(services + services_group)
 
   can_access = False
-  for f in services.values():
-    if re.compile('%s/.*' % f['url']).match(request.path):
+  for f in services:
+    if re.compile('%s/.*' % f.url).match(request.path):
       can_access = True
       break
 
