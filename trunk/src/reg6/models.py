@@ -78,7 +78,10 @@ class Order(models.Model):
 
 
 class Ticket(models.Model):
-  name = models.CharField(maxlength=60, primary_key=True)
+  name = models.CharField(maxlength=5, primary_key=True,
+    validator_list = [validators.isAllCapsDigits],
+    help_text='Up to 5 letters, upper-case letters + numbers')
+  description = models.CharField(maxlength=60)
   type = models.CharField(maxlength=10, choices=TICKET_CHOICES)
   price = models.FloatField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
@@ -90,8 +93,9 @@ class Ticket(models.Model):
     help_text='Not Usable on this day')
 
   class Admin:
-    list_display = ('name', 'type', 'price', 'start_date', 'end_date')
-    list_filter = ('public', 'start_date', 'end_date')
+    list_display = ('name', 'description', 'type', 'price', 'public',
+      'start_date', 'end_date')
+    list_filter = ('type', 'public', 'start_date', 'end_date')
     save_on_top = True
 
   class Meta:
