@@ -111,9 +111,11 @@ def object_list(request, queryset, paginate_by=None, page=None,
       continue
     filter_select[name] = filter
 
+  urlparts = []
   for f in request.GET:
     if not f.startswith('filter__'):
       continue
+    urlparts.append('%s=%s&' % (f, request.GET[f]))
     name = f[8:]
     field_type = type(queryset.model._meta.fields[all_fields.index(name)])
     if name and name in filter_select:
@@ -128,6 +130,7 @@ def object_list(request, queryset, paginate_by=None, page=None,
           query_string = '%s = %%s' % paranoid_strip(name)
           queryset = queryset.extra(where=[query_string], params=[value])
   extra_context['filter_select'] = filter_select.values()
+  extra_context['urlpart'] = ''.join([part for part in urlparts])
 
   if 'order' in request.GET:
     if request.GET['order'] in all_fields:
