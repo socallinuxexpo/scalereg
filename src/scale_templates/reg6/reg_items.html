@@ -4,39 +4,39 @@
 {% block content %}
 <div id="content-main">
 
-{% if tickets %}
+{% if ticket %}
+    {% if promo %}
     <p>
-    Registration is open. Please start the registration process by selecting a
-    ticket type:
+    You are using promo code <b>{{ promo }}</b>.
+    </p>
+    {% endif %}
+
+    <p>
+    Your {{ ticket.description }} costs {{ ticket.price|money }}.
     </p>
 
-    <form method="post" action="add_items/">
+    <p>
+    Would you like to add any additional items?
+    </p>
+
+    <form method="post" action="../add_attendee/">
     <table border="1">
     <tr>
         <th>&nbsp;</th>
         <th>Ticket Name</th>
         <th>Price</th>
     </tr>
-    {% for t in tickets %}
+    {% for item in items %}
         <tr>
-        <td><input type="radio" name="ticket" value="{{ t.name }}" /></td>
-        <td>{{ t.description}}</td>
-        <td>{{ t.price|money }}</td>
+        <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name }}" /></td>
+        <td>{{ item.description }}</td>
+        <td>{{ item.price|money }}</td>
         </tr>
     {% endfor %}
     </table>
 
-    {% if promo %}
     <input type="hidden" name="promo" value="{{ promo }}" />
-    {% else %}
-    <p>
-    If you have a promo code, enter it here:
-    </p>
-
-    <p>
-    <input type="text" name="promo" maxlength="5" size="5" />
-    </p>
-    {% endif %}
+    <input type="hidden" name="ticket" value="{{ ticket.name }}" />
 
     <p>
     <input type="submit" value="Continue" />
