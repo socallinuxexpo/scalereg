@@ -5,5 +5,5 @@ urlpatterns = patterns('',
     # (r'^scale/', include('scale.apps.foo.urls.foo')),
 
     # Uncomment this for admin:
-#     (r'^admin/', include('django.contrib.admin.urls')),
+     (r'^admin/', include('django.contrib.admin.urls')),
 )

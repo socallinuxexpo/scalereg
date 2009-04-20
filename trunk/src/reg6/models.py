@@ -34,6 +34,9 @@ class Order(models.Model):
   resp_msg = models.CharField(maxlength=60)
   result = models.CharField(maxlength=60)
 
+  class Admin:
+    pass
+
   def __str__(self):
     return "%s (%s)" % (self.name, self.order_num)
 
@@ -42,6 +45,9 @@ class Ticket(models.Model):
   code = models.CharField(maxlength=1, primary_key=True)
   description = models.CharField(maxlength=60)
   price = models.FloatField(max_digits=5, decimal_places=2)
+
+  class Admin:
+    pass
 
   def __str__(self):
     return self.description
@@ -71,6 +77,9 @@ class Attendee(models.Model):
   survey_answers = models.CharField(maxlength=60)
   order = models.ForeignKey(Order)
 
+  class Admin:
+    pass
+
   def __str__(self):
     return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
 
@@ -83,6 +92,9 @@ class Item(models.Model):
 
   active = models.BooleanField()
   pickup = models.BooleanField()
+
+  class Admin:
+    pass
 
   def __str__(self):
     return self.description
@@ -97,6 +109,9 @@ class PromoCode(models.Model):
   active = models.BooleanField()
   start_date = models.DateField()
   expiration_date = models.DateField()
+
+  class Admin:
+    pass
 
   def __str__(self):
     return self.description
