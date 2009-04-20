@@ -101,7 +101,7 @@ class PromoCode(models.Model):
 
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
-  applies_to = models.ManyToManyField(Ticket)
+  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
   active = models.BooleanField()
   start_date = models.DateField(null=True, blank=True,
     help_text='Available on this day')
@@ -145,7 +145,7 @@ class Attendee(models.Model):
   # etc
   survey_answers = models.CharField(maxlength=60, blank=True,
     help_text='comma separated list of key=value')
-  order = models.ForeignKey(Order, null=True)
+  order = models.ForeignKey(Order, blank=True, null=True)
 
   class Admin:
     fields = (
@@ -173,7 +173,7 @@ class Item(models.Model):
 
   active = models.BooleanField()
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
-  applies_to = models.ManyToManyField(Ticket)
+  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
 
   class Admin:
     list_display = ('name', 'description', 'price', 'active', 'pickup')
