@@ -4,7 +4,7 @@
 <div class="breadcrumbs">
      <a href="/">{% trans "Home" %}</a> &rsaquo;
      <a href="/reports/">Reports</a> &rsaquo;
-     Attendees &rsaquo;
+     Orders &rsaquo;
 </div>
 {% endif %}{% endblock %}
 {% block content %}<div id="content-main">
@@ -37,6 +37,9 @@
     </tr>
     {% endfor %}
     </table>
+    <p>
+    <b>Total:</b> ${{ total }}
+    </p>
 {% else %}
     <p>No attendees available.</p>
 {% endif %}
