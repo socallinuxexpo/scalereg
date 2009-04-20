@@ -51,8 +51,10 @@ def ApplyPromoToItems(promo, items):
 def GetTicketItems(ticket):
   set1 = ticket.item_set.all()
   set2 = models.Item.objects.filter(applies_to_all=True)
-  combined_set = [ s for s in set1 ]
+  combined_set = [ s for s in set1 if s.active ]
   for s in set2:
+    if not s.active:
+      continue
     if s not in combined_set:
       combined_set.append(s)
   combined_set.sort()
