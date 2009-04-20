@@ -10,22 +10,23 @@ SALUTATION_CHOICES = (
 )
 
 PAYMENT_CHOICES = (
-  ('VS', 'Verisign'),
-  ('GC', 'Google Checkout'),
-  ('CS', 'Cash'),
-  ('IV', 'Invitee'),
-  ('EX', 'Exhibitor'),
-  ('SP', 'Speaker'),
-  ('PR', 'Press'),
+  ('verisign', 'Verisign'),
+  ('google', 'Google Checkout'),
+  ('cash', 'Cash'),
+  ('invitee', 'Invitee'),
+  ('exhibitor', 'Exhibitor'),
+  ('speaker', 'Speaker'),
+  ('press', 'Press'),
 )
 
 TICKET_CHOICES = (
-  ('e', 'Expo Only'),
-  ('r', 'Full'),
-  ('p', 'Press'),
-  ('s', 'Speaker'),
-  ('x', 'Exhibitor'),
+  ('expo', 'Expo Only'),
+  ('full', 'Full'),
+  ('press', 'Press'),
+  ('speaker', 'Speaker'),
+  ('exhibitor', 'Exhibitor'),
 )
+
 class Order(models.Model):
   # basic info
   date = models.DateTimeField(auto_now_add=True)
@@ -46,7 +47,7 @@ class Order(models.Model):
 
   # payment info
   amount = models.FloatField(max_digits=4, decimal_places=2)
-  payment_type = models.CharField(maxlength=2, choices=PAYMENT_CHOICES)
+  payment_type = models.CharField(maxlength=10, choices=PAYMENT_CHOICES)
   auth_code = models.CharField(maxlength=30, blank=True)
   resp_msg = models.CharField(maxlength=60, blank=True)
   result = models.CharField(maxlength=60, blank=True)
@@ -65,24 +66,51 @@ class Order(models.Model):
 
 
 class Ticket(models.Model):
-  code = models.CharField(maxlength=1, primary_key=True, choices=TICKET_CHOICES)
+  name = models.CharField(maxlength=60, primary_key=True)
+  type = models.CharField(maxlength=10, choices=TICKET_CHOICES)
   price = models.FloatField(max_digits=5, decimal_places=2)
+  public = models.BooleanField(help_text='Publicly available on the order page')
+  start_date = models.DateField(blank=True, help_text='Available on this day')
+  end_date = models.DateField(blank=True, help_text='Not Usable on this day')
 
   class Admin:
-    pass
+    list_display = ('name', 'type', 'price', 'start_date', 'end_date')
+    list_filter = ('public', 'start_date', 'end_date')
 
   def __str__(self):
     return self.code
 
 
+class PromoCode(models.Model):
+  name = models.CharField(maxlength=5)
+  description = models.CharField(maxlength=60)
+
+  price_modifier = models.FloatField(max_digits=3, decimal_places=2,
+    help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
+  applies_to = models.ManyToManyField(Ticket)
+  active = models.BooleanField()
+  start_date = models.DateField(blank=True, help_text='Available on this day')
+  end_date = models.DateField(blank=True, help_text='Not Usable on this day')
+
+  class Admin:
+    list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
+    list_filter = ('active', 'start_date', 'end_date')
+
+  def __str__(self):
+    return self.description
+
+
 class Attendee(models.Model):
   # badge info
-  badge_id = models.PositiveIntegerField(maxlength=5, primary_key=True)
+  badge_id = models.PositiveIntegerField(maxlength=5, primary_key=True,
+    help_text='5 digit badge id, must be unique')
   badge_type = models.ForeignKey(Ticket)
   valid = models.BooleanField()
   checked_in = models.BooleanField()
-  ordered_items = models.CharField(maxlength=60, blank=True)
-  obtained_items = models.CharField(maxlength=60, blank=True)
+  ordered_items = models.CharField(maxlength=60, blank=True,
+    help_text='comma separated list of items')
+  obtained_items = models.CharField(maxlength=60, blank=True,
+    help_text='comma separated list of items')
 
   # attendee name
   salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES)
@@ -96,7 +124,8 @@ class Attendee(models.Model):
   phone = models.CharField(maxlength=20, blank=True)
 
   # etc
-  survey_answers = models.CharField(maxlength=60)
+  survey_answers = models.CharField(maxlength=60,
+    help_text='comma separated list of key=value')
   order = models.ForeignKey(Order)
 
   class Admin:
@@ -107,39 +136,26 @@ class Attendee(models.Model):
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
       ('Misc', {'fields': ('survey_answers', 'order')}),
     )
+    #list_filter = ('code',)
+    #search_fields = ['code']
 
   def __str__(self):
     return "%s %s (%s)" % (self.first_name, self.last_name, self.badge_id)
 
 
 class Item(models.Model):
-  name = models.CharField(maxlength=4)
+  name = models.CharField(maxlength=4, help_text='up to 4 letters')
   description = models.CharField(maxlength=60)
 
   price = models.FloatField(max_digits=5, decimal_places=2)
 
   active = models.BooleanField()
-  pickup = models.BooleanField()
+  pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
+  applies_to = models.ManyToManyField(Ticket)
 
   class Admin:
-    pass
-
-  def __str__(self):
-    return self.description
-
-
-class PromoCode(models.Model):
-  name = models.CharField(maxlength=5)
-  description = models.CharField(maxlength=60)
-
-  price_modifier = models.FloatField(max_digits=3, decimal_places=2)
-
-  active = models.BooleanField()
-  start_date = models.DateField()
-  expiration_date = models.DateField()
-
-  class Admin:
-    pass
+    list_display = ('name', 'description', 'price', 'active', 'pickup')
+    list_filter = ('active', 'pickup')
 
   def __str__(self):
     return self.description
