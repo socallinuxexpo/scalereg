@@ -3,6 +3,7 @@
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
+import datetime
 import models
 import random
 import string
@@ -21,9 +22,9 @@ def ScaleDebug(msg):
   line_number = frame.f_lineno
   filename = frame.f_code.co_filename
 
-  line = 'File "%s", line %d, in %s: %s\n' % (filename, line_number, name, msg)
+  line = 'File "%s", line %d, in %s: %s' % (filename, line_number, name, msg)
   handle = open('/tmp/scale_reg.log', 'a')
-  handle.write(line)
+  handle.write("%s: %s\n" % (datetime.datetime.now(), line))
   handle.close()
 
 
