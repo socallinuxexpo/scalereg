@@ -15,9 +15,7 @@
 {% endif %}
 {% for serv in services %}
     <tr>
-    {% if serv.active %}
         <th scope="row"><a href="{{ serv.url }}/">{{ serv.name|escape }}</a></th>
-    {% endif %}
     </tr>
 {% endfor %}
 </table>

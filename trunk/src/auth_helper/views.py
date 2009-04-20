@@ -10,7 +10,14 @@ def index(request):
 
 @login_required
 def profile(request):
-  services = Service.objects.filter(users=request.user).order_by('name')
+  # figure out what servers are available
+  services_user = Service.objects.filter(users=request.user)
+  services_group = None
+  for f in request.user.groups.all():
+    services_group = services_group or Service.objects.filter(groups=f)
+  services = services_group or services_user
+  services = services.filter(active=True).order_by('name')
+
   t = loader.get_template('profile/index.html')
   c = Context({'user': request.user, 'title': 'Available Services', 'services': services})
   return HttpResponse(t.render(c))
