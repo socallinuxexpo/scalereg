@@ -59,13 +59,13 @@ def GetTicketItems(ticket):
 def CheckVars(request, post, cookies):
   for var in post:
     if var not in request.POST:
-      return render_to_response('reg6/reg_error.html',
+      return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
          'error_message': 'No %s information.' % var,
         })
   for var in cookies:
     if var not in request.session:
-      return render_to_response('reg6/reg_error.html',
+      return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
          'error_message': 'No %s information.' % var,
         })
