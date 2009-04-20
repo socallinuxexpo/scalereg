@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+     <a href="/">{% trans "Home" %}</a> &rsaquo; Registration
+</div>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+
+{% if tickets %}
+    <p>
+    Registration is open. Please start the registration process by selecting a
+    ticket type:
+    </p>
+
+    <form method="post" action="add_items/">
+    <table border="1">
+    <tr>
+        <th>&nbsp;</th>
+        <th>Ticket Name</th>
+        <th>Price</th>
+    </tr>
+    {% for t in tickets %}
+        <tr>
+        <td><input type="radio" name="ticket" value="{{ t.name }}" /></td>
+        <td>{{ t.description}}</td>
+        <td>{{ t.price|money }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    {% if promo %}
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    {% else %}
+    <p>
+    If you have a promo code, enter it here:
+    </p>
+
+    <p>
+    <input type="text" name="promo" maxlength="5" size="5" />
+    </p>
+    {% endif %}
+
+    <p>
+    <input type="submit" value="Continue" />
+    </p>
+    </form>
+{% else %}
+Registration is closed.
+{% endif %}
+</div>
+{% endblock %}
+
