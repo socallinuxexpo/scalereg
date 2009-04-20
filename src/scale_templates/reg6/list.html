@@ -5,8 +5,8 @@
 <script type="text/javascript" src="../../../jsi18n/"></script>
 {% for js in javascript_imports %}{% include_admin_script js %}{% endfor %}
 {% endblock %}
-{% block stylesheet %}{% admin_media_prefix %}css/forms.css{% endblock %}
-{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+{% block stylesheet %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
 {% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
@@ -15,3 +15,33 @@
      <a href=".">{{ opts.verbose_name_plural|capfirst|escape }}</a> &rsaquo;
 </div>
 {% endif %}{% endblock %}
+{% block sidebar %}
+<div id="content-related" class="module filtered">
+<form method="get" action=".">
+<h2>Filters</h2>
+<p>
+{% for field in filter_select %}
+  {{ field.name }}:<br />
+  <select name="filter__{{ field.name }}">
+  {% for item in field.get_items %}
+    {% ifequal item.value field.selected %}
+    <option value="{{ item.value }}" selected>{{ item.name }}</option>
+    {% else %}
+    <option value="{{ item.value }}">{{ item.name }}</option>
+    {% endifequal %}
+  {% endfor %}
+  </select><br />
+{% endfor %}
+{% if order %}
+<input type="hidden" name="order" value="{{ order }}" />
+{% endif %}
+{% if dec %}
+<input type="hidden" name="dec" value="{{ dec }}" />
+{% endif %}
+</p>
+<p>
+<input type="submit" value="Filter" />
+</p>
+</form>
+</div>
+{% endblock %}
