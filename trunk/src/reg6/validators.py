@@ -7,13 +7,16 @@ def isValidStartStopDates(field_data, all_data):
     if all_data['start_date'] > all_data['end_date']:
       raise validators.ValidationError('Start date greater than End date')
 
+
 def isPositive(field_data, all_data):
   if float(field_data) <= 0:
     raise validators.ValidationError('Value should be positive')
 
+
 def isNotNegative(field_data, all_data):
   if float(field_data) < 0:
     raise validators.ValidationError('Value should not be negative')
+
 
 def isValidObtainedItems(field_data, all_data):
   obtained_items = {}
@@ -39,10 +42,12 @@ def isValidObtainedItems(field_data, all_data):
     raise validators.ValidationError('Item%s not found: %s' %
       (plural, invalid_items))
 
+
 def isAllCaps(field_data, all_data):
   for f in field_data:
     if f not in string.ascii_uppercase:
       raise validators.ValidationError('Value must be all upper-case')
+
 
 def isAllCapsDigits(field_data, all_data):
   valid_letters = string.ascii_uppercase + string.digits
@@ -50,18 +55,20 @@ def isAllCapsDigits(field_data, all_data):
     if f not in valid_letters:
       raise validators.ValidationError('Value must be all upper-case / digits')
 
+
 def isValidOrderNumber(field_data, all_data):
   if len(field_data) != 10:
     raise validators.ValidationError('Value must be exactly 10 digits')
   isAllCapsDigits(field_data, all_data)
+
 
 def isValidAttendeeCheckin(field_data, all_data):
   if field_data == 'on':
     if 'valid' not in all_data:
       raise validators.ValidationError('Cannot check in invalid attendee')
 
+
 def isCommaSeparatedInts(field_data, all_data):
-  print 555
   csv = field_data.split(',')
   if not csv:
     raise validators.ValidationError('No data')
@@ -70,3 +77,12 @@ def isCommaSeparatedInts(field_data, all_data):
       int(f)
   except ValueError:
     raise validators.ValidationError('Not a number')
+
+
+def isQuestionsUnique(field_data, all_data):
+  questions = []
+  for id in field_data:
+    answer = models.Answer.objects.get(id=id)
+    if answer.question in questions:
+      raise validators.ValidationError('Question cannot have multiple answers')
+    questions.append(answer.question)

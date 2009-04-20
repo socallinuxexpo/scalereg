@@ -222,6 +222,43 @@ class Item(models.Model):
     return '%s (%s)' % (self.description, self.name)
 
 
+class Question(models.Model):
+  text = models.CharField(maxlength=200)
+  active = models.BooleanField()
+
+  class Admin:
+    save_on_top = True
+
+  class Meta:
+    permissions = (('view_question', 'Can view question'),)
+
+  def __str__(self):
+    if len(self.text) > 37:
+      return '%s...' % self.text[:37]
+    return '%s' % self.text
+
+
+class Answer(models.Model):
+  question = models.ForeignKey(Question, edit_inline=models.TABULAR,
+    num_in_admin=3, core=True)
+  text = models.CharField(maxlength=200, core=True)
+
+  class Admin:
+    list_display = ('question', '__str_text__')
+    save_on_top = True
+
+  class Meta:
+    permissions = (('view_answer', 'Can view answer'),)
+
+  def __str_text__(self):
+    if len(self.text) > 37:
+      return '%s...' % self.text[:37]
+    return '%s' % self.text
+
+  def __str__(self):
+    return '(%d) %s...' % (self.question.id, self.__str_text__())
+
+
 class Attendee(models.Model):
   # badge info
   badge_type = models.ForeignKey(Ticket)
@@ -249,6 +286,9 @@ class Attendee(models.Model):
     validator_list = [validators.isValidObtainedItems],
     help_text='comma separated list of items')
   can_email = models.BooleanField()
+  answers = models.ManyToManyField(Answer, blank=True, null=True,
+    validator_list = [validators.isQuestionsUnique])
+
 
   def ticket_cost(self):
     price_modifier = 1
@@ -269,7 +309,7 @@ class Attendee(models.Model):
       ('Contact Info', {'fields': ('email', 'zip', 'phone')}),
       ('Badge Info', {'fields': ('badge_type', 'valid', 'checked_in')}),
       ('Items', {'fields': ('ordered_items', 'obtained_items')}),
-      ('Misc', {'fields': ('promo', 'order')}),
+      ('Misc', {'fields': ('promo', 'order', 'answers')}),
     )
     list_display = ('id', 'first_name', 'last_name', 'email', 'zip', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
     list_filter = ('badge_type', 'valid', 'checked_in', 'promo')
