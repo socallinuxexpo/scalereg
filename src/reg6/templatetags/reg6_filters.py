@@ -6,5 +6,8 @@ register = template.Library()
 
 @register.filter
 def money(value):
-    value = float(value)
-    return '$%0.2f' % value
+  try:
+    f_value = float(value)
+    return '$%0.2f' % f_value
+  except ValueError:
+    return value
