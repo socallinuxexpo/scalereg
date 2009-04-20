@@ -143,6 +143,8 @@ def object_list(request, queryset, paginate_by=None, page=None,
         extra_context['dec'] = 0
       queryset = queryset.order_by(ordering)
 
+  extra_context['numbers'] = len(queryset)
+
   return django_object_list(request, queryset, paginate_by, page, allow_empty,
     template_name, template_loader, extra_context, context_processors,
     template_object_name, mimetype)

@@ -47,6 +47,9 @@
     </tr>
     {% endfor %}
     </table>
+    <p>
+    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    </p>
 {% else %}
     <p>No promo codes available.</p>
 {% endif %}

@@ -56,6 +56,11 @@
     </tr>
     {% endfor %}
     </table>
+    <p>
+    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    <b>Valid {{ title|escape }}</b>: {{ valid|escape }}<br />
+    <b>Checked In {{ title|escape }}</b>: {{ checkin|escape }}<br />
+    </p>
 {% else %}
     <p>No attendees available.</p>
 {% endif %}

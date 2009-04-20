@@ -48,6 +48,9 @@
     </tr>
     {% endfor %}
     </table>
+    <p>
+    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    </p>
 {% else %}
     <p>No items available.</p>
 {% endif %}
