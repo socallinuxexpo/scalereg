@@ -260,7 +260,7 @@ def StartPayment(request):
     try:
       id = int(request.POST['id'])
       new_attendee = models.Attendee.objects.get(id=id)
-    except ValueError, models.Attendee.DoesNotExist:
+    except (ValueError, models.Attendee.DoesNotExist):
       id = None
 
     if id in all_attendees:
