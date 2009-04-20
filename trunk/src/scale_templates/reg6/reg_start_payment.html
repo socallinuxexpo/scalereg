@@ -4,8 +4,10 @@
 {% block content %}
 <div id="content-main">
 
+<br />
 {% if bad_attendee %}
     <h2>Attendee Not Found</h2>
+    <p>
     <table border="1">
     <tr>
     <td>
@@ -14,10 +16,12 @@
     </td>
     </tr>
     </table>
+    </p>
 {% endif %}
 
 {% if new_attendee %}
     <h2>Added Attendee</h2>
+    <p>
     <table border="1">
     <tr>
     <td>
@@ -26,10 +30,12 @@
     </td>
     </tr>
     </table>
+    </p>
 {% endif %}
 
 {% if paid_attendee %}
     <h2>Attendee Already Paid For</h2>
+    <p>
     <table border="1">
     <tr>
     <td>
@@ -38,10 +44,12 @@
     </td>
     </tr>
     </table>
+    </p>
 {% endif %}
 
 {% if removed_attendee %}
     <h2>Attendee Removed</h2>
+    <p>
     <table border="1">
     <tr>
     <td>
@@ -50,11 +58,15 @@
     </td>
     </tr>
     </table>
+    </p>
 {% endif %}
 
 {% if attendees and total %}
     <h2>
+    <br />
     You are paying for the follow attendees:
+    <br />
+    <br />
     </h2>
     
     <table border="1">
@@ -91,6 +103,7 @@
 
 {% endif %}
 
+    <p>
     <form method="post" action=".">
     <table>
     <tr>
@@ -103,20 +116,28 @@
     </tr>
     </table>
 
+    <br />
     <input type="submit" value="Add Attendee" />
     </form>
+    <br />
+    </p>
 
 {% if attendees and total %}
     <h2>Payment:</h2>
+    <p>
     <form method="post" action="../payment/">
     <input type="submit" value="Pay For This Order" />
     </form>
+    <br />
+    </p>
 {% endif %}
 
     <h2>Other Options:</h2>
+    <p>
     <form method="post" action="..">
     <input type="submit" value="Register Another Attendee" />
     </form>
+    </p>
 
 </div>
 {% endblock %}
