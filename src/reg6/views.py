@@ -10,7 +10,6 @@ STEPS_TOTAL = 5
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
     return None
-  promo_name = promo.name
   promo_applies_to = promo.applies_to.all()
   for t in tickets:
     if t in promo_applies_to:
@@ -21,11 +20,26 @@ def ApplyPromoToTickets(promo, tickets):
 def ApplyPromoToItems(promo, items):
   if not promo:
     return None
-  promo_name = promo.name
   for item in items:
     if item.promo:
       item.price *= promo.price_modifier
   return promo.name
+
+
+def CheckVars(request, post, cookies):
+  for var in post:
+    if var not in request.POST:
+      return render_to_response('reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'No %s information.' % var,
+        })
+  for var in cookies:
+    if var not in request.session:
+      return render_to_response('reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'No %s information.' % var,
+        })
+  return None
 
 
 def index(request):
@@ -58,13 +72,10 @@ def AddItems(request):
   if '/reg6/' not in request.META['HTTP_REFERER']:
     return HttpResponseRedirect('/reg6/')
 
-  required_vars = ['ticket', 'promo']
-  for var in required_vars:
-    if var not in request.POST:
-      return render_to_response('reg6/reg_error.html',
-        {'title': 'Registration Problem',
-         'error_message': 'No %s information.' % var,
-        })
+  required_vars = ['promo', 'ticket']
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
 
   ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
   active_promocode_set = models.PromoCode.active_objects
@@ -102,12 +113,9 @@ def AddAttendee(request):
     return HttpResponseRedirect('/reg6/')
 
   required_vars = ['ticket', 'promo']
-  for var in required_vars:
-    if var not in request.POST:
-      return render_to_response('reg6/reg_error.html',
-        {'title': 'Registration Problem',
-         'error_message': 'No %s information.' % var,
-        })
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
 
   ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
   active_promocode_set = models.PromoCode.active_objects
@@ -143,7 +151,6 @@ def AddAttendee(request):
     # add badge type
     new_data['badge_type'] = new_data['ticket']
     # add ordered items
-    selected_items_ids = []
     for s in selected_items:
       new_data.appendlist('ordered_items', str(s.id))
     # add promo
