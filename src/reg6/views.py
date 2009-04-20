@@ -82,6 +82,12 @@ def GenerateOrderID(bad_nums):
   return id
 
 
+def scale_render_to_response(request, template, vars):
+  if 'kiosk' in request.session:
+    vars['kiosk'] = True
+  return render_to_response(template, vars)
+
+
 def index(request):
   avail_tickets = models.Ticket.public_objects.order_by('description')
   active_promocode_set = models.PromoCode.active_objects
@@ -91,14 +97,18 @@ def index(request):
   if request.method == 'GET':
     if 'promo' in request.GET and request.GET['promo'] in avail_promocodes:
       promo_in_use = active_promocode_set.get(name=request.GET['promo'])
+    if 'kiosk' in request.GET:
+      request.session['kiosk'] = True
   elif request.method == 'POST':
     if 'promo' in request.POST and request.POST['promo'] in avail_promocodes:
       promo_in_use = active_promocode_set.get(name=request.POST['promo'])
+    if 'kiosk' in request.POST:
+      request.session['kiosk'] = True
 
   promo_name = ApplyPromoToTickets(promo_in_use, avail_tickets)
 
   request.session.set_test_cookie()
-  return render_to_response('reg6/reg_index.html',
+  return scale_render_to_response(request, 'reg6/reg_index.html',
     {'title': 'Registration',
      'tickets': avail_tickets,
      'promo': promo_name,
@@ -131,7 +141,7 @@ def AddItems(request):
   items = GetTicketItems(ticket[0])
   ApplyPromoToItems(promo_in_use, items)
 
-  return render_to_response('reg6/reg_items.html',
+  return scale_render_to_response(request, 'reg6/reg_items.html',
     {'title': 'Registration - Add Items',
      'ticket': ticket[0],
      'promo': promo_name,
@@ -226,13 +236,13 @@ def AddAttendee(request):
     try:
       errors = manipulator.get_validation_errors(new_data)
     except: # FIXME sometimes we get an exception, not sure how to reproduce
-      return render_to_response('reg6/reg_error.html',
+      return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
          'error_message': 'An unexpected error occurred, please try again.'
         })
     if not errors:
       if not request.session.test_cookie_worked():
-        return render_to_response('reg6/reg_error.html',
+        return scale_render_to_response(request, 'reg6/reg_error.html',
           {'title': 'Registration Problem',
            'error_message': 'Please do not register multiple attendees at the same time. Please make sure you have cookies enabled.',
           })
@@ -250,7 +260,7 @@ def AddAttendee(request):
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
   form = forms.FormWrapper(manipulator, new_data, errors)
-  return render_to_response('reg6/reg_attendee.html',
+  return scale_render_to_response(request, 'reg6/reg_attendee.html',
     {'title': 'Register Attendee',
      'ticket': ticket[0],
      'promo': promo_name,
@@ -277,7 +287,7 @@ def RegisteredAttendee(request):
 
   attendee = models.Attendee.objects.get(id=request.session['attendee'])
 
-  return render_to_response('reg6/reg_finish.html',
+  return scale_render_to_response(request, 'reg6/reg_finish.html',
     {'title': 'Attendee Registered',
      'attendee': attendee,
      'step': 4,
@@ -356,7 +366,7 @@ def StartPayment(request):
   for person in all_attendees_data:
     total += person.ticket_cost()
 
-  return render_to_response('reg6/reg_start_payment.html',
+  return scale_render_to_response(request, 'reg6/reg_start_payment.html',
     {'title': 'Place Your Order',
      'bad_attendee': bad_attendee,
      'new_attendee': new_attendee,
@@ -416,12 +426,12 @@ def Payment(request):
     except: # FIXME catch the specific db exceptions
       order_tries += 1
       if order_tries > 10:
-        return render_to_response('reg6/reg_error.html',
+        return scale_render_to_response(request, 'reg6/reg_error.html',
           {'title': 'Registration Problem',
            'error_message': 'We cannot generate an order ID for you.',
           })
 
-  return render_to_response('reg6/reg_payment.html',
+  return scale_render_to_response(request, 'reg6/reg_payment.html',
     {'title': 'Registration Payment',
      'attendees': all_attendees_data,
      'order': order_num,
@@ -529,7 +539,7 @@ def Sale(request):
 
 
 def FailedPayment(request):
-  return render_to_response('reg6/reg_failed.html',
+  return scale_render_to_response(request, 'reg6/reg_failed.html',
     {'title': 'Registration Payment Failed',
     })
 
@@ -562,7 +572,7 @@ def FinishPayment(request):
 
   all_attendees_data = models.Attendee.objects.filter(order=order.order_num)
 
-  return render_to_response('reg6/reg_receipt.html',
+  return scale_render_to_response(request, 'reg6/reg_receipt.html',
     {'title': 'Registration Payment Receipt',
      'name': request.POST['NAME'],
      'email': request.POST['EMAIL'],
@@ -576,7 +586,7 @@ def FinishPayment(request):
 
 def RegLookup(request):
   if request.method != 'POST':
-    return render_to_response('reg6/reg_lookup.html',
+    return scale_render_to_response(request, 'reg6/reg_lookup.html',
       {'title': 'Registration Lookup',
       })
 
@@ -594,7 +604,7 @@ def RegLookup(request):
     attendees = models.Attendee.objects.filter(zip=request.POST['zip'],
       email=request.POST['email'])
 
-  return render_to_response('reg6/reg_lookup.html',
+  return scale_render_to_response(request, 'reg6/reg_lookup.html',
     {'title': 'Registration Lookup',
      'attendees': attendees,
      'email': request.POST['email'],
