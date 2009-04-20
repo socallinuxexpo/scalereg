@@ -108,6 +108,13 @@
     <input type="submit" value="Continue" />
     </p>
     </form>
+
+    <form method="post" action="../">
+    <p>
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    <input type="submit" value="Start Over" />
+    </p>
+    </form>
 {% else %}
 Registration is closed.
 {% endif %}
