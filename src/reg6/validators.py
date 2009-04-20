@@ -59,3 +59,14 @@ def isValidAttendeeCheckin(field_data, all_data):
   if field_data == 'on':
     if 'valid' not in all_data:
       raise validators.ValidationError('Cannot check in invalid attendee')
+
+def isCommaSeparatedInts(field_data, all_data):
+  print 555
+  csv = field_data.split(',')
+  if not csv:
+    raise validators.ValidationError('No data')
+  try:
+    for f in csv:
+      int(f)
+  except ValueError:
+    raise validators.ValidationError('Not a number')
