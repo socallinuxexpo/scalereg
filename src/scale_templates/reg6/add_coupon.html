@@ -3,9 +3,11 @@
 {% load reg6_filters %}
 {% block content %}
 <div id="content-main">
-<style type="text/css">
-.reg6_form_error { color: #FF0000; font-weight: bold }
-</style>
+
+<p>
+Please fill in the information below, so we have a clue why this
+coupon got created.
+</p>
 
 <form method="post" action=".">
 <p>
@@ -28,7 +30,9 @@
 </tr>
 <tr>
     <td><b>Zip</b></td>
-    <td><input type="text" name="ZIP" maxlength="10" size="10" /></td>
+    <td><input type="text" name="ZIP" maxlength="10" size="10" /><br />
+    Need to be numeric
+    </td>
 </tr>
 <tr>
     <td>Country</td>
@@ -48,11 +52,18 @@
     {% for t in tickets %}
     <option value="{{ t.name|escape }}">{{ t.name|escape }} - {{ t.description }}</option>
     {% endfor %}
+    </select>
+    <br />
+    The attendees registered with this coupon will have this badge type. It
+    does not matter what badge type they selected.
     </td>
 </tr>
 <tr>
     <td><b>Max Attendees</b></td>
-    <td><input type="text" name="MAX_ATTENDEES" maxlength="3" size="3" /></td>
+    <td><input type="text" name="MAX_ATTENDEES" maxlength="3" size="3" /><br />
+    This is the maximum number of attendees that can be paid for with this
+    coupon.
+    </td>
 </tr>
 </table>
 <input type="submit" value="Submit" />
