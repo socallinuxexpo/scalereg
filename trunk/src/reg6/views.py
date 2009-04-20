@@ -474,6 +474,7 @@ def Sale(request):
     'RESULT',
     'RESPMSG',
     'USER1',
+    'USER2',
   ]
 
   r = CheckVars(request, required_vars, [])
@@ -544,6 +545,8 @@ def Sale(request):
   for person in all_attendees_data:
     person.valid = True
     person.order = order
+    if request.POST['USER2'] == 'Y':
+      person.checked_in = True
     person.save()
 
   return HttpResponse('success')
