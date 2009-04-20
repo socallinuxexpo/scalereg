@@ -52,6 +52,11 @@
     <input type="hidden" name="AMOUNT" value="{{ total|escape }}">
     <input type="hidden" name="TYPE" value="S">
     <input type="hidden" name="USER1" value="{{ order|escape }}">
+    {% if kiosk %}
+    <input type="hidden" name="USER2" value="Y">
+    {% else %}
+    <input type="hidden" name="USER2" value="N">
+    {% endif %}
     <input type="submit" value="Continue" />
     </form>
 
