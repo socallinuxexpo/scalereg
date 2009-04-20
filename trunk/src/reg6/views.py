@@ -228,11 +228,20 @@ def StartPayment(request):
   all_attendees = request.session['payment']
   bad_attendee = None
   paid_attendee = None
+  removed_attendee = None
   total = 0
 
-  required_vars = ['id', 'email']
-  r = CheckVars(request, required_vars, [])
-  if not r:
+  if 'remove' in request.POST:
+    try:
+      remove_id = int(request.POST['remove'])
+      for person in all_attendees:
+        if person.id == remove_id:
+          removed_attendee = person
+          all_attendees.remove(person)
+          break
+    except ValueError:
+      pass
+  elif 'id' in request.POST and 'email' in request.POST:
     try:
       id = int(request.POST['id'])
       attendee = models.Attendee.objects.get(id=id)
@@ -254,7 +263,7 @@ def StartPayment(request):
 
   # sanity check
   checksum = 0
-  for f in [attendee, bad_attendee, paid_attendee]:
+  for f in [attendee, bad_attendee, paid_attendee, removed_attendee]:
     if f:
       checksum += 1
   assert checksum <= 1
@@ -269,6 +278,7 @@ def StartPayment(request):
      'bad_attendee': bad_attendee,
      'new_attendee': attendee,
      'paid_attendee': paid_attendee,
+     'removed_attendee': removed_attendee,
      'attendees': all_attendees,
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
