@@ -8,4 +8,5 @@ urlpatterns = patterns('',
     (r'^registered_attendee/$', 'scale.reg6.views.RegisteredAttendee'),
     (r'^start_payment/$', 'scale.reg6.views.StartPayment'),
     (r'^payment/$', 'scale.reg6.views.Payment'),
+    (r'^sale/$', 'scale.reg6.views.Sale'),
 )

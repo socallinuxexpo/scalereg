@@ -1,7 +1,7 @@
 # Create your views here.
 
 from django import forms
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 import models
 import random
@@ -358,3 +358,88 @@ def Payment(request):
      'steps_total': STEPS_TOTAL,
      'total': total,
     })
+
+
+def Sale(request):
+  if request.method != 'POST':
+    return HttpResponseServerError('not POST')
+  if 'HTTP_REFERER' in request.META:
+    print request.META['HTTP_REFERER']
+#  if 'HTTP_REFERER' not in request.META  or \
+#    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
+#    return HttpResponseRedirect('/reg6/')
+
+  required_vars = [
+    'NAME',
+    'ADDRESS',
+    'CITY',
+    'STATE',
+    'ZIP',
+    'COUNTRY',
+    'PHONE',
+    'EMAIL',
+    'AMOUNT',
+    'AUTHCODE',
+    'RESULT',
+    'RESPMSG',
+    'USER1',
+  ]
+
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return HttpResponseServerError('required vars missing')
+
+  try:
+    temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
+  except models.Attendee.DoesNotExist:
+    return HttpResponseServerError('cannot get temp order')
+
+  order_exists = True
+  try:
+    order = models.Order.objects.get(order_num=request.POST['USER1'])
+  except models.Order.DoesNotExist:
+    order_exists = False
+  if order_exists:
+    return HttpResponseServerError('order already exists')
+
+  all_attendees_data = []
+  for id in temp_order.attendees_list():
+    try:
+      attendee = models.Attendee.objects.get(id=id)
+      if not attendee.valid:
+        all_attendees_data.append(attendee)
+    except models.Attendee.DoesNotExist:
+      return HttpResponseServerError('cannot find an attendee')
+
+  total = 0
+  for person in all_attendees_data:
+    total += person.ticket_cost()
+  assert total == float(request.POST['AMOUNT'])
+
+  try:
+    order = models.Order(order_num=request.POST['USER1'],
+      valid=True,
+      name=request.POST['NAME'],
+      address=request.POST['ADDRESS'],
+      city=request.POST['CITY'],
+      state=request.POST['STATE'],
+      zip=int(request.POST['ZIP']),
+      country=request.POST['COUNTRY'],
+      email=request.POST['EMAIL'],
+      phone=request.POST['PHONE'],
+      amount=float(request.POST['AMOUNT']),
+      payment_type='verisign',
+      auth_code=request.POST['AUTHCODE'],
+      resp_msg=request.POST['RESPMSG'],
+      result=request.POST['RESULT'],
+    )
+    order.save()
+  except: # FIXME catch the specific db exceptions
+    return HttpResponseServerError('cannot save order')
+
+  for person in all_attendees_data:
+    person.valid = True
+    person.order = order
+    person.save()
+
+  return HttpResponse('success')
