@@ -443,3 +443,9 @@ def Sale(request):
     person.save()
 
   return HttpResponse('success')
+
+
+def FailedPayment(request):
+  return render_to_response('reg6/reg_failed.html',
+    {'title': 'Registration Payment Failed',
+    })
