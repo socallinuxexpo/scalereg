@@ -2,7 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import Context, loader
+from django.shortcuts import render_to_response
 from scale.auth_helper.models import Service
 
 def index(request):
@@ -18,8 +18,5 @@ def profile(request):
   services = services_group or services_user
   services = services.filter(active=True).order_by('name')
 
-  t = loader.get_template('profile/index.html')
-  c = Context({'user': request.user, 'title': 'Available Services', 'services': services})
-  return HttpResponse(t.render(c))
-
-
+  return render_to_response('profile/index.html',
+    {'user': request.user, 'title': 'Available Services', 'services': services})
