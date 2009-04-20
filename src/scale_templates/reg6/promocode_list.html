@@ -15,7 +15,7 @@
         {% for field in field_list %}
             <th>{{ field|escape }}</th>
         {% endfor %}
-	<th>applies to</th>
+    <th>applies to</th>
     </tr>
     {% for o in object_list %}
     <tr>
@@ -31,12 +31,12 @@
         {% else %}
         {% for t in o.applies_to.all %}
             {{ t.name|escape }}
-	    {% if not forloop.last %}
-	    ,
-	    {% endif %}
+        {% if not forloop.last %}
+        ,
+        {% endif %}
         {% endfor %}
         {% endif %}
-	</td>
+    </td>
     </tr>
     {% endfor %}
     </table>

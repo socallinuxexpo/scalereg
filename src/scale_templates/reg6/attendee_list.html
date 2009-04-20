@@ -13,9 +13,9 @@
     <table border="1">
     <tr>
         {% for field in field_list %}
-	{% ifequal field "obtained_items" %}
+    {% ifequal field "obtained_items" %}
             <th>ordered_items</th>
-	{% endifequal %}
+    {% endifequal %}
             <th>{{ field|escape }}</th>
         {% endfor %}
     </tr>
@@ -34,14 +34,14 @@
         <td>{{ o.email|escape }}</td>
         <td>{{ o.phone|escape }}</td>
         <td>{{ o.promo|escape }}</td>
-	<td>
+    <td>
         {% for item in o.ordered_items.all %}
             {{ item.name|escape }}
-	    {% if not forloop.last %}
-	    ,
-	    {% endif %}
+        {% if not forloop.last %}
+        ,
+        {% endif %}
         {% endfor %}
-	</td>
+    </td>
         <td>{{ o.obtained_items|escape }}</td>
         <td>{{ o.survey_answers|escape }}</td>
     </tr>
