@@ -62,6 +62,7 @@ ROOT_URLCONF = 'scale.urls'
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates".
     # Always use forward slashes, even on Windows.
+    "/path/to/scalereg/scale_templates",
 )
 
 INSTALLED_APPS = (

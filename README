@@ -42,9 +42,10 @@ cp -a src/* scalereg
 Now edit scalereg/settings.py and make sure all the settings look
 correct. By default, we use a SQLite database since it requires
 minimal setup. Please use the SECRET_KEY in scalereg/settings.py.bak,
-and then delete scalereg/settings.py.bak. With the application
-configured, run the following commands to initial the database and
-start the webserver:
+and then delete scalereg/settings.py.bak. Also change the path in
+TEMPLATE_DIRS with the full path to scalereg/scale_templates.  With
+the application configured, run the following commands to initial the
+database and start the webserver:
 
 cd scalereg
 python manage.py syncdb
