@@ -65,18 +65,13 @@ def reports_perm_checker(user, path):
       break
   return can_access
 
-@login_required
-def index(request):
-  can_access = reports_perm_checker(request.user, request.path)
-  if not can_access:
-    return HttpResponseRedirect('/accounts/profile/')
-
-  perms = request.user.get_all_permissions()
+def get_model_list(user):
+  perms = user.get_all_permissions()
   tables = [m[0] for m in inspect.getmembers(models, inspect.isclass)
              if type(m[1]) == ModelBase and m[1]._meta.admin]
   model_list = []
   for t in tables:
-    if request.user.is_superuser or "reg6.view_%s" % t.lower() in perms:
+    if user.is_superuser or "reg6.view_%s" % t.lower() in perms:
       def foo(match):
         return '%s %s' % match.groups()
       name = re.sub('([a-z])([A-Z])', foo, t)
@@ -84,6 +79,15 @@ def index(request):
         name = name + 's'
       url = t.lower() + '/'
       model_list.append({'name': name, 'url': url})
+  return model_list
+
+@login_required
+def index(request):
+  can_access = reports_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+  
+  model_list = get_model_list(request.user)
 
   return render_to_response('reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
