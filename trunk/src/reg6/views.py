@@ -57,6 +57,7 @@ def index(request):
 
   promo_name = ApplyPromoToTickets(promo_in_use, avail_tickets)
 
+  request.session.set_test_cookie()
   return render_to_response('reg6/reg_index.html',
     {'title': 'Registration',
      'tickets': avail_tickets,
@@ -161,8 +162,15 @@ def AddAttendee(request):
 
     errors = manipulator.get_validation_errors(new_data)
     if not errors:
+      if not request.session.test_cookie_worked():
+        return render_to_response('reg6/reg_error.html',
+          {'title': 'Registration Problem',
+           'error_message': 'Please do not register multiple attendees at the same time. Please make sure you have cookies enabled.',
+          })
+      request.session.delete_test_cookie()
       manipulator.do_html2python(new_data)
       new_place = manipulator.save(new_data)
+      request.session['attendee'] = new_place.id
       return HttpResponseRedirect('/reg6/finish_registration/')
 
   form = forms.FormWrapper(manipulator, new_data, errors)
@@ -174,5 +182,26 @@ def AddAttendee(request):
      'total': total,
      'form': form,
      'step': 3,
+     'steps_total': STEPS_TOTAL,
+    })
+
+
+def FinishRegistration(request):
+  if request.method != 'GET':
+    return HttpResponseRedirect('/reg6/')
+  if '/reg6/add_attendee/' not in request.META['HTTP_REFERER']:
+    return HttpResponseRedirect('/reg6/')
+
+  required_cookies = ['attendee']
+  r = CheckVars(request, [], required_cookies)
+  if r:
+    return r
+
+  attendee = models.Attendee.objects.get(id=request.session['attendee'])
+
+  return render_to_response('reg6/reg_finish.html',
+    {'title': 'Attendee Registered',
+     'attendee': attendee,
+     'step': 4,
      'steps_total': STEPS_TOTAL,
     })

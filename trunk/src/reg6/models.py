@@ -249,6 +249,19 @@ class Attendee(models.Model):
   survey_answers = models.CharField(maxlength=60, blank=True,
     help_text='comma separated list of key=value')
 
+  def ticket_cost(self):
+    price_modifier = 1
+    if self.promo:
+      price_modifier = self.promo.price_modifier
+
+    total = self.badge_type.price * price_modifier
+    for item in self.ordered_items.all():
+      additional_cost = item.price
+      if item.promo:
+        additional_cost *= price_modifier
+      total += additional_cost
+    return total
+
   class Admin:
     fields = (
       ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
