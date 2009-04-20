@@ -94,7 +94,7 @@ def AddItems(request):
   ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
-  
+
   promo_in_use = None
   if request.POST['promo'] in avail_promocodes:
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
@@ -135,7 +135,7 @@ def AddAttendee(request):
   ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
-  
+
   promo_in_use = None
   if request.POST['promo'] in avail_promocodes:
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
