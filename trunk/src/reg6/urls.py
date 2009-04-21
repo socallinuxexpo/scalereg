@@ -19,4 +19,5 @@ urlpatterns = patterns('',
     (r'^checked_in/$', 'scale.reg6.views.CheckedIn'),
     (r'^mass_add/$', 'scale.reg6.views.MassAdd'),
     (r'^clear_badorder/$', 'scale.reg6.views.ClearBadOrder'),
+    (r'^staff/', include('scale.reg6.staff.urls')),
 )
