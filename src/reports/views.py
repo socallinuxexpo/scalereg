@@ -245,6 +245,22 @@ def dashboard(request):
   for t in ticket_attendees_data:
     t.percentage = 100 * round(t.count / float(num_attendees), 3)
 
+  promo_attendees_data = {}
+  promo_attendees_data[None] = Count('None')
+  for att in attendees:
+    if att.promo:
+      promo = att.promo.name
+    else:
+      promo = None
+    if promo not in promo_attendees_data:
+      promo_attendees_data[promo] = Count(promo)
+    promo_attendees_data[promo].count += 1
+  promo_attendees_data = promo_attendees_data.items()
+  promo_attendees_data.sort()
+  promo_attendees_data = [v[1] for v in promo_attendees_data]
+  for p in promo_attendees_data:
+    p.percentage = 100 * round(p.count / float(num_attendees), 3)
+
   zipcode_order_data = {}
   for x in orders:
     if x.zip not in zipcode_order_data:
@@ -295,6 +311,7 @@ def dashboard(request):
     {'title': 'Dashboard',
      'attendees': attendees_data,
      'orders': orders_data,
+     'promo_attendees': promo_attendees_data,
      'questions': questions_data,
      'ticket_attendees': ticket_attendees_data,
      'type_attendees': type_attendees_data,
