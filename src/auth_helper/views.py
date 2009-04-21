@@ -12,7 +12,7 @@ def index(request):
 def profile(request):
   # figure out what servers are available
   if request.user.is_superuser:
-    services = Service.objects.all()
+    services = Service.objects.filter(active=True)
   else:
     services_user = Service.objects.filter(users=request.user)
     services_user = services_user.filter(active=True)
