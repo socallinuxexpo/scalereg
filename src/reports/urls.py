@@ -19,6 +19,14 @@ attendee_dict = {
     'allow_empty': True,
 }
 
+coupon_dict = {
+    'queryset': models.Coupon.objects.all(),
+    'extra_context': {
+    'opts': models.Coupon._meta,
+    },
+    'allow_empty': True,
+}
+
 item_dict = {
     'queryset': models.Item.objects.all(),
     'extra_context': {
@@ -64,6 +72,7 @@ urlpatterns = patterns('',
     (r'^$', 'scale.reports.views.index'),
     (r'^answer/$', 'scale.reports.views.object_list', answer_dict),
     (r'^attendee/$', 'scale.reports.views.object_list', attendee_dict),
+    (r'^coupon/$', 'scale.reports.views.object_list', coupon_dict),
     (r'^item/$', 'scale.reports.views.object_list', item_dict),
     (r'^order/$', 'scale.reports.views.object_list', order_dict),
     (r'^promocode/$', 'scale.reports.views.object_list', promocode_dict),
