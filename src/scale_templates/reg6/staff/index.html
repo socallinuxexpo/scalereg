@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block content %}
+<div id="content-main">
+
+<div class="module">
+<table>
+  <tr><th><a href="checkin/">Check In A Registered Attendee</a></th></tr>
+  <tr><th><a href="cash_payment/">Register A Cash-paying Attendee</a></th></tr>
+</table>
+</div>
+</div>
+{% endblock %}
