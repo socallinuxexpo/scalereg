@@ -6,18 +6,23 @@ attendee_dict = {
     'extra_context': {
     'valid': models.Attendee.objects.all().filter(valid=True).count(),
     'checkin': models.Attendee.objects.all().filter(checked_in=True).count(),
+    'opts': models.Item._meta,
     },
     'allow_empty': True,
 }
 
 item_dict = {
     'queryset': models.Item.objects.all(),
+    'extra_context': {
+    'opts': models.Item._meta,
+    },
     'allow_empty': True,
 }
 
 order_dict = {
     'queryset': models.Order.objects.all(),
     'extra_context': {
+    'opts': models.Item._meta,
     'total': sum([x.amount for x in models.Order.objects.all().filter(valid=True)]),
     },
     'allow_empty': True,
@@ -25,11 +30,17 @@ order_dict = {
 
 promocode_dict = {
     'queryset': models.PromoCode.objects.all(),
+    'extra_context': {
+    'opts': models.Item._meta,
+    },
     'allow_empty': True,
 }
 
 ticket_dict = {
     'queryset': models.Ticket.objects.all(),
+    'extra_context': {
+    'opts': models.Item._meta,
+    },
     'allow_empty': True,
 }
 
