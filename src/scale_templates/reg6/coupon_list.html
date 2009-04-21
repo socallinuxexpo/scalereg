@@ -8,6 +8,12 @@
         {% for field in field_list %}
         <th>{{ field|escape }}</th>
         {% endfor %}
+        <th>Name</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Email</th>
+        <th>Phone</th>
     </tr>
     {% for o in object_list %}
     <tr>
@@ -17,6 +23,12 @@
         <td>{{ o.used|escape }}</td>
         <td>{{ o.max_attendees|escape }}</td>
         <td>{{ o.expiration|escape }}</td>
+        <td>{{ o.order.name|escape }}</td>
+        <td>{{ o.order.address|escape }}</td>
+        <td>{{ o.order.city|escape }}</td>
+        <td>{{ o.order.state|escape }}</td>
+        <td>{{ o.order.email|escape }}</td>
+        <td>{{ o.order.phone|escape }}</td>
     </tr>
     {% endfor %}
     </table>
