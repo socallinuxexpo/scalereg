@@ -53,7 +53,7 @@ function toggleDisplay(id) {
 <div id="orders_type">
 <table border="1" class="sortable">
 <tr>
-  <th></th>
+  <th>Type</th>
   <th>7 Days</th>
   <th>30 Days</th>
   <th>Total</th>
@@ -69,67 +69,74 @@ function toggleDisplay(id) {
 </table>
 </div>
 
-<!--
-<h2>Attendees</h2>
+<h2>Attendees
+<a href="#" onclick="toggleDisplay('attendees'); return false;"><tt>[*]</tt></a>
+</h2>
 
+<div id="attendees">
 <table border="1" class="sortable">
 <tr>
-  <th></th>
-  <th>7 Days</th>
-  <th>30 Days</th>
+  <th>Type</th>
+  <th>Checked In</th>
   <th>Total</th>
 </tr>
+{% for t in type_attendees %}
 <tr>
-  <td>Attendees</td>
-  <td>blar</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ t.name }}</td>
+  <td>{{ t.checked_in }}</td>
+  <td>{{ t.count }}</td>
 </tr>
+{% endfor %}
+<tfoot>
 <tr>
-  <td>Checked in</td>
-  <td></td>
-  <td></td>
-  <td>blar</td>
+  <td>Total</td>
+  <td>{{ attendees.checked_in }}</td>
+  <td>{{ attendees.numbers }}</td>
 </tr>
+</tfoot>
 </table>
+</div>
 
-<h3>By Type</h3>
+<h3>By Attendee Type</h3>
 
 <table border="1" class="sortable">
 <tr>
-  <th></th>
-  <th>7 Days</th>
-  <th>30 Days</th>
-  <th>Total</th>
-</tr>
-<tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
-  <td>blar</td>
-</tr>
-</table>
-
-<h3>Promo Codes</h3>
-
-<table border="1" class="sortable">
-<tr>
-  <th>Promo</th>
+  <th>Type</th>
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for t in type_attendees %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ t.name }}</td>
+  <td>{{ t.count }}</td>
+  <td>{{ t.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
 
-<h3>Tickets</h3>
+<h3>By Tickets Type</h3>
 
 <table border="1" class="sortable">
 <tr>
   <th>Ticket</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for t in ticket_attendees %}
+<tr>
+  <td>{{ t.name }}</td>
+  <td>{{ t.count }}</td>
+  <td>{{ t.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<!--
+<h3>By Promo Codes</h3>
+
+<table border="1" class="sortable">
+<tr>
+  <th>Promo</th>
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
@@ -218,7 +225,7 @@ function toggleDisplay(id) {
   <div id="{{ q.name|slugify }}">
   <table border="1" class="sortable">
   <tr>
-    <th></th>
+    <th>Answer</th>
     <th>Numbers</th>
     <th>Percentage</th>
   </tr>
