@@ -112,6 +112,7 @@ def index(request):
     return HttpResponseRedirect('/accounts/profile/')
   
   model_list = get_model_list(request.user)
+  model_list.insert(0, {'name': 'Dashboard', 'url': 'dashboard/'})
 
   return render_to_response('reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
