@@ -89,3 +89,18 @@ def MassAdd(request):
 
   response.write('</body></html>')
   return response
+
+
+@login_required
+def UrlDump(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  attendees = reg6models.Attendee.objects.filter(checked_in=True)
+  response = HttpResponse(mimetype='text/plain')
+  for f in attendees:
+    hash = validator.hash(f.first_name + f.last_name)[:6]
+    hash += '%04d' % f.id
+    response.write('%s %s\n' % (f.first_name, f.last_name))
+    response.write('%s\n' % f.email)
+    response.write('%s\n' % hash)
+  return response
