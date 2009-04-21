@@ -1,0 +1,40 @@
+{% extends "speaker_survey/base.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+{% if speakers %}
+<h2>
+Speakers
+</h2>
+
+<table border="1" class="sortable">
+<tr>
+  <th>Speaker</th>
+  <th>Speaker Score</th>
+  <th>Presentation Score</th>
+  <th>Number of surveys</th>
+</tr>
+{% for s in speakers %}
+<tr>
+  <td><a href="{{ s.id }}/">{{ s|escape }}</a>
+  {% if s.url %}
+  <a href="{{ s.url|escape }}">[ Talk link ]</a>
+  {% endif %}
+  </td>
+  <td>{{ s.score1 }}</td>
+  <td>{{ s.score2 }}</td>
+  <td>{{ s.num }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+</div>
+{% endblock %}
+
