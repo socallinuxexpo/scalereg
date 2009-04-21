@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee %}
+  <p>
+  The following attendee has been checked in:<br /><br />
+  {{ attendee.first_name|escape }} {{ attendee.last_name|escape }}
+  </p>
+
+  <p>
+  <a href="../checkin/">Check In Another Attendee</a>
+  </p>
+{% else %}
+  <p>We had a problem with your registration checkin. Please ask the
+  registration desk for assistance.</p>
+{% endif %}
+{% endblock %}
