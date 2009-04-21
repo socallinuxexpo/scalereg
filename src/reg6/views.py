@@ -162,7 +162,7 @@ def kiosk_index(request):
   <body>
   <div align="center">
   <h1>Welcome to SCALE 6X</h1>
-  <h1>February 8 - 12, 2008</h1>
+  <h1>February 8 - 10, 2008</h1>
 
   <hr noshade width="60%">
 
