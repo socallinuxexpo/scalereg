@@ -82,11 +82,31 @@ def CashPayment(request):
 
   tickets = []
   try:
-    tickets.append(models.Ticket.objects.get(name='6XF2'))
+    tickets.append(models.Ticket.objects.get(name='7XSVN'))
+  except:
+    pass
+  try:
+    tickets.append(models.Ticket.objects.get(name='OSSE'))
+  except:
+    pass
+  try:
+    tickets.append(models.Ticket.objects.get(name='WIOS'))
   except:
     pass
   try:
     tickets.append(models.Ticket.objects.get(name='6XE1'))
+  except:
+    pass
+  try:
+    tickets.append(models.Ticket.objects.get(name='6XF2'))
+  except:
+    pass
+  try:
+    tickets.append(models.Ticket.objects.get(name='7XSTD'))
+  except:
+    pass
+  try:
+    tickets.append(models.Ticket.objects.get(name='7XKID'))
   except:
     pass
   try:
