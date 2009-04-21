@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import *
-from scale.reg6 import models
 
 urlpatterns = patterns('',
     (r'^$', 'scale.reg6.views.index'),
