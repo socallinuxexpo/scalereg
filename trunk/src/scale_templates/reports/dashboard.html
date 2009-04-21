@@ -1,6 +1,8 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% endblock %}
 {% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
 {% block coltype %}colMS{% endblock %}
 {% block bodyclass %}dashboard{% endblock %}
@@ -18,7 +20,7 @@ function toggleDisplay(id) {
 </script>
 
 <h2>Orders
-<a href="#" onclick="toggleDisplay('orders')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('orders'); return false;"><tt>[*]</tt></a>
 </h2>
 
 <div id="orders">
@@ -45,11 +47,11 @@ function toggleDisplay(id) {
 </div>
 
 <h3>By Type
-<a href="#" onclick="toggleDisplay('orders_type')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('orders_type'); return false;"><tt>[*]</tt></a>
 </h3>
 
 <div id="orders_type">
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th></th>
   <th>7 Days</th>
@@ -70,7 +72,7 @@ function toggleDisplay(id) {
 <!--
 <h2>Attendees</h2>
 
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th></th>
   <th>7 Days</th>
@@ -93,7 +95,7 @@ function toggleDisplay(id) {
 
 <h3>By Type</h3>
 
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th></th>
   <th>7 Days</th>
@@ -110,7 +112,7 @@ function toggleDisplay(id) {
 
 <h3>Promo Codes</h3>
 
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th>Promo</th>
   <th>Numbers</th>
@@ -125,7 +127,7 @@ function toggleDisplay(id) {
 
 <h3>Tickets</h3>
 
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th>Ticket</th>
   <th>Numbers</th>
@@ -140,7 +142,7 @@ function toggleDisplay(id) {
 
 <h3>Addons</h3>
 
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th>Ticket</th>
   <th>Numbers</th>
@@ -156,16 +158,16 @@ function toggleDisplay(id) {
 //-->
 
 <h2>Zip Codes
-<a href="#" onclick="toggleDisplay('zipcode')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('zipcode'); return false;"><tt>[*]</tt></a>
 </h2>
 
 <div id="zipcode">
 <h3>Attendees
-<a href="#" onclick="toggleDisplay('zipcode_attendees')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('zipcode_attendees'); return false;"><tt>[*]</tt></a>
 </h3>
 
 <div id="zipcode_attendees">
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th>Zip</th>
   <th>Numbers</th>
@@ -182,11 +184,11 @@ function toggleDisplay(id) {
 </div>
 
 <h3>Orders
-<a href="#" onclick="toggleDisplay('zipcode_orders')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('zipcode_orders'); return false;"><tt>[*]</tt></a>
 </h3>
 
 <div id="zipcode_orders">
-<table border="1">
+<table border="1" class="sortable">
 <tr>
   <th>Zip</th>
   <th>Numbers</th>
@@ -204,19 +206,19 @@ function toggleDisplay(id) {
 </div>
 
 <h2>Survey Results
-<a href="#" onclick="toggleDisplay('survey_results')"><tt>[*]</tt></a>
+<a href="#" onclick="toggleDisplay('survey_results'); return false;"><tt>[*]</tt></a>
 </h2>
 
 <div id='survey_results'>
 {% for q in questions %}
   <h3>{{ q.name }}
-  <a href="#" onclick="toggleDisplay('{{ q.name|slugify }}')"><tt>[*]</tt></a>
+  <a href="#" onclick="toggleDisplay('{{ q.name|slugify }}'); return false;"><tt>[*]</tt></a>
   </h3>
 
   <div id="{{ q.name|slugify }}">
-  <table border="1">
+  <table border="1" class="sortable">
   <tr>
-    <th>Size</th>
+    <th></th>
     <th>Numbers</th>
     <th>Percentage</th>
   </tr>
