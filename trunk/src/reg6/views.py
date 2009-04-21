@@ -30,6 +30,36 @@ def ScaleDebug(msg):
   handle.close()
 
 
+def PrintAttendee(attendee):
+  badge = []
+  badge.append(attendee.salutation)
+  badge.append(attendee.first_name)
+  badge.append(attendee.last_name)
+  badge.append(attendee.title)
+  badge.append(attendee.org)
+  badge.append(attendee.email)
+  badge.append(attendee.phone)
+  badge.append(str(attendee.id))
+  badge.append(attendee.badge_type.type)
+  if not attendee.order:
+    return ''
+  if attendee.order.payment_type in ('verisign', 'google', 'cash'):
+    badge.append("%2.2f" % attendee.ticket_cost())
+  else:
+    badge.append('0.00')
+
+  tshirt = attendee.answers.filter(question='What is your shirt size?')
+  if tshirt:
+    badge.append(tshirt[0].text)
+  else:
+    badge.append('???')
+
+  for i in attendee.ordered_items.all():
+    badge.append(i.name)
+
+  return '~' + '~'.join([x.replace('~', '') for x in badge]) + '~'
+
+
 def ApplyPromoToTickets(promo, tickets):
   if not promo:
     return None
@@ -934,3 +964,13 @@ def AddCoupon(request):
     return HttpResponseServerError('error saving the order')
 
   return HttpResponse('Success! Your coupon code is: %s' % order.order_num)
+
+
+@login_required
+def CheckedIn(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  attendees = models.Attendee.objects.filter(checked_in=True)
+  return HttpResponse('\n'.join([PrintAttendee(f) for f in attendees]),
+          mimetype='text/plain')
+
