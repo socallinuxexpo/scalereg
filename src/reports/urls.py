@@ -1,6 +1,14 @@
 from django.conf.urls.defaults import *
 from scale.reg6 import models
 
+answer_dict = {
+    'queryset': models.Answer.objects.all(),
+    'extra_context': {
+    'opts': models.Answer._meta,
+    },
+    'allow_empty': True,
+}
+
 attendee_dict = {
     'queryset': models.Attendee.objects.all(),
     'extra_context': {
@@ -36,6 +44,14 @@ promocode_dict = {
     'allow_empty': True,
 }
 
+question_dict = {
+    'queryset': models.Question.objects.all(),
+    'extra_context': {
+    'opts': models.Question._meta,
+    },
+    'allow_empty': True,
+}
+
 ticket_dict = {
     'queryset': models.Ticket.objects.all(),
     'extra_context': {
@@ -46,10 +62,12 @@ ticket_dict = {
 
 urlpatterns = patterns('',
     (r'^$', 'scale.reports.views.index'),
+    (r'^answer/$', 'scale.reports.views.object_list', answer_dict),
     (r'^attendee/$', 'scale.reports.views.object_list', attendee_dict),
     (r'^item/$', 'scale.reports.views.object_list', item_dict),
     (r'^order/$', 'scale.reports.views.object_list', order_dict),
     (r'^promocode/$', 'scale.reports.views.object_list', promocode_dict),
+    (r'^question/$', 'scale.reports.views.object_list', question_dict),
     (r'^ticket/$', 'scale.reports.views.object_list', ticket_dict),
     (r'^reg6log/$', 'scale.reports.views.reg6log'),
     (r'^dashboard/$', 'scale.reports.views.dashboard'),
