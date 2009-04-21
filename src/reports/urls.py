@@ -81,4 +81,5 @@ urlpatterns = patterns('',
     (r'^reg6log/$', 'scale.reports.views.reg6log'),
     (r'^dashboard/$', 'scale.reports.views.dashboard'),
     (r'^badorder/$', 'scale.reports.views.badorder'),
+    (r'^getleads/$', 'scale.reports.views.getleads'),
 )

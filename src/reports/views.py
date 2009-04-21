@@ -398,3 +398,52 @@ def badorder(request):
     response.write('No order: %d %s %s\n' % (f.id, f.first_name, f.last_name))
 
   return response
+
+@login_required
+def getleads(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  response = HttpResponse(mimetype='text/plain')
+  response.write('Salutation,First Name,Last Name,Title,Company,Phone,Email\n')
+
+  data = request.POST['data'].split('\n')
+  for entry in data:
+    entry = entry.strip()
+    if not entry:
+      continue
+    try:
+      entry_int = int(entry)
+    except ValueError:
+      continue
+
+    try:
+      attendee = models.Attendee.objects.get(id=entry_int)
+    except models.Attendee.DoesNotExist:
+      response.write('bad attendee number: %s\n' % entry_int)
+      continue
+    if not attendee.valid:
+      response.write('invalid attendee number: %s\n' % entry_int)
+      continue
+    if not attendee.checked_in:
+      response.write('not checked in attendee number: %s\n' % entry_int)
+      continue
+    for field in (attendee.salutation, attendee.first_name, attendee.last_name,
+      attendee.title, attendee.org, attendee.phone, attendee.email):
+      if ',' in field:
+        response.write('"%s",' % field)
+      else:
+        response.write('%s,' % field)
+    response.write('\n')
+  return response
+
