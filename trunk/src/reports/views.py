@@ -39,16 +39,9 @@ class SurveyQuestion:
     self.answers = []
 
 
-class SurveyAnswer:
+class Count:
   def __init__(self, name):
     self.name = name
-    self.count = 0
-    self.percentage = 0
-
-
-class ZipCode:
-  def __init__(self, zip):
-    self.zip = zip
     self.count = 0
     self.percentage = 0
 
@@ -221,7 +214,7 @@ def dashboard(request):
   zipcode_order_data = {}
   for x in orders:
     if x.zip not in zipcode_order_data:
-      zipcode_order_data[x.zip] = ZipCode(x.zip)
+      zipcode_order_data[x.zip] = Count(x.zip)
     zipcode_order_data[x.zip].count += 1
   zipcode_order_data = zipcode_order_data.items()
   zipcode_order_data.sort()
@@ -232,7 +225,7 @@ def dashboard(request):
   zipcode_attendee_data = {}
   for att in attendees:
     if att.zip not in zipcode_attendee_data:
-      zipcode_attendee_data[att.zip] = ZipCode(att.zip)
+      zipcode_attendee_data[att.zip] = Count(att.zip)
     zipcode_attendee_data[att.zip].count += 1
   zipcode_attendee_data = zipcode_attendee_data.items()
   zipcode_attendee_data.sort()
@@ -245,7 +238,7 @@ def dashboard(request):
 
   all_answers = {}
   for ans in models.Answer.objects.all():
-    all_answers[ans.text] = SurveyAnswer(ans.text)
+    all_answers[ans.text] = Count(ans.text)
 
   for att in attendees:
     for ans in att.answers.all():
@@ -258,7 +251,7 @@ def dashboard(request):
       a_data = all_answers[ans.text]
       a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
       q_data.answers.append(a_data)
-    a_data = SurveyAnswer('No Answer')
+    a_data = Count('No Answer')
     a_data.count = num_attendees - sum([x.count for x in q_data.answers])
     a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
     q_data.answers.append(a_data)
