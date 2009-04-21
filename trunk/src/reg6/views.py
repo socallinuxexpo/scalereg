@@ -840,6 +840,10 @@ def RedeemCoupon(request):
       return HttpResponseServerError('cannot find an attendee')
 
   for person in all_attendees_data:
+    # remove non-free addon items
+    for item in person.ordered_items.all():
+      if item.price > 0:
+        person.ordered_items.remove(item)
     person.valid = True
     person.order = coupon.order
     person.badge_type = coupon.badge_type
