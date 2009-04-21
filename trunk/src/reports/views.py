@@ -354,3 +354,43 @@ def reg6log(request):
   except:
     response.write('error reading log files\n')
   return response
+
+@login_required
+def badorder(request):
+  can_access = reports_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  response = HttpResponse(mimetype='text/plain')
+  response.write('Bad orders:\n')
+  order_invitees = models.Order.objects.filter(payment_type='invitee')
+  order_exhibitors = models.Order.objects.filter(payment_type='exhibitor')
+  order_speakers = models.Order.objects.filter(payment_type='speaker')
+  order_press = models.Order.objects.filter(payment_type='press')
+  free_orders = order_invitees|order_exhibitors|order_speakers|order_press
+  for f in free_orders.filter(amount__gt=0):
+    response.write('Free Order costs money: %s %s\n' % (f.order_num, f.name))
+
+  bad_orders = models.Order.objects.filter(valid=False)
+  for g in bad_orders:
+    for f in g.attendee_set.all():
+      if f.valid:
+        response.write('Invalid Order: %d %s %s\n' % (f.id, f.first_name, f.last_name))
+
+  valid_orders = models.Order.objects.filter(valid=True)
+  order_verisign = valid_orders.filter(payment_type='verisign')
+  order_google = valid_orders.filter(payment_type='google')
+  order_cash = valid_orders.filter(payment_type='cash')
+  paid_orders = order_verisign|order_google|order_cash
+  for f in paid_orders:
+    if f.attendee_set.count() == 0:
+      response.write('Empty Order: %s %s\n' % (f.order_num, f.name))
+  for f in paid_orders.filter(amount__lte=0):
+    response.write('Paid Order with $0 cost: %s %s\n' % (f.order_num, f.name))
+
+  attendees = models.Attendee.objects.filter(valid=True)
+  no_order = attendees.filter(order__isnull=True)
+  for f in no_order:
+    response.write('No order: %d %s %s\n' % (f.id, f.first_name, f.last_name))
+
+  return response
