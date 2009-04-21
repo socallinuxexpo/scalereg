@@ -974,7 +974,9 @@ def AddCoupon(request):
 def CheckedIn(request):
   if not request.user.is_superuser:
     return HttpResponse('')
-  attendees = models.Attendee.objects.filter(checked_in=True)
+  attendees = models.Attendee.objects.filter(valid=True)
+  if request.method == 'GET':
+    attendees = attendees.filter(checked_in=True)
   return HttpResponse('\n'.join([PrintAttendee(f) for f in attendees]),
           mimetype='text/plain')
 
