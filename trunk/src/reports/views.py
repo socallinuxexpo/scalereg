@@ -187,8 +187,8 @@ def object_list(request, queryset, paginate_by=None, page=None,
 
 @login_required
 def dashboard(request):
-  # FIXME figure out what perms are needed here
-  if not request.user.is_superuser:
+  can_access = reports_perm_checker(request.user, request.path)
+  if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
   today = datetime.date.today()
