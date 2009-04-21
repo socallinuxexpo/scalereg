@@ -20,7 +20,7 @@ function toggleDisplay(id) {
 </script>
 
 <h2>Orders
-<a href="#" onclick="toggleDisplay('orders'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('orders')"><tt>[*]</tt></a>
 </h2>
 
 <div id="orders">
@@ -49,7 +49,7 @@ function toggleDisplay(id) {
 
 {% if orders and orders.by_type %}
 <h3>By Type
-<a href="#" onclick="toggleDisplay('orders_type'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('orders_type')"><tt>[*]</tt></a>
 </h3>
 
 <div id="orders_type">
@@ -74,7 +74,7 @@ function toggleDisplay(id) {
 </div>
 
 <h2>Attendees
-<a href="#" onclick="toggleDisplay('attendees'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('attendees')"><tt>[*]</tt></a>
 </h2>
 
 <div id="attendees">
@@ -104,7 +104,7 @@ function toggleDisplay(id) {
 
 {% if type_attendees %}
 <h3>By Attendee Type
-<a href="#" onclick="toggleDisplay('by_attendee_type'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('by_attendee_type')"><tt>[*]</tt></a>
 </h3>
 
 <div id="by_attendee_type">
@@ -127,7 +127,7 @@ function toggleDisplay(id) {
 
 {% if ticket_attendees %}
 <h3>By Tickets Type
-<a href="#" onclick="toggleDisplay('by_ticket_type'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('by_ticket_type')"><tt>[*]</tt></a>
 </h3>
 
 <div id="by_ticket_type">
@@ -150,7 +150,7 @@ function toggleDisplay(id) {
 
 {% if promo_attendees %}
 <h3>By Promo Codes
-<a href="#" onclick="toggleDisplay('by_promo'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('by_promo')"><tt>[*]</tt></a>
 </h3>
 
 <div id="by_promo">
@@ -173,7 +173,7 @@ function toggleDisplay(id) {
 
 {% if addon_attendees %}
 <h3>Addons
-<a href="#" onclick="toggleDisplay('by_addon'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('by_addon')"><tt>[*]</tt></a>
 </h3>
 
 <div id="by_addon">
@@ -201,13 +201,13 @@ function toggleDisplay(id) {
 </div>
 
 <h2>Zip Codes
-<a href="#" onclick="toggleDisplay('zipcode'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode')"><tt>[*]</tt></a>
 </h2>
 
 <div id="zipcode">
 {% if zipcode_attendees %}
 <h3>Attendees
-<a href="#" onclick="toggleDisplay('zipcode_attendees'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode_attendees')"><tt>[*]</tt></a>
 </h3>
 
 <div id="zipcode_attendees">
@@ -230,7 +230,7 @@ function toggleDisplay(id) {
 
 {% if zipcode_orders %}
 <h3>Orders
-<a href="#" onclick="toggleDisplay('zipcode_orders'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode_orders')"><tt>[*]</tt></a>
 </h3>
 
 <div id="zipcode_orders">
@@ -254,13 +254,13 @@ function toggleDisplay(id) {
 
 {% if questions %}
 <h2>Survey Results
-<a href="#" onclick="toggleDisplay('survey_results'); return false;"><tt>[*]</tt></a>
+<a href="javascript:void(0)" onclick="toggleDisplay('survey_results')"><tt>[*]</tt></a>
 </h2>
 
 <div id='survey_results'>
 {% for q in questions %}
   <h3>{{ q.name }}
-  <a href="#" onclick="toggleDisplay('{{ q.name|slugify }}'); return false;"><tt>[*]</tt></a>
+  <a href="javascript:void(0)" onclick="toggleDisplay('{{ q.name|slugify }}')"><tt>[*]</tt></a>
   </h3>
 
   <div id="{{ q.name|slugify }}">
