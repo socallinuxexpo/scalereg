@@ -18,18 +18,19 @@
 </tr>
 <tr>
   <td>Orders</td>
-  <td>blar</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ orders.numbers_7 }}</td>
+  <td>{{ orders.numbers_30 }}</td>
+  <td>{{ orders.numbers }}</td>
 </tr>
 <tr>
   <td>Revenue</td>
-  <td>blar</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>${{ orders.revenue_7 }}</td>
+  <td>${{ orders.revenue_30 }}</td>
+  <td>${{ orders.revenue }}</td>
 </tr>
 </table>
 
+<!--
 <h3>By Type</h3>
 
 <table border="1">
@@ -149,9 +150,12 @@
 </tr>
 </table>
 
+//-->
+
 <h2>Survey Results</h2>
 
-<h3>T-Shirts</h3>
+{% for q in questions %}
+<h3>{{ q.name }}</h3>
 
 <table border="1">
 <tr>
@@ -159,12 +163,15 @@
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for ans in q.answers %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ ans.name }}</td>
+  <td>{{ ans.count }}</td>
+  <td>{{ ans.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
+{% endfor %}
 
 
 </div>

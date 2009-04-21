@@ -7,8 +7,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
+from __future__ import division
 from scale.auth_helper.models import Service
 from scale.reg6 import models
+import datetime
 import inspect
 import re
 import string
@@ -30,6 +32,18 @@ class Item:
     self.name = name
     self.value = value
 
+
+class SurveyQuestion:
+  def __init__(self, name):
+    self.name = name
+    self.answers = []
+
+
+class SurveyAnswer:
+  def __init__(self, name):
+    self.name = name
+    self.count = 0
+    self.percentage = 0
 
 def paranoid_strip(value):
   valid_chars = string.ascii_letters + string.digits + '_'
@@ -178,11 +192,43 @@ def dashboard(request):
   if not request.user.is_superuser:
     return HttpResponseRedirect('/accounts/profile/')
 
-  sales = {}
+  today = datetime.date.today()
+  days_30 = today - datetime.timedelta(days=30)
+  days_7 = today - datetime.timedelta(days=7)
+
+  orders_data = {}
+  orders = models.Order.objects.filter(valid=True)
+  orders_data['numbers'] = len(orders)
+  orders_data['revenue'] = sum([x.amount for x in orders])
+  orders = orders.filter(date__gt = days_30)
+  orders_data['numbers_30'] = len(orders)
+  orders_data['revenue_30'] = sum([x.amount for x in orders])
+  orders = orders.filter(date__gt = days_7)
+  orders_data['numbers_7'] = len(orders)
+  orders_data['revenue_7'] = sum([x.amount for x in orders])
+
+  questions_data = []
+  questions = models.Question.objects.all()
+  attendees = models.Attendee.objects.filter(valid=True)
+  num_attendees = len(attendees)
+  for q in questions:
+    possible_answers = q.answer_set.all()
+    q_data = SurveyQuestion(q.text)
+    for ans in possible_answers:
+      a_data = SurveyAnswer(ans.text)
+      a_data.count = len([x for x in attendees if x.answers.filter(id=ans.id)])
+      a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
+      q_data.answers.append(a_data)
+    a_data = SurveyAnswer('No Answer')
+    a_data.count = num_attendees - sum([x.count for x in q_data.answers])
+    a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
+    q_data.answers.append(a_data)
+    questions_data.append(q_data)
 
   return render_to_response('reports/dashboard.html',
     {'title': 'Dashboard',
-     'sales': sales,
+     'orders': orders_data,
+     'questions': questions_data,
     })
 
 @login_required
