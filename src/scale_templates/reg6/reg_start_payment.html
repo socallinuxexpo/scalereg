@@ -9,12 +9,14 @@
     <h2>Attendee Not Found</h2>
     <p>
     <table border="1">
+    <tbody>
     <tr>
     <td>
     Registration Number: {{ bad_attendee.0|escape }},
     Email: {{ bad_attendee.1|escape }}.
     </td>
     </tr>
+    </tbody>
     </table>
     <br />
     </p>
@@ -24,12 +26,14 @@
     <h2>Added Attendee</h2>
     <p>
     <table border="1">
+    <tbody>
     <tr>
     <td>
     Registration Number: {{ new_attendee.id|escape }},
     Email: {{ new_attendee.email|escape }}.
     </td>
     </tr>
+    </tbody>
     </table>
     <br />
     </p>
@@ -39,12 +43,14 @@
     <h2>Attendee Already Paid For</h2>
     <p>
     <table border="1">
+    <tbody>
     <tr>
     <td>
     Registration Number: {{ paid_attendee.id|escape }},
     Email: {{ paid_attendee.email|escape }}.
     </td>
     </tr>
+    </tbody>
     </table>
     <br />
     </p>
@@ -54,12 +60,14 @@
     <h2>Attendee Removed</h2>
     <p>
     <table border="1">
+    <tbody>
     <tr>
     <td>
     Registration Number: {{ removed_attendee.id|escape }},
     Email: {{ removed_attendee.email|escape }}.
     </td>
     </tr>
+    </tbody>
     </table>
     <br />
     </p>
@@ -74,6 +82,7 @@
     </h2>
     
     <table border="1">
+    <thead>
     <tr>
     <th>Registration Number</th>
     <th>Name</th>
@@ -81,6 +90,8 @@
     <th>Amount</th>
     <th>Remove</th>
     </tr>
+    </thead>
+    <tbody>
     {% for person  in attendees %}
     <tr>
         <td>{{ person.id|escape }}</td>
@@ -95,6 +106,7 @@
         </td>
     </tr>
     {% endfor %}
+    </tbody>
     </table>
 
     <p>

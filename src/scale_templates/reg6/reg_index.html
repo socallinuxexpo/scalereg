@@ -35,11 +35,14 @@
 
     <form method="post" action="add_items/">
     <table border="1">
+    <thead>
     <tr>
         <th>&nbsp;</th>
         <th>Ticket</th>
         <th>Price</th>
     </tr>
+    </thead>
+    <tbody>
     {% for t in tickets %}
         <tr>
         <td><input type="radio" name="ticket" value="{{ t.name|escape }}" /></td>
@@ -47,6 +50,7 @@
         <td>{{ t.price|money|escape }}</td>
         </tr>
     {% endfor %}
+    </tbody>
     </table>
 
     {% if promo %}
