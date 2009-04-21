@@ -89,7 +89,7 @@
     </tr>
     <tr>
         <td><label for="id_zip"><b>Zip:</b></label></td>
-        <td>{{ form.zip }} (Please enter "00000" if your postal code contains letters)<br />
+        <td>{{ form.zip }}<br />
         {% if form.zip.errors %}<span class="reg6_form_error">{{ form.zip.errors|join:", " }}</span>{% endif %}
         </td>
     </tr>
