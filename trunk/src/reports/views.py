@@ -307,8 +307,21 @@ def dashboard(request):
     q_data.answers.append(a_data)
     questions_data.append(q_data)
 
+  addon_attendees_data = {}
+  for att in attendees:
+    for add in att.ordered_items.all():
+      if add.name not in addon_attendees_data:
+        addon_attendees_data[add.name] = Count(add.name)
+      addon_attendees_data[add.name].count += 1
+  addon_attendees_data = addon_attendees_data.items()
+  addon_attendees_data.sort()
+  addon_attendees_data = [v[1] for v in addon_attendees_data]
+  for zip in addon_attendees_data:
+    zip.percentage = 100 * round(zip.count / float(num_attendees), 3)
+
   return render_to_response('reports/dashboard.html',
     {'title': 'Dashboard',
+     'addon_attendees': addon_attendees_data,
      'attendees': attendees_data,
      'orders': orders_data,
      'promo_attendees': promo_attendees_data,
