@@ -46,6 +46,12 @@ class Count:
     self.percentage = 0
 
 
+class Attendee(Count):
+  def __init__(self, name):
+    Count.__init__(self, name)
+    self.checked_in = 0
+
+
 def paranoid_strip(value):
   valid_chars = string.ascii_letters + string.digits + '_'
   for c in value:
@@ -198,7 +204,7 @@ def dashboard(request):
   orders_data['numbers_7'] = orders_7.count()
   orders_data['revenue_7'] = sum([x.amount for x in orders_7])
   for pt in models.PAYMENT_CHOICES:
-    orders_pt = models.Order.objects.filter(payment_type=pt[0])
+    orders_pt = orders.filter(payment_type=pt[0])
     data_pt = {}
     data_pt['name'] = pt[1]
     data_pt['numbers'] = orders_pt.count()
@@ -208,8 +214,36 @@ def dashboard(request):
     data_pt['numbers_7'] = orders_pt_7.count()
     orders_data['by_type'].append(data_pt)
 
+  attendees_data = {}
   attendees = models.Attendee.objects.filter(valid=True)
   num_attendees = attendees.count()
+  attendees_data['numbers'] = num_attendees
+  attendees_data['checked_in'] = attendees.filter(checked_in=True).count()
+
+  type_attendees_data = {}
+  ticket_attendees_data = {}
+  for att in attendees:
+    att_type = att.badge_type.type
+    if att_type not in type_attendees_data:
+      type_attendees_data[att_type] = Attendee(att_type)
+    type_attendees_data[att_type].count += 1
+    if att.checked_in:
+      type_attendees_data[att_type].checked_in += 1
+
+    att_ticket = att.badge_type.name
+    if att_ticket not in ticket_attendees_data:
+      ticket_attendees_data[att_ticket] = Count(att_ticket)
+    ticket_attendees_data[att_ticket].count += 1
+  type_attendees_data = type_attendees_data.items()
+  type_attendees_data.sort()
+  type_attendees_data = [v[1] for v in type_attendees_data]
+  for t in type_attendees_data:
+    t.percentage = 100 * round(t.count / float(num_attendees), 3)
+  ticket_attendees_data = ticket_attendees_data.items()
+  ticket_attendees_data.sort()
+  ticket_attendees_data = [v[1] for v in ticket_attendees_data]
+  for t in ticket_attendees_data:
+    t.percentage = 100 * round(t.count / float(num_attendees), 3)
 
   zipcode_order_data = {}
   for x in orders:
@@ -259,8 +293,11 @@ def dashboard(request):
 
   return render_to_response('reports/dashboard.html',
     {'title': 'Dashboard',
+     'attendees': attendees_data,
      'orders': orders_data,
      'questions': questions_data,
+     'ticket_attendees': ticket_attendees_data,
+     'type_attendees': type_attendees_data,
      'zipcode_attendees': zipcode_attendee_data,
      'zipcode_orders': zipcode_order_data,
     })
