@@ -140,6 +140,10 @@ def object_list(request, queryset, paginate_by=None, page=None,
   if not extra_context:
     extra_context = {}
 
+  if 'admin_user' not in extra_context:
+    if request.user.is_staff:
+      extra_context['admin_user'] = True
+
   if 'title' not in extra_context:
     extra_context['title'] = queryset.model._meta.verbose_name_plural.title()
 

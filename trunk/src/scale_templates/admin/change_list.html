@@ -5,7 +5,11 @@
 {% if not is_popup %}{% block breadcrumbs %}<div class="breadcrumbs">
      <a href="/accounts/">{% trans "Home" %}</a> &rsaquo;
      <a href="/admin/">Admin</a> &rsaquo;
-{{ cl.opts.verbose_name_plural|capfirst|escape }}</div>{% endblock %}{% endif %}
+    {{ cl.opts.verbose_name_plural|capfirst|escape }}
+     <span style="position:relative; left:400px;">
+     <a href="/reports/{{ cl.opts.verbose_name|lower }}/">Report interface</a>
+     </span>
+</div>{% endblock %}{% endif %}
 {% block coltype %}flex{% endblock %}
 {% block content %}
 <div id="content-main">
