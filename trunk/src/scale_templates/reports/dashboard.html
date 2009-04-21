@@ -44,7 +44,6 @@ function toggleDisplay(id) {
   <td>${{ orders.revenue }}</td>
 </tr>
 </table>
-</div>
 
 <h3>By Type
 <a href="#" onclick="toggleDisplay('orders_type'); return false;"><tt>[*]</tt></a>
@@ -67,6 +66,7 @@ function toggleDisplay(id) {
 </tr>
 {% endfor %}
 </table>
+</div>
 </div>
 
 <h2>Attendees
@@ -95,7 +95,6 @@ function toggleDisplay(id) {
 </tr>
 </tfoot>
 </table>
-</div>
 
 <h3>By Attendee Type
 <a href="#" onclick="toggleDisplay('by_attendee_type'); return false;"><tt>[*]</tt></a>
@@ -184,6 +183,7 @@ function toggleDisplay(id) {
   <td>{{ unique_addon_attendees.percentage }}</td>
 </tfoot>
 </table>
+</div>
 </div>
 
 <h2>Zip Codes
