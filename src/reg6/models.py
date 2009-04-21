@@ -309,6 +309,9 @@ class Attendee(models.Model):
     price_modifier = 1
     if self.promo:
       price_modifier = self.promo.price_modifier
+      if (self.promo.applies_to_all or
+          self.badge_type in self.promo.applies_to.all()):
+        price_modifier = self.promo.price_modifier
 
     total = self.badge_type.price * price_modifier
     for item in self.ordered_items.all():
