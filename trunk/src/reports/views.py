@@ -200,17 +200,18 @@ def dashboard(request):
   orders = models.Order.objects.filter(valid=True)
   orders_data['numbers'] = orders.count()
   orders_data['revenue'] = sum([x.amount for x in orders])
-  orders = orders.filter(date__gt = days_30)
-  orders_data['numbers_30'] = orders.count()
-  orders_data['revenue_30'] = sum([x.amount for x in orders])
-  orders = orders.filter(date__gt = days_7)
-  orders_data['numbers_7'] = orders.count()
-  orders_data['revenue_7'] = sum([x.amount for x in orders])
+  orders_30 = orders.filter(date__gt = days_30)
+  orders_data['numbers_30'] = orders_30.count()
+  orders_data['revenue_30'] = sum([x.amount for x in orders_30])
+  orders_7 = orders_30.filter(date__gt = days_7)
+  orders_data['numbers_7'] = orders_7.count()
+  orders_data['revenue_7'] = sum([x.amount for x in orders_7])
+
+  attendees = models.Attendee.objects.filter(valid=True)
+  num_attendees = attendees.count()
 
   questions_data = []
   questions = models.Question.objects.all()
-  attendees = models.Attendee.objects.filter(valid=True)
-  num_attendees = attendees.count()
 
   all_answers = {}
   for ans in models.Answer.objects.all():
