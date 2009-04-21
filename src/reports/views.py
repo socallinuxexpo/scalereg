@@ -194,6 +194,7 @@ def dashboard(request):
   days_7 = today - datetime.timedelta(days=7)
 
   orders_data = {}
+  orders_data['by_type'] = []
   orders = models.Order.objects.filter(valid=True)
   orders_data['numbers'] = orders.count()
   orders_data['revenue'] = sum([x.amount for x in orders])
@@ -203,6 +204,16 @@ def dashboard(request):
   orders_7 = orders_30.filter(date__gt = days_7)
   orders_data['numbers_7'] = orders_7.count()
   orders_data['revenue_7'] = sum([x.amount for x in orders_7])
+  for pt in models.PAYMENT_CHOICES:
+    orders_pt = models.Order.objects.filter(payment_type=pt[0])
+    data_pt = {}
+    data_pt['name'] = pt[1]
+    data_pt['numbers'] = orders_pt.count()
+    orders_pt_30 = orders_pt.filter(date__gt = days_30)
+    data_pt['numbers_30'] = orders_pt_30.count()
+    orders_pt_7 = orders_pt_30.filter(date__gt = days_7)
+    data_pt['numbers_7'] = orders_pt_7.count()
+    orders_data['by_type'].append(data_pt)
 
   attendees = models.Attendee.objects.filter(valid=True)
   num_attendees = attendees.count()

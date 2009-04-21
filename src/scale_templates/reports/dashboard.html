@@ -44,9 +44,11 @@ function toggleDisplay(id) {
 </table>
 </div>
 
-<!--
-<h3>By Type</h3>
+<h3>By Type
+<a href="#" onclick="toggleDisplay('orders_type')"><tt>[*]</tt></a>
+</h3>
 
+<div id="orders_type">
 <table border="1">
 <tr>
   <th></th>
@@ -54,14 +56,18 @@ function toggleDisplay(id) {
   <th>30 Days</th>
   <th>Total</th>
 </tr>
+{% for order_pt in orders.by_type %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ order_pt.name }}</td>
+  <td>{{ order_pt.numbers_7 }}</td>
+  <td>{{ order_pt.numbers_30 }}</td>
+  <td>{{ order_pt.numbers }}</td>
 </tr>
+{% endfor %}
 </table>
+</div>
 
+<!--
 <h2>Attendees</h2>
 
 <table border="1">
