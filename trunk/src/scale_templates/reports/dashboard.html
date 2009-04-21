@@ -131,7 +131,6 @@ function toggleDisplay(id) {
 {% endfor %}
 </table>
 
-<!--
 <h3>By Promo Codes</h3>
 
 <table border="1" class="sortable">
@@ -140,13 +139,16 @@ function toggleDisplay(id) {
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for p in promo_attendees %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ p.name }}</td>
+  <td>{{ p.count }}</td>
+  <td>{{ p.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
 
+<!--
 <h3>Addons</h3>
 
 <table border="1" class="sortable">
@@ -182,7 +184,7 @@ function toggleDisplay(id) {
 </tr>
 {% for zip in zipcode_attendees %}
 <tr>
-  <td>{{ zip.zip }}</td>
+  <td>{{ zip.name }}</td>
   <td>{{ zip.count }}</td>
   <td>{{ zip.percentage }}</td>
 </tr>
