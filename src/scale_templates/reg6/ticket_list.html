@@ -1,12 +1,5 @@
 {% extends "reg6/list.html" %}
 {% load i18n admin_modify adminmedia %}
-{% block breadcrumbs %}{% if not is_popup %}
-<div class="breadcrumbs">
-     <a href="/">{% trans "Home" %}</a> &rsaquo;
-     <a href="/reports/">Reports</a> &rsaquo;
-     Tickets &rsaquo;
-</div>
-{% endif %}{% endblock %}
 {% block content %}<div id="content-main">
 
 {% if object_list %}
