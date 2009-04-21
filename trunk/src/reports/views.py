@@ -261,26 +261,26 @@ def dashboard(request):
   for p in promo_attendees_data:
     p.percentage = 100 * round(p.count / float(num_attendees), 3)
 
-  zipcode_order_data = {}
+  zipcode_orders_data = {}
   for x in orders:
-    if x.zip not in zipcode_order_data:
-      zipcode_order_data[x.zip] = Count(x.zip)
-    zipcode_order_data[x.zip].count += 1
-  zipcode_order_data = zipcode_order_data.items()
-  zipcode_order_data.sort()
-  zipcode_order_data = [v[1] for v in zipcode_order_data]
-  for zip in zipcode_order_data:
+    if x.zip not in zipcode_orders_data:
+      zipcode_orders_data[x.zip] = Count(x.zip)
+    zipcode_orders_data[x.zip].count += 1
+  zipcode_orders_data = zipcode_orders_data.items()
+  zipcode_orders_data.sort()
+  zipcode_orders_data = [v[1] for v in zipcode_orders_data]
+  for zip in zipcode_orders_data:
     zip.percentage = 100 * round(zip.count / float(orders_data['numbers']), 3)
 
-  zipcode_attendee_data = {}
+  zipcode_attendees_data = {}
   for att in attendees:
-    if att.zip not in zipcode_attendee_data:
-      zipcode_attendee_data[att.zip] = Count(att.zip)
-    zipcode_attendee_data[att.zip].count += 1
-  zipcode_attendee_data = zipcode_attendee_data.items()
-  zipcode_attendee_data.sort()
-  zipcode_attendee_data = [v[1] for v in zipcode_attendee_data]
-  for zip in zipcode_attendee_data:
+    if att.zip not in zipcode_attendees_data:
+      zipcode_attendees_data[att.zip] = Count(att.zip)
+    zipcode_attendees_data[att.zip].count += 1
+  zipcode_attendees_data = zipcode_attendees_data.items()
+  zipcode_attendees_data.sort()
+  zipcode_attendees_data = [v[1] for v in zipcode_attendees_data]
+  for zip in zipcode_attendees_data:
     zip.percentage = 100 * round(zip.count / float(num_attendees), 3)
 
   questions_data = []
@@ -315,8 +315,8 @@ def dashboard(request):
      'questions': questions_data,
      'ticket_attendees': ticket_attendees_data,
      'type_attendees': type_attendees_data,
-     'zipcode_attendees': zipcode_attendee_data,
-     'zipcode_orders': zipcode_order_data,
+     'zipcode_attendees': zipcode_attendees_data,
+     'zipcode_orders': zipcode_orders_data,
     })
 
 @login_required
