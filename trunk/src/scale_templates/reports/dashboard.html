@@ -160,23 +160,26 @@ function toggleDisplay(id) {
 </table>
 </div>
 
-<!--
-<h3>Addons</h3>
+<h3>Addons
+<a href="#" onclick="toggleDisplay('by_addon'); return false;"><tt>[*]</tt></a>
+</h3>
 
+<div id="by_addon">
 <table border="1" class="sortable">
 <tr>
-  <th>Ticket</th>
+  <th>Addon</th>
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for x in addon_attendees %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ x.name }}</td>
+  <td>{{ x.count }}</td>
+  <td>{{ x.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
-
-//-->
+</div>
 
 <h2>Zip Codes
 <a href="#" onclick="toggleDisplay('zipcode'); return false;"><tt>[*]</tt></a>
