@@ -21,7 +21,7 @@
         {% for t in o.applies_to_tickets.all %}
             {{ t.name|escape }}
             {% if not forloop.last %}
-            , 
+            ,
             {% endif %}
         {% endfor %}
         {% if o.applies_to_tickets.all and o.applies_to_items.all %}
@@ -30,7 +30,7 @@
         {% for t in o.applies_to_items.all %}
             {{ t.name|escape }}
             {% if not forloop.last %}
-            , 
+            ,
             {% endif %}
         {% endfor %}
         {% endif %}

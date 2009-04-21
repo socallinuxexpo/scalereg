@@ -110,7 +110,7 @@ def index(request):
   can_access = reports_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
-  
+
   model_list = get_model_list(request.user)
   model_list.insert(0, {'name': 'Dashboard', 'url': 'dashboard/'})
 
