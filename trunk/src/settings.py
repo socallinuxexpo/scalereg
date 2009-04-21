@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'scale.auth_helper',
     'scale.reg6',
     'scale.reports',
+    'scale.speaker_survey',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

@@ -1,0 +1,48 @@
+{% extends "speaker_survey/base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+
+{% if hash %}
+<h2>
+Your unique survey link is...
+</h2>
+
+<p>
+<a href="{{ hash }}/">https://www.socallinuxexpo.org/speaker_survey/{{ hash }}/</a>
+</p>
+
+{% else %}
+
+{% if unknown %}
+
+<h2>
+Entry not found.
+</h2>
+
+<p>
+Cannot find {{ name|escape }} with id {{ id|escape }}. Try again?
+</p>
+{% endif %}
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td>First Name (as seen on your badge)</td>
+    <td><input type="text" name="name" maxlength="60" size="60" /></td>
+</tr>
+<tr>
+    <td>Badge Id (as seen in the lower left corner of your badge)</td>
+    <td><input type="text" name="id" maxlength="4" size="4" /></td>
+</tr>
+</table>
+<input type="submit" value="Search" />
+</form>
+</p>
+
+{% endif %}
+
+</div>
+{% endblock %}
+
