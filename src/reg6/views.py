@@ -855,15 +855,9 @@ def AddCoupon(request):
   if request.method == 'GET':
     tickets = []
     for ticket_type in ticket_types.keys():
-      try:
-        temp_tickets = models.Ticket.objects.get(type=ticket_type)
-        if type(temp_tickets) == models.Ticket:
-          tickets.append(temp_tickets)
-        else:
-          for t in temp_tickets:
-            tickets.append(t)
-      except:
-        pass
+      temp_tickets = models.Ticket.objects.filter(type=ticket_type)
+      for t in temp_tickets:
+        tickets.append(t)
     return scale_render_to_response(request, 'reg6/add_coupon.html',
       {'title': 'Add Coupon',
        'tickets': tickets,
