@@ -595,20 +595,13 @@ def Sale(request):
   assert int(total) == int(float(request.POST['AMOUNT']))
 
   try:
-    # a zip code like "12345-6789" will fail, workaround that
-    zip = re.sub("[^0-9]", "", request.POST['ZIP'])
-    if zip:
-      zip = int(zip)
-    else:
-      zip = "00000"
-
     order = models.Order(order_num=request.POST['USER1'],
       valid=True,
       name=request.POST['NAME'],
       address=request.POST['ADDRESS'],
       city=request.POST['CITY'],
       state=request.POST['STATE'],
-      zip=zip,
+      zip=request.POST['ZIP'],
       country=request.POST['COUNTRY'],
       email=request.POST['EMAIL'],
       phone=request.POST['PHONE'],
