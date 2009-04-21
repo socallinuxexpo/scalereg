@@ -5,21 +5,22 @@
 <div id="content-main">
 
 {% if tickets %}
+    <h4>
+    SCALE Registration is a two part process:
+    </h4>
+
     <p>
-    SCALE Registration is a three part process:
+    1. <b>Registration</b>: Select ticket type, add optional items, input attendee info.<br />
 
-    <ol>
-    <li>Registration (Select ticket type, add optional items, input attendee info)</li>
-    <li>Order (select one or more attendees to pay for)</li>
-    <li>Payment (you will be directed to Paypal Payflow Link for payment)</li>
-    </ol>
-
-    Paypal accepts VISA, Mastercard, American Express, and Discover. You do not
-    need a Paypal account to purchase tickets.
+    2. <b>Payment</b> After you register, select one or more attendees to pay for, then you will either be directed to Paypal Payflow Link to pay with your credit card, or you can redeem a coupon if you have one. Attendee registrations are not valid until they have been paid for.
     </p>
 
     <p>
-    There are several different types of tickets:
+    Paypal Payflow Link accepts VISA, Mastercard, American Express, and Discover. You do not need a Paypal account to purchase tickets.
+    </p>
+
+    <p>
+    To start the registration process, start by selecting a ticket type. There are several different types of tickets:
 
     <ul>
     <li>Full Access Pass - Provides access to exhibit hall, all Saturday / Sunday speaker tracks, and evening events.</li>
@@ -30,7 +31,7 @@
     </p>
 
     <p>
-    Please start the registration process by selecting a ticket type:
+    Please select a ticket type below:
     </p>
 
     <form method="post" action="add_items/">
@@ -75,7 +76,7 @@
     {% endif %}
 
     <p>
-    <input type="submit" value="Continue" />
+    <input type="submit" value="Place Order" />
     </p>
     </form>
 
@@ -83,9 +84,15 @@
     Other Options:
     </h2>
 
+    <h4>Pay For Previous Registration</h4>
+
+    <p>
+    If you already registered, and would like to pay for your registration, or if you are paying for other registered attendees, then click the "Pay For Registration" button below.
+    </p>
+
     <p>
     <form method="post" action="start_payment/">
-    <input type="submit" value="Order Tickets" />
+    <input type="submit" value="Pay For Previous Registration" />
     </form>
     </p>
 

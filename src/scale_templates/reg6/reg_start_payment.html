@@ -76,7 +76,7 @@
 {% if attendees and total %}
     <h2>
     <br />
-    You are paying for the follow attendees:
+    You are paying for the following attendee(s):
     <br />
     <br />
     </h2>
@@ -113,7 +113,25 @@
     Total: {{ total|money|escape }}
     </p>
 
-    <h2>Add another attendee to this order:</h2>
+{% if attendees and total %}
+
+    <p>
+    If you are ready to pay for the above attendee(s), click "Pay For This Order" to continue.
+    </p>
+
+    <p>
+    <form method="post" action="../payment/">
+    <input type="submit" value="Pay For This Order" />
+    </form>
+    <br />
+    </p>
+    <h2>Pay for additional attendees:</h2>
+
+{% endif %}
+
+    <p>
+    If you want to pay for more attendees at once, use the 'add attendee' form here.
+    </p>
 {% else %}
     <h2>Add an attendee:</h2>
 
@@ -138,16 +156,6 @@
     </form>
     <br />
     </p>
-
-{% if attendees and total %}
-    <h2>Payment:</h2>
-    <p>
-    <form method="post" action="../payment/">
-    <input type="submit" value="Pay For This Order" />
-    </form>
-    <br />
-    </p>
-{% endif %}
 
     <h2>Other Options:</h2>
     <p>
