@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     (r'^admin/', include('django.contrib.admin.urls')),
     (r'^reg6/', include('scale.reg6.urls')),
     (r'^reports/', include('scale.reports.urls')),
+    (r'^speaker_survey/', include('scale.speaker_survey.urls')),
 
     # dummy index page
     (r'^$', 'scale.auth_helper.views.index'),
