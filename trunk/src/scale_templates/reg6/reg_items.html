@@ -22,11 +22,14 @@
     </p>
 
     <table border="1">
+    <thead>
     <tr>
         <th>&nbsp;</th>
         <th>Item</th>
         <th>Price</th>
     </tr>
+    </thead>
+    <tbody>
     {% for item in items %}
         <tr>
         <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name|escape }}" /></td>
@@ -34,6 +37,7 @@
         <td>{{ item.price|money|escape }}</td>
         </tr>
     {% endfor %}
+    </tbody>
     </table>
     {% else %}
     <p>

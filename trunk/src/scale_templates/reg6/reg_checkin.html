@@ -16,11 +16,14 @@
 
 {% if attendees %}
     <table border="1">
+    <thead>
     <tr>
         <th>Registration Number</th>
         <th>Name</th>
         <th></th>
     </tr>
+    </thead>
+    <tbody>
     {% for person in attendees %}
         <tr>
         <td>{{ person.id|escape }}</td>
@@ -33,6 +36,7 @@
         </td>
         </tr>
     {% endfor %}
+    </tbody>
     </table>
 {% endif %}
 

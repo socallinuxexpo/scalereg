@@ -12,12 +12,15 @@
 
     <p>
     <table border="1">
+    <thead>
     <tr>
     <th>Registration Number</th>
     <th>Name</th>
     <th>Email</th>
     <th>Amount</th>
     </tr>
+    </thead>
+    <tbody>
     {% for person  in attendees %}
     <tr>
         <td>{{ person.id|escape }}</td>
@@ -26,6 +29,7 @@
         <td>{{ person.ticket_cost|money|escape }}</td>
     </tr>
     {% endfor %}
+    </tbody>
     </table>
     </p>
 
