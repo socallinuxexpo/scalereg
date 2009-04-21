@@ -16,6 +16,7 @@
 </div>
 {% endif %}{% endblock %}
 {% block sidebar %}
+{% if filter_select %}
 <div id="content-related" class="module filtered">
 <form method="get" action=".">
 <script type="text/javascript" language="Javascript"> 
@@ -57,4 +58,5 @@ function toggleDisplay() {
 </div>
 </form>
 </div>
+{% endif %}
 {% endblock %}
