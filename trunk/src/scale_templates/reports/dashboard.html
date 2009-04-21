@@ -118,6 +118,8 @@
 </tr>
 </table>
 
+//-->
+
 <h2>Zip Codes</h2>
 
 <h3>Attendees</h3>
@@ -128,11 +130,13 @@
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for zip in zipcode_attendees %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ zip.zip }}</td>
+  <td>{{ zip.count }}</td>
+  <td>{{ zip.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
 
 <h3>Orders</h3>
@@ -143,14 +147,14 @@
   <th>Numbers</th>
   <th>Percentage</th>
 </tr>
+{% for zip in zipcode_orders %}
 <tr>
-  <td>XXX</td>
-  <td>blar</td>
-  <td>blar</td>
+  <td>{{ zip.zip }}</td>
+  <td>{{ zip.count }}</td>
+  <td>{{ zip.percentage }}</td>
 </tr>
+{% endfor %}
 </table>
-
-//-->
 
 <h2>Survey Results</h2>
 

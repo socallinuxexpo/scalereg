@@ -45,6 +45,14 @@ class SurveyAnswer:
     self.count = 0
     self.percentage = 0
 
+
+class ZipCode:
+  def __init__(self, zip):
+    self.zip = zip
+    self.count = 0
+    self.percentage = 0
+
+
 def paranoid_strip(value):
   valid_chars = string.ascii_letters + string.digits + '_'
   for c in value:
@@ -210,6 +218,28 @@ def dashboard(request):
   attendees = models.Attendee.objects.filter(valid=True)
   num_attendees = attendees.count()
 
+  zipcode_order_data = {}
+  for x in orders:
+    if x.zip not in zipcode_order_data:
+      zipcode_order_data[x.zip] = ZipCode(x.zip)
+    zipcode_order_data[x.zip].count += 1
+  zipcode_order_data = zipcode_order_data.items()
+  zipcode_order_data.sort()
+  zipcode_order_data = [v[1] for v in zipcode_order_data]
+  for zip in zipcode_order_data:
+    zip.percentage = 100 * round(zip.count / float(orders_data['numbers']), 3)
+
+  zipcode_attendee_data = {}
+  for att in attendees:
+    if att.zip not in zipcode_attendee_data:
+      zipcode_attendee_data[att.zip] = ZipCode(att.zip)
+    zipcode_attendee_data[att.zip].count += 1
+  zipcode_attendee_data = zipcode_attendee_data.items()
+  zipcode_attendee_data.sort()
+  zipcode_attendee_data = [v[1] for v in zipcode_attendee_data]
+  for zip in zipcode_attendee_data:
+    zip.percentage = 100 * round(zip.count / float(num_attendees), 3)
+
   questions_data = []
   questions = models.Question.objects.all()
 
@@ -238,6 +268,8 @@ def dashboard(request):
     {'title': 'Dashboard',
      'orders': orders_data,
      'questions': questions_data,
+     'zipcode_attendees': zipcode_attendee_data,
+     'zipcode_orders': zipcode_order_data,
     })
 
 @login_required
