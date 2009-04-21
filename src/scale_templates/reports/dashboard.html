@@ -59,6 +59,7 @@ function toggleDisplay(id) {
   <th>7 Days</th>
   <th>30 Days</th>
   <th>Total</th>
+  <th>Revenue</th>
 </tr>
 {% for order_pt in orders.by_type %}
 <tr>
@@ -66,6 +67,7 @@ function toggleDisplay(id) {
   <td>{{ order_pt.numbers_7 }}</td>
   <td>{{ order_pt.numbers_30 }}</td>
   <td>{{ order_pt.numbers }}</td>
+  <td>${{ order_pt.revenue }}</td>
 </tr>
 {% endfor %}
 </table>

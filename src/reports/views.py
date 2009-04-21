@@ -216,6 +216,7 @@ def dashboard(request):
     data_pt = {}
     data_pt['name'] = pt[1]
     data_pt['numbers'] = orders_pt.count()
+    data_pt['revenue'] = sum([x.amount for x in orders_pt])
     orders_pt_30 = orders_pt.filter(date__gt = days_30)
     data_pt['numbers_30'] = orders_pt_30.count()
     orders_pt_7 = orders_pt_30.filter(date__gt = days_7)
