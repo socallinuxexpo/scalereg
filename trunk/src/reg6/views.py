@@ -917,7 +917,7 @@ def AddCoupon(request):
   try:
     ticket = models.Ticket.objects.get(name=request.POST['TICKET'])
   except:
-    return HttpResponseServerError('cannot find ticket %s')
+    return HttpResponseServerError('cannot find ticket %s' % request.POST['TICKET'])
 
   bad_order_nums = [ x.order_num for x in models.Order.objects.all() ]
   order = models.Order(order_num=GenerateOrderID(bad_order_nums),
