@@ -18,4 +18,5 @@ urlpatterns = patterns('',
     (r'^redeem_coupon/$', 'scale.reg6.views.RedeemCoupon'),
     (r'^add_coupon/$', 'scale.reg6.views.AddCoupon'),
     (r'^checked_in/$', 'scale.reg6.views.CheckedIn'),
+    (r'^mass_add/$', 'scale.reg6.views.MassAdd'),
 )

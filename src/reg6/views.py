@@ -980,3 +980,64 @@ def CheckedIn(request):
   return HttpResponse('\n'.join([PrintAttendee(f) for f in attendees]),
           mimetype='text/plain')
 
+@login_required
+def MassAdd(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  response = HttpResponse()
+  response.write('<html><head></head><body>')
+
+  data = request.POST['data'].split('\n')
+  for entry in data:
+    entry = entry.strip()
+    if not entry:
+      continue
+    entry_split = entry.split(',')
+    if len(entry_split) != 7:
+      response.write('bad data: %s<br />\n' % entry)
+      continue
+
+    try:
+      order = models.Order.objects.get(order_num=entry_split[5])
+    except models.Order.DoesNotExist:
+      response.write('bad order number: %s<br />\n' % entry_split[5])
+      continue
+
+    try:
+      ticket = models.Ticket.objects.get(name=entry_split[6])
+    except models.Ticket.DoesNotExist:
+      response.write('bad ticket type: %s<br />\n' % entry_split[6])
+      continue
+
+    attendee = models.Attendee()
+    attendee.first_name = entry_split[0]
+    attendee.last_name = entry_split[1]
+    attendee.org = entry_split[2]
+    attendee.zip = entry_split[3]
+    attendee.email = entry_split[4]
+    attendee.valid = True
+    attendee.checked_in = False
+    attendee.can_email = True
+    attendee.order = order
+    attendee.badge_type = ticket
+    invalid = attendee.validate()
+    if invalid:
+      response.write('bad entry: %s<br />\n' % attendee.validate())
+      continue
+    attendee.save()
+    response.write('Added %s<br />\n' % entry)
+
+  response.write('</body></html>')
+  return response
+
