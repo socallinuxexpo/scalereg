@@ -7,8 +7,21 @@
 {% block content %}
 <div id="content-main">
 
-<h2>Orders</h2>
+<script type="text/javascript" language="Javascript"> 
+function toggleDisplay(id) {
+  if( document.getElementById(id).style.display == "none" ) {
+    document.getElementById(id).style.display = "block";
+  } else {
+    document.getElementById(id).style.display = "none";
+  }
+}
+</script>
 
+<h2>Orders
+<a href="#" onclick="toggleDisplay('orders')"><tt>[*]</tt></a>
+</h2>
+
+<div id="orders">
 <table border="1">
 <tr>
   <th></th>
@@ -29,6 +42,7 @@
   <td>${{ orders.revenue }}</td>
 </tr>
 </table>
+</div>
 
 <!--
 <h3>By Type</h3>
@@ -120,10 +134,16 @@
 
 //-->
 
-<h2>Zip Codes</h2>
+<h2>Zip Codes
+<a href="#" onclick="toggleDisplay('zipcode')"><tt>[*]</tt></a>
+</h2>
 
-<h3>Attendees</h3>
+<div id="zipcode">
+<h3>Attendees
+<a href="#" onclick="toggleDisplay('zipcode_attendees')"><tt>[*]</tt></a>
+</h3>
 
+<div id="zipcode_attendees">
 <table border="1">
 <tr>
   <th>Zip</th>
@@ -138,9 +158,13 @@
 </tr>
 {% endfor %}
 </table>
+</div>
 
-<h3>Orders</h3>
+<h3>Orders
+<a href="#" onclick="toggleDisplay('zipcode_orders')"><tt>[*]</tt></a>
+</h3>
 
+<div id="zipcode_orders">
 <table border="1">
 <tr>
   <th>Zip</th>
@@ -155,27 +179,37 @@
 </tr>
 {% endfor %}
 </table>
+</div>
+</div>
 
-<h2>Survey Results</h2>
+<h2>Survey Results
+<a href="#" onclick="toggleDisplay('survey_results')"><tt>[*]</tt></a>
+</h2>
 
+<div id='survey_results'>
 {% for q in questions %}
-<h3>{{ q.name }}</h3>
+  <h3>{{ q.name }}
+  <a href="#" onclick="toggleDisplay('{{ q.name|slugify }}')"><tt>[*]</tt></a>
+  </h3>
 
-<table border="1">
-<tr>
-  <th>Size</th>
-  <th>Numbers</th>
-  <th>Percentage</th>
-</tr>
-{% for ans in q.answers %}
-<tr>
-  <td>{{ ans.name }}</td>
-  <td>{{ ans.count }}</td>
-  <td>{{ ans.percentage }}</td>
-</tr>
+  <div id="{{ q.name|slugify }}">
+  <table border="1">
+  <tr>
+    <th>Size</th>
+    <th>Numbers</th>
+    <th>Percentage</th>
+  </tr>
+  {% for ans in q.answers %}
+  <tr>
+    <td>{{ ans.name }}</td>
+    <td>{{ ans.count }}</td>
+    <td>{{ ans.percentage }}</td>
+  </tr>
+  {% endfor %}
+  </table>
+  </div>
 {% endfor %}
-</table>
-{% endfor %}
+</div>
 
 
 </div>
