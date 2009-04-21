@@ -1,0 +1,24 @@
+{% extends "speaker_survey/base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+
+<p>The follow problem has occurred:</p>
+
+<p>
+{% if error_message %}
+    {{ error_message|escape }}
+{% else %}
+Error 0xBADBEEF1
+{% endif %}
+</p>
+
+<p>
+If you believe this is an error, please contact us.
+</p>
+
+<a href="http://www.socallinuxexpo.org/">Return To SCALE Website</a>.
+
+</div>
+{% endblock %}
+
