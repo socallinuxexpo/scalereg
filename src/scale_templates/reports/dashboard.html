@@ -97,8 +97,11 @@ function toggleDisplay(id) {
 </table>
 </div>
 
-<h3>By Attendee Type</h3>
+<h3>By Attendee Type
+<a href="#" onclick="toggleDisplay('by_attendee_type'); return false;"><tt>[*]</tt></a>
+</h3>
 
+<div id="by_attendee_type">
 <table border="1" class="sortable">
 <tr>
   <th>Type</th>
@@ -113,9 +116,13 @@ function toggleDisplay(id) {
 </tr>
 {% endfor %}
 </table>
+</div>
 
-<h3>By Tickets Type</h3>
+<h3>By Tickets Type
+<a href="#" onclick="toggleDisplay('by_ticket_type'); return false;"><tt>[*]</tt></a>
+</h3>
 
+<div id="by_ticket_type">
 <table border="1" class="sortable">
 <tr>
   <th>Ticket</th>
@@ -130,9 +137,13 @@ function toggleDisplay(id) {
 </tr>
 {% endfor %}
 </table>
+</div>
 
-<h3>By Promo Codes</h3>
+<h3>By Promo Codes
+<a href="#" onclick="toggleDisplay('by_promo'); return false;"><tt>[*]</tt></a>
+</h3>
 
+<div id="by_promo">
 <table border="1" class="sortable">
 <tr>
   <th>Promo</th>
@@ -147,6 +158,7 @@ function toggleDisplay(id) {
 </tr>
 {% endfor %}
 </table>
+</div>
 
 <!--
 <h3>Addons</h3>
