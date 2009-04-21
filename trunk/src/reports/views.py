@@ -177,17 +177,6 @@ def object_list(request, queryset, paginate_by=None, page=None,
   extra_context['filter_select'] = filter_select.values()
   extra_context['urlpart'] = ''.join([part for part in urlparts])
 
-  if 'order' in request.GET:
-    if request.GET['order'] in all_fields:
-      ordering = request.GET['order']
-      extra_context['order'] = ordering
-      if 'dec' in request.GET:
-        ordering = '-' + ordering
-        extra_context['dec'] = 1
-      else:
-        extra_context['dec'] = 0
-      queryset = queryset.order_by(ordering)
-
   extra_context['numbers'] = queryset.count()
 
   return django_object_list(request, queryset, paginate_by, page, allow_empty,
