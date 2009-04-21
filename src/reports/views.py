@@ -180,7 +180,7 @@ def object_list(request, queryset, paginate_by=None, page=None,
         extra_context['dec'] = 0
       queryset = queryset.order_by(ordering)
 
-  extra_context['numbers'] = len(queryset)
+  extra_context['numbers'] = queryset.count()
 
   return django_object_list(request, queryset, paginate_by, page, allow_empty,
     template_name, template_loader, extra_context, context_processors,
@@ -198,25 +198,33 @@ def dashboard(request):
 
   orders_data = {}
   orders = models.Order.objects.filter(valid=True)
-  orders_data['numbers'] = len(orders)
+  orders_data['numbers'] = orders.count()
   orders_data['revenue'] = sum([x.amount for x in orders])
   orders = orders.filter(date__gt = days_30)
-  orders_data['numbers_30'] = len(orders)
+  orders_data['numbers_30'] = orders.count()
   orders_data['revenue_30'] = sum([x.amount for x in orders])
   orders = orders.filter(date__gt = days_7)
-  orders_data['numbers_7'] = len(orders)
+  orders_data['numbers_7'] = orders.count()
   orders_data['revenue_7'] = sum([x.amount for x in orders])
 
   questions_data = []
   questions = models.Question.objects.all()
   attendees = models.Attendee.objects.filter(valid=True)
-  num_attendees = len(attendees)
+  num_attendees = attendees.count()
+
+  all_answers = {}
+  for ans in models.Answer.objects.all():
+    all_answers[ans.text] = SurveyAnswer(ans.text)
+
+  for att in attendees:
+    for ans in att.answers.all():
+      all_answers[ans.text].count += 1
+
   for q in questions:
     possible_answers = q.answer_set.all()
     q_data = SurveyQuestion(q.text)
     for ans in possible_answers:
-      a_data = SurveyAnswer(ans.text)
-      a_data.count = len([x for x in attendees if x.answers.filter(id=ans.id)])
+      a_data = all_answers[ans.text]
       a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
       q_data.answers.append(a_data)
     a_data = SurveyAnswer('No Answer')
