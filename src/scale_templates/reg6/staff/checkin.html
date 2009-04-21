@@ -23,10 +23,14 @@
         <td>{{ person.id|escape }}</td>
         <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
         <td>
+        {% if person.checked_in %}
+        Already Checked In
+        {% else %}
         <form method="post" action="../finish_checkin/">
         <input type="hidden" name="id" value="{{ person.id|escape }}">
-        <input type="submit" value="Check Me In">
+        <input type="submit" value="Check In">
         </form>
+        {% endif %}
         </td>
         </tr>
     {% endfor %}

@@ -28,10 +28,10 @@ def CheckIn(request):
 
   attendees = []
   if request.POST['last_name']:
-    attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
+    attendees = models.Attendee.objects.filter(valid=True,
       last_name__icontains=request.POST['last_name'])
   if not attendees:
-    attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
+    attendees = models.Attendee.objects.filter(valid=True,
       zip=request.POST['zip'])
 
   return render_to_response('reg6/staff/checkin.html',
