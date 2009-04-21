@@ -1041,3 +1041,15 @@ def MassAdd(request):
   response.write('</body></html>')
   return response
 
+@login_required
+def ClearBadOrder(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+
+  try:
+    order = models.Order.objects.get(order_num='')
+    order.delete()
+  except models.Order.DoesNotExist:
+    return HttpResponse('Not Found')
+
+  return HttpResponse('Done')
