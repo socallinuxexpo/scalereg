@@ -52,7 +52,7 @@ python manage.py syncdb
 python manage.py runserver 8080
 
 Assuming all went smoothly, go to http://webserver:8080/admin to
-configure the registration site, and http://webserver:8080/reg7
+configure the registration site, and http://webserver:8080/reg6
 to try out the registration software.
 
 If you want to integrate Scalereg with your web server software or
