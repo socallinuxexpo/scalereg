@@ -178,6 +178,11 @@ function toggleDisplay(id) {
   <td>{{ x.percentage }}</td>
 </tr>
 {% endfor %}
+<tfoot>
+  <td>{{ unique_addon_attendees.name }}</td>
+  <td>{{ unique_addon_attendees.count }}</td>
+  <td>{{ unique_addon_attendees.percentage }}</td>
+</tfoot>
 </table>
 </div>
 
