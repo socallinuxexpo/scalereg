@@ -45,6 +45,9 @@ class Count:
     self.count = 0
     self.percentage = 0
 
+  def CalcPercentage(self, total):
+    self.percentage = 100 * round(self.count / float(total), 3)
+
 
 class Attendee(Count):
   def __init__(self, name):
@@ -238,12 +241,12 @@ def dashboard(request):
   type_attendees_data.sort()
   type_attendees_data = [v[1] for v in type_attendees_data]
   for t in type_attendees_data:
-    t.percentage = 100 * round(t.count / float(num_attendees), 3)
+    t.CalcPercentage(num_attendees)
   ticket_attendees_data = ticket_attendees_data.items()
   ticket_attendees_data.sort()
   ticket_attendees_data = [v[1] for v in ticket_attendees_data]
   for t in ticket_attendees_data:
-    t.percentage = 100 * round(t.count / float(num_attendees), 3)
+    t.CalcPercentage(num_attendees)
 
   promo_attendees_data = {}
   promo_attendees_data[None] = Count('None')
@@ -259,7 +262,7 @@ def dashboard(request):
   promo_attendees_data.sort()
   promo_attendees_data = [v[1] for v in promo_attendees_data]
   for p in promo_attendees_data:
-    p.percentage = 100 * round(p.count / float(num_attendees), 3)
+    p.CalcPercentage(num_attendees)
 
   zipcode_orders_data = {}
   for x in orders:
@@ -270,7 +273,7 @@ def dashboard(request):
   zipcode_orders_data.sort()
   zipcode_orders_data = [v[1] for v in zipcode_orders_data]
   for zip in zipcode_orders_data:
-    zip.percentage = 100 * round(zip.count / float(orders_data['numbers']), 3)
+    zip.CalcPercentage(orders_data['numbers'])
 
   zipcode_attendees_data = {}
   for att in attendees:
@@ -281,7 +284,7 @@ def dashboard(request):
   zipcode_attendees_data.sort()
   zipcode_attendees_data = [v[1] for v in zipcode_attendees_data]
   for zip in zipcode_attendees_data:
-    zip.percentage = 100 * round(zip.count / float(num_attendees), 3)
+    zip.CalcPercentage(num_attendees)
 
   questions_data = []
   questions = models.Question.objects.all()
@@ -299,16 +302,19 @@ def dashboard(request):
     q_data = SurveyQuestion(q.text)
     for ans in possible_answers:
       a_data = all_answers[ans.text]
-      a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
+      a_data.CalcPercentage(num_attendees)
       q_data.answers.append(a_data)
     a_data = Count('No Answer')
     a_data.count = num_attendees - sum([x.count for x in q_data.answers])
-    a_data.percentage = 100 * round(a_data.count / float(num_attendees), 3)
+    a_data.CalcPercentage(num_attendees)
     q_data.answers.append(a_data)
     questions_data.append(q_data)
 
   addon_attendees_data = {}
+  unique_addon_attendees_data = Count('Unique')
   for att in attendees:
+    if len(att.ordered_items.all()) > 0:
+      unique_addon_attendees_data.count += 1
     for add in att.ordered_items.all():
       if add.name not in addon_attendees_data:
         addon_attendees_data[add.name] = Count(add.name)
@@ -317,7 +323,8 @@ def dashboard(request):
   addon_attendees_data.sort()
   addon_attendees_data = [v[1] for v in addon_attendees_data]
   for zip in addon_attendees_data:
-    zip.percentage = 100 * round(zip.count / float(num_attendees), 3)
+    zip.CalcPercentage(num_attendees)
+  unique_addon_attendees_data.CalcPercentage(num_attendees)
 
   return render_to_response('reports/dashboard.html',
     {'title': 'Dashboard',
@@ -328,6 +335,7 @@ def dashboard(request):
      'questions': questions_data,
      'ticket_attendees': ticket_attendees_data,
      'type_attendees': type_attendees_data,
+     'unique_addon_attendees': unique_addon_attendees_data,
      'zipcode_attendees': zipcode_attendees_data,
      'zipcode_orders': zipcode_orders_data,
     })
