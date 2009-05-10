@@ -1,0 +1,65 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee %}
+    <p>
+    <b>Please note:</b> This registration <b>IS NOT VALID</b> until it has been
+    <b>PAID</b> for.
+    <p>
+    Your have registered the following attendee:
+    </p>
+
+    <table>
+    <tr>
+    <td>Name:</td>
+    <td>{{ attendee.first_name|escape }} {{ attendee.last_name|escape }}</td>
+    </tr>
+    <tr>
+    <td>Email:</td>
+    <td>{{ attendee.email|escape }}</td>
+    </tr>
+    <tr>
+    <td>Registration Number:</td>
+    <td>{{ attendee.id|escape }}</td>
+    </tr>
+    <tr>
+    <td>Ticket Type:</td>
+    <td>{{ attendee.badge_type.description|escape }}</td>
+    </tr>
+    </table>
+
+    <p>
+    To pay for your registration, click "Pay For Registration" below. You can then pay with Paypal, or redeem a coupon.
+    </p>
+
+    <p>
+    If you would like someone else to pay for your ticket, give them your
+    email address and registration number. For instance, three coworkers can
+    all register themselves separately, give their registration numbers to
+    their manager, and have their manager pay for all the tickets at once.
+    </p>
+
+    <p>
+    <form action="../start_payment/" method="post">
+    <input type="submit" value="Pay For Registration" />
+    </form>
+    <br />
+    </p>
+
+    <p>
+    <form action="../" method="post">
+    {% if attendee.promo %}
+    <input type="hidden" name="promo" value="{{ attendee.promo|escape }}" />
+    {% endif %}
+    <input type="submit" value="Register Another Attendee" />
+    </form>
+    </p>
+{% else %}
+<b>We cannot pull up your registration data. Please contact us with your full name and this error message.</b>
+{% endif %}
+</div>
+{% endblock %}
+

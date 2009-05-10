@@ -1,0 +1,111 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if tickets %}
+    <h4>
+    SCALE Registration is a two part process:
+    </h4>
+
+    <p>
+    1. <b>Registration</b>: Select ticket type, add optional items, input attendee info.<br />
+
+    2. <b>Payment</b> After you register, select one or more attendees to pay for, then you will either be directed to Paypal Payflow Link to pay with your credit card, or you can redeem a coupon if you have one. Attendee registrations are not valid until they have been paid for.
+    </p>
+
+    <p>
+    Paypal Payflow Link accepts VISA, Mastercard, American Express, and Discover. You do not need a Paypal account to purchase tickets.
+    </p>
+
+    <p>
+    To start the registration process, start by selecting a ticket type. There are several different types of tickets:
+
+    <ul>
+    <li>Full Access Pass - Provides access to exhibit hall, all Saturday / Sunday speaker tracks, and evening events.</li>
+    <li>Expo Only - Provides access to exhibit hall and Try It Labs.</li>
+    <li>Friday Only Tickets - Provides access to a specific friday event.</li>
+    </ul>
+
+    </p>
+
+    <p>
+    Please select a ticket type below:
+    </p>
+
+    <form method="post" action="add_items/">
+    <table border="1">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>Ticket</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for t in tickets %}
+        <tr>
+        <td><input type="radio" name="ticket" value="{{ t.name|escape }}" /></td>
+        <td>{{ t.description|escape }}</td>
+        <td>{{ t.price|money|escape }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    {% if promo %}
+    <p>
+    Using promo code:
+    <b>{{ promo|escape }}</b>.
+    <input type="hidden" name="promo" value="{{ promo|escape }}" />
+    </p>
+    {% else %}
+    <p>
+    If you have a promo code, enter it here:
+    </p>
+
+    <p>
+    <input type="text" name="promo" maxlength="5" size="5" />
+    </p>
+    <p>
+    Students and School Faculty may use STDNT to get 50% off.<br />
+    Please have a valid school ID with you during SCALE checkin on the day of
+    the event.
+    </p>
+    {% endif %}
+
+    <p>
+    <input type="submit" value="Place Order" />
+    </p>
+    </form>
+
+    <h2>
+    Other Options:
+    </h2>
+
+    <h4>Pay For Previous Registration</h4>
+
+    <p>
+    If you already registered, and would like to pay for your registration, or if you are paying for other registered attendees, then click the "Pay For Registration" button below.
+    </p>
+
+    <p>
+    <form method="post" action="start_payment/">
+    <input type="submit" value="Pay For Previous Registration" />
+    </form>
+    </p>
+
+    {% if promo %}
+    <p>
+    <form method="post" action=".">
+    <input type="submit" value="Change promo code" />
+    </form>
+    </p>
+    {% endif %}
+{% else %}
+Registration is closed.
+{% endif %}
+</div>
+{% endblock %}
+

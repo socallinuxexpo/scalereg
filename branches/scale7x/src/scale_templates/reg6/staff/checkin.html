@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+
+{% if search %}
+    <p>
+    Search results for:<br />
+    Last name: {{ last|escape }}<br />
+    Zip: {{ zip|escape }}<br />
+    </p>
+{% endif %}
+
+{% if attendees %}
+    <table border="1">
+    <tr>
+        <th>Registration Number</th>
+        <th>Name</th>
+        <th></th>
+    </tr>
+    {% for person in attendees %}
+        <tr>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>
+        {% if person.checked_in %}
+        Already Checked In
+        {% else %}
+        <form method="post" action="../finish_checkin/">
+        <input type="hidden" name="id" value="{{ person.id|escape }}">
+        <input type="submit" value="Check In">
+        </form>
+        {% endif %}
+        </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endif %}
+
+{% if search %}
+    <hr />
+{% endif %}
+
+<p>
+Please type in the following information:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td>Last Name</td>
+    <td><input type="text" name="last_name" maxlength="60" size="40"
+      value="{{ last|escape }}" /></td>
+</tr>
+<tr>
+    <td>Zip Code</td>
+    <td><input type="text" name="zip" maxlength="10" size="10"
+      value="{{ zip|escape }}" /></td>
+</tr>
+</table>
+<input type="submit"
+{% if search %}
+value="Search Again"
+{% else %}
+value="Search"
+{% endif %}
+/>
+</form>
+</p>
+</div>
+{% endblock %}
+

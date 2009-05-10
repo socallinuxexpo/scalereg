@@ -1,0 +1,43 @@
+{% extends "reg6/list.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block content %}<div id="content-main">
+
+{% if object_list %}
+    <table border="1" class="sortable">
+    <tr>
+        {% for field in field_list %}
+        <th>{{ field|escape }}</th>
+        {% endfor %}
+    </tr>
+    {% for o in object_list %}
+    <tr>
+        <td>{{ o.name|escape }}</td>
+        <td>{{ o.description|escape }}</td>
+        <td>{{ o.price_modifier|escape }}</td>
+        <td>{{ o.active|escape }}</td>
+        <td>{{ o.start_date|escape }}</td>
+        <td>{{ o.end_date|escape }}</td>
+        <td>
+        {% if o.applies_to_all %}
+        ALL
+        {% else %}
+        {% for t in o.applies_to.all %}
+            {{ t.name|escape }}
+        {% if not forloop.last %}
+        ,
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </td>
+    </tr>
+    {% endfor %}
+    </table>
+    <p>
+    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    </p>
+{% else %}
+    <p>No promo codes available.</p>
+{% endif %}
+
+</div>
+{% endblock %}

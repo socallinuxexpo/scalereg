@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block content %}
+<div id="content-main">
+
+<div class="module">
+<table>
+{% if user.is_staff %}
+    <tr>
+        <th scope="row"><a href="/admin/">Admin</a></th>
+    </tr>
+{% endif %}
+{% for serv in services %}
+    <tr>
+        <th scope="row"><a href="{{ serv.url }}/">{{ serv.name|escape|capfirst }}</a></th>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

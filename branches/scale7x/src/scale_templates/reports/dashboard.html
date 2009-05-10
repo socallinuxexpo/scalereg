@@ -1,0 +1,290 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% endblock %}
+{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block content %}
+<div id="content-main">
+
+<script type="text/javascript" language="Javascript">
+function toggleDisplay(id) {
+  if( document.getElementById(id).style.display == "none" ) {
+    document.getElementById(id).style.display = "block";
+  } else {
+    document.getElementById(id).style.display = "none";
+  }
+}
+</script>
+
+<h2>Orders
+<a href="javascript:void(0)" onclick="toggleDisplay('orders')"><tt>[*]</tt></a>
+</h2>
+
+<div id="orders">
+{% if orders %}
+<table border="1">
+<tr>
+  <th></th>
+  <th>7 Days</th>
+  <th>30 Days</th>
+  <th>Total</th>
+</tr>
+<tr>
+  <td>Orders</td>
+  <td>{{ orders.numbers_7 }}</td>
+  <td>{{ orders.numbers_30 }}</td>
+  <td>{{ orders.numbers }}</td>
+</tr>
+<tr>
+  <td>Revenue</td>
+  <td>${{ orders.revenue_7 }}</td>
+  <td>${{ orders.revenue_30 }}</td>
+  <td>${{ orders.revenue }}</td>
+</tr>
+</table>
+{% endif %}
+
+{% if orders and orders.by_type %}
+<h3>By Type
+<a href="javascript:void(0)" onclick="toggleDisplay('orders_type')"><tt>[*]</tt></a>
+</h3>
+
+<div id="orders_type">
+<table border="1" class="sortable">
+<tr>
+  <th>Type</th>
+  <th>7 Days</th>
+  <th>30 Days</th>
+  <th>Total</th>
+  <th>Revenue</th>
+</tr>
+{% for order_pt in orders.by_type %}
+<tr>
+  <td>{{ order_pt.name }}</td>
+  <td>{{ order_pt.numbers_7 }}</td>
+  <td>{{ order_pt.numbers_30 }}</td>
+  <td>{{ order_pt.numbers }}</td>
+  <td>${{ order_pt.revenue }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+</div>
+
+<h2>Attendees
+<a href="javascript:void(0)" onclick="toggleDisplay('attendees')"><tt>[*]</tt></a>
+</h2>
+
+<div id="attendees">
+{% if type_attendees and attendees %}
+<table border="1" class="sortable">
+<tr>
+  <th>Type</th>
+  <th>Checked In</th>
+  <th>Total</th>
+</tr>
+{% for t in type_attendees %}
+<tr>
+  <td>{{ t.name }}</td>
+  <td>{{ t.checked_in }}</td>
+  <td>{{ t.count }}</td>
+</tr>
+{% endfor %}
+<tfoot>
+<tr>
+  <td>Total</td>
+  <td>{{ attendees.checked_in }}</td>
+  <td>{{ attendees.numbers }}</td>
+</tr>
+</tfoot>
+</table>
+{% endif %}
+
+{% if type_attendees %}
+<h3>By Attendee Type
+<a href="javascript:void(0)" onclick="toggleDisplay('by_attendee_type')"><tt>[*]</tt></a>
+</h3>
+
+<div id="by_attendee_type">
+<table border="1" class="sortable">
+<tr>
+  <th>Type</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for t in type_attendees %}
+<tr>
+  <td>{{ t.name }}</td>
+  <td>{{ t.count }}</td>
+  <td>{{ t.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+{% if ticket_attendees %}
+<h3>By Tickets Type
+<a href="javascript:void(0)" onclick="toggleDisplay('by_ticket_type')"><tt>[*]</tt></a>
+</h3>
+
+<div id="by_ticket_type">
+<table border="1" class="sortable">
+<tr>
+  <th>Ticket</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for t in ticket_attendees %}
+<tr>
+  <td>{{ t.name }}</td>
+  <td>{{ t.count }}</td>
+  <td>{{ t.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+{% if promo_attendees %}
+<h3>By Promo Codes
+<a href="javascript:void(0)" onclick="toggleDisplay('by_promo')"><tt>[*]</tt></a>
+</h3>
+
+<div id="by_promo">
+<table border="1" class="sortable">
+<tr>
+  <th>Promo</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for p in promo_attendees %}
+<tr>
+  <td>{{ p.name }}</td>
+  <td>{{ p.count }}</td>
+  <td>{{ p.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+{% if addon_attendees %}
+<h3>Addons
+<a href="javascript:void(0)" onclick="toggleDisplay('by_addon')"><tt>[*]</tt></a>
+</h3>
+
+<div id="by_addon">
+<table border="1" class="sortable">
+<tr>
+  <th>Addon</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for x in addon_attendees %}
+<tr>
+  <td>{{ x.name }}</td>
+  <td>{{ x.count }}</td>
+  <td>{{ x.percentage }}</td>
+</tr>
+{% endfor %}
+<tfoot>
+  <td>{{ unique_addon_attendees.name }}</td>
+  <td>{{ unique_addon_attendees.count }}</td>
+  <td>{{ unique_addon_attendees.percentage }}</td>
+</tfoot>
+</table>
+</div>
+{% endif %}
+</div>
+
+<h2>Zip Codes
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode')"><tt>[*]</tt></a>
+</h2>
+
+<div id="zipcode">
+{% if zipcode_attendees %}
+<h3>Attendees
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode_attendees')"><tt>[*]</tt></a>
+</h3>
+
+<div id="zipcode_attendees">
+<table border="1" class="sortable">
+<tr>
+  <th>Zip</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for zip in zipcode_attendees %}
+<tr>
+  <td>{{ zip.name }}</td>
+  <td>{{ zip.count }}</td>
+  <td>{{ zip.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+{% if zipcode_orders %}
+<h3>Orders
+<a href="javascript:void(0)" onclick="toggleDisplay('zipcode_orders')"><tt>[*]</tt></a>
+</h3>
+
+<div id="zipcode_orders">
+<table border="1" class="sortable">
+<tr>
+  <th>Zip</th>
+  <th>Numbers</th>
+  <th>Percentage</th>
+</tr>
+{% for zip in zipcode_orders %}
+<tr>
+  <td>{{ zip.name }}</td>
+  <td>{{ zip.count }}</td>
+  <td>{{ zip.percentage }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+</div>
+
+{% if questions %}
+<h2>Survey Results
+<a href="javascript:void(0)" onclick="toggleDisplay('survey_results')"><tt>[*]</tt></a>
+</h2>
+
+<div id='survey_results'>
+{% for q in questions %}
+  <h3>{{ q.name }}
+  <a href="javascript:void(0)" onclick="toggleDisplay('{{ q.name|slugify }}')"><tt>[*]</tt></a>
+  </h3>
+
+  <div id="{{ q.name|slugify }}">
+  <table border="1" class="sortable">
+  <tr>
+    <th>Answer</th>
+    <th>Numbers</th>
+    <th>Percentage</th>
+  </tr>
+  {% for ans in q.answers %}
+  <tr>
+    <td>{{ ans.name }}</td>
+    <td>{{ ans.count }}</td>
+    <td>{{ ans.percentage }}</td>
+  </tr>
+  {% endfor %}
+  </table>
+  </div>
+{% endfor %}
+</div>
+{% endif %}
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block title %}{{ title|escape }} | Reports | SCALE {% endblock %}
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% for js in javascript_imports %}{% include_admin_script js %}{% endfor %}
+{% endblock %}
+{% block stylesheet %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="/accounts/">{% trans "Home" %}</a> &rsaquo;
+     <a href="/reports/">Reports</a> &rsaquo;
+     <a href=".">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+     {% if admin_user %}
+     <span style="position:relative; left:400px;">
+     <a href="/admin/reg6/{{ opts.verbose_name|lower }}/">Admin interface</a>
+     </span>
+     {% endif %}
+</div>
+{% endif %}{% endblock %}
+{% block sidebar %}
+{% if filter_select %}
+<div id="content-related" class="module filtered">
+<form method="get" action=".">
+<script type="text/javascript" language="Javascript">
+function toggleDisplay() {
+  if( document.getElementById("scale_filters").style.display == "none" ) {
+    document.getElementById("scale_filters").style.display = "block";
+    document.getElementById("scale_filter_control").innerHTML = "[-]";
+  } else {
+    document.getElementById("scale_filters").style.display = "none";
+    document.getElementById("scale_filter_control").innerHTML = "[+]";
+  }
+}
+</script>
+<h2>Filters <a href="javascript:void(0)" onclick="toggleDisplay()"><tt id="scale_filter_control">[-]</tt></a></h2>
+<div id="scale_filters">
+<p>
+{% for field in filter_select %}
+  {{ field.name }}:<br />
+  <select name="filter__{{ field.name }}">
+  {% for item in field.get_items %}
+    {% ifequal item.value field.selected %}
+    <option value="{{ item.value }}" selected>{{ item.name }}</option>
+    {% else %}
+    <option value="{{ item.value }}">{{ item.name }}</option>
+    {% endifequal %}
+  {% endfor %}
+  </select><br />
+{% endfor %}
+{% if order %}
+<input type="hidden" name="order" value="{{ order }}" />
+{% endif %}
+{% if dec %}
+<input type="hidden" name="dec" value="{{ dec }}" />
+{% endif %}
+</p>
+<p>
+<input type="submit" value="Filter" />
+</p>
+</div>
+</form>
+</div>
+{% endif %}
+{% endblock %}

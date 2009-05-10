@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+Please fill in the information below, so we have a clue why this
+coupon got created.
+</p>
+
+<form method="post" action=".">
+<p>
+<table>
+<tr>
+    <td><b>Name</b></td>
+    <td><input type="text" name="NAME" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Address</b></td>
+    <td><input type="text" name="ADDRESS" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>City</b></td>
+    <td><input type="text" name="CITY" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>State</b></td>
+    <td><input type="text" name="STATE" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Zip</b></td>
+    <td><input type="text" name="ZIP" maxlength="10" size="10" /><br />
+    Need to be numeric
+    </td>
+</tr>
+<tr>
+    <td>Country</td>
+    <td><input type="text" name="COUNTRY" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Email</b></td>
+    <td><input type="text" name="EMAIL" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td>Phone</td>
+    <td><input type="text" name="PHONE" maxlength="20" size="20" /></td>
+</tr>
+<tr>
+    <td><b>Type</b></td>
+    <td><select name="TICKET">
+    {% for t in tickets %}
+    <option value="{{ t.name|escape }}">{{ t.name|escape }} - {{ t.description }}</option>
+    {% endfor %}
+    </select>
+    <br />
+    The attendees registered with this coupon will have this badge type. It
+    does not matter what badge type they selected.
+    </td>
+</tr>
+<tr>
+    <td><b>Max Attendees</b></td>
+    <td><input type="text" name="MAX_ATTENDEES" maxlength="3" size="3" /><br />
+    This is the maximum number of attendees that can be paid for with this
+    coupon.
+    </td>
+</tr>
+</table>
+<input type="submit" value="Submit" />
+</p>
+</form>
+
+</div>
+{% endblock %}
+

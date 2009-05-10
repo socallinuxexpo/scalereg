@@ -1,0 +1,92 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendees and total %}
+    <br />
+    <h2>
+    You are paying for the following attendee(s):
+    </h2>
+
+    <p>
+    <table border="1">
+    <thead>
+    <tr>
+    <th>Registration Number</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person  in attendees %}
+    <tr>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        <td>{{ person.ticket_cost|money|escape }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </p>
+
+    <p>
+    Total: {{ total|money|escape }}
+    </p>
+
+    <h2>Payment Through Paypal Payflow Link:</h2>
+
+    <p>
+    You will now be redirected to Paypal Payflow Link to make the payment.
+    Paypal accepts VISA, Mastercard, American Express, and Discover. You do not
+    need a Paypal account to purchase tickets. We do not handle your credit
+    card information at all.
+    </p>
+
+    <form method="post" action="https://payflowlink.paypal.com/">
+    <p>
+    <input type="hidden" name="LOGIN" value="PAYFLOW_LOGIN">
+    <input type="hidden" name="PARTNER" value="verisign">
+    <input type="hidden" name="AMOUNT" value="{{ total|escape }}">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order|escape }}">
+    {% if kiosk %}
+    <input type="hidden" name="USER2" value="Y">
+    {% else %}
+    <input type="hidden" name="USER2" value="N">
+    {% endif %}
+    <input type="submit" value="Continue" />
+    </p>
+    </form>
+
+    <h2>Pay With A Coupon:</h2>
+
+    <p>
+    If you have a coupon to redeem, please enter the code below:
+    </p>
+
+    <form method="post" action="../redeem_coupon/">
+    <p>
+    <input type="text" name="code" maxlength="15">
+    <input type="hidden" name="order" value="{{ order|escape }}">
+    <input type="submit" value="Redeem" />
+    </p>
+    </form>
+
+    <h2>Other Options:</h2>
+
+    <form method="post" action="../">
+    <p>
+    <input type="submit" value="Start Over" />
+    </p>
+    </form>
+{% else %}
+    <h2>Not Enough Information</h2>
+{% endif %}
+
+</div>
+{% endblock %}
+

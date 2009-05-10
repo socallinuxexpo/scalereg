@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load reg6 %}
+{% block content %}
+<div id="content-main">
+
+{% if success %}
+    <p>
+    Attendee successfully registered!
+    </p>
+{% endif %}
+
+
+{% if success %}
+    <hr />
+{% endif %}
+
+<p>
+Please type in the following information:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td><b>First Name</b></td>
+    <td><input type="text" name="FIRST" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Last Name</b></td>
+    <td><input type="text" name="LAST" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Email</b></td>
+    <td><input type="text" name="EMAIL" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td><b>Zip</b></td>
+    <td><input type="text" name="ZIP" maxlength="10" size="10" /><br />
+    Need to be numeric
+    </td>
+</tr>
+<tr>
+    <td><b>Type</b></td>
+    <td><select name="TICKET">
+    {% for t in tickets %}
+    <option value="{{ t.name|escape }}">{{ t.name|escape }} - {{ t.description }} - {{ t.price|escape|money }}</option>
+    {% endfor %}
+    </select>
+    <br />
+    The attendees registered with this coupon will have this badge type. It
+    does not matter what badge type they selected.
+    </td>
+</tr>
+</table>
+<input type="submit" value="Register" />
+</form>
+</p>
+</div>
+{% endblock %}
+

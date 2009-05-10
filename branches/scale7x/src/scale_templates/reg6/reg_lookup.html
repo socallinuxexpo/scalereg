@@ -1,0 +1,63 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if search %}
+    <p>
+    Search results for: {{ email|escape }} and {{ zip|escape }}.
+    </p>
+{% endif %}
+
+{% if attendees %}
+    <table border="1">
+    <head>
+    <tr>
+        <th>Registration Number</th>
+        <th>Name</th>
+        <th>Paid For</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in attendees %}
+        <tr>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>
+        {% if person.valid %}
+        Yes
+        {% else %}
+        No
+        {% endif %}
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endif %}
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td>Email</td>
+    <td><input type="text" name="email" maxlength="75" size="50" /></td>
+</tr>
+<tr>
+    <td>Zip Code</td>
+    <td><input type="text" name="zip" maxlength="10" size="10" /></td>
+</tr>
+</table>
+<input type="submit" value="Search" />
+</form>
+</p>
+
+<p>
+<form method="post" action="../start_payment/">
+<input type="submit" value="Order Tickets" />
+</form>
+</p>
+</div>
+{% endblock %}
+

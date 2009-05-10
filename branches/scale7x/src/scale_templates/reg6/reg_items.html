@@ -1,0 +1,67 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if ticket %}
+    {% if promo %}
+    <p>
+    You are using promo code <b>{{ promo|escape }}</b>.
+    </p>
+    {% endif %}
+
+    <p>
+    Your {{ ticket.description|escape }} costs {{ ticket.price|money|escape }}.
+    </p>
+
+    <form method="post" action="../add_attendee/">
+    {% if items %}
+    <p>
+    Would you like to add any additional items?
+    </p>
+
+    <table border="1">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>Item</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in items %}
+        <tr>
+        <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name|escape }}" /></td>
+        <td>{{ item.description|escape }}</td>
+        <td>{{ item.price|money|escape }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {% else %}
+    <p>
+    No addon items available.
+    </p>
+    {% endif %}
+
+    <input type="hidden" name="promo" value="{{ promo|escape }}" />
+    <input type="hidden" name="ticket" value="{{ ticket.name|escape }}" />
+
+    <p>
+    <input type="submit" value="Continue" />
+    </p>
+    </form>
+
+    <form method="post" action="../">
+    <p>
+    <input type="hidden" name="promo" value="{{ promo|escape }}" />
+    <input type="submit" value="Start Over" />
+    </p>
+    </form>
+{% else %}
+Registration is closed.
+{% endif %}
+</div>
+{% endblock %}
+

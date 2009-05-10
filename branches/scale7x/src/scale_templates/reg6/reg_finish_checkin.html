@@ -1,0 +1,21 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee %}
+  <p>
+  The following attendee has been checked in:<br /><br />
+  {{ attendee.first_name|escape }} {{ attendee.last_name|escape }}
+  </p>
+
+  <p>
+  Please close this window and go to the registration desk to pick up your
+  badge.
+  </p>
+{% else %}
+  <p>We had a problem with your registration checkin. Please ask the
+  registration desk for assistance.</p>
+{% endif %}
+{% endblock %}

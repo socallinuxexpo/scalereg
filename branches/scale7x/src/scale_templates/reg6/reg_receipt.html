@@ -1,0 +1,67 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if code %}
+<p>
+Coupon code: {{ code|escape|upper }}
+</p>
+{% else %}
+<table>
+<tr>
+<td>Name:</td>
+<td>{{ name|escape }}</td>
+</tr>
+<tr>
+<td>Email:</td>
+<td>{{ email|escape }}</td>
+</tr>
+<tr>
+<td>Order Number:</td>
+<td>{{ order|escape }}</td>
+</tr>
+<tr>
+<td>Amount:</td>
+<td>{{ total|money|escape }}</td>
+</tr>
+</table>
+{% endif %}
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Registration Number</th>
+        <th>Name</th>
+        <th>Email</th>
+        {% if not code %}
+        <th>Amount</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in attendees %}
+    <tr>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        {% if not code %}
+        <td>{{ person.ticket_cost|money|escape }}</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if kiosk %}
+<p>
+Thank you for registering, please close this browser and go to the registration
+counter to pick up your badge. If you need a receipt, please ask for it at the
+registration counter.
+</p>
+{% endif %}
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,42 @@
+{% extends "reg6/list.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block content %}<div id="content-main">
+
+{% if object_list %}
+    <table border="1" class="sortable">
+    <tr>
+        {% for field in field_list %}
+        <th>{{ field|escape }}</th>
+        {% endfor %}
+    </tr>
+    {% for o in object_list %}
+    <tr>
+        <td>{{ o.order_num|escape }}</td>
+        <td>{{ o.valid|escape }}</td>
+        <td>{{ o.date|escape }}</td>
+        <td>{{ o.name|escape }}</td>
+        <td>{{ o.address|escape }}</td>
+        <td>{{ o.city|escape }}</td>
+        <td>{{ o.state|escape }}</td>
+        <td>{{ o.zip|escape }}</td>
+        <td>{{ o.country|escape }}</td>
+        <td>{{ o.email|escape }}</td>
+        <td>{{ o.phone|escape }}</td>
+        <td>{{ o.amount|escape }}</td>
+        <td>{{ o.payment_type|escape }}</td>
+        <td>{{ o.auth_code|escape }}</td>
+        <td>{{ o.resp_msg|escape }}</td>
+        <td>{{ o.result|escape }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    <p>
+    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    <b>Total Amount:</b> ${{ total }}
+    </p>
+{% else %}
+    <p>No attendees available.</p>
+{% endif %}
+
+</div>
+{% endblock %}

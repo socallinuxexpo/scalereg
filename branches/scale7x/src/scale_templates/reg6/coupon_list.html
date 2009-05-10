@@ -1,0 +1,40 @@
+{% extends "reg6/list.html" %}
+{% load i18n admin_modify adminmedia %}
+{% block content %}<div id="content-main">
+
+{% if object_list %}
+    <table border="1" class="sortable">
+    <tr>
+        {% for field in field_list %}
+        <th>{{ field|escape }}</th>
+        {% endfor %}
+        <th>Name</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Email</th>
+        <th>Phone</th>
+    </tr>
+    {% for o in object_list %}
+    <tr>
+        <td>{{ o.code|escape }}</td>
+        <td>{{ o.badge_type|escape }}</td>
+        <td>{{ o.order|escape }}</td>
+        <td>{{ o.used|escape }}</td>
+        <td>{{ o.max_attendees|escape }}</td>
+        <td>{{ o.expiration|escape }}</td>
+        <td>{{ o.order.name|escape }}</td>
+        <td>{{ o.order.address|escape }}</td>
+        <td>{{ o.order.city|escape }}</td>
+        <td>{{ o.order.state|escape }}</td>
+        <td>{{ o.order.email|escape }}</td>
+        <td>{{ o.order.phone|escape }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No answers available.</p>
+{% endif %}
+
+</div>
+{% endblock %}

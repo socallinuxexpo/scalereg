@@ -1,0 +1,169 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+<br />
+{% if bad_attendee %}
+    <h2>Attendee Not Found</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ bad_attendee.0|escape }},
+    Email: {{ bad_attendee.1|escape }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if new_attendee %}
+    <h2>Added Attendee</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ new_attendee.id|escape }},
+    Email: {{ new_attendee.email|escape }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if paid_attendee %}
+    <h2>Attendee Already Paid For</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ paid_attendee.id|escape }},
+    Email: {{ paid_attendee.email|escape }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if removed_attendee %}
+    <h2>Attendee Removed</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ removed_attendee.id|escape }},
+    Email: {{ removed_attendee.email|escape }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if attendees and total %}
+    <h2>
+    <br />
+    You are paying for the following attendee(s):
+    <br />
+    <br />
+    </h2>
+
+    <table border="1">
+    <thead>
+    <tr>
+    <th>Registration Number</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    <th>Remove</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person  in attendees %}
+    <tr>
+        <td>{{ person.id|escape }}</td>
+        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.email|escape }}</td>
+        <td>{{ person.ticket_cost|money|escape }}</td>
+        <td>
+        <form method="post" action=".">
+        <input type="hidden" name="remove" value="{{ person.id|escape }}" />
+        <input type="submit" value="Remove" />
+        </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    <p>
+    Total: {{ total|money|escape }}
+    </p>
+
+{% if attendees and total %}
+
+    <p>
+    If you are ready to pay for the above attendee(s), click "Pay For This Order" to continue.
+    </p>
+
+    <p>
+    <form method="post" action="../payment/">
+    <input type="submit" value="Pay For This Order" />
+    </form>
+    <br />
+    </p>
+    <h2>Pay for additional attendees:</h2>
+
+{% endif %}
+
+    <p>
+    If you want to pay for more attendees at once, use the 'add attendee' form here.
+    </p>
+{% else %}
+    <h2>Add an attendee:</h2>
+
+{% endif %}
+
+    <p>
+    <form method="post" action=".">
+    <table>
+    <tr>
+    <td><b>Registration Number:</b></td>
+    <td><input type="text" name="id" maxlength="10" size="10" /></td>
+    <td><a href="../reg_lookup/">Registration Number Lookup</a></td>
+    </tr>
+    <tr>
+    <td><b>Email:</b></td>
+    <td colspan="2"><input type="text" name="email" maxlength="75" size="50" /></td>
+    </tr>
+    </table>
+
+    <br />
+    <input type="submit" value="Add Attendee" />
+    </form>
+    <br />
+    </p>
+
+    <h2>Other Options:</h2>
+    <p>
+    <form method="post" action="..">
+    <input type="submit" value="Register Another Attendee" />
+    </form>
+    </p>
+
+</div>
+{% endblock %}
+
