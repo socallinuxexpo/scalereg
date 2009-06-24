@@ -1,0 +1,3 @@
+#summary Information on testing the code (for developers)
+
+Eek, there's currently no tests! This is very bad software engineering. `*`hangs head in shame`*`.
