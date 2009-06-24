@@ -1,0 +1,3 @@
+#summary Usage guide for conference organizers
+
+This is issue 7.
