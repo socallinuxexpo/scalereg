@@ -1,0 +1,5 @@
+#summary Readme file (prettified with wiki markup)
+
+This is for issue 3.
+
+Paste http://code.google.com/p/scalereg/source/browse/trunk/README here and make it pretty.
