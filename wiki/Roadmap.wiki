@@ -1,0 +1,3 @@
+#summary Roadmap for scalereg
+
+TODO! Explain the milestones. This is part of issue 4.
