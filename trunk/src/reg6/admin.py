@@ -8,7 +8,7 @@ from reg6.models import PromoCode
 from reg6.models import Question
 from reg6.models import Ticket
 
-class Answer_Inline(admin.TabularInline):
+class AnswerInline(admin.TabularInline):
   model = Answer
   extra = 3
 
@@ -20,6 +20,8 @@ class PromoCodeOptions(admin.ModelAdmin):
 
 class QuestionOptions(admin.ModelAdmin):
   save_on_top = True
+  model = Parent
+  inlines = [AnswerInline]
 
 class ItemOptions(admin.ModelAdmin):
   list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo')
