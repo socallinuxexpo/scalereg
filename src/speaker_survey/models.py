@@ -10,9 +10,9 @@ VALUE_CHOICES = (
 )
 
 class Speaker(models.Model):
-  name = models.CharField(maxlength=100)
-  title = models.CharField(maxlength=200)
-  url = models.URLField(maxlength=200, blank=True)
+  name = models.CharField(max_length=100)
+  title = models.CharField(max_length=200)
+  url = models.URLField(max_length=200, blank=True)
 
   class Admin:
     save_on_top = True
@@ -22,38 +22,38 @@ class Speaker(models.Model):
 
 
 class Survey7X(models.Model):
-  hash = models.CharField(maxlength=10,
+  hash = models.CharField(max_length=10,
                           validator_list = [validators.isValid7XHash])
   speaker = models.ForeignKey(Speaker)
-  q00 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q00 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker was easy to understand')
-  q01 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q01 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker had good presentation skills')
-  q02 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q02 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker was properly prepared')
-  q03 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q03 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker was sufficiently knowledgeable')
-  q04 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q04 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker provided enough time for Q&A')
-  q05 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q05 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='I would attend another session by speaker')
-  q06 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q06 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='I would recommend speaker')
-  q07 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q07 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='This presentation met my expectations')
-  q08 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q08 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='The technical level met my expectations')
-  q09 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q09 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Would Recommend Presentation')
-  q10 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q10 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Presentation Was Applicable to Real World')
-  q11 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q11 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Presentation Slides were Useful')
-  q12 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q12 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='AV aids were easy to hear & see')
-  q13 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q13 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Would like similar topics in future')
-  q14 = models.CharField(maxlength=3, choices=VALUE_CHOICES, default='2ne',
+  q14 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Presentation was commercial in nature')
   comments = models.TextField(blank=True)
 
