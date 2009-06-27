@@ -76,8 +76,8 @@ class Order(models.Model):
   class Meta:
     permissions = (('view_order', 'Can view order'),)
 
-  def __str__(self):
-    return "%s" % self.order_num
+  def __unicode__(self):
+    return u"%s" % self.order_num
 
 
 class TicketManager(models.Manager):
@@ -135,8 +135,8 @@ class Ticket(models.Model):
   class Meta:
     permissions = (('view_ticket', 'Can view ticket'),)
 
-  def __str__(self):
-    return "%s" % self.name
+  def __unicode__(self):
+    return u"%s" % self.name
 
 
 class PromoCodeManager(models.Manager):
@@ -200,7 +200,7 @@ class PromoCode(models.Model):
   class Meta:
     permissions = (('view_promocode', 'Can view promo code'),)
 
-  def __str__(self):
+  def __unicode__(self):
     return self.name
 
 
@@ -227,8 +227,8 @@ class Item(models.Model):
   class Meta:
     permissions = (('view_item', 'Can view item'),)
 
-  def __str__(self):
-    return '%s (%s)' % (self.description, self.name)
+  def __unicode__(self):
+    return u'%s (%s)' % (self.description, self.name)
 
 
 class Answer(models.Model):
@@ -248,8 +248,8 @@ class Answer(models.Model):
       return '%s...' % self.text[:37]
     return '%s' % self.text
 
-  def __str__(self):
-    return '(%d) %s' % (self.question.id, self.__str_text__())
+  def __unicode__(self):
+    return u'(%d) %s' % (self.question.id, self.__str_text__())
 
 
 class Question(models.Model):
@@ -268,10 +268,10 @@ class Question(models.Model):
   def get_answers(self):
     return Answer.objects.filter(question=self.id)
 
-  def __str__(self):
+  def __unicode__(self):
     if len(self.text) > 37:
-      return '%s...' % self.text[:37]
-    return '%s' % self.text
+      return u'%s...' % self.text[:37]
+    return u'%s' % self.text
 
 
 class Attendee(models.Model):
@@ -336,8 +336,8 @@ class Attendee(models.Model):
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
 
-  def __str__(self):
-    return "%s (%s) " % (self.id, self.email)
+  def __unicode__(self):
+    return u"%s (%s) " % (self.id, self.email)
 
 
 class TempOrder(models.Model):
@@ -351,7 +351,7 @@ class TempOrder(models.Model):
   def attendees_list(self):
     return [int(x) for x in self.attendees.split(',')]
 
-  def __str__(self):
+  def __unicode__(self):
     return "%s" % self.order_num
 
 

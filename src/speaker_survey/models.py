@@ -17,8 +17,8 @@ class Speaker(models.Model):
   class Admin:
     save_on_top = True
 
-  def __str__(self):
-    return "%s: %s" % (self.name, self.title)
+  def __unicode__(self):
+    return u"%s: %s" % (self.name, self.title)
 
 
 class Survey7X(models.Model):
@@ -64,8 +64,8 @@ class Survey7X(models.Model):
     permissions = (('view_survey', 'Can view survey'),)
     unique_together = (('hash', 'speaker'),)
 
-  def __str__(self):
-    return "%s - %s" % (self.hash, self.speaker)
+  def __unicode__(self):
+    return u"%s - %s" % (self.hash, self.speaker)
 
   def help_text(self):
     r = []
