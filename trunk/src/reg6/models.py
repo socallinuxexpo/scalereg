@@ -33,33 +33,33 @@ TICKET_CHOICES = (
 
 class Order(models.Model):
   # basic info
-  order_num = models.CharField(maxlength=10, primary_key=True,
+  order_num = models.CharField(max_length=10, primary_key=True,
     validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   valid = models.BooleanField()
   date = models.DateTimeField(auto_now_add=True)
 
   # name and address
-  name = models.CharField(maxlength=120)
-  address = models.CharField(maxlength=120)
-  city = models.CharField(maxlength=60)
-  state = models.CharField(maxlength=60)
-  zip = models.CharField(maxlength=20)
-  country = models.CharField(maxlength=60, blank=True)
+  name = models.CharField(max_length=120)
+  address = models.CharField(max_length=120)
+  city = models.CharField(max_length=60)
+  state = models.CharField(max_length=60)
+  zip = models.CharField(max_length=20)
+  country = models.CharField(max_length=60, blank=True)
 
   # contact info
   email = models.EmailField()
-  phone = models.CharField(maxlength=20, blank=True)
+  phone = models.CharField(max_length=20, blank=True)
 
   # payment info
   amount = models.FloatField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
-  payment_type = models.CharField(maxlength=10, choices=PAYMENT_CHOICES)
-  auth_code = models.CharField(maxlength=30, blank=True,
+  payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
+  auth_code = models.CharField(max_length=30, blank=True,
     help_text='Only used by Verisign')
-  resp_msg = models.CharField(maxlength=60, blank=True,
+  resp_msg = models.CharField(max_length=60, blank=True,
     help_text='Only used by Verisign')
-  result = models.CharField(maxlength=60, blank=True,
+  result = models.CharField(max_length=60, blank=True,
     help_text='Only used by Verisign')
 
   class Admin:
@@ -99,11 +99,11 @@ class TicketManager(models.Manager):
 
 
 class Ticket(models.Model):
-  name = models.CharField(maxlength=5, primary_key=True,
+  name = models.CharField(max_length=5, primary_key=True,
     validator_list = [validators.isAllCapsDigits],
     help_text='Up to 5 letters, upper-case letters + numbers')
-  description = models.CharField(maxlength=60)
-  type = models.CharField(maxlength=10, choices=TICKET_CHOICES)
+  description = models.CharField(max_length=60)
+  type = models.CharField(max_length=10, choices=TICKET_CHOICES)
   price = models.FloatField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
   public = models.BooleanField(help_text='Publicly available on the order page')
@@ -157,10 +157,10 @@ class PromoCodeManager(models.Manager):
     return name_list
 
 class PromoCode(models.Model):
-  name = models.CharField(maxlength=5, primary_key=True,
+  name = models.CharField(max_length=5, primary_key=True,
     validator_list = [validators.isAllCapsDigits],
     help_text='Up to 5 letters, upper-case letters + numbers')
-  description = models.CharField(maxlength=60)
+  description = models.CharField(max_length=60)
 
   price_modifier = models.FloatField(max_digits=3, decimal_places=2,
     validator_list = [validators.isPositive],
@@ -205,10 +205,10 @@ class PromoCode(models.Model):
 
 
 class Item(models.Model):
-  name = models.CharField(maxlength=4,
+  name = models.CharField(max_length=4,
     validator_list = [validators.isAllCapsDigits],
     help_text='Unique, up to 4 upper-case letters / numbers')
-  description = models.CharField(maxlength=60)
+  description = models.CharField(max_length=60)
 
   price = models.FloatField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
@@ -234,7 +234,7 @@ class Item(models.Model):
 class Answer(models.Model):
   question = models.ForeignKey("Question", edit_inline=models.TABULAR,
     num_in_admin=3)
-  text = models.CharField(maxlength=200, core=True)
+  text = models.CharField(max_length=200, core=True)
 
   class Admin:
     list_display = ('question', '__str_text__')
@@ -253,7 +253,7 @@ class Answer(models.Model):
 
 
 class Question(models.Model):
-  text = models.CharField(maxlength=200)
+  text = models.CharField(max_length=200)
   active = models.BooleanField()
   applies_to_tickets = models.ManyToManyField(Ticket, blank=True, null=True)
   applies_to_items = models.ManyToManyField(Item, blank=True, null=True)
@@ -283,21 +283,21 @@ class Attendee(models.Model):
     validator_list = [validators.isValidAttendeeCheckin])
 
   # attendee name
-  salutation = models.CharField(maxlength=10, choices=SALUTATION_CHOICES, blank=True)
-  first_name = models.CharField(maxlength=60)
-  last_name = models.CharField(maxlength=60)
-  title = models.CharField(maxlength=60, blank=True)
-  org = models.CharField(maxlength=60, blank=True)
+  salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
+  first_name = models.CharField(max_length=60)
+  last_name = models.CharField(max_length=60)
+  title = models.CharField(max_length=60, blank=True)
+  org = models.CharField(max_length=60, blank=True)
 
   # contact info
   email = models.EmailField()
-  zip = models.CharField(maxlength=20)
-  phone = models.CharField(maxlength=20, blank=True)
+  zip = models.CharField(max_length=20)
+  phone = models.CharField(max_length=20, blank=True)
 
   # etc
   promo = models.ForeignKey(PromoCode, blank=True, null=True)
   ordered_items = models.ManyToManyField(Item, blank=True, null=True)
-  obtained_items = models.CharField(maxlength=60, blank=True,
+  obtained_items = models.CharField(max_length=60, blank=True,
     validator_list = [validators.isValidObtainedItems],
     help_text='comma separated list of items')
   can_email = models.BooleanField()
@@ -341,7 +341,7 @@ class Attendee(models.Model):
 
 
 class TempOrder(models.Model):
-  order_num = models.CharField(maxlength=10, primary_key=True,
+  order_num = models.CharField(max_length=10, primary_key=True,
     validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   attendees = models.TextField(
@@ -356,13 +356,13 @@ class TempOrder(models.Model):
 
 
 class Coupon(models.Model):
-  code = models.CharField(maxlength=10, primary_key=True,
+  code = models.CharField(max_length=10, primary_key=True,
     validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order)
   used = models.BooleanField()
-  max_attendees = models.PositiveIntegerField(maxlength=3)
+  max_attendees = models.PositiveIntegerField(max_length=3)
   expiration = models.DateField(null=True, blank=True,
     help_text='Not usable on this day')
 
