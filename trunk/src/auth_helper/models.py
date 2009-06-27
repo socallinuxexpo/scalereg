@@ -16,5 +16,5 @@ class Service(models.Model):
     list_display = ('name', 'active', 'url')
     #list_filter = ('date', 'payment_type', 'valid')
 
-  def __str__(self):
-    return "%s" % self.name
+  def __unicode__(self):
+    return u"%s" % self.name
