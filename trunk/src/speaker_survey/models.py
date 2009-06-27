@@ -1,5 +1,6 @@
 from django.db import models
-from scale.speaker_survey import validators
+# FIXME redo validators
+#from scale.speaker_survey import validators
 
 VALUE_CHOICES = (
   ('0sd', 'Strongly Disagree'),
@@ -19,8 +20,8 @@ class Speaker(models.Model):
 
 
 class Survey7X(models.Model):
-  hash = models.CharField(max_length=10,
-                          validator_list = [validators.isValid7XHash])
+  hash = models.CharField(max_length=10)
+                          #validator_list = [validators.isValid7XHash])
   speaker = models.ForeignKey(Speaker)
   q00 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker was easy to understand')
