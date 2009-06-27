@@ -52,7 +52,7 @@ class Order(models.Model):
   phone = models.CharField(max_length=20, blank=True)
 
   # payment info
-  amount = models.FloatField(max_digits=5, decimal_places=2,
+  amount = models.DecimalField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
   payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
   auth_code = models.CharField(max_length=30, blank=True,
@@ -93,7 +93,7 @@ class Ticket(models.Model):
     help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
   type = models.CharField(max_length=10, choices=TICKET_CHOICES)
-  price = models.FloatField(max_digits=5, decimal_places=2,
+  price = models.DecimalField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
   public = models.BooleanField(help_text='Publicly available on the order page')
   start_date = models.DateField(null=True, blank=True,
@@ -145,7 +145,7 @@ class PromoCode(models.Model):
     help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
 
-  price_modifier = models.FloatField(max_digits=3, decimal_places=2,
+  price_modifier = models.DecimalField(max_digits=3, decimal_places=2,
     validator_list = [validators.isPositive],
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
   active = models.BooleanField()
@@ -188,7 +188,7 @@ class Item(models.Model):
     help_text='Unique, up to 4 upper-case letters / numbers')
   description = models.CharField(max_length=60)
 
-  price = models.FloatField(max_digits=5, decimal_places=2,
+  price = models.DecimalField(max_digits=5, decimal_places=2,
     validator_list = [validators.isNotNegative])
 
   active = models.BooleanField()
