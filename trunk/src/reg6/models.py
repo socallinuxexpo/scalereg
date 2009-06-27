@@ -234,7 +234,7 @@ class Item(models.Model):
 class Answer(models.Model):
   question = models.ForeignKey("Question", edit_inline=models.TABULAR,
     num_in_admin=3)
-  text = models.CharField(max_length=200, core=True)
+  text = models.CharField(max_length=200)
 
   class Admin:
     list_display = ('question', '__str_text__')
