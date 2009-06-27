@@ -14,9 +14,6 @@ class Speaker(models.Model):
   title = models.CharField(max_length=200)
   url = models.URLField(max_length=200, blank=True)
 
-  class Admin:
-    save_on_top = True
-
   def __unicode__(self):
     return u'%s: %s' % (self.name, self.title)
 
@@ -56,9 +53,6 @@ class Survey7X(models.Model):
   q14 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Presentation was commercial in nature')
   comments = models.TextField(blank=True)
-
-  class Admin:
-    save_on_top = True
 
   class Meta:
     permissions = (('view_survey', 'Can view survey'),)
