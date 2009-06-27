@@ -62,17 +62,6 @@ class Order(models.Model):
   result = models.CharField(max_length=60, blank=True,
     help_text='Only used by Verisign')
 
-  class Admin:
-    fields = (
-      ('Billing Info', {'fields': ('name', 'address', 'city', 'state', 'zip', 'country')}),
-      ('Contact Info', {'fields': ('email', 'phone')}),
-      ('Order Info', {'fields': ('order_num', 'valid')}),
-      ('Payment Info', {'fields': ('amount', 'payment_type', 'auth_code', 'resp_msg', 'result')}),
-    )
-    list_display = ('order_num', 'date', 'name', 'address', 'city', 'state', 'zip', 'country', 'email', 'phone', 'amount', 'payment_type', 'valid')
-    list_filter = ('date', 'payment_type', 'valid')
-    save_on_top = True
-
   class Meta:
     permissions = (('view_order', 'Can view order'),)
 
@@ -125,12 +114,6 @@ class Ticket(models.Model):
     if self.end_date and self.end_date <= today:
       return False
     return True
-
-  class Admin:
-    list_display = ('name', 'description', 'type', 'price', 'public',
-      'start_date', 'end_date')
-    list_filter = ('type', 'public', 'start_date', 'end_date')
-    save_on_top = True
 
   class Meta:
     permissions = (('view_ticket', 'Can view ticket'),)
@@ -192,11 +175,6 @@ class PromoCode(models.Model):
       return True
     return ticket in self.applies_to.all()
 
-  class Admin:
-    list_display = ('name', 'description', 'price_modifier', 'active', 'start_date', 'end_date')
-    list_filter = ('active', 'start_date', 'end_date')
-    save_on_top = True
-
   class Meta:
     permissions = (('view_promocode', 'Can view promo code'),)
 
@@ -219,11 +197,6 @@ class Item(models.Model):
   applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
-  class Admin:
-    list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo')
-    list_filter = ('active', 'pickup', 'promo')
-    save_on_top = True
-
   class Meta:
     permissions = (('view_item', 'Can view item'),)
 
@@ -235,10 +208,6 @@ class Answer(models.Model):
   question = models.ForeignKey('Question', edit_inline=models.TABULAR,
     num_in_admin=3)
   text = models.CharField(max_length=200)
-
-  class Admin:
-    list_display = ('question', '__str_text__')
-    save_on_top = True
 
   class Meta:
     permissions = (('view_answer', 'Can view answer'),)
@@ -258,9 +227,6 @@ class Question(models.Model):
   applies_to_tickets = models.ManyToManyField(Ticket, blank=True, null=True)
   applies_to_items = models.ManyToManyField(Item, blank=True, null=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
-
-  class Admin:
-    save_on_top = True
 
   class Meta:
     permissions = (('view_question', 'Can view question'),)
@@ -321,18 +287,6 @@ class Attendee(models.Model):
       total += additional_cost
     return total
 
-  class Admin:
-    fields = (
-      ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name', 'title', 'org')}),
-      ('Contact Info', {'fields': ('email', 'zip', 'phone')}),
-      ('Badge Info', {'fields': ('badge_type', 'valid', 'checked_in')}),
-      ('Items', {'fields': ('ordered_items', 'obtained_items')}),
-      ('Misc', {'fields': ('promo', 'order', 'answers')}),
-    )
-    list_display = ('id', 'first_name', 'last_name', 'email', 'zip', 'badge_type', 'valid', 'checked_in', 'order', 'promo')
-    list_filter = ('badge_type', 'valid', 'checked_in', 'promo')
-    save_on_top = True
-
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
 
@@ -372,11 +326,6 @@ class Coupon(models.Model):
     if self.expiration and self.expiration <= datetime.date.today():
       return False
     return True
-
-  class Admin:
-    list_display = ('code', 'badge_type', 'order', 'used', 'max_attendees', 'expiration')
-    list_filter = ('code', 'used', 'badge_type')
-    save_on_top = True
 
   class Meta:
     permissions = (('view_coupon', 'Can view coupon'),)

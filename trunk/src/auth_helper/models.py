@@ -12,9 +12,5 @@ class Service(models.Model):
   users = models.ManyToManyField(User, blank=True)
   groups = models.ManyToManyField(Group, blank=True)
 
-  class Admin:
-    list_display = ('name', 'active', 'url')
-    #list_filter = ('date', 'payment_type', 'valid')
-
   def __unicode__(self):
     return u'%s' % self.name
