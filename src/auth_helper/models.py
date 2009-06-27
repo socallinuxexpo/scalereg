@@ -17,4 +17,4 @@ class Service(models.Model):
     #list_filter = ('date', 'payment_type', 'valid')
 
   def __unicode__(self):
-    return u"%s" % self.name
+    return u'%s' % self.name

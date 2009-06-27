@@ -77,7 +77,7 @@ class Order(models.Model):
     permissions = (('view_order', 'Can view order'),)
 
   def __unicode__(self):
-    return u"%s" % self.order_num
+    return u'%s' % self.order_num
 
 
 class TicketManager(models.Manager):
@@ -136,7 +136,7 @@ class Ticket(models.Model):
     permissions = (('view_ticket', 'Can view ticket'),)
 
   def __unicode__(self):
-    return u"%s" % self.name
+    return u'%s' % self.name
 
 
 class PromoCodeManager(models.Manager):
@@ -232,7 +232,7 @@ class Item(models.Model):
 
 
 class Answer(models.Model):
-  question = models.ForeignKey("Question", edit_inline=models.TABULAR,
+  question = models.ForeignKey('Question', edit_inline=models.TABULAR,
     num_in_admin=3)
   text = models.CharField(max_length=200)
 
@@ -337,7 +337,7 @@ class Attendee(models.Model):
     permissions = (('view_attendee', 'Can view attendee'),)
 
   def __unicode__(self):
-    return u"%s (%s) " % (self.id, self.email)
+    return u'%s (%s) ' % (self.id, self.email)
 
 
 class TempOrder(models.Model):
@@ -352,7 +352,7 @@ class TempOrder(models.Model):
     return [int(x) for x in self.attendees.split(',')]
 
   def __unicode__(self):
-    return "%s" % self.order_num
+    return '%s' % self.order_num
 
 
 class Coupon(models.Model):

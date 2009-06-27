@@ -95,7 +95,7 @@ def get_model_list(user):
              if type(m[1]) == ModelBase and m[1]._meta.admin]
   model_list = []
   for t in tables:
-    if user.is_superuser or "reg6.view_%s" % t.lower() in perms:
+    if user.is_superuser or 'reg6.view_%s' % t.lower() in perms:
       def foo(match):
         return '%s %s' % match.groups()
       name = re.sub('([a-z])([A-Z])', foo, t)

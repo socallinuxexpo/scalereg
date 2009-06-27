@@ -26,7 +26,7 @@ def ScaleDebug(msg):
 
   line = 'File "%s", line %d, in %s: %s' % (filename, line_number, name, msg)
   handle = open('/tmp/scale_reg.log', 'a')
-  handle.write("%s: %s\n" % (datetime.datetime.now(), line))
+  handle.write('%s: %s\n' % (datetime.datetime.now(), line))
   handle.close()
 
 
@@ -44,7 +44,7 @@ def PrintAttendee(attendee):
   if not attendee.order:
     return ''
   if attendee.order.payment_type in ('verisign', 'google', 'cash'):
-    badge.append("%2.2f" % attendee.ticket_cost())
+    badge.append('%2.2f' % attendee.ticket_cost())
   else:
     badge.append('0.00')
 
@@ -557,10 +557,10 @@ def Sale(request):
   if r:
     ScaleDebug('required vars missing')
     return HttpResponseServerError('required vars missing')
-  if request.POST['RESULT'] != "0":
+  if request.POST['RESULT'] != '0':
     ScaleDebug('transaction did not succeed')
     return HttpResponseServerError('transaction did not succeed')
-  if request.POST['RESPMSG'] != "Approved":
+  if request.POST['RESPMSG'] != 'Approved':
     ScaleDebug('transaction declined')
     return HttpResponseServerError('transaction declined')
 
