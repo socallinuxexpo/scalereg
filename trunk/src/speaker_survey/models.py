@@ -18,7 +18,7 @@ class Speaker(models.Model):
     save_on_top = True
 
   def __unicode__(self):
-    return u"%s: %s" % (self.name, self.title)
+    return u'%s: %s' % (self.name, self.title)
 
 
 class Survey7X(models.Model):
@@ -65,7 +65,7 @@ class Survey7X(models.Model):
     unique_together = (('hash', 'speaker'),)
 
   def __unicode__(self):
-    return u"%s - %s" % (self.hash, self.speaker)
+    return u'%s - %s' % (self.hash, self.speaker)
 
   def help_text(self):
     r = []
