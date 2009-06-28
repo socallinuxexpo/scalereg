@@ -20,7 +20,7 @@ class PromoCodeOptions(admin.ModelAdmin):
 
 class QuestionOptions(admin.ModelAdmin):
   save_on_top = True
-  model = Parent
+  model = Question
   inlines = [AnswerInline]
 
 class ItemOptions(admin.ModelAdmin):
