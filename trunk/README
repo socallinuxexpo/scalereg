@@ -11,7 +11,7 @@ the Django framework.
 
 You can find more about the projects mentioned above at their
 respective websites:
-Scalereg - http://code.google.com/p/scalereg/
+Scalereg - http://scalereg.googlecode.com/
 SCALE - http://www.socallinuxexpo.org/
 Django - http://www.djangoproject.com/
 
@@ -19,40 +19,31 @@ Django - http://www.djangoproject.com/
 
 To run Scalereg, you need the following:
 
-- Django 0.96 [1] which in turn requires:
-  - any Python version from 2.3 to 2.6 [2]
+- Django 1.0 which in turn requires:
+  - any Python version from 2.3 to 2.6, Python 2.5+ preferred. [1]
   - a database (SQLite, PostgreSQL, MySQL, Oracle, etc)
-  
-  
-[1] We started writing Scalereg 2 years ago, before Django 1.0. We
-    hope to update Scalereg to Django 1.0 soon. Post 0.96 Django
-    releases have not been tested.
-[2] Most testing has been with Python 2.4.
+
+[1] Most testing has been with Python 2.5. Please report
+    incompatibilities with python 2.3 or 2.4.
 
 3. GETTING STARTED
 
 After extracting the Scalereg tarball, from the top-level directory
-of the Scalereg source (which contains this file), run the following
-commands to start the project:
+of the Scalereg source (which contains this file), go to the scalereg/
+directory that contains settings.py.
 
-django-admin.py startproject scalereg
-cp scalereg/settings.py scalereg/settings.py.bak
-cp -a src/* scalereg
+Now edit settings.py and make sure all the settings look correct. By
+default, we use a SQLite database since it requires minimal setup.
+Please generate a unique SECRET_KEY in settings.py; any valid python
+string works. Also change the path in TEMPLATE_DIRS with the full path
+to scalereg/scale_templates.  With the application configured, run the
+following commands to initial the database and start the webserver:
 
-Now edit scalereg/settings.py and make sure all the settings look
-correct. By default, we use a SQLite database since it requires
-minimal setup. Please use the SECRET_KEY in scalereg/settings.py.bak,
-and then delete scalereg/settings.py.bak. Also change the path in
-TEMPLATE_DIRS with the full path to scalereg/scale_templates.  With
-the application configured, run the following commands to initial the
-database and start the webserver:
+./manage.py syncdb
+./manage.py runserver 0.0.0.0:8080
 
-cd scalereg
-python manage.py syncdb
-python manage.py runserver 8080
-
-Assuming all went smoothly, go to http://webserver:8080/admin to
-configure the registration site, and http://webserver:8080/reg6
+Assuming all went smoothly, go to http://hostname:8080/admin to
+configure the registration site, and http://hostname:8080/reg6
 to try out the registration software.
 
 If you want to integrate Scalereg with your web server software or
