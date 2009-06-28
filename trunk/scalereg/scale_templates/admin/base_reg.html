@@ -2,13 +2,13 @@
 <html>
 <head>
 <title>{% block title %}{% endblock %}</title>
+<!--  ADD CSS BELOW //-->
+<!--
 <style type="text/css">
-@import url("https://www.socallinuxexpo.org/scale6x/stylesheets/featured_speakers.css");
-@import url("https://www.socallinuxexpo.org/scale6x/stylesheets/index.css");
-@import url("https://www.socallinuxexpo.org/scale6x/stylesheets/global.css");
-@import url("https://www.socallinuxexpo.org/scale6x/stylesheets/helpers.css");
-@import url("https://www.socallinuxexpo.org/scale6x/stylesheets/registration.css");
+@import url("http://CHANGE_ME/foo.css");
 </style>
+//-->
+
 {% block extrastyle %}{% endblock %}
 {% block extrahead %}{% endblock %}
 </head>
@@ -19,38 +19,23 @@
 {% if not kiosk %}
 <div id="header_wrapper">
     <div id="header">
-        <a href="http://www.socallinuxexpo.org/scale6x"><img alt="" src="https://www.socallinuxexpo.org/scale6x/images/global/header/logo.gif" /></a>
+        <!-- LOGO goes here <a href="http://CHANGE_ME/"><img alt="" src="http://CHANGE_ME/foo.jpg" /></a> //-->
+        <!-- Add other header html here //-->
+        <!--
         <ul>
-            <li class="home"><a href="http://www.socallinuxexpo.org/scale6x"><strong>Home</strong></a></li>
-            <li class="purchase_tickets"><a href="http://www.socallinuxexpo.org/scale6x/registration/"><strong>Purchase Tickets</strong></a></li>
-            <li class="conference_info">
-                <a href="http://www.socallinuxexpo.org/scale6x/conference-info/speakers/"><strong>Conference Info</strong></a>
-
-                <ul class="drop_down">
-                    <li><a href="http://socallinuxexpo.com/blog/">SCALE Blog</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/calls-for-papers/">Calls For Papers</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/location/">Location</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/speakers/">Featured Speakers</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/exhibitions/">Exhibitions</a></li>
-
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/sponsors/">Sponsors</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/social-events/">Social Events</a></li>
-                    <li><a href="http://www.socallinuxexpo.org/scale6x/conference-info/committees/">Committees</a></li>
-                </ul>
-            </li>
-            <li class="media"><a href="http://www.socallinuxexpo.org/scale6x/press-release/"><strong>Media</strong></a></li>
-            <li class="open_source_health_care_summit"><a href="http://www.socallinuxexpo.org/scale6x/conference-info/social-events/scale-friday-special-events/"><strong>SCALE Friday Special Events</strong></a></li>
-
+            <li>link1</li>
+            <li>link2</li>
+            <li>link3</li>
         </ul>
+        //-->
     </div>
 </div>
 {% endif %}
 
-        {% if messages %}
-        <ul class="messagelist">{% for message in messages %}<li>{{ message|escape }}</li>{% endfor %}</ul>
-        {% endif %}
+    {% if messages %}
+    <ul class="messagelist">{% for message in messages %}<li>{{ message|escape }}</li>{% endfor %}</ul>
+    {% endif %}
 
-    <br><br><br>
     <!-- Content -->
     <div id="content">
 
@@ -65,13 +50,15 @@
 {% if not kiosk %}
 <div id="footer_wrapper">
     <div id="footer">
-        <span><em>SCALE 6x:</em> Copyright 2002-2008 Southern California Linux Exposition. All Rights Reserved.</span>
+        <!-- Add other footer html here //-->
+        <a href="http://scalereg.googlecode.com/">SCALEREG</a>: Brought to you by <a href="http://www.socallinuxexpo.org">The Southern California Linux Expo</a>.</span>
+        <!--
         <ul>
-            <li><a href="http://www.socallinuxexpo.org/scale6x/contact/">Contact Us</a></li>
-            <li><a href="http://www.socallinuxexpo.org/scale6x/about/">About</a></li>
-
-            <li class="b0 mr0 pr0"><a href="http://www.socallinuxexpo.org/scale6x/past/">Past Events</a></li>
+            <li>link1</li>
+            <li>link2</li>
+            <li>link3</li>
         </ul>
+        //-->
     </div>
 </div>
 {% endif %}
