@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated with:
+manage.py dumpdata -format=xml -indent=2 \
+-exclude=admin -exclude=auth -exclude=contenttypes -exclude=sessions \
+(2 dashes instead of 1, of course. Stupid XML)
+-->
+<django-objects version="1.0">
+  <object pk="1" model="sites.site">
+    <field type="CharField" name="domain">example.com</field>
+    <field type="CharField" name="name">example.com</field>
+  </object>
+  <object pk="Reports" model="auth_helper.service">
+    <field type="CharField" name="url">/reports</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"><object pk="1"></object></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="FULL" model="reg6.ticket">
+    <field type="CharField" name="description">Full Ticket</field>
+    <field type="CharField" name="type">full</field>
+    <field type="DecimalField" name="price">30</field>
+    <field type="BooleanField" name="public">True</field>
+    <field type="DateField" name="start_date"><None></None></field>
+    <field type="DateField" name="end_date"><None></None></field>
+  </object>
+  <object pk="EXPO" model="reg6.ticket">
+    <field type="CharField" name="description">Expo only</field>
+    <field type="CharField" name="type">expo</field>
+    <field type="DecimalField" name="price">10</field>
+    <field type="BooleanField" name="public">True</field>
+    <field type="DateField" name="start_date"><None></None></field>
+    <field type="DateField" name="end_date"><None></None></field>
+  </object>
+  <object pk="SPEAK" model="reg6.ticket">
+    <field type="CharField" name="description">Speaker Ticket</field>
+    <field type="CharField" name="type">speaker</field>
+    <field type="DecimalField" name="price">0</field>
+    <field type="BooleanField" name="public">False</field>
+    <field type="DateField" name="start_date"><None></None></field>
+    <field type="DateField" name="end_date"><None></None></field>
+  </object>
+  <object pk="STDNT" model="reg6.promocode">
+    <field type="CharField" name="description">Student Discount</field>
+    <field type="DecimalField" name="price_modifier">0.5</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="DateField" name="start_date"><None></None></field>
+    <field type="DateField" name="end_date"><None></None></field>
+    <field type="BooleanField" name="applies_to_all">True</field>
+    <field to="reg6.ticket" name="applies_to" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="CORP1" model="reg6.promocode">
+    <field type="CharField" name="description">Discount for Foo Corp</field>
+    <field type="DecimalField" name="price_modifier">0.75</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="DateField" name="start_date"><None></None></field>
+    <field type="DateField" name="end_date"><None></None></field>
+    <field type="BooleanField" name="applies_to_all">False</field>
+    <field to="reg6.ticket" name="applies_to" rel="ManyToManyRel"><object pk="FULL"></object></field>
+  </object>
+  <object pk="1" model="reg6.item">
+    <field type="CharField" name="name">PSLG</field>
+    <field type="CharField" name="description">Polo Shirt, Large</field>
+    <field type="DecimalField" name="price">20</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="BooleanField" name="pickup">False</field>
+    <field type="BooleanField" name="promo">False</field>
+    <field type="BooleanField" name="applies_to_all">True</field>
+    <field to="reg6.ticket" name="applies_to" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="2" model="reg6.item">
+    <field type="CharField" name="name">GEGL</field>
+    <field type="CharField" name="description">Genetically Engineered Goat, Large</field>
+    <field type="DecimalField" name="price">100</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="BooleanField" name="pickup">False</field>
+    <field type="BooleanField" name="promo">True</field>
+    <field type="BooleanField" name="applies_to_all">False</field>
+    <field to="reg6.ticket" name="applies_to" rel="ManyToManyRel"><object pk="FULL"></object></field>
+  </object>
+  <object pk="1" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">1</field>
+    <field type="CharField" name="text">1</field>
+  </object>
+  <object pk="2" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">1</field>
+    <field type="CharField" name="text">2</field>
+  </object>
+  <object pk="3" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">1</field>
+    <field type="CharField" name="text">3</field>
+  </object>
+  <object pk="4" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">2</field>
+    <field type="CharField" name="text">answer1</field>
+  </object>
+  <object pk="5" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">2</field>
+    <field type="CharField" name="text">answer2</field>
+  </object>
+  <object pk="6" model="reg6.answer">
+    <field to="reg6.question" name="question" rel="ManyToOneRel">2</field>
+    <field type="CharField" name="text">answer3</field>
+  </object>
+  <object pk="1" model="reg6.question">
+    <field type="CharField" name="text">What is 1 + 1?</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="BooleanField" name="applies_to_all">True</field>
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel"></field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="2" model="reg6.question">
+    <field type="CharField" name="text">Only "FULL" ticket buyers get this question</field>
+    <field type="BooleanField" name="active">True</field>
+    <field type="BooleanField" name="applies_to_all">False</field>
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel"><object pk="FULL"></object></field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
+  </object>
+</django-objects>

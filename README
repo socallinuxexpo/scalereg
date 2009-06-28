@@ -37,9 +37,16 @@ default, we use a SQLite database since it requires minimal setup.
 Please generate a unique SECRET_KEY in settings.py; any valid python
 string works. Also change the path in TEMPLATE_DIRS with the full path
 to scalereg/scale_templates.  With the application configured, run the
-following commands to initial the database and start the webserver:
+following command to initial the database:
 
 ./manage.py syncdb
+
+To load some sample data:
+
+./manage.py loaddata fixtures/sample_data.xml
+
+And to start the webserver:
+
 ./manage.py runserver 0.0.0.0:8080
 
 Assuming all went smoothly, go to http://hostname:8080/admin to
@@ -47,4 +54,5 @@ configure the registration site, and http://hostname:8080/reg6
 to try out the registration software.
 
 If you want to integrate Scalereg with your web server software or
-your database software, please see the Django website for more info.
+your database software, please see the Django website for more info on
+"Deploying Django".
