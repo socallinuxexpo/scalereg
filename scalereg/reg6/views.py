@@ -287,8 +287,14 @@ def AddAttendee(request):
           break
 
   if action == 'add':
+    request.session['attendee'] = ''
     form = models.AttendeeForm()
   else:
+    if request.session['attendee']:
+      return scale_render_to_response(request, 'reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'You already added this attendee.',
+        })
     form = models.AttendeeForm(request.POST)
     if form.is_valid():
       if not request.session.test_cookie_worked():
