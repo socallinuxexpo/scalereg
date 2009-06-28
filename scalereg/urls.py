@@ -20,3 +20,5 @@ urlpatterns = patterns('',
     (r'^$', 'scalereg.auth_helper.views.index'),
 
 )
+
+handler500 = 'scalereg.common.views.handler500'

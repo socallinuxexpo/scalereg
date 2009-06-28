@@ -3,6 +3,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from scalereg.common.views import handler500
 from scalereg.reg6 import models
 from scalereg.reports.views import reports_perm_checker
 from scalereg.reg6.views import GenerateOrderID
@@ -53,21 +54,18 @@ def FinishCheckIn(request):
     return HttpResponseRedirect('/reg6/')
 
   if 'id' not in request.POST:
-    return render_to_response('error.html',
-      {'error_message': 'No ID'})
+    return handler500(request, msg='No ID')
 
   try:
     attendee = models.Attendee.objects.get(id=request.POST['id'])
   except models.Attendee.DoesNotExist:
-    return render_to_response('error.html',
-      {'error_message': 'We could not find your registration'})
+    return handler500(request, msg='We could not find your registration')
 
   try:
     attendee.checked_in = True
     attendee.save()
   except:
-    return render_to_response('error.html',
-      {'error_message': 'We encountered a problem with your checkin'})
+    return handler500(request, msg='We encountered a problem with your checkin')
 
   return render_to_response('reg6/staff/finish_checkin.html',
     {'title': 'Attendee Check In',
@@ -122,14 +120,12 @@ def CashPayment(request):
 
   for var in ['FIRST', 'LAST', 'EMAIL', 'ZIP', 'TICKET']:
     if var not in request.POST:
-      return render_to_response('error.html',
-        {'error_message': 'missing data: no %s field' % var})
+      return handler500(request, msg='missing data: no %s field' % var)
 
   try:
     ticket = models.Ticket.objects.get(name=request.POST['TICKET'])
   except:
-    return render_to_response('error.html',
-      {'error_message': 'cannot find ticket type'})
+    return handler500(request, msg='cannot find ticket type')
 
   order = models.Order()
   bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
@@ -158,13 +154,11 @@ def CashPayment(request):
   attendee.badge_type = ticket
   invalid = attendee.validate()
   if invalid:
-    return render_to_response('error.html',
-      {'error_message': 'cannot save attendee, bad data?'})
+    return handler500(request, msg='cannot save attendee, bad data?')
   try:
     order.save()
   except: # FIXME catch the specific db exceptions
-    return render_to_response('error.html',
-      {'error_message': 'cannot save order, bad data?'})
+    return handler500(request, msg='cannot save order, bad data?')
   attendee.save()
 
   return render_to_response('reg6/staff/cash.html',
