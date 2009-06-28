@@ -301,9 +301,7 @@ class Attendee(models.Model):
     return u'%s (%s) ' % (self.id, self.email)
 
   def save(self, *args, **kwargs):
-    validators.isQuestionsUnique(self.answers, self)
     validators.isValidAttendeeCheckin(self.checked_in, self)
-    validators.isValidObtainedItems(self.obtained_items, self)
     return super(Attendee, self).save(*args, **kwargs)
 
 

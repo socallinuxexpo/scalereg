@@ -18,31 +18,6 @@ def isNotNegative(field_data, all_data):
     raise ScaleValidationError('Value should not be negative')
 
 
-def isValidObtainedItems(field_data, all_data):
-  obtained_items = {}
-  for f in field_data.replace(' ', '').split(','):
-    if not f:
-      raise ScaleValidationError('Value cannot be parsed')
-    if f in obtained_items:
-      raise ScaleValidationError('Item listed twice')
-    obtained_items[f] = None
-
-  obj = models.Attendee.objects.get(id=all_data.id)
-  for item in obj.ordered_items.all():
-    if item.name in obtained_items:
-      del obtained_items[item.name]
-
-  num_invalid_items = len(obtained_items)
-  if num_invalid_items:
-    invalid_items = ', '.join(obtained_items.keys())
-    if num_invalid_items > 1:
-      plural = 's'
-    else:
-      plural = ''
-    raise ScaleValidationError('Item%s not found: %s' %
-      (plural, invalid_items))
-
-
 def isAllCaps(field_data, all_data):
   for f in field_data:
     if f not in string.ascii_uppercase:
@@ -77,12 +52,3 @@ def isCommaSeparatedInts(field_data, all_data):
       int(f)
   except ValueError:
     raise ScaleValidationError('Not a number')
-
-
-def isQuestionsUnique(field_data, all_data):
-  questions = []
-  for id in field_data:
-    answer = models.Answer.objects.get(id=id)
-    if answer.question in questions:
-      raise ScaleValidationError('Question cannot have multiple answers')
-    questions.append(answer.question)
