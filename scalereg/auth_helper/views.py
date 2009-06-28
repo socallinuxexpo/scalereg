@@ -30,4 +30,8 @@ def profile(request):
     services = set(services + services_group)
 
   return render_to_response('profile/index.html',
-    {'user': request.user, 'title': 'Available Services', 'services': services})
+    {'root_path': '/admin/',
+     'services': services,
+     'title': 'Available Services',
+     'user': request.user,
+    })
