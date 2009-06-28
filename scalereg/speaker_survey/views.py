@@ -9,103 +9,103 @@ from scalereg.reg6 import models as reg6models
 from scalereg.speaker_survey import models
 from scalereg.speaker_survey import validators
 
- def Survey(request, hash=None, id=None):
-   try:
-     validator.isValid7XHash(hash, None)
-   except ValidationError:
-     return render_to_response('speaker_survey/error.html',
-       {'title': 'Survey Error',
-        'error_message': 'Invalid Survey URL',
-       })
+def Survey(request, hash=None, id=None):
+  try:
+    validator.isValid7XHash(hash, None)
+  except ValidationError:
+    return render_to_response('speaker_survey/error.html',
+      {'title': 'Survey Error',
+      'error_message': 'Invalid Survey URL',
+      })
 
-   if not id:
-     return SurveyIndex(hash)
+  if not id:
+    return SurveyIndex(hash)
 
-   speaker = None
-   try:
-     speaker = models.Speaker.objects.get(id=id)
+  speaker = None
+  try:
+    speaker = models.Speaker.objects.get(id=id)
 
-     if request.method == 'POST':
-       return SurveyFill(hash, speaker, request.POST)
-   except models.Speaker.DoesNotExist:
-     return render_to_response('speaker_survey/error.html',
-       {'title': 'Survey Error',
-        'error_message': 'Cannot find speaker',
-       })
-   try:
-     s = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
-     return SurveyView(s)
-   except models.Survey7X.DoesNotExist:
-     return SurveyFill(hash, speaker)
-
-
- def SurveyIndex(hash):
-   surveys = models.Survey7X.objects.filter(hash=hash)
-   new_speakers = models.Speaker.objects.all().order_by('name')
-   old_speakers = []
-   for s in surveys:
-     new_speakers = new_speakers.exclude(id=s.speaker.id)
-     old_speakers.append(s.speaker)
-
-   return render_to_response('speaker_survey/survey_index.html',
-     {'title': 'Speaker Surveys',
-      'new': new_speakers,
-      'old': old_speakers,
-     })
+    if request.method == 'POST':
+      return SurveyFill(hash, speaker, request.POST)
+  except models.Speaker.DoesNotExist:
+    return render_to_response('speaker_survey/error.html',
+      {'title': 'Survey Error',
+       'error_message': 'Cannot find speaker',
+      })
+  try:
+    s = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
+    return SurveyView(s)
+  except models.Survey7X.DoesNotExist:
+    return SurveyFill(hash, speaker)
 
 
- def SurveyFill(hash, speaker, post_data=None):
-   manipulator = models.Survey7X.AddManipulator()
-   new_data = errors = {}
-   if post_data:
-     new_data = post_data.copy()
-     new_data['speaker'] = speaker.id
-     new_data['hash'] = hash
-     try:
-       # work around DB integrity error for duplicates
-       survey = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
-       return SurveyView(survey)
-     except models.Survey7X.DoesNotExist:
-       pass
+def SurveyIndex(hash):
+  surveys = models.Survey7X.objects.filter(hash=hash)
+  new_speakers = models.Speaker.objects.all().order_by('name')
+  old_speakers = []
+  for s in surveys:
+    new_speakers = new_speakers.exclude(id=s.speaker.id)
+    old_speakers.append(s.speaker)
 
-     try:
-       # fill in empty fields
-       for f in xrange(0, 15):
-         q = 'q%02d' % f
-         if not new_data[q]:
-           new_data[q] = '2ne'
-       errors = manipulator.get_validation_errors(new_data)
-     except: # FIXME sometimes we get an exception, not sure how to reproduce
-       return render_to_response('speaker_survey/error.html',
-         {'title': 'Survey Error',
-          'error_message': 'An unexpected error occurred, please try again.'
-         })
-     if not errors:
-       manipulator.do_html2python(new_data)
-       new_survey = manipulator.save(new_data)
-       return SurveyView(new_survey)
-   form = forms.FormWrapper(manipulator, new_data, errors)
-   return render_to_response('speaker_survey/survey_fill.html',
-     {'title': 'Speaker Surveys',
-      'form': form,
-      'kiosk': False, # Not sure why I have to add this for Stu's server
-      'messages': None, # Not sure why I have to add this for Stu's server
-      'speaker': speaker,
-      'survey': models.Survey7X(),
-     })
+  return render_to_response('speaker_survey/survey_index.html',
+    {'title': 'Speaker Surveys',
+     'new': new_speakers,
+     'old': old_speakers,
+    })
 
 
- def SurveyView(s):
-   if not s:
-     return render_to_response('speaker_survey/error.html',
-       {'title': 'Survey Error',
-        'error_message': 'Cannot find survey',
-       })
+def SurveyFill(hash, speaker, post_data=None):
+  manipulator = models.Survey7X.AddManipulator()
+  new_data = errors = {}
+  if post_data:
+    new_data = post_data.copy()
+    new_data['speaker'] = speaker.id
+    new_data['hash'] = hash
+    try:
+      # work around DB integrity error for duplicates
+      survey = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
+      return SurveyView(survey)
+    except models.Survey7X.DoesNotExist:
+      pass
 
-   return render_to_response('speaker_survey/survey_view.html',
-     {'title': 'Speaker Surveys',
-      'survey': s,
-     })
+    try:
+      # fill in empty fields
+      for f in xrange(0, 15):
+        q = 'q%02d' % f
+        if not new_data[q]:
+          new_data[q] = '2ne'
+      errors = manipulator.get_validation_errors(new_data)
+    except: # FIXME sometimes we get an exception, not sure how to reproduce
+      return render_to_response('speaker_survey/error.html',
+        {'title': 'Survey Error',
+         'error_message': 'An unexpected error occurred, please try again.'
+        })
+    if not errors:
+      manipulator.do_html2python(new_data)
+      new_survey = manipulator.save(new_data)
+      return SurveyView(new_survey)
+  form = forms.FormWrapper(manipulator, new_data, errors)
+  return render_to_response('speaker_survey/survey_fill.html',
+    {'title': 'Speaker Surveys',
+     'form': form,
+     'kiosk': False, # Not sure why I have to add this for Stu's server
+     'messages': None, # Not sure why I have to add this for Stu's server
+     'speaker': speaker,
+     'survey': models.Survey7X(),
+    })
+
+
+def SurveyView(s):
+  if not s:
+    return render_to_response('speaker_survey/error.html',
+      {'title': 'Survey Error',
+       'error_message': 'Cannot find survey',
+      })
+
+  return render_to_response('speaker_survey/survey_view.html',
+    {'title': 'Speaker Surveys',
+     'survey': s,
+    })
 
 
 def SurveyLookup(request):
