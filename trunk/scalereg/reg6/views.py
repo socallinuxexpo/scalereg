@@ -1,10 +1,13 @@
 # Create your views here.
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
+from scalereg.reg6 import forms
+from scalereg.reg6 import models
 import datetime
-import models
 import random
 import re
 import string
@@ -288,14 +291,14 @@ def AddAttendee(request):
 
   if action == 'add':
     request.session['attendee'] = ''
-    form = models.AttendeeForm()
+    form = forms.AttendeeForm()
   else:
     if request.session['attendee']:
       return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
          'error_message': 'You already added this attendee.',
         })
-    form = models.AttendeeForm(request.POST)
+    form = forms.AttendeeForm(request.POST)
     if form.is_valid():
       if not request.session.test_cookie_worked():
         return scale_render_to_response(request, 'reg6/reg_error.html',
