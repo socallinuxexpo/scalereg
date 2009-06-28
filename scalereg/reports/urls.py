@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from scale.reg6 import models
+from scalereg.reg6 import models
 
 answer_dict = {
     'queryset': models.Answer.objects.all(),
@@ -69,17 +69,17 @@ ticket_dict = {
 }
 
 urlpatterns = patterns('',
-    (r'^$', 'scale.reports.views.index'),
-    (r'^answer/$', 'scale.reports.views.object_list', answer_dict),
-    (r'^attendee/$', 'scale.reports.views.object_list', attendee_dict),
-    (r'^coupon/$', 'scale.reports.views.object_list', coupon_dict),
-    (r'^item/$', 'scale.reports.views.object_list', item_dict),
-    (r'^order/$', 'scale.reports.views.object_list', order_dict),
-    (r'^promocode/$', 'scale.reports.views.object_list', promocode_dict),
-    (r'^question/$', 'scale.reports.views.object_list', question_dict),
-    (r'^ticket/$', 'scale.reports.views.object_list', ticket_dict),
-    (r'^reg6log/$', 'scale.reports.views.reg6log'),
-    (r'^dashboard/$', 'scale.reports.views.dashboard'),
-    (r'^badorder/$', 'scale.reports.views.badorder'),
-    (r'^getleads/$', 'scale.reports.views.getleads'),
+    (r'^$', 'scalereg.reports.views.index'),
+    (r'^answer/$', 'scalereg.reports.views.object_list', answer_dict),
+    (r'^attendee/$', 'scalereg.reports.views.object_list', attendee_dict),
+    (r'^coupon/$', 'scalereg.reports.views.object_list', coupon_dict),
+    (r'^item/$', 'scalereg.reports.views.object_list', item_dict),
+    (r'^order/$', 'scalereg.reports.views.object_list', order_dict),
+    (r'^promocode/$', 'scalereg.reports.views.object_list', promocode_dict),
+    (r'^question/$', 'scalereg.reports.views.object_list', question_dict),
+    (r'^ticket/$', 'scalereg.reports.views.object_list', ticket_dict),
+    (r'^reg6log/$', 'scalereg.reports.views.reg6log'),
+    (r'^dashboard/$', 'scalereg.reports.views.dashboard'),
+    (r'^badorder/$', 'scalereg.reports.views.badorder'),
+    (r'^getleads/$', 'scalereg.reports.views.getleads'),
 )

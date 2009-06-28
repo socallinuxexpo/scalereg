@@ -3,7 +3,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from scale.auth_helper.models import Service
+from scalereg.auth_helper.models import Service
 
 def index(request):
   return HttpResponseRedirect('/accounts/profile/')

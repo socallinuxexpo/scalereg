@@ -8,8 +8,8 @@ from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
 from __future__ import division
-from scale.auth_helper.models import Service
-from scale.reg6 import models
+from scalereg.auth_helper.models import Service
+from scalereg.reg6 import models
 import datetime
 import inspect
 import re
