@@ -2,10 +2,10 @@
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django import forms
 from django.shortcuts import render_to_response
 from scalereg.common.validators import ScaleValidationError
 from scalereg.reg6 import models as reg6models
+from scalereg.speaker_survey import forms
 from scalereg.speaker_survey import models
 from scalereg.speaker_survey import validators
 
@@ -56,7 +56,7 @@ def SurveyIndex(hash):
 
 def SurveyFill(hash, speaker, post_data=None):
   if not post_data:
-    form = models.Survey7XForm()
+    form = forms.Survey7XForm()
   else:
     try:
       # work around DB integrity error for duplicates
@@ -65,7 +65,7 @@ def SurveyFill(hash, speaker, post_data=None):
     except models.Survey7X.DoesNotExist:
       pass
 
-    form = models.Survey7XForm(post_data)
+    form = forms.Survey7XForm(post_data)
     if form.is_valid():
       new_survey = form.save(commit=False)
       new_survey.hash = hash

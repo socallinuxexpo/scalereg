@@ -1,7 +1,4 @@
-from django.core.exceptions import FieldError
-from django.db import DatabaseError
 from django.db import models
-from django.forms import ModelForm
 from scalereg.speaker_survey import validators
 
 VALUE_CHOICES = (
@@ -72,26 +69,3 @@ class Survey7X(models.Model):
   def save(self, *args, **kwargs):
     validators.isValid7XHash(self.hash, self)
     return super(Survey7X, self).save(*args, **kwargs)
-
-
-class Survey7XForm(ModelForm):
-  class Meta:
-    model = Survey7X
-    fields = (
-      'q00',
-      'q01',
-      'q02',
-      'q03',
-      'q04',
-      'q05',
-      'q06',
-      'q07',
-      'q08',
-      'q09',
-      'q10',
-      'q11',
-      'q12',
-      'q13',
-      'q14',
-      'comments',
-    )
