@@ -19,12 +19,6 @@ Please fill in this survey.
 </h3>
 
 <form method="post" action=".">
-{% if form.has_errors %}
-<h2>Please correct the following error{{ form.error_dict|pluralize }}:</h2>
-{% endif %}
-{% if form.hash.errors %}
-<span class="speaker_survey_form_error">You cannot submit the save survey twice.</span>
-{% endif %}
 
 <table>
 <tr>
