@@ -1,18 +1,17 @@
 # Create your views here.
 
 from django.contrib.auth.decorators import login_required
-from django.core.validators import ValidationError
+from scalereg.common.validators import ScaleValidationError
 from django.http import HttpResponse
 from django import forms
 from django.shortcuts import render_to_response
 from scalereg.reg6 import models as reg6models
 from scalereg.speaker_survey import models
-from scalereg.speaker_survey import validators
 
 def Survey(request, hash=None, id=None):
   try:
     validator.isValid7XHash(hash, None)
-  except ValidationError:
+  except ScaleValidationError:
     return render_to_response('speaker_survey/error.html',
       {'title': 'Survey Error',
       'error_message': 'Invalid Survey URL',

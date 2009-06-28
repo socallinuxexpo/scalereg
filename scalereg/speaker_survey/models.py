@@ -1,6 +1,7 @@
 from django.db import models
-# FIXME redo validators
-#from scale.speaker_survey import validators
+from django.core.exceptions import FieldError
+from django.db import DatabaseError
+from scalereg.speaker_survey import validators
 
 VALUE_CHOICES = (
   ('0sd', 'Strongly Disagree'),
@@ -21,7 +22,6 @@ class Speaker(models.Model):
 
 class Survey7X(models.Model):
   hash = models.CharField(max_length=10)
-                          #validator_list = [validators.isValid7XHash])
   speaker = models.ForeignKey(Speaker)
   q00 = models.CharField(max_length=3, choices=VALUE_CHOICES, default='2ne',
                          help_text='Speaker was easy to understand')
@@ -67,3 +67,7 @@ class Survey7X(models.Model):
     for i in xrange(0, 15):
       r.append(self._meta.get_field('q%02d' % i).help_text)
     return r
+
+  def save(self, *args, **kwargs):
+    validators.isValid7XHash(self.hash, self)
+    return super(Survey7X, self).save(*args, **kwargs)
