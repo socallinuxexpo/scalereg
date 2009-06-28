@@ -1,6 +1,5 @@
 from django.db import models
-# FIXME redo validators
-#from scale.reg6 import validators
+from scalereg.reg6 import validators
 import datetime
 
 # Create your models here.
@@ -35,7 +34,6 @@ TICKET_CHOICES = (
 class Order(models.Model):
   # basic info
   order_num = models.CharField(max_length=10, primary_key=True,
-    #validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   valid = models.BooleanField()
   date = models.DateTimeField(auto_now_add=True)
@@ -54,7 +52,6 @@ class Order(models.Model):
 
   # payment info
   amount = models.DecimalField(max_digits=5, decimal_places=2)
-    #validator_list = [validators.isNotNegative]
   payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
   auth_code = models.CharField(max_length=30, blank=True,
     help_text='Only used by Verisign')
@@ -68,6 +65,11 @@ class Order(models.Model):
 
   def __unicode__(self):
     return u'%s' % self.order_num
+
+  def save(self, *args, **kwargs):
+    validators.isNotNegative(self.self.amount, self)
+    validators.isValidOrderNumber(self.order_num, self)
+    return super(Order, self).save(*args, **kwargs)
 
 
 class TicketManager(models.Manager):
@@ -90,15 +92,12 @@ class TicketManager(models.Manager):
 
 class Ticket(models.Model):
   name = models.CharField(max_length=5, primary_key=True,
-    #validator_list = [validators.isAllCapsDigits],
     help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
   type = models.CharField(max_length=10, choices=TICKET_CHOICES)
   price = models.DecimalField(max_digits=5, decimal_places=2)
-    #validator_list = [validators.isNotNegative]
   public = models.BooleanField(help_text='Publicly available on the order page')
   start_date = models.DateField(null=True, blank=True,
-    #validator_list = [validators.isValidStartStopDates],
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
@@ -122,6 +121,12 @@ class Ticket(models.Model):
   def __unicode__(self):
     return u'%s' % self.name
 
+  def save(self, *args, **kwargs):
+    validators.isAllCapsDigits(self.name, self)
+    validators.isNotNegative(self.price, self)
+    validators.isValidStartStopDates(self.start_date, self)
+    return super(Ticket, self).save(*args, **kwargs)
+
 
 class PromoCodeManager(models.Manager):
   def get_query_set(self):
@@ -142,16 +147,13 @@ class PromoCodeManager(models.Manager):
 
 class PromoCode(models.Model):
   name = models.CharField(max_length=5, primary_key=True,
-    #validator_list = [validators.isAllCapsDigits],
     help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
 
   price_modifier = models.DecimalField(max_digits=3, decimal_places=2,
-    #validator_list = [validators.isPositive],
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
   active = models.BooleanField()
   start_date = models.DateField(null=True, blank=True,
-    #validator_list = [validators.isValidStartStopDates],
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
@@ -182,15 +184,19 @@ class PromoCode(models.Model):
   def __unicode__(self):
     return self.name
 
+  def save(self, *args, **kwargs):
+    validators.isAllCapsDigits(self.name, self)
+    validators.isPositive(self.price_modifier, self)
+    validators.isValidStartStopDates(self.start_date, self)
+    return super(PromoCode, self).save(*args, **kwargs)
+
 
 class Item(models.Model):
   name = models.CharField(max_length=4,
-    #validator_list = [validators.isAllCapsDigits],
     help_text='Unique, up to 4 upper-case letters / numbers')
   description = models.CharField(max_length=60)
 
   price = models.DecimalField(max_digits=5, decimal_places=2)
-    #validator_list = [validators.isNotNegative]
 
   active = models.BooleanField()
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
@@ -203,6 +209,11 @@ class Item(models.Model):
 
   def __unicode__(self):
     return u'%s (%s)' % (self.description, self.name)
+
+  def save(self, *args, **kwargs):
+    validators.isAllCapsDigits(self.name, self)
+    validators.isNotNegative(self.price, self)
+    return super(Item, self).save(*args, **kwargs)
 
 
 class Answer(models.Model):
@@ -246,7 +257,6 @@ class Attendee(models.Model):
   order = models.ForeignKey(Order, blank=True, null=True)
   valid = models.BooleanField()
   checked_in = models.BooleanField(help_text='Only for valid attendees')
-    #validator_list = [validators.isValidAttendeeCheckin]
 
   # attendee name
   salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
@@ -264,12 +274,9 @@ class Attendee(models.Model):
   promo = models.ForeignKey(PromoCode, blank=True, null=True)
   ordered_items = models.ManyToManyField(Item, blank=True, null=True)
   obtained_items = models.CharField(max_length=60, blank=True,
-    #validator_list = [validators.isValidObtainedItems],
     help_text='comma separated list of items')
   can_email = models.BooleanField()
   answers = models.ManyToManyField(Answer, blank=True, null=True)
-    #validator_list = [validators.isQuestionsUnique]
-
 
   def ticket_cost(self):
     price_modifier = 1
@@ -293,13 +300,17 @@ class Attendee(models.Model):
   def __unicode__(self):
     return u'%s (%s) ' % (self.id, self.email)
 
+  def save(self, *args, **kwargs):
+    validators.isQuestionsUnique(self.answers, self)
+    validators.isValidAttendeeCheckin(self.checked_in, self)
+    validators.isValidObtainedItems(self.obtained_items, self)
+    return super(Attendee, self).save(*args, **kwargs)
+
 
 class TempOrder(models.Model):
   order_num = models.CharField(max_length=10, primary_key=True,
-    #validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   attendees = models.TextField()
-    #validator_list = [validators.isCommaSeparatedInts]
   date = models.DateTimeField(auto_now_add=True)
 
   def attendees_list(self):
@@ -308,10 +319,14 @@ class TempOrder(models.Model):
   def __unicode__(self):
     return '%s' % self.order_num
 
+  def save(self, *args, **kwargs):
+    validators.isValidOrderNumber(self.order_num, self)
+    validators.isCommaSeparatedInts(self.attendees, self)
+    return super(TempOrder, self).save(*args, **kwargs)
+
 
 class Coupon(models.Model):
   code = models.CharField(max_length=10, primary_key=True,
-    #validator_list = [validators.isValidOrderNumber],
     help_text='Unique 10 upper-case letters + numbers code')
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order)
@@ -329,3 +344,7 @@ class Coupon(models.Model):
 
   class Meta:
     permissions = (('view_coupon', 'Can view coupon'),)
+
+  def save(self, *args, **kwargs):
+    validators.isValidOrderNumber(self.code, self)
+    return super(Coupon, self).save(*args, **kwargs)

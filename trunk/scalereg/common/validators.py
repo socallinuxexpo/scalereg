@@ -1,0 +1,2 @@
+class ScaleValidationError(Exception):
+  pass
