@@ -1,6 +1,5 @@
 # Create your views here.
 
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
@@ -287,61 +286,52 @@ def AddAttendee(request):
           questions.append(q)
           break
 
-  manipulator = models.Attendee.AddManipulator()
-
   if action == 'add':
-    errors = new_data = {}
+    form = models.AttendeeForm()
   else:
-    new_data = request.POST.copy()
-
-    # add badge type
-    new_data['badge_type'] = new_data['ticket']
-    # add ordered items
-    for s in selected_items:
-      new_data.appendlist('ordered_items', str(s.id))
-    # add promo
-    if new_data['promo'] == 'None':
-      new_data['promo'] = ''
-    # add other fields
-    new_data['obtained_items'] = new_data['survey_answers'] = ''
-    # add survey answers
-
-    for i in xrange(len(questions)):
-      i = 'q%d' % i
-      if i in request.POST:
-        try:
-          ans = models.Answer.objects.get(id=request.POST[i])
-        except models.Answer.DoesNotExist:
-          continue
-        new_data.appendlist('answers', request.POST[i])
-
-    try:
-      errors = manipulator.get_validation_errors(new_data)
-    except: # FIXME sometimes we get an exception, not sure how to reproduce
-      return scale_render_to_response(request, 'reg6/reg_error.html',
-        {'title': 'Registration Problem',
-         'error_message': 'An unexpected error occurred, please try again.'
-        })
-    if not errors:
+    form = models.AttendeeForm(request.POST)
+    if form.is_valid():
       if not request.session.test_cookie_worked():
         return scale_render_to_response(request, 'reg6/reg_error.html',
           {'title': 'Registration Problem',
            'error_message': 'Please do not register multiple attendees at the same time. Please make sure you have cookies enabled.',
           })
-      request.session.delete_test_cookie()
-      manipulator.do_html2python(new_data)
-      new_place = manipulator.save(new_data)
-      request.session['attendee'] = new_place.id
+
+      # create attendee
+      new_attendee = form.save(commit=False)
+
+      # add badge type
+      new_attendee.badge_type = ticket[0]
+      # add promo
+      new_attendee.promo = promo_in_use
+
+      # save attendee
+      new_attendee.save()
+      form.save_m2m()
+
+      # add ordered items
+      for s in selected_items:
+        new_attendee.ordered_items.add(s)
+      # add survey answers
+      for i in xrange(len(questions)):
+        i = 'q%d' % i
+        if i in request.POST and request.POST[i]:
+          try:
+            ans = models.Answer.objects.get(id=request.POST[i])
+            new_attendee.answers.add(ans)
+          except models.Answer.DoesNotExist:
+            continue
+
+      request.session['attendee'] = new_attendee.id
 
       # add attendee to order
       if 'payment' not in request.session:
-        request.session['payment'] = [new_place.id]
+        request.session['payment'] = [new_attendee.id]
       else:
-        request.session['payment'].append(new_place.id)
+        request.session['payment'].append(new_attendee.id)
 
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
-  form = forms.FormWrapper(manipulator, new_data, errors)
   return scale_render_to_response(request, 'reg6/reg_attendee.html',
     {'title': 'Register Attendee',
      'ticket': ticket[0],
