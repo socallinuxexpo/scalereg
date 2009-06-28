@@ -1,5 +1,6 @@
 # Create your views here.
 
+from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.db.models import BooleanField
 from django.db.models.base import ModelBase
@@ -7,7 +8,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
-from __future__ import division
 from scalereg.auth_helper.models import Service
 from scalereg.reg6 import models
 import datetime
