@@ -1,10 +1,12 @@
 {% extends "admin/base_site_reg.html" %}
 {% load i18n %}
 
-{% block title %}{% trans 'Server error (404)' %}{% endblock %}
+{% block title %}{% trans 'Page not found' %}{% endblock %}
 
 {% block content %}
-<h1>{% trans 'Server Error <em>(404)</em>' %}</h1>
-<p>Page not found. <a href="/">Click here to return to the SCALE home page</a></p>
+
+<h2>{% trans 'Page not found' %}</h2>
+
+<p>{% trans "We're sorry, but the requested page could not be found." %}</p>
 
 {% endblock %}
