@@ -5,9 +5,9 @@ from django.core.validators import ValidationError
 from django.http import HttpResponse
 from django import forms
 from django.shortcuts import render_to_response
-from scale.reg6 import models as reg6models
-from scale.speaker_survey import models
-from scale.speaker_survey import validators
+from scalereg.reg6 import models as reg6models
+from scalereg.speaker_survey import models
+from scalereg.speaker_survey import validators
 
  def Survey(request, hash=None, id=None):
    try:

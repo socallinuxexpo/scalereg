@@ -3,9 +3,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from scale.reg6 import models
-from scale.reports.views import reports_perm_checker
-from scale.reg6.views import GenerateOrderID
+from scalereg.reg6 import models
+from scalereg.reports.views import reports_perm_checker
+from scalereg.reg6.views import GenerateOrderID
 
 @login_required
 def index(request):

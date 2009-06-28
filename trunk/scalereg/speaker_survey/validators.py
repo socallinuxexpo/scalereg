@@ -1,5 +1,5 @@
 from django.core import validators
-from scale.reg6 import models
+from scalereg.reg6 import models
 import sha
 
 def hash(data):

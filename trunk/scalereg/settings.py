@@ -63,7 +63,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'scale.urls'
+ROOT_URLCONF = 'scalereg.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -78,10 +78,10 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'scale.auth_helper',
-    'scale.reg6',
-    'scale.reports',
-    'scale.speaker_survey',
+    'scalereg.auth_helper',
+    'scalereg.reg6',
+    'scalereg.reports',
+    'scalereg.speaker_survey',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
