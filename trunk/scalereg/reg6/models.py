@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ModelForm
 from scalereg.reg6 import validators
 import datetime
 
@@ -346,3 +347,20 @@ class Coupon(models.Model):
   def save(self, *args, **kwargs):
     validators.isValidOrderNumber(self.code, self)
     return super(Coupon, self).save(*args, **kwargs)
+
+
+class AttendeeForm(ModelForm):
+  class Meta:
+    model = Attendee
+    fields = (
+      'salutation',
+      'first_name',
+      'last_name',
+      'title',
+      'org',
+      'email',
+      'zip',
+      'phone',
+      'can_email',
+      'answers',
+    )
