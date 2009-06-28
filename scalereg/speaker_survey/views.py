@@ -1,16 +1,17 @@
 # Create your views here.
 
 from django.contrib.auth.decorators import login_required
-from scalereg.common.validators import ScaleValidationError
 from django.http import HttpResponse
 from django import forms
 from django.shortcuts import render_to_response
+from scalereg.common.validators import ScaleValidationError
 from scalereg.reg6 import models as reg6models
 from scalereg.speaker_survey import models
+from scalereg.speaker_survey import validators
 
 def Survey(request, hash=None, id=None):
   try:
-    validator.isValid7XHash(hash, None)
+    validators.isValid7XHash(hash, None)
   except ScaleValidationError:
     return render_to_response('speaker_survey/error.html',
       {'title': 'Survey Error',
@@ -54,12 +55,9 @@ def SurveyIndex(hash):
 
 
 def SurveyFill(hash, speaker, post_data=None):
-  manipulator = models.Survey7X.AddManipulator()
-  new_data = errors = {}
-  if post_data:
-    new_data = post_data.copy()
-    new_data['speaker'] = speaker.id
-    new_data['hash'] = hash
+  if not post_data:
+    form = models.Survey7XForm()
+  else:
     try:
       # work around DB integrity error for duplicates
       survey = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
@@ -67,23 +65,15 @@ def SurveyFill(hash, speaker, post_data=None):
     except models.Survey7X.DoesNotExist:
       pass
 
-    try:
-      # fill in empty fields
-      for f in xrange(0, 15):
-        q = 'q%02d' % f
-        if not new_data[q]:
-          new_data[q] = '2ne'
-      errors = manipulator.get_validation_errors(new_data)
-    except: # FIXME sometimes we get an exception, not sure how to reproduce
-      return render_to_response('speaker_survey/error.html',
-        {'title': 'Survey Error',
-         'error_message': 'An unexpected error occurred, please try again.'
-        })
-    if not errors:
-      manipulator.do_html2python(new_data)
-      new_survey = manipulator.save(new_data)
+    form = models.Survey7XForm(post_data)
+    if form.is_valid():
+      new_survey = form.save(commit=False)
+      new_survey.hash = hash
+      new_survey.speaker = speaker
+      new_survey.save()
+      form.save_m2m()
       return SurveyView(new_survey)
-  form = forms.FormWrapper(manipulator, new_data, errors)
+
   return render_to_response('speaker_survey/survey_fill.html',
     {'title': 'Speaker Surveys',
      'form': form,
@@ -129,7 +119,7 @@ def SurveyLookup(request):
       try:
         attendee = reg6models.Attendee.objects.get(id=id)
         if attendee.first_name == request.POST['name']:
-          hash = validator.hash(attendee.first_name + attendee.last_name)[:6]
+          hash = validators.hash(attendee.first_name + attendee.last_name)[:6]
           hash += '%04d' % id
       except reg6models.Attendee.DoesNotExist:
         error = True
@@ -198,7 +188,7 @@ def UrlDump(request):
   attendees = reg6models.Attendee.objects.filter(checked_in=True)
   response = HttpResponse(mimetype='text/plain')
   for f in attendees:
-    hash = validator.hash(f.first_name + f.last_name)[:6]
+    hash = validators.hash(f.first_name + f.last_name)[:6]
     hash += '%04d' % f.id
     response.write('%s %s\n' % (f.first_name, f.last_name))
     response.write('%s\n' % f.email)
