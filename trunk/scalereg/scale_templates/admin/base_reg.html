@@ -33,14 +33,14 @@
 {% endif %}
 
     {% if messages %}
-    <ul class="messagelist">{% for message in messages %}<li>{{ message|escape }}</li>{% endfor %}</ul>
+    <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
     {% endif %}
 
     <!-- Content -->
     <div id="content">
 
         {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1>{{ title|escape }}</h1>{% endif %}{% endblock %}
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
         {% block breadcrumbs %}<div class="breadcrumbs"></div>{% endblock %}
         {% block content %}{{ content }}{% endblock %}
         <br class="clear" />

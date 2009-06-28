@@ -12,8 +12,8 @@
     <tbody>
     <tr>
     <td>
-    Registration Number: {{ bad_attendee.0|escape }},
-    Email: {{ bad_attendee.1|escape }}.
+    Registration Number: {{ bad_attendee.0 }},
+    Email: {{ bad_attendee.1 }}.
     </td>
     </tr>
     </tbody>
@@ -29,8 +29,8 @@
     <tbody>
     <tr>
     <td>
-    Registration Number: {{ new_attendee.id|escape }},
-    Email: {{ new_attendee.email|escape }}.
+    Registration Number: {{ new_attendee.id }},
+    Email: {{ new_attendee.email }}.
     </td>
     </tr>
     </tbody>
@@ -46,8 +46,8 @@
     <tbody>
     <tr>
     <td>
-    Registration Number: {{ paid_attendee.id|escape }},
-    Email: {{ paid_attendee.email|escape }}.
+    Registration Number: {{ paid_attendee.id }},
+    Email: {{ paid_attendee.email }}.
     </td>
     </tr>
     </tbody>
@@ -63,8 +63,8 @@
     <tbody>
     <tr>
     <td>
-    Registration Number: {{ removed_attendee.id|escape }},
-    Email: {{ removed_attendee.email|escape }}.
+    Registration Number: {{ removed_attendee.id }},
+    Email: {{ removed_attendee.email }}.
     </td>
     </tr>
     </tbody>
@@ -94,13 +94,13 @@
     <tbody>
     {% for person  in attendees %}
     <tr>
-        <td>{{ person.id|escape }}</td>
-        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
-        <td>{{ person.email|escape }}</td>
-        <td>{{ person.ticket_cost|money|escape }}</td>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
         <td>
         <form method="post" action=".">
-        <input type="hidden" name="remove" value="{{ person.id|escape }}" />
+        <input type="hidden" name="remove" value="{{ person.id }}" />
         <input type="submit" value="Remove" />
         </form>
         </td>
@@ -110,7 +110,7 @@
     </table>
 
     <p>
-    Total: {{ total|money|escape }}
+    Total: {{ total|money }}
     </p>
 
 {% if attendees and total %}

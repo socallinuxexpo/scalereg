@@ -50,7 +50,7 @@ coupon got created.
     <td><b>Type</b></td>
     <td><select name="TICKET">
     {% for t in tickets %}
-    <option value="{{ t.name|escape }}">{{ t.name|escape }} - {{ t.description }}</option>
+    <option value="{{ t.name }}">{{ t.name }} - {{ t.description }}</option>
     {% endfor %}
     </select>
     <br />

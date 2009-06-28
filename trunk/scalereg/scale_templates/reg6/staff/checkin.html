@@ -6,8 +6,8 @@
 {% if search %}
     <p>
     Search results for:<br />
-    Last name: {{ last|escape }}<br />
-    Zip: {{ zip|escape }}<br />
+    Last name: {{ last }}<br />
+    Zip: {{ zip }}<br />
     </p>
 {% endif %}
 
@@ -20,14 +20,14 @@
     </tr>
     {% for person in attendees %}
         <tr>
-        <td>{{ person.id|escape }}</td>
-        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>
         {% if person.checked_in %}
         Already Checked In
         {% else %}
         <form method="post" action="../finish_checkin/">
-        <input type="hidden" name="id" value="{{ person.id|escape }}">
+        <input type="hidden" name="id" value="{{ person.id }}">
         <input type="submit" value="Check In">
         </form>
         {% endif %}
@@ -51,12 +51,12 @@ Please type in the following information:
 <tr>
     <td>Last Name</td>
     <td><input type="text" name="last_name" maxlength="60" size="40"
-      value="{{ last|escape }}" /></td>
+      value="{{ last }}" /></td>
 </tr>
 <tr>
     <td>Zip Code</td>
     <td><input type="text" name="zip" maxlength="10" size="10"
-      value="{{ zip|escape }}" /></td>
+      value="{{ zip }}" /></td>
 </tr>
 </table>
 <input type="submit"

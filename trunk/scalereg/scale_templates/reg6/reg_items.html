@@ -7,12 +7,12 @@
 {% if ticket %}
     {% if promo %}
     <p>
-    You are using promo code <b>{{ promo|escape }}</b>.
+    You are using promo code <b>{{ promo }}</b>.
     </p>
     {% endif %}
 
     <p>
-    Your {{ ticket.description|escape }} costs {{ ticket.price|money|escape }}.
+    Your {{ ticket.description }} costs {{ ticket.price|money }}.
     </p>
 
     <form method="post" action="../add_attendee/">
@@ -32,9 +32,9 @@
     <tbody>
     {% for item in items %}
         <tr>
-        <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name|escape }}" /></td>
-        <td>{{ item.description|escape }}</td>
-        <td>{{ item.price|money|escape }}</td>
+        <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name }}" /></td>
+        <td>{{ item.description }}</td>
+        <td>{{ item.price|money }}</td>
         </tr>
     {% endfor %}
     </tbody>
@@ -45,8 +45,8 @@
     </p>
     {% endif %}
 
-    <input type="hidden" name="promo" value="{{ promo|escape }}" />
-    <input type="hidden" name="ticket" value="{{ ticket.name|escape }}" />
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    <input type="hidden" name="ticket" value="{{ ticket.name }}" />
 
     <p>
     <input type="submit" value="Continue" />
@@ -55,7 +55,7 @@
 
     <form method="post" action="../">
     <p>
-    <input type="hidden" name="promo" value="{{ promo|escape }}" />
+    <input type="hidden" name="promo" value="{{ promo }}" />
     <input type="submit" value="Start Over" />
     </p>
     </form>

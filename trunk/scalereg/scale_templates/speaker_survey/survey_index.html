@@ -11,9 +11,9 @@ Unfilled Surveys
 <ul>
 {% for s in new %}
     <li>
-        <a href="{{ s.id }}/">{{ s|escape }}</a>
+        <a href="{{ s.id }}/">{{ s }}</a>
         {% if s.url %}
-        <a href="{{ s.url|escape }}">[ Talk link ]</a>
+        <a href="{{ s.url }}">[ Talk link ]</a>
         {% endif %}
     </li>
 {% endfor %}
@@ -28,9 +28,9 @@ Filled Surveys
 <ul>
 {% for s in old %}
     <li>
-        <a href="{{ s.id }}/">{{ s|escape }}</a>
+        <a href="{{ s.id }}/">{{ s }}</a>
         {% if s.url %}
-        <a href="{{ s.url|escape }}">[ Talk link ]</a>
+        <a href="{{ s.url }}">[ Talk link ]</a>
         {% endif %}
     </li>
 {% endfor %}

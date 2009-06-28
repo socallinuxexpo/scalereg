@@ -1,6 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_modify adminmedia %}
-{% block title %}{{ title|escape }} | Reports | SCALE {% endblock %}
+{% block title %}{{ title }} | Reports | SCALE {% endblock %}
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
 {% for js in javascript_imports %}{% include_admin_script js %}{% endfor %}
@@ -12,7 +12,7 @@
 <div class="breadcrumbs">
      <a href="/accounts/">{% trans "Home" %}</a> &rsaquo;
      <a href="/reports/">Reports</a> &rsaquo;
-     <a href=".">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+     <a href=".">{{ opts.verbose_name_plural|capfirst }}</a>
      {% if admin_user %}
      <span style="position:relative; left:400px;">
      <a href="/admin/reg6/{{ opts.verbose_name|lower }}/">Admin interface</a>

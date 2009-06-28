@@ -44,7 +44,7 @@ Please type in the following information:
     <td><b>Type</b></td>
     <td><select name="TICKET">
     {% for t in tickets %}
-    <option value="{{ t.name|escape }}">{{ t.name|escape }} - {{ t.description }} - {{ t.price|escape|money }}</option>
+    <option value="{{ t.name }}">{{ t.name }} - {{ t.description }} - {{ t.price|money }}</option>
     {% endfor %}
     </select>
     <br />

@@ -6,14 +6,14 @@
     <table border="1" class="sortable">
     <tr>
         {% for field in field_list %}
-        <th>{{ field|escape }}</th>
+        <th>{{ field }}</th>
         {% endfor %}
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.id|escape }}</td>
-        <td>{{ o.question|escape }}</td>
-        <td>{{ o.text|escape }}</td>
+        <td>{{ o.id }}</td>
+        <td>{{ o.question }}</td>
+        <td>{{ o.text }}</td>
     </tr>
     {% endfor %}
     </table>
