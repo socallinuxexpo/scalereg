@@ -1,5 +1,9 @@
 from django.conf.urls.defaults import *
 
+# Uncomment the next two lines to enable the admin:
+from django.contrib import admin
+admin.autodiscover()
+
 urlpatterns = patterns('',
     (r'^accounts/$', 'scalereg.auth_helper.views.index'),
     (r'^accounts/profile/$', 'scalereg.auth_helper.views.profile'),
