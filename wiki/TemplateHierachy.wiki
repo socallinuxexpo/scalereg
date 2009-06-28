@@ -1,0 +1,5 @@
+#summary How templates work in scalereg.
+
+= Template Hierarchy =
+
+This is issue 12.
