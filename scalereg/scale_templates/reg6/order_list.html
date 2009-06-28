@@ -6,32 +6,32 @@
     <table border="1" class="sortable">
     <tr>
         {% for field in field_list %}
-        <th>{{ field|escape }}</th>
+        <th>{{ field }}</th>
         {% endfor %}
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.order_num|escape }}</td>
-        <td>{{ o.valid|escape }}</td>
-        <td>{{ o.date|escape }}</td>
-        <td>{{ o.name|escape }}</td>
-        <td>{{ o.address|escape }}</td>
-        <td>{{ o.city|escape }}</td>
-        <td>{{ o.state|escape }}</td>
-        <td>{{ o.zip|escape }}</td>
-        <td>{{ o.country|escape }}</td>
-        <td>{{ o.email|escape }}</td>
-        <td>{{ o.phone|escape }}</td>
-        <td>{{ o.amount|escape }}</td>
-        <td>{{ o.payment_type|escape }}</td>
-        <td>{{ o.auth_code|escape }}</td>
-        <td>{{ o.resp_msg|escape }}</td>
-        <td>{{ o.result|escape }}</td>
+        <td>{{ o.order_num }}</td>
+        <td>{{ o.valid }}</td>
+        <td>{{ o.date }}</td>
+        <td>{{ o.name }}</td>
+        <td>{{ o.address }}</td>
+        <td>{{ o.city }}</td>
+        <td>{{ o.state }}</td>
+        <td>{{ o.zip }}</td>
+        <td>{{ o.country }}</td>
+        <td>{{ o.email }}</td>
+        <td>{{ o.phone }}</td>
+        <td>{{ o.amount }}</td>
+        <td>{{ o.payment_type }}</td>
+        <td>{{ o.auth_code }}</td>
+        <td>{{ o.resp_msg }}</td>
+        <td>{{ o.result }}</td>
     </tr>
     {% endfor %}
     </table>
     <p>
-    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
+    <b>Total {{ title }}</b>: {{ numbers }}<br />
     <b>Total Amount:</b> ${{ total }}
     </p>
 {% else %}

@@ -9,42 +9,42 @@
         {% ifequal field "obtained_items" %}
             <th>ordered_items</th>
         {% endifequal %}
-        <th>{{ field|escape }}</th>
+        <th>{{ field }}</th>
         {% endfor %}
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.id|escape }}</td>
-        <td>{{ o.badge_type|escape }}</td>
-        <td>{{ o.order|escape }}</td>
-        <td>{{ o.valid|escape }}</td>
-        <td>{{ o.checked_in|escape }}</td>
-        <td>{{ o.salutation|escape }}</td>
-        <td>{{ o.first_name|escape }}</td>
-        <td>{{ o.last_name|escape }}</td>
-        <td>{{ o.title|escape }}</td>
-        <td>{{ o.org|escape }}</td>
-        <td>{{ o.email|escape }}</td>
-        <td>{{ o.zip|escape }}</td>
-        <td>{{ o.phone|escape }}</td>
-        <td>{{ o.promo|escape }}</td>
+        <td>{{ o.id }}</td>
+        <td>{{ o.badge_type }}</td>
+        <td>{{ o.order }}</td>
+        <td>{{ o.valid }}</td>
+        <td>{{ o.checked_in }}</td>
+        <td>{{ o.salutation }}</td>
+        <td>{{ o.first_name }}</td>
+        <td>{{ o.last_name }}</td>
+        <td>{{ o.title }}</td>
+        <td>{{ o.org }}</td>
+        <td>{{ o.email }}</td>
+        <td>{{ o.zip }}</td>
+        <td>{{ o.phone }}</td>
+        <td>{{ o.promo }}</td>
     <td>
         {% for item in o.ordered_items.all %}
-            {{ item.name|escape }}
+            {{ item.name }}
         {% if not forloop.last %}
         ,
         {% endif %}
         {% endfor %}
     </td>
-        <td>{{ o.obtained_items|escape }}</td>
-        <td>{{ o.survey_answers|escape }}</td>
+        <td>{{ o.obtained_items }}</td>
+        <td>{{ o.survey_answers }}</td>
     </tr>
     {% endfor %}
     </table>
     <p>
-    <b>Total {{ title|escape }}</b>: {{ numbers|escape }}<br />
-    <b>Valid {{ title|escape }}</b>: {{ valid|escape }}<br />
-    <b>Checked In {{ title|escape }}</b>: {{ checkin|escape }}<br />
+    <b>Total {{ title }}</b>: {{ numbers }}<br />
+    <b>Valid {{ title }}</b>: {{ valid }}<br />
+    <b>Checked In {{ title }}</b>: {{ checkin }}<br />
     </p>
 {% else %}
     <p>No attendees available.</p>

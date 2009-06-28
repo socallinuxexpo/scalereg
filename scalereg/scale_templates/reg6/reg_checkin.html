@@ -7,10 +7,10 @@
 {% if search %}
     <p>
     Search results for:<br />
-    First name: {{ first|escape }}<br />
-    Last name: {{ last|escape }}<br />
-    Email: {{ email|escape }}<br />
-    Zip: {{ zip|escape }}<br />
+    First name: {{ first }}<br />
+    Last name: {{ last }}<br />
+    Email: {{ email }}<br />
+    Zip: {{ zip }}<br />
     </p>
 {% endif %}
 
@@ -26,11 +26,11 @@
     <tbody>
     {% for person in attendees %}
         <tr>
-        <td>{{ person.id|escape }}</td>
-        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>
         <form method="post" action="../finish_checkin/">
-        <input type="hidden" name="id" value="{{ person.id|escape }}">
+        <input type="hidden" name="id" value="{{ person.id }}">
         <input type="submit" value="Check Me In">
         </form>
         </td>
@@ -54,22 +54,22 @@ Please type in your registration information:
 <tr>
     <td>First Name</td>
     <td><input type="text" name="first" maxlength="60" size="40"
-      value="{{ first|escape }}" /></td>
+      value="{{ first }}" /></td>
 </tr>
 <tr>
     <td>Last Name</td>
     <td><input type="text" name="last" maxlength="60" size="40"
-      value="{{ last|escape }}" /></td>
+      value="{{ last }}" /></td>
 </tr>
 <tr>
     <td>Email</td>
     <td><input type="text" name="email" maxlength="75" size="40"
-      value="{{ email|escape }}" /></td>
+      value="{{ email }}" /></td>
 </tr>
 <tr>
     <td>Zip Code</td>
     <td><input type="text" name="zip" maxlength="10" size="10"
-      value="{{ zip|escape }}" /></td>
+      value="{{ zip }}" /></td>
 </tr>
 </table>
 <input type="submit"

@@ -10,12 +10,12 @@
 {% if ticket and total %}
     {% if promo %}
     <p>
-    You are using promo code <b>{{ promo|escape }}</b>.
+    You are using promo code <b>{{ promo }}</b>.
     </p>
     {% endif %}
 
     <p>
-    Your {{ ticket.description|escape }} costs {{ ticket.price|money }}.
+    Your {{ ticket.description }} costs {{ ticket.price|money }}.
     </p>
 
     {% if items %}
@@ -25,13 +25,13 @@
 
     <p>
     {% for item in items %}
-        * {{ item.description|escape }} ({{ item.price|money|escape }})<br />
+        * {{ item.description }} ({{ item.price|money }})<br />
     {% endfor %}
     </p>
     {% endif %}
 
     <p>
-    Your total is {{ total|money|escape }}.
+    Your total is {{ total|money }}.
     </p>
 
     <p>
@@ -40,10 +40,10 @@
     </p>
 
     <form method="post" action=".">
-    <input type="hidden" name="promo" value="{{ promo|escape }}" />
-    <input type="hidden" name="ticket" value="{{ ticket.name|escape }}" />
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    <input type="hidden" name="ticket" value="{{ ticket.name }}" />
     {% for item in items %}
-        <input type="hidden" name="item{{ forloop.counter0 }}" value="{{ item.name|escape }}" />
+        <input type="hidden" name="item{{ forloop.counter0 }}" value="{{ item.name }}" />
     {% endfor %}
 
     {% if form.has_errors %}
@@ -122,7 +122,7 @@
     <table>
     {% for q in questions %}
     <tr>
-        <td colspan="2">{{ q.text|escape }}</td>
+        <td colspan="2">{{ q.text }}</td>
     </tr>
     <tr>
     <td>
@@ -145,7 +145,7 @@
 
     <form method="post" action="../">
     <p>
-    <input type="hidden" name="promo" value="{{ promo|escape }}" />
+    <input type="hidden" name="promo" value="{{ promo }}" />
     <input type="submit" value="Start Over" />
     </p>
     </form>

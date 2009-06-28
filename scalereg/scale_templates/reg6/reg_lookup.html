@@ -6,7 +6,7 @@
 
 {% if search %}
     <p>
-    Search results for: {{ email|escape }} and {{ zip|escape }}.
+    Search results for: {{ email }} and {{ zip }}.
     </p>
 {% endif %}
 
@@ -22,8 +22,8 @@
     <tbody>
     {% for person in attendees %}
         <tr>
-        <td>{{ person.id|escape }}</td>
-        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>
         {% if person.valid %}
         Yes

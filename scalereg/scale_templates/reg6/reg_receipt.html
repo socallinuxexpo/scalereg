@@ -6,25 +6,25 @@
 
 {% if code %}
 <p>
-Coupon code: {{ code|escape|upper }}
+Coupon code: {{ code|upper }}
 </p>
 {% else %}
 <table>
 <tr>
 <td>Name:</td>
-<td>{{ name|escape }}</td>
+<td>{{ name }}</td>
 </tr>
 <tr>
 <td>Email:</td>
-<td>{{ email|escape }}</td>
+<td>{{ email }}</td>
 </tr>
 <tr>
 <td>Order Number:</td>
-<td>{{ order|escape }}</td>
+<td>{{ order }}</td>
 </tr>
 <tr>
 <td>Amount:</td>
-<td>{{ total|money|escape }}</td>
+<td>{{ total|money }}</td>
 </tr>
 </table>
 {% endif %}
@@ -43,11 +43,11 @@ Coupon code: {{ code|escape|upper }}
     <tbody>
     {% for person in attendees %}
     <tr>
-        <td>{{ person.id|escape }}</td>
-        <td>{{ person.first_name|escape }} {{ person.last_name|escape }}</td>
-        <td>{{ person.email|escape }}</td>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
         {% if not code %}
-        <td>{{ person.ticket_cost|money|escape }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
         {% endif %}
     </tr>
     {% endfor %}

@@ -6,7 +6,7 @@
     <table border="1" class="sortable">
     <tr>
         {% for field in field_list %}
-        <th>{{ field|escape }}</th>
+        <th>{{ field }}</th>
         {% endfor %}
         <th>Name</th>
         <th>Address</th>
@@ -17,18 +17,18 @@
     </tr>
     {% for o in object_list %}
     <tr>
-        <td>{{ o.code|escape }}</td>
-        <td>{{ o.badge_type|escape }}</td>
-        <td>{{ o.order|escape }}</td>
-        <td>{{ o.used|escape }}</td>
-        <td>{{ o.max_attendees|escape }}</td>
-        <td>{{ o.expiration|escape }}</td>
-        <td>{{ o.order.name|escape }}</td>
-        <td>{{ o.order.address|escape }}</td>
-        <td>{{ o.order.city|escape }}</td>
-        <td>{{ o.order.state|escape }}</td>
-        <td>{{ o.order.email|escape }}</td>
-        <td>{{ o.order.phone|escape }}</td>
+        <td>{{ o.code }}</td>
+        <td>{{ o.badge_type }}</td>
+        <td>{{ o.order }}</td>
+        <td>{{ o.used }}</td>
+        <td>{{ o.max_attendees }}</td>
+        <td>{{ o.expiration }}</td>
+        <td>{{ o.order.name }}</td>
+        <td>{{ o.order.address }}</td>
+        <td>{{ o.order.city }}</td>
+        <td>{{ o.order.state }}</td>
+        <td>{{ o.order.email }}</td>
+        <td>{{ o.order.phone }}</td>
     </tr>
     {% endfor %}
     </table>

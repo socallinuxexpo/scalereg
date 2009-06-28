@@ -15,7 +15,7 @@
 {% endif %}
 {% for serv in services %}
     <tr>
-        <th scope="row"><a href="{{ serv.url }}/">{{ serv.name|escape|capfirst }}</a></th>
+        <th scope="row"><a href="{{ serv.url }}/">{{ serv.name|capfirst }}</a></th>
     </tr>
 {% endfor %}
 </table>

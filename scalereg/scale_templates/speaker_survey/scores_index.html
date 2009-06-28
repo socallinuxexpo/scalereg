@@ -22,9 +22,9 @@ Speakers
 </tr>
 {% for s in speakers %}
 <tr>
-  <td><a href="{{ s.id }}/">{{ s|escape }}</a>
+  <td><a href="{{ s.id }}/">{{ s }}</a>
   {% if s.url %}
-  <a href="{{ s.url|escape }}">[ Talk link ]</a>
+  <a href="{{ s.url }}">[ Talk link ]</a>
   {% endif %}
   </td>
   <td>{{ s.score1 }}</td>

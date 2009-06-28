@@ -6,10 +6,10 @@
 .speaker_survey_form_error { color: #FF0000; font-weight: bold }
 </style>
 
-<h2>Name: {{ speaker.name|escape }}</h2>
-<h2>Title: {{ speaker.title|escape }}</h2>
+<h2>Name: {{ speaker.name }}</h2>
+<h2>Title: {{ speaker.title }}</h2>
 {% if speaker.url %}
-<p><a href="{{ speaker.url|escape }}">More info on this talk</a></p>
+<p><a href="{{ speaker.url }}">More info on this talk</a></p>
 {% endif %}
 
 <p><a href="../">Back to list of surveys</a></p>
@@ -31,43 +31,43 @@ Please fill in this survey.
     <td colspan="2"><h4>Rate The Speaker</h4></td>
 </tr>
 <tr>
-    <td><label for="id_q00">{{ survey.help_text.0|escape }}</label></td>
+    <td><label for="id_q00">{{ survey.help_text.0 }}</label></td>
     <td>{{ form.q00 }}<br />
     {% if form.q00.errors %}<span class="speaker_survey_form_error">{{ form.q00.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q01">{{ survey.help_text.1|escape }}</label></td>
+    <td><label for="id_q01">{{ survey.help_text.1 }}</label></td>
     <td>{{ form.q01 }}<br />
     {% if form.q01.errors %}<span class="speaker_survey_form_error">{{ form.q01.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q02">{{ survey.help_text.2|escape }}</label></td>
+    <td><label for="id_q02">{{ survey.help_text.2 }}</label></td>
     <td>{{ form.q02 }}<br />
     {% if form.q02.errors %}<span class="speaker_survey_form_error">{{ form.q02.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q03">{{ survey.help_text.3|escape }}</label></td>
+    <td><label for="id_q03">{{ survey.help_text.3 }}</label></td>
     <td>{{ form.q03 }}<br />
     {% if form.q03.errors %}<span class="speaker_survey_form_error">{{ form.q03.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q04">{{ survey.help_text.4|escape }}</label></td>
+    <td><label for="id_q04">{{ survey.help_text.4 }}</label></td>
     <td>{{ form.q04 }}<br />
     {% if form.q04.errors %}<span class="speaker_survey_form_error">{{ form.q04.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q05">{{ survey.help_text.5|escape }}</label></td>
+    <td><label for="id_q05">{{ survey.help_text.5 }}</label></td>
     <td>{{ form.q05 }}<br />
     {% if form.q05.errors %}<span class="speaker_survey_form_error">{{ form.q05.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q06">{{ survey.help_text.6|escape }}</label></td>
+    <td><label for="id_q06">{{ survey.help_text.6 }}</label></td>
     <td>{{ form.q06 }}<br />
     {% if form.q06.errors %}<span class="speaker_survey_form_error">{{ form.q06.errors|join:", " }}</span>{% endif %}
     </td>
@@ -76,49 +76,49 @@ Please fill in this survey.
     <td colspan="2"><h4>Rate The Presentation</h4></td>
 </tr>
 <tr>
-    <td><label for="id_q07">{{ survey.help_text.7|escape }}</label></td>
+    <td><label for="id_q07">{{ survey.help_text.7 }}</label></td>
     <td>{{ form.q07 }}<br />
     {% if form.q07.errors %}<span class="speaker_survey_form_error">{{ form.q07.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q08">{{ survey.help_text.8|escape }}</label></td>
+    <td><label for="id_q08">{{ survey.help_text.8 }}</label></td>
     <td>{{ form.q08 }}<br />
     {% if form.q08.errors %}<span class="speaker_survey_form_error">{{ form.q08.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q09">{{ survey.help_text.9|escape }}</label></td>
+    <td><label for="id_q09">{{ survey.help_text.9 }}</label></td>
     <td>{{ form.q09 }}<br />
     {% if form.q09.errors %}<span class="speaker_survey_form_error">{{ form.q09.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q10">{{ survey.help_text.10|escape }}</label></td>
+    <td><label for="id_q10">{{ survey.help_text.10 }}</label></td>
     <td>{{ form.q10 }}<br />
     {% if form.q10.errors %}<span class="speaker_survey_form_error">{{ form.q10.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q11">{{ survey.help_text.11|escape }}</label></td>
+    <td><label for="id_q11">{{ survey.help_text.11 }}</label></td>
     <td>{{ form.q11 }}<br />
     {% if form.q11.errors %}<span class="speaker_survey_form_error">{{ form.q11.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q12">{{ survey.help_text.12|escape }}</label></td>
+    <td><label for="id_q12">{{ survey.help_text.12 }}</label></td>
     <td>{{ form.q12 }}<br />
     {% if form.q12.errors %}<span class="speaker_survey_form_error">{{ form.q12.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q13">{{ survey.help_text.13|escape }}</label></td>
+    <td><label for="id_q13">{{ survey.help_text.13 }}</label></td>
     <td>{{ form.q13 }}<br />
     {% if form.q13.errors %}<span class="speaker_survey_form_error">{{ form.q13.errors|join:", " }}</span>{% endif %}
     </td>
 </tr>
 <tr>
-    <td><label for="id_q14">{{ survey.help_text.14|escape }}</label></td>
+    <td><label for="id_q14">{{ survey.help_text.14 }}</label></td>
     <td>{{ form.q14 }}<br />
     {% if form.q14.errors %}<span class="speaker_survey_form_error">{{ form.q14.errors|join:", " }}</span>{% endif %}
     </td>
