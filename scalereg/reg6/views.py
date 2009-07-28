@@ -109,12 +109,7 @@ def CheckVars(request, post, cookies):
 
 
 def GenerateOrderID(bad_nums):
-  id = utils.GenerateID(10)
-  if not bad_nums:
-    return id
-  while id in bad_nums:
-    id = utils.GenerateID(10)
-  return id
+  return utils.GenerateUniqueID(10, bad_nums)
 
 
 def scale_render_to_response(request, template, vars):
