@@ -5,12 +5,11 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
+from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
 import datetime
-import random
 import re
-import string
 import sys
 
 DEBUG_LOGGING = False
@@ -110,12 +109,11 @@ def CheckVars(request, post, cookies):
 
 
 def GenerateOrderID(bad_nums):
-  valid_chars = string.ascii_uppercase + string.digits
-  id = ''.join([random.choice(valid_chars) for x in xrange(10)])
+  id = utils.GenerateID(10)
   if not bad_nums:
     return id
   while id in bad_nums:
-    id = ''.join([random.choice(valid_chars) for x in xrange(10)])
+    id = utils.GenerateID(10)
   return id
 
 
