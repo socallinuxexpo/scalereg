@@ -92,15 +92,6 @@
         <td><label for="id_org">Organization:</label></td>
         <td>{{ form.org }}</td>
     </tr>
-    {% if form.phone.errors %}
-    <tr>
-        <td colspan="2" class="reg6_form_error">{{ form.phone.errors|join:", " }}</td>
-    </tr>
-    {% endif %}
-    <tr>
-        <td><label for="id_phone">Phone:</label></td>
-        <td>{{ form.phone }}</td>
-    </tr>
     {% if form.zip.errors %}
     <tr>
         <td colspan="2" class="reg6_form_error">{{ form.zip.errors|join:", " }}</td>
@@ -118,6 +109,15 @@
     <tr>
         <td><label for="id_email"><b>Email:</b></label></td>
         <td>{{ form.email }}</td>
+    </tr>
+    {% if form.phone.errors %}
+    <tr>
+        <td colspan="2" class="reg6_form_error">{{ form.phone.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_phone">Phone:</label></td>
+        <td>{{ form.phone }}</td>
     </tr>
     {% if form.can_email.errors %}
     <tr>
