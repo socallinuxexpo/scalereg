@@ -65,7 +65,7 @@ class Order(models.Model):
     return u'%s' % self.order_num
 
   def save(self, *args, **kwargs):
-    validators.isNotNegative(self.self.amount, self)
+    validators.isNotNegative(self.amount, self)
     validators.isValidOrderNumber(self.order_num, self)
     return super(Order, self).save(*args, **kwargs)
 
