@@ -1,0 +1,26 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+
+<p>The follow problem has occurred:</p>
+
+<p>
+{% if error_message %}
+    {{ error_message }}
+{% else %}
+Error 0xBADBEEF2
+{% endif %}
+</p>
+
+<p>
+If you believe this is an error, please contact us.
+</p>
+
+<form method="post" action="/simple_cfp">
+<input type="submit" value="Return To CFP Page" />
+</form>
+
+</div>
+{% endblock %}
+
