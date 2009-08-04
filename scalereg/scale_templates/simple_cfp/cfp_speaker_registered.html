@@ -1,0 +1,56 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+{% if speaker %}
+    <p>You have registered a speaker with the following info:</p>
+
+    <table>
+    <tr>
+        <td>Salutation</td>
+        <td>{{ speaker.salutation }}</td>
+    </tr>
+    <tr>
+        <td>First Name</td>
+        <td>{{ speaker.first_name }}</td>
+    </tr>
+    <tr>
+        <td>Last Name</td>
+        <td>{{ speaker.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Title</td>
+        <td>{{ speaker.title }}</td>
+    </tr>
+    <tr>
+        <td>Organization</td>
+        <td>{{ speaker.org }}</td>
+    </tr>
+    <tr>
+        <td>Zip Code</td>
+        <td>{{ speaker.zip }}</td>
+    </tr>
+    <tr>
+        <td>Email</td>
+        <td>{{ speaker.email }}</td>
+    </tr>
+    <tr>
+        <td>Phone Number</td>
+        <td>{{ speaker.phone }}</td>
+    </tr>
+    </table>
+
+    <p>
+    <b>Your speaker validation code is:</b> {{ speaker.validation_code }}.
+    </p>
+
+    <p>
+    <b>Please save this number,
+    you will need it when submitting presentations.</b>
+    </p>
+{% else %}
+    Error: No speaker info.
+{% endif %}
+</div>
+{% endblock %}
+
