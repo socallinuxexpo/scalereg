@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     (r'^reg6/', include('scalereg.reg6.urls')),
     (r'^reports/', include('scalereg.reports.urls')),
+    (r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
     (r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
 
     # dummy index page
