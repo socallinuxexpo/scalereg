@@ -88,8 +88,10 @@ INSTALLED_APPS = (
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# To use reCAPTCHA, set USE_RECAPTCHA to True, and fill in the public/private
-# keys. You  will also need to install the Python reCAPTCHA client.
-USE_RECAPTCHA = True
+# It is highly recommended that you use reCAPTCHA to prevent spamming/attacks.
+# It is turned off by default. To use reCAPTCHA, first get a reCAPTCHA account,
+# then set USE_RECAPTCHA to True, and fill in the public/private keys.
+# You will also need to install the Python reCAPTCHA client.
+USE_RECAPTCHA = False
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
