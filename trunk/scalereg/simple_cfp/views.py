@@ -59,7 +59,7 @@ def RegisterSpeaker(request):
           })
 
     new_speaker = form.save(commit=False)
-    new_speaker.valid = False
+    new_speaker.valid = True
     new_speaker.validation_code = GenerateSpeakerValidationCode()
     new_speaker.signup_date = datetime.datetime.now()
     new_speaker = form.save()
