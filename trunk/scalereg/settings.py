@@ -83,6 +83,7 @@ INSTALLED_APPS = (
     'scalereg.auth_helper',
     'scalereg.reg6',
     'scalereg.reports',
+    'scalereg.simple_cfp',
     'scalereg.speaker_survey',
 )
 
