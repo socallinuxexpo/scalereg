@@ -94,6 +94,7 @@ class Presentation(models.Model):
   description = models.CharField(max_length=255)
   short_abstract = models.TextField(max_length=1000)
   long_abstract = models.TextField(max_length=10000, blank=True)
+  msg = models.TextField(max_length=1000, blank=True)
 
   # validation info
   valid = models.BooleanField(default=True)

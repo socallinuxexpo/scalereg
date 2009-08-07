@@ -14,6 +14,7 @@ class PresentationForm(ModelForm):
       'description',
       'short_abstract',
       'long_abstract',
+      'msg',
     )
 
 
