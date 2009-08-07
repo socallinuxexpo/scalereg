@@ -80,8 +80,8 @@ def RegisterSpeaker(request):
       })
 
 
-def SubmitPaper(request):
-  title = 'Submit Paper'
+def SubmitPresentation(request):
+  title = 'Submit Presentation'
 
   if request.method == 'POST':
     form = forms.PresentationForm(request.POST)
