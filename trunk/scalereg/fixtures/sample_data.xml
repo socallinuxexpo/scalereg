@@ -115,4 +115,10 @@ manage.py dumpdata -format=xml -indent=2 \
     <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel"><object pk="FULL"></object></field>
     <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
   </object>
+  <object pk="1" model="simple_cfp.audience">
+    <field type="CharField" name="name">Everyone</field>
+  </object>
+  <object pk="1" model="simple_cfp.category">
+    <field type="CharField" name="name">General</field>
+  </object>
 </django-objects>
