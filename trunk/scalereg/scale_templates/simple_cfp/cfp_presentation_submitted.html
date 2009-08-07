@@ -1,0 +1,53 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+{% if presentation %}
+    <p>
+    Your presentation has been successfully submitted.
+    </p>
+
+    <p>
+    <b>Your presentation submission code is:</b>
+    {{ presentation.submission_code }}.
+    </p>
+
+    <p>
+    <b>Please save this number</b> and refer to it if you need to contact us
+    regarding this presentation submission.
+    </p>
+
+    <p>
+    You have submitted the following presentation. We will contact you at
+    {{ presentation.speaker.email }} to let you know whether the presentation
+    has been accepted or not.
+    </p>
+
+    <p>
+    <a href=".">Click here to submit another presentation.</a>
+    </p>
+
+    <table>
+    <tr>
+        <td>Title</td>
+        <td>{{ presentation.title }}</td>
+    </tr>
+    <tr>
+        <td>Categories</td>
+        <td>{{ presentation.categories.all|join:", " }}</td>
+    </tr>
+    <tr>
+        <td>Audiences</td>
+        <td>{{ presentation.audiences.all|join:", " }}</td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>{{ presentation.description }}</td>
+    </tr>
+    </table>
+{% else %}
+    Error: No presentation info.
+{% endif %}
+</div>
+{% endblock %}
+
