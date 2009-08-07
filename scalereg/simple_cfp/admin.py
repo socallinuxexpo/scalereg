@@ -1,4 +1,6 @@
 from django.contrib import admin
+from simple_cfp.models import Audience
+from simple_cfp.models import Category
 from simple_cfp.models import Speaker
 
 
@@ -15,4 +17,6 @@ class SpeakerOptions(admin.ModelAdmin):
   save_on_top = True
 
 
+admin.site.register(Audience)
+admin.site.register(Category)
 admin.site.register(Speaker, SpeakerOptions)

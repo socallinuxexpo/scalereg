@@ -7,6 +7,23 @@ SALUTATION_CHOICES = (
   ('Dr', 'Dr.'),
 )
 
+# Some of the following two choices originally came from utos-conman's
+# speakers/models.py @ r378.
+
+AUDIENCE_CHOICES = (
+    ('Everyone', 'Everyone'),
+    ('Beginner', 'Beginner'),
+    ('Intermediate', 'Intermediate'),
+    ('Advanced', 'Advanced'),
+)
+
+CATEGORY_CHOICES = (
+    ('General', 'General'),
+    ('Business', 'Business'),
+    ('Technology', 'Technology'),
+    ('Community', 'Community'),
+    ('Educational', 'Educational'),
+)
 
 class Speaker(models.Model):
   # speaker name
@@ -36,3 +53,20 @@ class Speaker(models.Model):
 
   def __unicode__(self):
     return u'%s: %s %s' % (self.email, self.first_name, self.last_name)
+
+
+class Audience(models.Model):
+  name = models.CharField(max_length=20, choices=AUDIENCE_CHOICES, unique=True)
+
+  def __unicode__(self):
+    return u'%s' % self.name
+
+
+class Category(models.Model):
+  name = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
+
+  class Meta:
+    verbose_name_plural = "categories"
+
+  def __unicode__(self):
+    return u'%s' % self.name
