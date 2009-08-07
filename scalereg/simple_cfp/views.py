@@ -29,7 +29,9 @@ def GenerateSpeakerValidationCode():
 
 
 def index(request):
-  return HttpResponse('Ok')
+  return render_to_response('simple_cfp/cfp_index.html',
+    {'title': 'Simple CFP',
+    })
 
 
 def RegisterSpeaker(request):
