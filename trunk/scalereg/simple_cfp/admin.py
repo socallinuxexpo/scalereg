@@ -1,6 +1,7 @@
 from django.contrib import admin
 from simple_cfp.models import Audience
 from simple_cfp.models import Category
+from simple_cfp.models import Presentation
 from simple_cfp.models import Speaker
 
 
@@ -17,6 +18,20 @@ class SpeakerOptions(admin.ModelAdmin):
   save_on_top = True
 
 
+class PresentationOptions(admin.ModelAdmin):
+  fieldsets = (
+    (None, {'fields': ('speaker', 'valid', 'submission_code')}),
+    ('Categories', {'fields': ('categories', 'audiences')}),
+    ('Presentation', {'fields': ('title', 'description', 'short_abstract',
+                                 'long_abstract')}),
+    ('Private Data', {'fields': ('status', 'score', 'notes')}),
+  )
+  list_display = ('id', 'submission_code', 'speaker', 'title', 'valid',
+                  'status', 'score')
+  save_on_top = True
+
+
 admin.site.register(Audience)
 admin.site.register(Category)
+admin.site.register(Presentation, PresentationOptions)
 admin.site.register(Speaker, SpeakerOptions)
