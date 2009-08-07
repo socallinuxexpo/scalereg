@@ -1,0 +1,97 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <style type="text/css">
+        .cfp_form_error { color: #FF0000; font-weight: bold }
+    </style>
+
+    <p>
+    Please fill out this form to submit a presentation. You need to have a
+    speaker validation code. If you do not,
+    <a href="../speaker_registration/">click here to register as a speaker</a>.
+    </p>
+
+    <p>
+    The fields in <b>bold</b> are required.
+    </p>
+
+    <form method="post" action=".">
+    <table>
+    {% if form.speaker_code.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.speaker_code.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_speaker_code"><b>Speaker Code:</b></label></td>
+        <td>{{ form.speaker_code }}</td>
+    </tr>
+    {% if form.categories.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.categories.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_categories"><b>Categories:</b></label></td>
+        <td>{{ form.categories }}</td>
+    </tr>
+    {% if form.audiences.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.audiences.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_audiences"><b>Audiences:</b></label></td>
+        <td>{{ form.audiences }}</td>
+    </tr>
+    {% if form.title.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.title.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_title"><b>Presentation Title:</b></label></td>
+        <td>{{ form.title }}</td>
+    </tr>
+    {% if form.description.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.description.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_description"><b>Brief Description:</b> (up to 255 characters)</label></td>
+        <td>{{ form.description }}</td>
+    </tr>
+    {% if form.short_abstract.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.short_abstract.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_short_abstract"><b>Short Abstract:</b> (up to 1000 characters)</label></td>
+        <td>{{ form.short_abstract }}</td>
+    </tr>
+    {% if form.long_abstract.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.long_abstract.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_long_abstract">Long Abstract: (up to 10000 characters)</label></td>
+        <td>{{ form.long_abstract }}</td>
+    </tr>
+    </table>
+
+    {% if recaptcha_html %}
+        {% autoescape off %}
+            {{ recaptcha_html }}
+        {% endautoescape %}
+    {% endif %}
+
+    <p>
+    <input type="submit" value="Submit Presentation" />
+    </p>
+    </form>
+</div>
+{% endblock %}
