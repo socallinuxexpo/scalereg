@@ -81,6 +81,15 @@
         <td><label for="id_long_abstract">Long Abstract: (up to 10000 characters)</label></td>
         <td>{{ form.long_abstract }}</td>
     </tr>
+    {% if form.msg.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.msg.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_msg">Message to the reviewers:</label></td>
+        <td>{{ form.msg }}</td>
+    </tr>
     </table>
 
     {% if recaptcha_html %}
