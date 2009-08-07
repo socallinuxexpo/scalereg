@@ -10,7 +10,8 @@ SALUTATION_CHOICES = (
 
 class Speaker(models.Model):
   # speaker name
-  salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
+  salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES,
+                                blank=True)
   first_name = models.CharField(max_length=60)
   last_name = models.CharField(max_length=60)
   title = models.CharField(max_length=60, blank=True)
@@ -23,11 +24,11 @@ class Speaker(models.Model):
 
   # other info
   bio = models.TextField(blank=True)
+  signup_date = models.DateField(auto_now_add=True)
 
   # validation info
-  valid = models.BooleanField()
-  validation_code = models.CharField(max_length=10, blank=True)
-  signup_date = models.DateField(null=True, blank=True)
+  valid = models.BooleanField(default=True)
+  validation_code = models.CharField(max_length=10, unique=True)
 
   class Meta:
     permissions = (('view_speaker', 'Can view speakers'),)
