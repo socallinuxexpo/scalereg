@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from scalereg.simple_cfp.models import Speaker
 
+
 class SpeakerForm(ModelForm):
   class Meta:
     model = Speaker
@@ -13,5 +14,6 @@ class SpeakerForm(ModelForm):
       'zip',
       'email',
       'phone',
+      'url',
       'bio',
     )
