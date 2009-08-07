@@ -7,8 +7,16 @@ SALUTATION_CHOICES = (
   ('Dr', 'Dr.'),
 )
 
-# Some of the following two choices originally came from utos-conman's
+# Some of the following three choices originally came from utos-conman's
 # speakers/models.py @ r378.
+
+STATUS_CHOICES = (
+    ('Pending', 'Pending'),
+    ('Denied', 'Denied'),
+    ('Cancelled', 'Speaker Cancelled'),
+    ('Alternate', 'Alternate'),
+    ('Approved', 'Approved'),
+)
 
 AUDIENCE_CHOICES = (
     ('Everyone', 'Everyone'),
@@ -70,3 +78,36 @@ class Category(models.Model):
 
   def __unicode__(self):
     return u'%s' % self.name
+
+
+class Presentation(models.Model):
+  speaker = models.ForeignKey(Speaker)
+  # not strictly needed, convenience item to put on the form
+  speaker_code = models.CharField(max_length=10)
+
+  # categories
+  categories = models.ManyToManyField(Category)
+  audiences = models.ManyToManyField(Audience)
+
+  # presentation data
+  title = models.CharField(max_length=150, unique=True)
+  description = models.CharField(max_length=255)
+  short_abstract = models.TextField(max_length=1000)
+  long_abstract = models.TextField(max_length=10000, blank=True)
+
+  # validation info
+  valid = models.BooleanField(default=True)
+  submission_code = models.CharField(max_length=10)
+
+  # private data
+  submit_date = models.DateField(auto_now_add=True)
+  status = models.CharField(max_length=20, choices=STATUS_CHOICES,
+                            default='Pending')
+  score = models.IntegerField(default=0)
+  notes = models.TextField(max_length=1000, blank=True)
+
+  class Meta:
+    permissions = (('view_presentations', 'Can view presentations'),)
+
+  def __unicode__(self):
+    return u'(%s) - %s' % (self.speaker, self.title)
