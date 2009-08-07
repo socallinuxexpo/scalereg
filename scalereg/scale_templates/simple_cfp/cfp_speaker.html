@@ -89,6 +89,15 @@
         <td><label for="id_email"><b>Email:</b></label></td>
         <td>{{ form.email }}</td>
     </tr>
+    {% if form.url.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.url.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_url">Website:</label></td>
+        <td>{{ form.url }}</td>
+    </tr>
     {% if form.bio.errors %}
     <tr>
         <td colspan="2" class="cfp_form_error">{{ form.bio.errors|join:", " }}</td>

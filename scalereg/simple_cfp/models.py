@@ -23,6 +23,7 @@ class Speaker(models.Model):
   phone = models.CharField(max_length=20, blank=True)
 
   # other info
+  url = models.URLField(blank=True)
   bio = models.TextField(blank=True)
   signup_date = models.DateField(auto_now_add=True)
 
