@@ -3,7 +3,18 @@
 {% block content %}
 <div id="content-main">
 {% if speaker %}
-    <p>You have registered a speaker with the following info:</p>
+    <p>
+    <b>Your speaker validation code is:</b> {{ speaker.validation_code }}.
+    </p>
+
+    <p>
+    <b>Please save this number</b>,
+    you will need it when submitting presentations.
+    </p>
+
+    <p>
+    You have registered a speaker with the following info:
+    </p>
 
     <table>
     <tr>
@@ -39,15 +50,6 @@
         <td>{{ speaker.phone }}</td>
     </tr>
     </table>
-
-    <p>
-    <b>Your speaker validation code is:</b> {{ speaker.validation_code }}.
-    </p>
-
-    <p>
-    <b>Please save this number,
-    you will need it when submitting presentations.</b>
-    </p>
 {% else %}
     Error: No speaker info.
 {% endif %}
