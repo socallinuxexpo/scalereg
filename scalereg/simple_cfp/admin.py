@@ -7,6 +7,7 @@ from simple_cfp.models import Speaker
 
 class SpeakerOptions(admin.ModelAdmin):
   fieldsets = (
+    ('Contact Info', {'fields': ('contact_name', 'contact_email')}),
     ('Speaker Info', {'fields': ('salutation', 'first_name', 'last_name',
                                  'title', 'org')}),
     ('Contact Info', {'fields': ('email', 'zip', 'phone')}),

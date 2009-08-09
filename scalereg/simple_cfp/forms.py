@@ -22,6 +22,8 @@ class SpeakerForm(ModelForm):
   class Meta:
     model = Speaker
     fields = (
+      'contact_name',
+      'contact_email',
       'salutation',
       'first_name',
       'last_name',
