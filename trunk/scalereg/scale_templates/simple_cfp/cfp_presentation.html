@@ -33,7 +33,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_categories"><b>Categories:</b></label></td>
+        <td><label for="id_categories"><b>Categories:</b></label>
+        <p>(Hold down control / command to select more than one)</p>
+        </td>
         <td>{{ form.categories }}</td>
     </tr>
     {% if form.audiences.errors %}
@@ -42,7 +44,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_audiences"><b>Audiences:</b></label></td>
+        <td><label for="id_audiences"><b>Audiences:</b></label>
+        <p>(Hold down control / command to select more than one)</p>
+        </td>
         <td>{{ form.audiences }}</td>
     </tr>
     {% if form.title.errors %}
@@ -60,7 +64,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_description"><b>Brief Description:</b> (up to 255 characters)</label></td>
+        <td><label for="id_description"><b>Brief Description:</b></label>
+        <p>(up to 255 characters)</p>
+        </td>
         <td>{{ form.description }}</td>
     </tr>
     {% if form.short_abstract.errors %}
@@ -69,7 +75,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_short_abstract"><b>Short Abstract:</b> (up to 1000 characters)</label></td>
+        <td><label for="id_short_abstract"><b>Short Abstract:</b></label>
+        <p>(up to 1000 characters)</p>
+        </td>
         <td>{{ form.short_abstract }}</td>
     </tr>
     {% if form.long_abstract.errors %}
@@ -78,7 +86,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_long_abstract">Long Abstract: (up to 10000 characters)</label></td>
+        <td><label for="id_long_abstract">Long Abstract:</label>
+        <p>(up to 10000 characters)</p>
+        </td>
         <td>{{ form.long_abstract }}</td>
     </tr>
     {% if form.msg.errors %}
