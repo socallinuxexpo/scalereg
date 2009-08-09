@@ -10,6 +10,14 @@ if settings.USE_RECAPTCHA:
   from recaptcha.client.captcha import displayhtml
   from recaptcha.client.captcha import submit
 
+class ErrorMsg:
+  # Common messages
+  CAPTCHA_SERVER_ERROR = 'Could not contact reCAPTCHA server'
+  # SubmitPresentation
+  INVALID_CODE = 'Invalid speaker code'
+  INVALID_EMAIL = 'Contact email does not match speaker code'
+
+
 def GenerateRecaptchaHTML(request, error_code=None):
   if not settings.USE_RECAPTCHA:
     return ''
@@ -83,13 +91,13 @@ def RegisterSpeaker(request):
 
 
 def SubmitPresentation(request):
-  title = 'Submit Presentation'
+  TITLE = 'Submit Presentation'
 
   if request.method == 'POST':
     form = forms.PresentationForm(request.POST)
     if not form.is_valid():
       return render_to_response('simple_cfp/cfp_presentation.html',
-        {'title': title,
+        {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
@@ -98,9 +106,17 @@ def SubmitPresentation(request):
       speaker = models.Speaker.objects.get(
           validation_code=form.cleaned_data['speaker_code'])
     except models.Speaker.DoesNotExist:
-      form.errors['speaker_code'] = ErrorList(['Invalid speaker code'])
+      form.errors['speaker_code'] = ErrorList([ErrorMsg.INVALID_CODE])
       return render_to_response('simple_cfp/cfp_presentation.html',
-        {'title': title,
+        {'title': TITLE,
+         'form': form,
+         'recaptcha_html': GenerateRecaptchaHTML(request),
+        })
+
+    if speaker.contact_email != form.cleaned_data['contact_email']:
+      form.errors['contact_email'] = ErrorList([ErrorMsg.INVALID_EMAIL])
+      return render_to_response('simple_cfp/cfp_presentation.html',
+        {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
@@ -113,14 +129,14 @@ def SubmitPresentation(request):
                                     request.META['REMOTE_ADDR'])
       except:
         return render_to_response('simple_cfp/cfp_error.html',
-          {'title': title,
-           'error_message': 'Could not contact reCAPTCHA server.',
+          {'title': TITLE,
+           'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
           })
       if not recaptcha_response.is_valid:
         recaptcha_html = GenerateRecaptchaHTML(request,
                                                recaptcha_response.error_code)
         return render_to_response('simple_cfp/cfp_presentation.html',
-          {'title': title,
+          {'title': TITLE,
            'form': form,
            'recaptcha_html': recaptcha_html,
           })
@@ -132,12 +148,12 @@ def SubmitPresentation(request):
     form.save_m2m()
 
     return render_to_response('simple_cfp/cfp_presentation_submitted.html',
-    {'title': title,
+    {'title': TITLE,
      'presentation': new_presentation,
     })
   else:
     return render_to_response('simple_cfp/cfp_presentation.html',
-      {'title': title,
+      {'title': TITLE,
        'form': forms.PresentationForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),
       })

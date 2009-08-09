@@ -7,6 +7,7 @@ class PresentationForm(ModelForm):
   class Meta:
     model = Presentation
     fields = (
+      'contact_email',
       'speaker_code',
       'categories',
       'audiences',
