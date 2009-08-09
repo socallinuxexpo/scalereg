@@ -43,13 +43,13 @@ def index(request):
 
 
 def RegisterSpeaker(request):
-  title = 'Register Speaker'
+  TITLE = 'Register Speaker'
 
   if request.method == 'POST':
     form = forms.SpeakerForm(request.POST)
     if not form.is_valid():
       return render_to_response('simple_cfp/cfp_speaker.html',
-        {'title': title,
+        {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
@@ -62,14 +62,14 @@ def RegisterSpeaker(request):
                                     request.META['REMOTE_ADDR'])
       except:
         return render_to_response('simple_cfp/cfp_error.html',
-          {'title': title,
-           'error_message': 'Could not contact reCAPTCHA server.',
+          {'title': TITLE,
+           'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
           })
       if not recaptcha_response.is_valid:
         recaptcha_html = GenerateRecaptchaHTML(request,
                                                recaptcha_response.error_code)
         return render_to_response('simple_cfp/cfp_speaker.html',
-          {'title': title,
+          {'title': TITLE,
            'form': form,
            'recaptcha_html': recaptcha_html,
           })
@@ -79,12 +79,12 @@ def RegisterSpeaker(request):
     new_speaker = form.save()
 
     return render_to_response('simple_cfp/cfp_speaker_registered.html',
-    {'title': title,
+    {'title': TITLE,
      'speaker': new_speaker,
     })
   else:
     return render_to_response('simple_cfp/cfp_speaker.html',
-      {'title': title,
+      {'title': TITLE,
        'form': forms.SpeakerForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),
       })
