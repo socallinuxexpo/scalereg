@@ -34,6 +34,10 @@ CATEGORY_CHOICES = (
 )
 
 class Speaker(models.Model):
+  # administrative contact info
+  contact_name = models.CharField(max_length=60)
+  contact_email = models.EmailField(unique=True)
+
   # speaker name
   salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES,
                                 blank=True)
@@ -42,7 +46,7 @@ class Speaker(models.Model):
   title = models.CharField(max_length=60, blank=True)
   org = models.CharField(max_length=60, blank=True)
 
-  # contact info
+  # speaker contact info
   email = models.EmailField(unique=True)
   zip = models.CharField(max_length=20)
   phone = models.CharField(max_length=20, blank=True)
