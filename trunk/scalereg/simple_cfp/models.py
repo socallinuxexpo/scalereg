@@ -86,7 +86,8 @@ class Category(models.Model):
 
 class Presentation(models.Model):
   speaker = models.ForeignKey(Speaker)
-  # not strictly needed, convenience item to put on the form
+  # not strictly needed, convenience items to put on the form
+  contact_email = models.EmailField()
   speaker_code = models.CharField(max_length=10)
 
   # categories
