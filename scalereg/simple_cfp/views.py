@@ -45,8 +45,8 @@ def SendValidationEmail(speaker):
   if not settings.SCALEREG_SIMPLECFP_SEND_MAIL:
     return False
   try:
-    send_mail("Your simple_cfp password",
-              "Your simple_cfp password is %s" % speaker.validation_code,
+    send_mail("Your simple_cfp validation code",
+              "Your simple_cfp validation code is %s" % speaker.validation_code,
               settings.SCALEREG_EMAIL,
               [speaker.contact_email])
     return True
