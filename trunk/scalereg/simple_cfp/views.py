@@ -79,9 +79,9 @@ def RegisterSpeaker(request):
     new_speaker = form.save()
 
     return render_to_response('simple_cfp/cfp_speaker_registered.html',
-    {'title': TITLE,
-     'speaker': new_speaker,
-    })
+      {'title': TITLE,
+       'speaker': new_speaker,
+      })
   else:
     return render_to_response('simple_cfp/cfp_speaker.html',
       {'title': TITLE,
@@ -148,9 +148,9 @@ def SubmitPresentation(request):
     form.save_m2m()
 
     return render_to_response('simple_cfp/cfp_presentation_submitted.html',
-    {'title': TITLE,
-     'presentation': new_presentation,
-    })
+      {'title': TITLE,
+       'presentation': new_presentation,
+      })
   else:
     return render_to_response('simple_cfp/cfp_presentation.html',
       {'title': TITLE,
