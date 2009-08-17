@@ -14,8 +14,8 @@ class SpeakerOptions(admin.ModelAdmin):
     ('Other Info', {'fields': ('url', 'bio')}),
     ('Validation Info', {'fields': ('valid', 'validation_code')}),
   )
-  list_display = ('id', 'first_name', 'last_name', 'title', 'org', 'email',
-                  'valid', 'validation_code')
+  list_display = ('id', 'first_name', 'last_name', 'title', 'org',
+                  'contact_email', 'email', 'valid', 'validation_code')
   save_on_top = True
 
 
