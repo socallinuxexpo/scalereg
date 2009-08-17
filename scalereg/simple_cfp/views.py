@@ -8,6 +8,7 @@ from scalereg.common import utils
 
 if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
   from django.core.mail import send_mail
+  from django.core.mail import BadHeaderError
   import smtplib
 
 if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
@@ -50,6 +51,9 @@ def SendValidationEmail(speaker):
               settings.SCALEREG_EMAIL,
               [speaker.contact_email])
     return True
+  except BadHeaderError:
+    # Unlikely to happen, probably if SCALEREG_EMAIL is set incorrectly.
+    return False
   except smtplib.SMTPException:
     return False
 
