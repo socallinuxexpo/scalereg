@@ -156,8 +156,13 @@ def RegisterSpeaker(request):
     new_speaker.validation_code = GenerateSpeakerValidationCode()
     new_speaker = form.save()
 
+    email_sent = False
+    if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
+      email_sent = SendValidationEmail(new_speaker)
+
     return render_to_response('simple_cfp/cfp_speaker_registered.html',
       {'title': TITLE,
+       'email_sent': email_sent,
        'speaker': new_speaker,
       })
   else:

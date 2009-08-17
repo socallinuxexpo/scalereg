@@ -7,6 +7,11 @@
     <b>Your contact email is:</b> {{ speaker.contact_email }}.
     </p>
 
+    {% if email_sent %}
+    Your speaker validation code has been emailed to you. Once you get your
+    validation code, you can
+    <a href="../submit_presentation/">submit presentations</a>.
+    {% else %}
     <p>
     <b>Your speaker validation code is:</b> {{ speaker.validation_code }}.
     </p>
@@ -17,6 +22,7 @@
     <a href="../submit_presentation/">submitting presentations.
     (click here to continue)</a>
     </p>
+    {% endif %}
 
     <p>
     You have registered a speaker with the following info:
