@@ -6,7 +6,7 @@ from scalereg.simple_cfp import forms
 from scalereg.simple_cfp import models
 from scalereg.common import utils
 
-if settings.USE_RECAPTCHA:
+if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
   from recaptcha.client.captcha import displayhtml
   from recaptcha.client.captcha import submit
 
@@ -19,7 +19,7 @@ class ErrorMsg:
 
 
 def GenerateRecaptchaHTML(request, error_code=None):
-  if not settings.USE_RECAPTCHA:
+  if not settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
     return ''
   return displayhtml(settings.RECAPTCHA_PUBLIC_KEY, request.is_secure(),
                      error_code)
@@ -54,7 +54,7 @@ def RegisterSpeaker(request):
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
 
-    if settings.USE_RECAPTCHA:
+    if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
       try:
         recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
                                     request.POST['recaptcha_response_field'],
@@ -121,7 +121,7 @@ def SubmitPresentation(request):
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
 
-    if settings.USE_RECAPTCHA:
+    if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
       try:
         recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
                                     request.POST['recaptcha_response_field'],
