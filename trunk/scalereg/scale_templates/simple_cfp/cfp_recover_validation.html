@@ -1,0 +1,41 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    {% if sent %}
+    <p>
+    Your validation code has been send to {{ email }}.
+    </p>
+    {% else %}
+        {% if error %}
+        <p>
+        Your email address: "{{ email }}", is not in our records.
+        </p>
+        {% endif %}
+
+        <p>
+        If you forgot your validation code, type your contact email address
+        below and your validation code will be emailed to you.
+        </p>
+
+        <form method="post" action=".">
+        <p>
+        <b>Contact Email Address:</b>
+        <input name="email" type="textbox" maxlength="60"
+         value="{{ email }}" />
+        </p>
+
+        {% if recaptcha_html %}
+            {% autoescape off %}
+                {{ recaptcha_html }}
+            {% endautoescape %}
+        {% endif %}
+
+        <p>
+        <input type="submit" value="Email validation code" />
+        </p>
+    {% endif %}
+
+    </form>
+</div>
+{% endblock %}

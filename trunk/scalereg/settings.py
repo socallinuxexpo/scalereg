@@ -97,3 +97,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SCALEREG_SIMPLECFP_USE_RECAPTCHA = False
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
+
+# Set to True if you want simple_cfp to be able to email speakers.
+# You need to set EMAIL_HOST, EMAIL_PORT, and other EMAIL_ settings
+# appropriately.
+SCALEREG_SIMPLECFP_SEND_MAIL = False
+# You also need to set the from address below:
+SCALEREG_EMAIL = ''

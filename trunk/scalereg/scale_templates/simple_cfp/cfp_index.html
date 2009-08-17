@@ -17,5 +17,12 @@
     <a href="submit_presentation/">submit presentations</a>.
     You may submit multiple presentations.
     </p>
+
+    {% if send_email %}
+    <p>
+    If you already registered as a speaker, but forgot your validation code,
+    we can <a href="recover_validation/">email your validation code to you</a>.
+    </p>
+    {% endif %}
 </div>
 {% endblock %}
