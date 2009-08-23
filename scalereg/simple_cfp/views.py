@@ -42,12 +42,30 @@ def GenerateSpeakerValidationCode():
   return utils.GenerateUniqueID(10, speaker_ids)
 
 
+def SendConfirmationEmail(presentation):
+  if not settings.SCALEREG_SIMPLECFP_SEND_MAIL:
+    return False
+  try:
+    send_mail('Your simple_cfp submission',
+              '''Your presentation: %s has been submitted.
+Your simple_cfp submission code is %s''' % \
+              (presentation.title, presentation.submission_code),
+              settings.SCALEREG_EMAIL,
+              [presentation.speaker.contact_email])
+    return True
+  except BadHeaderError:
+    # Unlikely to happen, probably if SCALEREG_EMAIL is set incorrectly.
+    return False
+  except smtplib.SMTPException:
+    return False
+
+
 def SendValidationEmail(speaker):
   if not settings.SCALEREG_SIMPLECFP_SEND_MAIL:
     return False
   try:
-    send_mail("Your simple_cfp validation code",
-              "Your simple_cfp validation code is %s" % speaker.validation_code,
+    send_mail('Your simple_cfp validation code',
+              'Your simple_cfp validation code is %s' % speaker.validation_code,
               settings.SCALEREG_EMAIL,
               [speaker.contact_email])
     return True
@@ -234,8 +252,13 @@ def SubmitPresentation(request):
     new_presentation = form.save()
     form.save_m2m()
 
+    email_sent = False
+    if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
+      email_sent = SendConfirmationEmail(new_presentation)
+
     return render_to_response('simple_cfp/cfp_presentation_submitted.html',
       {'title': TITLE,
+       'email_sent': email_sent,
        'presentation': new_presentation,
       })
   else:
