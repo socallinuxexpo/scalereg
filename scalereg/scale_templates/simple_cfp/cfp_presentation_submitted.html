@@ -7,6 +7,9 @@
     Your presentation has been successfully submitted.
     </p>
 
+    {% if email_sent %}
+    A submission receipt has been emailed to you.
+    {% else %}
     <p>
     <b>Your presentation submission code is:</b>
     {{ presentation.submission_code }}.
@@ -16,10 +19,11 @@
     <b>Please save this number</b> and refer to it if you need to contact us
     regarding this presentation submission.
     </p>
+    {% endif %}
 
     <p>
     You have submitted the following presentation. We will contact you at
-    {{ presentation.speaker.email }} to let you know whether the presentation
+    {{ presentation.speaker.contact_email }} to let you know whether the presentation
     has been accepted or not.
     </p>
 
