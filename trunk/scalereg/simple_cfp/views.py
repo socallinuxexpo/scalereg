@@ -195,6 +195,39 @@ def RegisterSpeaker(request):
       })
 
 
+def SubmissionStatus(request):
+  TITLE = 'Submission Status'
+
+  if request.method == 'POST':
+    speaker = None
+    if 'email' in request.POST and 'code' in request.POST:
+      try:
+        speaker = models.Speaker.objects.get(
+            contact_email=request.POST['email'])
+        if speaker.validation_code != request.POST['code']:
+          speaker = None
+      except models.Speaker.DoesNotExist:
+        pass
+
+    if not speaker:
+      return render_to_response('simple_cfp/cfp_submission_status.html',
+        {'title': TITLE,
+         'error': ErrorMsg.INVALID_EMAIL,
+        })
+
+    presentations = models.Presentation.objects.filter(speaker=speaker)
+
+    return render_to_response('simple_cfp/cfp_submission_status.html',
+      {'title': TITLE,
+       'presentations': presentations,
+       'speaker': speaker,
+      })
+  else:
+    return render_to_response('simple_cfp/cfp_submission_status.html',
+      {'title': TITLE,
+      })
+
+
 def SubmitPresentation(request):
   TITLE = 'Submit Presentation'
 

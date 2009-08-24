@@ -1,0 +1,62 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <style type="text/css">
+        .cfp_form_error { color: #FF0000; font-weight: bold }
+    </style>
+
+    {% if speaker %}
+        <p>
+        Submissions by {{ speaker.first_name }} {{ speaker.last_name }}.
+        </p>
+
+        <table border="1">
+        <tr>
+            <th>Status</th>
+            <th>Submit Date</th>
+            <th>Title</th>
+            <th>Description</th>
+        </tr>
+        {% for p in presentations %}
+        <tr>
+            <td>{{ p.status }}</td>
+            <td>{{ p.submit_date }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.description }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+    <p>
+    Please type in your contact email and validation code to view the status
+    of your submisssions.
+    </p>
+
+    <p>
+    The fields in <b>bold</b> are required.
+    </p>
+
+    {% if error %}
+    <p class="cfp_form_error">Incorrect login, please try again.</p>
+    {% endif %}
+
+    <form method="post" action=".">
+    <table>
+    <tr>
+        <td><b>Contact Email:</b></td>
+        <td><input type="text" name="email" maxlength="80" /></td>
+    </tr>
+    <tr>
+        <td><b>Validation Code:</b></td>
+        <td><input type="text" name="code" maxlength="80" /></td>
+    </tr>
+    </table>
+
+    <p>
+    <input type="submit" value="View Status" />
+    </p>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
