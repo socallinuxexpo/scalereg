@@ -100,7 +100,8 @@ class Presentation(models.Model):
   short_abstract = models.TextField(max_length=1000)
   long_abstract = models.TextField(max_length=10000, blank=True)
   msg = models.TextField(max_length=1000, blank=True)
-  file = models.FileField(upload_to='scale/simple_cfp/%Y%m%d-%H%M%S/')
+  file = models.FileField(upload_to='scale/simple_cfp/%Y%m%d-%H%M%S/',
+                          blank=True)
 
   # validation info
   valid = models.BooleanField(default=True)
