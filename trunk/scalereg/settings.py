@@ -104,3 +104,6 @@ RECAPTCHA_PRIVATE_KEY = ''
 SCALEREG_SIMPLECFP_SEND_MAIL = False
 # You also need to set the from address below:
 SCALEREG_SIMPLECFP_EMAIL = ''
+
+# MEDIA_ROOT and MEDIA_URL need to be set for uploads to work.
+SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False

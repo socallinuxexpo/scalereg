@@ -78,7 +78,7 @@ class Category(models.Model):
   name = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
 
   class Meta:
-    verbose_name_plural = "categories"
+    verbose_name_plural = 'categories'
 
   def __unicode__(self):
     return u'%s' % self.name
@@ -100,6 +100,7 @@ class Presentation(models.Model):
   short_abstract = models.TextField(max_length=1000)
   long_abstract = models.TextField(max_length=10000, blank=True)
   msg = models.TextField(max_length=1000, blank=True)
+  file = models.FileField(upload_to='scale/simple_cfp/%Y%m%d-%H%M%S/')
 
   # validation info
   valid = models.BooleanField(default=True)

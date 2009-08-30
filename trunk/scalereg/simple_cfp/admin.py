@@ -24,7 +24,7 @@ class PresentationOptions(admin.ModelAdmin):
     (None, {'fields': ('speaker', 'valid', 'submission_code')}),
     ('Categories', {'fields': ('categories', 'audiences')}),
     ('Presentation', {'fields': ('title', 'description', 'short_abstract',
-                                 'long_abstract', 'msg')}),
+                                 'long_abstract', 'file', 'msg')}),
     ('Private Data', {'fields': ('status', 'score', 'notes')}),
   )
   list_display = ('id', 'submission_code', 'speaker', 'title', 'valid',
