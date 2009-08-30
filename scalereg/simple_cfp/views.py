@@ -232,12 +232,16 @@ def SubmitPresentation(request):
   TITLE = 'Submit Presentation'
 
   if request.method == 'POST':
-    form = forms.PresentationForm(request.POST)
+    if settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD:
+      form = forms.PresentationForm(request.POST, request.FILES)
+    else:
+      form = forms.PresentationForm(request.POST)
     if not form.is_valid():
       return render_to_response('simple_cfp/cfp_presentation.html',
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
+         'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
     try:
@@ -249,6 +253,7 @@ def SubmitPresentation(request):
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
+         'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
     if speaker.contact_email != form.cleaned_data['contact_email']:
@@ -257,6 +262,7 @@ def SubmitPresentation(request):
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
+         'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
     if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
@@ -277,6 +283,7 @@ def SubmitPresentation(request):
           {'title': TITLE,
            'form': form,
            'recaptcha_html': recaptcha_html,
+           'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
           })
 
     new_presentation = form.save(commit=False)
@@ -299,4 +306,5 @@ def SubmitPresentation(request):
       {'title': TITLE,
        'form': forms.PresentationForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })

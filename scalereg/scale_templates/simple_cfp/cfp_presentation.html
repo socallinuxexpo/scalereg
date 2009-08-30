@@ -16,7 +16,7 @@
     The fields in <b>bold</b> are required.
     </p>
 
-    <form method="post" action=".">
+    <form method="post" action="." enctype="multipart/form-data">
     <table>
     {% if form.contact_email.errors %}
     <tr>
@@ -100,6 +100,17 @@
         </td>
         <td>{{ form.long_abstract }}</td>
     </tr>
+    {% if upload %}
+    {% if form.file.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.file.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_file">Presentation to upload:</label></td>
+        <td>{{ form.file }}</td>
+    </tr>
+    {% endif %}
     {% if form.msg.errors %}
     <tr>
         <td colspan="2" class="cfp_form_error">{{ form.msg.errors|join:", " }}</td>
