@@ -103,4 +103,4 @@ RECAPTCHA_PRIVATE_KEY = ''
 # appropriately.
 SCALEREG_SIMPLECFP_SEND_MAIL = False
 # You also need to set the from address below:
-SCALEREG_EMAIL = ''
+SCALEREG_SIMPLECFP_EMAIL = ''

@@ -50,11 +50,11 @@ def SendConfirmationEmail(presentation):
               '''Your presentation: %s has been submitted.
 Your simple_cfp submission code is %s''' % \
               (presentation.title, presentation.submission_code),
-              settings.SCALEREG_EMAIL,
+              settings.SCALEREG_SIMPLECFP_EMAIL,
               [presentation.speaker.contact_email])
     return True
   except BadHeaderError:
-    # Unlikely to happen, probably if SCALEREG_EMAIL is set incorrectly.
+    # Unlikely to happen, SCALEREG_SIMPLECFP_EMAIL set incorrectly?
     return False
   except smtplib.SMTPException:
     return False
@@ -66,11 +66,11 @@ def SendValidationEmail(speaker):
   try:
     send_mail('Your simple_cfp validation code',
               'Your simple_cfp validation code is %s' % speaker.validation_code,
-              settings.SCALEREG_EMAIL,
+              settings.SCALEREG_SIMPLECFP_EMAIL,
               [speaker.contact_email])
     return True
   except BadHeaderError:
-    # Unlikely to happen, probably if SCALEREG_EMAIL is set incorrectly.
+    # Unlikely to happen, SCALEREG_SIMPLECFP_EMAIL set incorrectly?
     return False
   except smtplib.SMTPException:
     return False
