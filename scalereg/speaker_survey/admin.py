@@ -1,6 +1,6 @@
 from django.contrib import admin
-from speaker_survey.models import Speaker
-from speaker_survey.models import Survey7X
+from models import Speaker
+from models import Survey7X
 
 
 class Survey7XOptions(admin.ModelAdmin):

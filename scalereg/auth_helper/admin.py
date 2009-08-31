@@ -1,5 +1,5 @@
-from auth_helper.models import Service
 from django.contrib import admin
+from models import Service
 
 
 class ServiceOptions(admin.ModelAdmin):
