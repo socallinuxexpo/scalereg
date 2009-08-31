@@ -22,6 +22,11 @@ class ErrorMsg:
   # SubmitPresentation
   INVALID_CODE = 'Invalid speaker code'
   INVALID_EMAIL = 'Contact email does not match speaker code'
+  # SubmissionStatus
+  DELETE_SUCCESS = 'Presentation successfully deleted'
+  DELETE_FAIL = 'Could not delete presentation'
+  UPLOAD_SUCCESS = 'Presentation successfully uploaded'
+  UPLOAD_FAIL = 'Could not upload presentation'
 
 
 def GenerateRecaptchaHTML(request, error_code=None):
@@ -217,10 +222,37 @@ def SubmissionStatus(request):
 
     presentations = models.Presentation.objects.filter(speaker=speaker)
 
+    # Handle new uploads and deletes
+    error = ''
+    if 'presentation' in request.POST:
+      error = ErrorMsg.UPLOAD_SUCCESS
+      try:
+        upload_p = presentations.get(id=request.POST['presentation'])
+        form = forms.PresentationForm(request.POST, request.FILES)
+        if 'file' in form.files:
+          form_file = form.files['file']
+          upload_p.file.save(form_file.name, form_file)
+        else:
+          error = ErrorMsg.UPLOAD_FAIL
+      except models.Presentation.DoesNotExist:
+        error = ErrorMsg.UPLOAD_FAIL
+    elif 'delete' in request.POST:
+      error = ErrorMsg.DELETE_SUCCESS
+      try:
+        delete_p = presentations.get(id=request.POST['delete'])
+        delete_p.file = None
+        delete_p.save()
+      except models.Presentation.DoesNotExist:
+        error = ErrorMsg.DELETE_FAIL
+
     return render_to_response('simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
+       'code': request.POST['code'],
+       'email': request.POST['email'],
+       'error': error,
        'presentations': presentations,
        'speaker': speaker,
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
   else:
     return render_to_response('simple_cfp/cfp_submission_status.html',

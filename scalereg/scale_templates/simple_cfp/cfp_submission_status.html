@@ -6,6 +6,10 @@
         .cfp_form_error { color: #FF0000; font-weight: bold }
     </style>
 
+    {% if error %}
+    <p class="cfp_form_error">{{ error }}</p>
+    {% endif %}
+
     {% if speaker %}
         <p>
         Submissions by {{ speaker.first_name }} {{ speaker.last_name }}.
@@ -14,9 +18,14 @@
         <table border="1">
         <tr>
             <th>Status</th>
-            <th>Submit Date</th>
+            <th>Submission Date</th>
             <th>Title</th>
             <th>Description</th>
+            {% if upload %}
+            <th>Presentation</th>
+            <th>Uploaded New Presentation</th>
+            <th>Delete Presentation</th>
+            {% endif %}
         </tr>
         {% for p in presentations %}
         <tr>
@@ -24,13 +33,43 @@
             <td>{{ p.submit_date }}</td>
             <td>{{ p.title }}</td>
             <td>{{ p.description }}</td>
+            {% if upload %}
+            <td>
+            {% if p.file %}
+            <a href="{{ p.file.url }}">Uploaded</a>
+            {% else %}
+            Not uploaded
+            {% endif %}
+            </td>
+            <td nowrap>
+            <form method="post" action="." enctype="multipart/form-data">
+                <input type="hidden" name="code" value="{{ code }}">
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="presentation" value="{{ p.id }}">
+                <input type="file" name="file">
+                <input type="submit" value="Upload" />
+            </form>
+            </td>
+            <td>
+            {% if p.file %}
+            <form method="post" action=".">
+                <input type="hidden" name="code" value="{{ code }}">
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="delete" value="{{ p.id }}">
+                <input type="submit" value="Delete" />
+            </form>
+            {% else %}
+            <input type="submit" value="Delete" disabled />
+            {% endif %}
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
         </table>
     {% else %}
     <p>
     Please type in your contact email and validation code to view the status
-    of your submisssions.
+    of your submissions.
     </p>
 
     <p>
