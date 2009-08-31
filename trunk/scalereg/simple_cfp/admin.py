@@ -1,8 +1,8 @@
 from django.contrib import admin
-from simple_cfp.models import Audience
-from simple_cfp.models import Category
-from simple_cfp.models import Presentation
-from simple_cfp.models import Speaker
+from models import Audience
+from models import Category
+from models import Presentation
+from models import Speaker
 
 
 class SpeakerOptions(admin.ModelAdmin):

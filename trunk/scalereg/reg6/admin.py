@@ -1,12 +1,12 @@
 from django.contrib import admin
-from reg6.models import Answer
-from reg6.models import Attendee
-from reg6.models import Coupon
-from reg6.models import Item
-from reg6.models import Order
-from reg6.models import PromoCode
-from reg6.models import Question
-from reg6.models import Ticket
+from models import Answer
+from models import Attendee
+from models import Coupon
+from models import Item
+from models import Order
+from models import PromoCode
+from models import Question
+from models import Ticket
 
 
 class AnswerInline(admin.TabularInline):
