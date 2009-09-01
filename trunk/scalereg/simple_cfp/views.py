@@ -70,7 +70,9 @@ def SendValidationEmail(speaker):
     return False
   try:
     send_mail('Your simple_cfp validation code',
-              'Your simple_cfp validation code is %s' % speaker.validation_code,
+              '''Your simple_cfp validation code is %s.
+If this email was sent to you by mistake, please reply and let us know.''' % \
+              speaker.validation_code,
               settings.SCALEREG_SIMPLECFP_EMAIL,
               [speaker.contact_email])
     return True
