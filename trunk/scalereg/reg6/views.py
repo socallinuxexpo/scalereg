@@ -79,6 +79,21 @@ def ApplyPromoToItems(promo, items):
   return promo.name
 
 
+def FindRelevantQuestions(type, ticket, selected_items):
+  questions = []
+  all_active_questions = type.objects.filter(active=True)
+  for q in all_active_questions:
+    if q.applies_to_all or ticket in q.applies_to_tickets.all():
+      questions.append(q)
+    else:
+      relevant_items = q.applies_to_items.all()
+      for item in selected_items:
+        if item in relevant_items:
+          questions.append(q)
+          break
+  return questions
+
+
 def GetTicketItems(ticket):
   set1 = ticket.item_set.all()
   set2 = models.Item.objects.filter(applies_to_all=True)
@@ -271,16 +286,10 @@ def AddAttendee(request):
   for item in selected_items:
     total += item.price
 
-  questions = []
-  all_active_questions = models.Question.objects.filter(active=True)
-  for q in all_active_questions:
-    if q.applies_to_all or ticket[0] in q.applies_to_tickets.all():
-      questions.append(q)
-    else:
-      for item in selected_items:
-        if item in q.applies_to_items.all():
-          questions.append(q)
-          break
+  list_questions = FindRelevantQuestions(models.ListQuestion, ticket[0],
+      selected_items)
+  text_questions = FindRelevantQuestions(models.TextQuestion, ticket[0],
+      selected_items)
 
   if action == 'add':
     request.session['attendee'] = ''
@@ -315,14 +324,22 @@ def AddAttendee(request):
       for s in selected_items:
         new_attendee.ordered_items.add(s)
       # add survey answers
-      for i in xrange(len(questions)):
-        i = 'q%d' % i
+      for i in xrange(len(list_questions)):
+        i = 'lq%d' % i
         if i in request.POST and request.POST[i]:
           try:
             ans = models.Answer.objects.get(id=request.POST[i])
             new_attendee.answers.add(ans)
           except models.Answer.DoesNotExist:
             continue
+      for q in text_questions:
+        i = 'tq%d' % q.id
+        if i in request.POST and request.POST[i]:
+          answer = models.TextAnswer()
+          answer.question = q
+          answer.text = request.POST[i][:q.max_length]
+          answer.save()
+          new_attendee.answers.add(answer)
 
       request.session['attendee'] = new_attendee.id
 
@@ -340,7 +357,8 @@ def AddAttendee(request):
      'promo': promo_name,
      'items': selected_items,
      'total': total,
-     'questions': questions,
+     'list_questions': list_questions,
+     'text_questions': text_questions,
      'form': form,
      'step': 3,
      'steps_total': STEPS_TOTAL,

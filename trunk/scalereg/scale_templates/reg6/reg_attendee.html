@@ -130,7 +130,7 @@
     </tr>
     </table>
 
-    {% if questions %}
+    {% if list_questions or text_questions %}
     <p>
     Survey Questions:
     </p>
@@ -141,15 +141,18 @@
     </p>
     {% endif %}
 
+    {% endif %}
+
+    {% if list_questions %}
     <p>
     <table>
-    {% for q in questions %}
+    {% for q in list_questions %}
     <tr>
         <td colspan="2">{{ q.text }}</td>
     </tr>
     <tr>
     <td>
-    <select name="q{{ forloop.counter0 }}" size="1">
+    <select name="lq{{ forloop.counter0 }}" size="1">
         <option value="" selected="selected"></option>
         {% for ans in q.get_answers %}
         <option value="{{ ans.id }}">{{ ans.text }}</option>
@@ -161,6 +164,24 @@
     </table>
     </p>
     {% endif %}
+
+    {% if text_questions %}
+    <p>
+    <table>
+    {% for q in text_questions %}
+    <tr>
+        <td colspan="2">{{ q.text }}</td>
+    </tr>
+    <tr>
+    <td>
+      <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
+    </td>
+    </tr>
+    {% endfor %}
+    </table>
+    </p>
+    {% endif %}
+
     <p>
     <input type="submit" value="Continue" />
     </p>

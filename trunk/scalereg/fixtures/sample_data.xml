@@ -12,7 +12,9 @@ manage.py dumpdata -format=xml -indent=2 \
   <object pk="Reports" model="auth_helper.service">
     <field type="CharField" name="url">/reports</field>
     <field type="BooleanField" name="active">True</field>
-    <field to="auth.user" name="users" rel="ManyToManyRel"><object pk="1"></object></field>
+    <field to="auth.user" name="users" rel="ManyToManyRel">
+      <object pk="1"></object>
+    </field>
     <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
   </object>
   <object pk="FULL" model="reg6.ticket">
@@ -101,6 +103,18 @@ manage.py dumpdata -format=xml -indent=2 \
     <field to="reg6.question" name="question" rel="ManyToOneRel">2</field>
     <field type="CharField" name="text">answer3</field>
   </object>
+  <object pk="1" model="reg6.listanswer">
+  </object>
+  <object pk="2" model="reg6.listanswer">
+  </object>
+  <object pk="3" model="reg6.listanswer">
+  </object>
+  <object pk="4" model="reg6.listanswer">
+  </object>
+  <object pk="5" model="reg6.listanswer">
+  </object>
+  <object pk="6" model="reg6.listanswer">
+  </object>
   <object pk="1" model="reg6.question">
     <field type="CharField" name="text">What is 1 + 1?</field>
     <field type="BooleanField" name="active">True</field>
@@ -112,8 +126,39 @@ manage.py dumpdata -format=xml -indent=2 \
     <field type="CharField" name="text">Only "FULL" ticket buyers get this question</field>
     <field type="BooleanField" name="active">True</field>
     <field type="BooleanField" name="applies_to_all">False</field>
-    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel"><object pk="FULL"></object></field>
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel">
+      <object pk="FULL"></object> 
+    </field>
     <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="3" model="reg6.question">
+    <field type="CharField" name="text">What is your favorite number?
+    </field>
+    <field type="BooleanField" name="active">1
+    </field>
+    <field type="BooleanField" name="applies_to_all">1
+    </field>
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel">
+    </field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel">
+    </field>
+  </object>
+  <object pk="1" model="reg6.listquestion">
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel"></field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="2" model="reg6.listquestion">
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel">
+      <object pk="FULL"></object>
+    </field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="3" model="reg6.textquestion">
+    <field type="IntegerField" name="max_length">10</field>
+    <field to="reg6.ticket" name="applies_to_tickets" rel="ManyToManyRel">
+    </field>
+    <field to="reg6.item" name="applies_to_items" rel="ManyToManyRel">
+    </field>
   </object>
   <object pk="1" model="simple_cfp.audience">
     <field type="CharField" name="name">Everyone</field>
