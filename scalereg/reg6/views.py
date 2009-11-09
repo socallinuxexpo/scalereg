@@ -983,13 +983,15 @@ def CheckedIn(request):
   return HttpResponse('\n'.join([PrintAttendee(f) for f in attendees]),
           mimetype='text/plain')
 
+
 @login_required
-def MassAdd(request):
+def MassAddAttendee(request):
   if not request.user.is_superuser:
     return HttpResponse('')
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
+    response.write('<p>first_name,last_name,org,zip,email,order_number,ticket_code</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -1023,26 +1025,84 @@ def MassAdd(request):
       response.write('bad ticket type: %s<br />\n' % entry_split[6])
       continue
 
-    attendee = models.Attendee()
-    attendee.first_name = entry_split[0]
-    attendee.last_name = entry_split[1]
-    attendee.org = entry_split[2]
-    attendee.zip = entry_split[3]
-    attendee.email = entry_split[4]
+    entry_dict = {
+      'first_name': entry_split[0]
+      'last_name': entry_split[1]
+      'org': entry_split[2]
+      'zip': entry_split[3]
+      'email': entry_split[4]
+    }
+    form = forms.MassAddAttendeeForm(entry_split)
+    if not form.is_valid():
+      response.write('bad entry: %s<br />\n' % entry)
+      continue
+    attendees = form.save(commit=False)
     attendee.valid = True
     attendee.checked_in = False
     attendee.can_email = True
     attendee.order = order
     attendee.badge_type = ticket
-    invalid = attendee.validate()
-    if invalid:
-      response.write('bad entry: %s<br />\n' % attendee.validate())
-      continue
     attendee.save()
+    form.save_m2m()
     response.write('Added %s<br />\n' % entry)
 
   response.write('</body></html>')
   return response
+
+
+@login_required
+def MassAddPromo(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<p>code,modifier,description</p>')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  response = HttpResponse()
+  response.write('<html><head></head><body>')
+
+  # apply only to full tickets by default
+  full_tickets = models.Ticket.public_objects.filter(type='full')
+  data = request.POST['data'].split('\n')
+
+  for entry in data:
+    entry = entry.strip()
+    if not entry:
+      continue
+    entry_split = entry.split(',', 2)
+    if len(entry_split) != 3:
+      response.write('bad data: %s<br />\n' % entry)
+      continue
+
+    entry_dict = {
+      'name': entry_split[0],
+      'price_modifier': float(entry_split[1]),
+      'description': entry_split[2],
+    }
+    form = forms.MassAddPromoForm(entry_dict)
+    if not form.is_valid():
+      response.write('bad entry: %s<br />\n' % entry)
+      continue
+    promo = form.save(commit=False)
+    promo.active = True
+    promo.save()
+    form.save_m2m()
+
+    for ticket in full_tickets:
+      promo.applies_to.add(ticket)
+    response.write('Added %s<br />\n' % entry)
+
+  response.write('</body></html>')
+  return response
+
 
 @login_required
 def ClearBadOrder(request):
