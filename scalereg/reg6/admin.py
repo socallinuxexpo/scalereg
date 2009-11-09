@@ -3,14 +3,17 @@ from models import Answer
 from models import Attendee
 from models import Coupon
 from models import Item
+from models import ListAnswer
+from models import ListQuestion
 from models import Order
 from models import PromoCode
-from models import Question
+from models import TextAnswer
+from models import TextQuestion
 from models import Ticket
 
 
-class AnswerInline(admin.TabularInline):
-  model = Answer
+class ListAnswerInline(admin.TabularInline):
+  model = ListAnswer
   extra = 3
 
 
@@ -21,10 +24,14 @@ class PromoCodeOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class QuestionOptions(admin.ModelAdmin):
+class ListQuestionOptions(admin.ModelAdmin):
   save_on_top = True
-  model = Question
-  inlines = [AnswerInline]
+  model = ListQuestion
+  inlines = [ListAnswerInline]
+
+
+class TextQuestionOptions(admin.ModelAdmin):
+  save_on_top = True
 
 
 class ItemOptions(admin.ModelAdmin):
@@ -33,7 +40,12 @@ class ItemOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class AnswerOptions(admin.ModelAdmin):
+class ListAnswerOptions(admin.ModelAdmin):
+  list_display = ('question', '__str_text__')
+  save_on_top = True
+
+
+class TextAnswerOptions(admin.ModelAdmin):
   list_display = ('question', '__str_text__')
   save_on_top = True
 
@@ -83,11 +95,13 @@ class TicketOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-admin.site.register(PromoCode, PromoCodeOptions)
-admin.site.register(Question, QuestionOptions)
-admin.site.register(Item, ItemOptions)
-admin.site.register(Answer, AnswerOptions)
-admin.site.register(Order, OrderOptions)
 admin.site.register(Attendee, AttendeeOptions)
 admin.site.register(Coupon, CouponOptions)
+admin.site.register(Item, ItemOptions)
+admin.site.register(ListAnswer, ListAnswerOptions)
+admin.site.register(ListQuestion, ListQuestionOptions)
+admin.site.register(Order, OrderOptions)
+admin.site.register(PromoCode, PromoCodeOptions)
+admin.site.register(TextAnswer, TextAnswerOptions)
+admin.site.register(TextQuestion, TextQuestionOptions)
 admin.site.register(Ticket, TicketOptions)

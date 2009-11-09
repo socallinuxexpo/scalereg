@@ -214,6 +214,7 @@ class Item(models.Model):
     return super(Item, self).save(*args, **kwargs)
 
 
+# base class
 class Answer(models.Model):
   question = models.ForeignKey('Question')
   text = models.CharField(max_length=200)
@@ -230,6 +231,15 @@ class Answer(models.Model):
     return u'(%d) %s' % (self.question.id, self.__str_text__())
 
 
+class ListAnswer(Answer):
+  pass
+
+
+class TextAnswer(Answer):
+  pass
+
+
+# base class
 class Question(models.Model):
   text = models.CharField(max_length=200)
   active = models.BooleanField()
@@ -247,6 +257,14 @@ class Question(models.Model):
     if len(self.text) > 37:
       return u'%s...' % self.text[:37]
     return u'%s' % self.text
+
+
+class ListQuestion(Question):
+  pass
+
+
+class TextQuestion(Question):
+  max_length = models.IntegerField()
 
 
 class Attendee(models.Model):
