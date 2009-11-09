@@ -1026,11 +1026,11 @@ def MassAddAttendee(request):
       continue
 
     entry_dict = {
-      'first_name': entry_split[0]
-      'last_name': entry_split[1]
-      'org': entry_split[2]
-      'zip': entry_split[3]
-      'email': entry_split[4]
+      'first_name': entry_split[0],
+      'last_name': entry_split[1],
+      'org': entry_split[2],
+      'zip': entry_split[3],
+      'email': entry_split[4],
     }
     form = forms.MassAddAttendeeForm(entry_split)
     if not form.is_valid():
