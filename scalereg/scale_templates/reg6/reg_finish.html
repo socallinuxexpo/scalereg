@@ -5,9 +5,10 @@
 <div id="content-main">
 
 {% if attendee %}
-    <p>
-    <b>Please note:</b> This registration <b>IS NOT VALID</b> until it has been
-    <b>PAID</b> for.
+    <h3>
+    <b>Please note:</b> You're not done yet! This registration
+    <b>IS NOT VALID</b> until it has been <b>PAID</b> for.
+    </h3>
     <p>
     Your have registered the following attendee:
     </p>
@@ -29,10 +30,14 @@
     <td>Ticket Type:</td>
     <td>{{ attendee.badge_type.description }}</td>
     </tr>
+    <tr>
+    <td>Registration Status:</td>
+    <td><b>Unpaid</b></td>
+    </tr>
     </table>
 
     <p>
-    To pay for your registration, click "Pay For Registration" below. You can then pay with Paypal, or redeem a coupon.
+    To pay for your registration, click "Pay For Registration" below. You can then pay with Paypal Payflow Link, or redeem a coupon if you have one.
     </p>
 
     <p>

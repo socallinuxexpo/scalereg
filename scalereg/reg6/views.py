@@ -380,7 +380,7 @@ def RegisteredAttendee(request):
   attendee = models.Attendee.objects.get(id=request.session['attendee'])
 
   return scale_render_to_response(request, 'reg6/reg_finish.html',
-    {'title': 'Attendee Registered',
+    {'title': 'Attendee Registered (Payment still required)',
      'attendee': attendee,
      'step': 4,
      'steps_total': STEPS_TOTAL,
