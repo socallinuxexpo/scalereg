@@ -13,38 +13,36 @@ coupon got created.
 <p>
 <table>
 <tr>
-    <td><b>Name</b></td>
-    <td><input type="text" name="NAME" maxlength="75" size="50" /></td>
+    <td><label for="id_name"><b>Name:</b></label></td>
+    <td>{{ form.name }}</td>
 </tr>
 <tr>
-    <td><b>Address</b></td>
-    <td><input type="text" name="ADDRESS" maxlength="75" size="50" /></td>
+    <td><label for="id_address"><b>Address:</b></label></td>
+    <td>{{ form.address }}</td>
 </tr>
 <tr>
-    <td><b>City</b></td>
-    <td><input type="text" name="CITY" maxlength="75" size="50" /></td>
+    <td><label for="id_city"><b>City:</b></label></td>
+    <td>{{ form.city }}</td>
 </tr>
 <tr>
-    <td><b>State</b></td>
-    <td><input type="text" name="STATE" maxlength="75" size="50" /></td>
+    <td><label for="id_state"><b>State:</b></label></td>
+    <td>{{ form.state }}</td>
 </tr>
 <tr>
-    <td><b>Zip/Postal Code</b></td>
-    <td><input type="text" name="ZIP" maxlength="10" size="10" /><br />
-    Need to be numeric
-    </td>
+    <td><label for="id_zip"><b>Zip:</b></label></td>
+    <td>{{ form.zip }}</td>
 </tr>
 <tr>
-    <td>Country</td>
-    <td><input type="text" name="COUNTRY" maxlength="75" size="50" /></td>
+    <td><label for="id_country">Country:</label></td>
+    <td>{{ form.country }}</td>
 </tr>
 <tr>
-    <td><b>Email</b></td>
-    <td><input type="text" name="EMAIL" maxlength="75" size="50" /></td>
+    <td><label for="id_email"><b>Email:</b></label></td>
+    <td>{{ form.email }}</td>
 </tr>
 <tr>
-    <td>Phone</td>
-    <td><input type="text" name="PHONE" maxlength="20" size="20" /></td>
+    <td><label for="id_phone">Phone:</label></td>
+    <td>{{ form.phone }}</td>
 </tr>
 <tr>
     <td><b>Type</b></td>

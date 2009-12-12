@@ -880,6 +880,7 @@ def AddCoupon(request):
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
+  # FIXME Add this to the Ticket model?
   ticket_types = {
     'expo': 'invitee',
     'full': 'invitee',
@@ -895,20 +896,14 @@ def AddCoupon(request):
       temp_tickets = models.Ticket.objects.filter(type=ticket_type)
       for t in temp_tickets:
         tickets.append(t)
+    form = forms.AddCouponForm()
     return scale_render_to_response(request, 'reg6/add_coupon.html',
       {'title': 'Add Coupon',
+       'form': form,
        'tickets': tickets,
       })
 
   required_vars = [
-    'NAME',
-    'ADDRESS',
-    'CITY',
-    'STATE',
-    'ZIP',
-    'EMAIL',
-    'COUNTRY',
-    'PHONE',
     'TICKET',
     'MAX_ATTENDEES',
   ]
@@ -922,33 +917,19 @@ def AddCoupon(request):
   except:
     return HttpResponseServerError('cannot find ticket %s' % request.POST['TICKET'])
 
-  bad_order_nums = [ x.order_num for x in models.Order.objects.all() ]
-  order = models.Order(order_num=GenerateOrderID(bad_order_nums),
-    valid=False,
-    name=request.POST['NAME'],
-    address=request.POST['ADDRESS'],
-    city=request.POST['CITY'],
-    state=request.POST['STATE'],
-    zip=request.POST['ZIP'],
-    country=request.POST['COUNTRY'],
-    email=request.POST['EMAIL'],
-    phone=request.POST['PHONE'],
-    amount='0',
-    payment_type=ticket_types[ticket.type],
-  )
-
-  try:
-    order.save()
-  except: # FIXME catch the specific db exceptions
-    return HttpResponseServerError('error saving the order')
-
-  try:
-    invalid = order.validate()
-  except:
-    invalid = True
-  if invalid:
-    order.delete()
+  form = forms.AddCouponForm(request.POST)
+  if not form.is_valid():
     return HttpResponseServerError('parts of the form is not filled out, please try again')
+
+  order = form.save(commit=False)
+  bad_order_nums = [ x.order_num for x in models.Order.objects.all() ]
+  order.order_num = GenerateOrderID(bad_order_nums)
+  order.valid = False
+  order.amount = '0'
+  order.payment_type=ticket_types[ticket.type]
+
+  order.save()
+  form.save_m2m()
 
   coupon = models.Coupon(code=order.order_num,
     badge_type = ticket,
