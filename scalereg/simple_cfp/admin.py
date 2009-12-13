@@ -16,6 +16,7 @@ class SpeakerOptions(admin.ModelAdmin):
   )
   list_display = ('id', 'first_name', 'last_name', 'title', 'org',
                   'contact_email', 'email', 'valid', 'validation_code')
+  list_filter = ('valid',)
   save_on_top = True
 
 
@@ -29,6 +30,7 @@ class PresentationOptions(admin.ModelAdmin):
   )
   list_display = ('id', 'submission_code', 'speaker', 'title', 'valid',
                   'status', 'score')
+  list_filter = ('categories', 'audiences', 'valid', 'status')
   save_on_top = True
 
 
