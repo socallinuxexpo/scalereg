@@ -228,30 +228,41 @@ def RegisterSpeaker(request):
 def SubmissionStatus(request):
   TITLE = 'Submission Status'
 
+  email = request.REQUEST.get('email')
+  code = request.REQUEST.get('code')
+  if not (email and code):
+    try:
+      (email, code) = request.session[Cookies.CFP_LOGIN]
+    except:
+      pass
+
+  if not (email and code):
+    return cfp_render_to_response(request,
+      'simple_cfp/cfp_submission_status.html',
+      {'title': TITLE,
+      })
+
+  speaker = None
+  try:
+    speaker = models.Speaker.objects.get(contact_email=email)
+    if speaker.validation_code != code:
+      speaker = None
+  except models.Speaker.DoesNotExist:
+    pass
+
+  if not speaker:
+    return cfp_render_to_response(request,
+      'simple_cfp/cfp_submission_status.html',
+      {'title': TITLE,
+       'error': ErrorMsg.INVALID_EMAIL,
+      })
+
+  presentations = models.Presentation.objects.filter(speaker=speaker)
+  request.session[Cookies.CFP_LOGIN] = (email, code)
+
+  # Handle new uploads and deletes
+  error = ''
   if request.method == 'POST':
-    speaker = None
-    if 'email' in request.POST and 'code' in request.POST:
-      try:
-        speaker = models.Speaker.objects.get(
-            contact_email=request.POST['email'])
-        if speaker.validation_code != request.POST['code']:
-          speaker = None
-      except models.Speaker.DoesNotExist:
-        pass
-
-    if not speaker:
-      return cfp_render_to_response(request,
-        'simple_cfp/cfp_submission_status.html',
-        {'title': TITLE,
-         'error': ErrorMsg.INVALID_EMAIL,
-        })
-
-    presentations = models.Presentation.objects.filter(speaker=speaker)
-    request.session[Cookies.CFP_LOGIN] = (request.POST['email'],
-                                          request.POST['code'])
-
-    # Handle new uploads and deletes
-    error = ''
     if 'presentation' in request.POST:
       error = ErrorMsg.UPLOAD_SUCCESS
       try:
@@ -273,21 +284,16 @@ def SubmissionStatus(request):
       except models.Presentation.DoesNotExist:
         error = ErrorMsg.DELETE_FAIL
 
-    return cfp_render_to_response(request,
-      'simple_cfp/cfp_submission_status.html',
-      {'title': TITLE,
-       'code': request.POST['code'],
-       'email': request.POST['email'],
-       'error': error,
-       'presentations': presentations,
-       'speaker': speaker,
-       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
-      })
-  else:
-    return cfp_render_to_response(request,
-      'simple_cfp/cfp_submission_status.html',
-      {'title': TITLE,
-      })
+  return cfp_render_to_response(request,
+    'simple_cfp/cfp_submission_status.html',
+    {'title': TITLE,
+     'code': code,
+     'email': email,
+     'error': error,
+     'presentations': presentations,
+     'speaker': speaker,
+     'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
+    })
 
 
 def SubmitPresentation(request):
