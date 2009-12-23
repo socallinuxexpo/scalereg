@@ -378,10 +378,18 @@ def SubmitPresentation(request):
        'presentation': new_presentation,
       })
   else:
+    form = forms.PresentationForm()
+    try:
+      (email, code) = request.session[Cookies.CFP_LOGIN]
+      form.fields['contact_email'].initial = email
+      form.fields['speaker_code'].initial = code
+    except:
+      pass
+
     return cfp_render_to_response(request,
       'simple_cfp/cfp_presentation.html',
       {'title': TITLE,
-       'form': forms.PresentationForm(),
+       'form': form,
        'recaptcha_html': GenerateRecaptchaHTML(request),
        'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
