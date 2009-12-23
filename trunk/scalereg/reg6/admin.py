@@ -77,7 +77,7 @@ class AttendeeOptions(admin.ModelAdmin):
   )
   list_display = ('id', 'first_name', 'last_name', 'email', 'zip',
                   'badge_type', 'valid', 'checked_in', 'order', 'promo')
-  list_filter = ('badge_type', 'valid', 'checked_in', 'promo')
+  list_filter = ('badge_type', 'valid', 'checked_in', 'promo', 'ordered_items')
   save_on_top = True
 
 
