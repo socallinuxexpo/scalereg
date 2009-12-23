@@ -83,10 +83,14 @@ If this email was sent to you by mistake, please reply and let us know.''' % \
     return False
 
 
+def cfp_render_to_response(template, vars):
+  vars['send_email'] = settings.SCALEREG_SIMPLECFP_SEND_MAIL
+  return render_to_response(template, vars)
+
+
 def index(request):
-  return render_to_response('simple_cfp/cfp_index.html',
+  return cfp_render_to_response('simple_cfp/cfp_index.html',
     {'title': 'Simple CFP',
-     'send_email': settings.SCALEREG_SIMPLECFP_SEND_MAIL,
     })
 
 
@@ -109,14 +113,14 @@ def RecoverValidation(request):
                                     settings.RECAPTCHA_PRIVATE_KEY,
                                     request.META['REMOTE_ADDR'])
       except:
-        return render_to_response('simple_cfp/cfp_error.html',
+        return cfp_render_to_response('simple_cfp/cfp_error.html',
           {'title': TITLE,
            'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
           })
       if not recaptcha_response.is_valid:
         recaptcha_html = GenerateRecaptchaHTML(request,
                                                recaptcha_response.error_code)
-        return render_to_response('simple_cfp/cfp_recover_validation.html',
+        return cfp_render_to_response('simple_cfp/cfp_recover_validation.html',
           {'title': TITLE,
            'email': email,
            'recaptcha_html': recaptcha_html,
@@ -125,7 +129,7 @@ def RecoverValidation(request):
     speakers = models.Speaker.objects.filter(contact_email=email)
     speakers = speakers.filter(valid=True)
     if not speakers:
-      return render_to_response('simple_cfp/cfp_recover_validation.html',
+      return cfp_render_to_response('simple_cfp/cfp_recover_validation.html',
         {'title': TITLE,
          'email': email,
          'error': True,
@@ -133,17 +137,17 @@ def RecoverValidation(request):
         })
 
     if not SendValidationEmail(speakers[0]):
-      return render_to_response('simple_cfp/cfp_error.html',
+      return cfp_render_to_response('simple_cfp/cfp_error.html',
         {'title': TITLE,
          'error_message': ErrorMsg.EMAIL_ERROR,
         })
-    return render_to_response('simple_cfp/cfp_recover_validation.html',
+    return cfp_render_to_response('simple_cfp/cfp_recover_validation.html',
       {'title': TITLE,
        'email': email,
        'sent': True,
       })
   else:
-    return render_to_response('simple_cfp/cfp_recover_validation.html',
+    return cfp_render_to_response('simple_cfp/cfp_recover_validation.html',
       {'title': TITLE,
        'recaptcha_html': GenerateRecaptchaHTML(request),
       })
@@ -155,7 +159,7 @@ def RegisterSpeaker(request):
   if request.method == 'POST':
     form = forms.SpeakerForm(request.POST)
     if not form.is_valid():
-      return render_to_response('simple_cfp/cfp_speaker.html',
+      return cfp_render_to_response('simple_cfp/cfp_speaker.html',
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -168,14 +172,14 @@ def RegisterSpeaker(request):
                                     settings.RECAPTCHA_PRIVATE_KEY,
                                     request.META['REMOTE_ADDR'])
       except:
-        return render_to_response('simple_cfp/cfp_error.html',
+        return cfp_render_to_response('simple_cfp/cfp_error.html',
           {'title': TITLE,
            'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
           })
       if not recaptcha_response.is_valid:
         recaptcha_html = GenerateRecaptchaHTML(request,
                                                recaptcha_response.error_code)
-        return render_to_response('simple_cfp/cfp_speaker.html',
+        return cfp_render_to_response('simple_cfp/cfp_speaker.html',
           {'title': TITLE,
            'form': form,
            'recaptcha_html': recaptcha_html,
@@ -189,13 +193,13 @@ def RegisterSpeaker(request):
     if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
       email_sent = SendValidationEmail(new_speaker)
 
-    return render_to_response('simple_cfp/cfp_speaker_registered.html',
+    return cfp_render_to_response('simple_cfp/cfp_speaker_registered.html',
       {'title': TITLE,
        'email_sent': email_sent,
        'speaker': new_speaker,
       })
   else:
-    return render_to_response('simple_cfp/cfp_speaker.html',
+    return cfp_render_to_response('simple_cfp/cfp_speaker.html',
       {'title': TITLE,
        'form': forms.SpeakerForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -217,7 +221,7 @@ def SubmissionStatus(request):
         pass
 
     if not speaker:
-      return render_to_response('simple_cfp/cfp_submission_status.html',
+      return cfp_render_to_response('simple_cfp/cfp_submission_status.html',
         {'title': TITLE,
          'error': ErrorMsg.INVALID_EMAIL,
         })
@@ -247,7 +251,7 @@ def SubmissionStatus(request):
       except models.Presentation.DoesNotExist:
         error = ErrorMsg.DELETE_FAIL
 
-    return render_to_response('simple_cfp/cfp_submission_status.html',
+    return cfp_render_to_response('simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
        'code': request.POST['code'],
        'email': request.POST['email'],
@@ -257,7 +261,7 @@ def SubmissionStatus(request):
        'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
   else:
-    return render_to_response('simple_cfp/cfp_submission_status.html',
+    return cfp_render_to_response('simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
       })
 
@@ -271,7 +275,7 @@ def SubmitPresentation(request):
     else:
       form = forms.PresentationForm(request.POST)
     if not form.is_valid():
-      return render_to_response('simple_cfp/cfp_presentation.html',
+      return cfp_render_to_response('simple_cfp/cfp_presentation.html',
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -283,7 +287,7 @@ def SubmitPresentation(request):
           validation_code=form.cleaned_data['speaker_code'])
     except models.Speaker.DoesNotExist:
       form.errors['speaker_code'] = ErrorList([ErrorMsg.INVALID_CODE])
-      return render_to_response('simple_cfp/cfp_presentation.html',
+      return cfp_render_to_response('simple_cfp/cfp_presentation.html',
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -292,7 +296,7 @@ def SubmitPresentation(request):
 
     if speaker.contact_email != form.cleaned_data['contact_email']:
       form.errors['contact_email'] = ErrorList([ErrorMsg.INVALID_EMAIL])
-      return render_to_response('simple_cfp/cfp_presentation.html',
+      return cfp_render_to_response('simple_cfp/cfp_presentation.html',
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -306,14 +310,14 @@ def SubmitPresentation(request):
                                     settings.RECAPTCHA_PRIVATE_KEY,
                                     request.META['REMOTE_ADDR'])
       except:
-        return render_to_response('simple_cfp/cfp_error.html',
+        return cfp_render_to_response('simple_cfp/cfp_error.html',
           {'title': TITLE,
            'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
           })
       if not recaptcha_response.is_valid:
         recaptcha_html = GenerateRecaptchaHTML(request,
                                                recaptcha_response.error_code)
-        return render_to_response('simple_cfp/cfp_presentation.html',
+        return cfp_render_to_response('simple_cfp/cfp_presentation.html',
           {'title': TITLE,
            'form': form,
            'recaptcha_html': recaptcha_html,
@@ -330,13 +334,13 @@ def SubmitPresentation(request):
     if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
       email_sent = SendConfirmationEmail(new_presentation)
 
-    return render_to_response('simple_cfp/cfp_presentation_submitted.html',
+    return cfp_render_to_response('simple_cfp/cfp_presentation_submitted.html',
       {'title': TITLE,
        'email_sent': email_sent,
        'presentation': new_presentation,
       })
   else:
-    return render_to_response('simple_cfp/cfp_presentation.html',
+    return cfp_render_to_response('simple_cfp/cfp_presentation.html',
       {'title': TITLE,
        'form': forms.PresentationForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),

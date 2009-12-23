@@ -1,0 +1,17 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <div>
+        <ul class="scale_horizontal_list">
+            <li><a href="/simple_cfp/">CFP Home</a></li>
+            <li><a href="/simple_cfp/speaker_registration/">Speaker Registration</a></li>
+            <li><a href="/simple_cfp/submit_presentation/">Submit Presentation</a></li>
+            <li><a href="/simple_cfp/submission_status/">Submission Status</a></li>
+            {% if send_email %}
+            <li><a href="/simple_cfp/recover_validation/">Recover Validation Code</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
