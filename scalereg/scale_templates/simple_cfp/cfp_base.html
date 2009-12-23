@@ -11,6 +11,9 @@
             {% if send_email %}
             <li><a href="/simple_cfp/recover_validation/">Recover Validation Code</a></li>
             {% endif %}
+            {% if logged_in %}
+            <li><a href="/simple_cfp/logout/">Logout</a></li>
+            {% endif %}
         </ul>
     </div>
 </div>

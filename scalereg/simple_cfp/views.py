@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.forms.util import ErrorList
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from scalereg.simple_cfp import forms
 from scalereg.simple_cfp import models
@@ -378,3 +379,10 @@ def SubmitPresentation(request):
        'recaptcha_html': GenerateRecaptchaHTML(request),
        'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
+
+def Logout(request):
+  if Cookies.CFP_LOGIN in request.session:
+    del request.session[Cookies.CFP_LOGIN]
+  if request.META.get('HTTP_REFERER'):
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+  return HttpResponseRedirect('/simple_cfp/')
