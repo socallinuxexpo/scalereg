@@ -107,7 +107,9 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_file">Presentation to upload:</label></td>
+        <td><label for="id_file">Presentation to upload:</label>
+        <p>Up to {{ file_limit|filesizeformat }}.</p>
+        </td>
         <td>{{ form.file }}</td>
     </tr>
     {% endif %}
