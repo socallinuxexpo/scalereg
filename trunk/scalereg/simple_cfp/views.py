@@ -18,7 +18,6 @@ if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
 
 class ErrorMsg:
   # Common messages
-  CAPTCHA_SERVER_ERROR = 'Could not contact reCAPTCHA server'
   EMAIL_ERROR = 'Could not send email'
   # SubmitPresentation
   INVALID_CODE = 'Invalid speaker code'
@@ -32,6 +31,23 @@ class ErrorMsg:
 
 class Cookies:
   CFP_LOGIN = 'cfp_login'
+
+
+def DoRecaptchaValidation(request, template, template_dict):
+  if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
+    try:
+      recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
+                                  request.POST['recaptcha_response_field'],
+                                  settings.RECAPTCHA_PRIVATE_KEY,
+                                  request.META['REMOTE_ADDR'])
+    except:
+      # If we cannot get a recaptcha, let the user continue.
+      return None
+    if not recaptcha_response.is_valid:
+      template_dict['recaptcha_html'] = GenerateRecaptchaHTML(request,
+        recaptcha_response.error_code)
+      return cfp_render_to_response(request, template, template_dict)
+  return None
 
 
 def GenerateRecaptchaHTML(request, error_code=None):
@@ -114,27 +130,13 @@ def RecoverValidation(request):
     else:
       email = ''
 
-    if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
-      try:
-        recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
-                                    request.POST['recaptcha_response_field'],
-                                    settings.RECAPTCHA_PRIVATE_KEY,
-                                    request.META['REMOTE_ADDR'])
-      except:
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_error.html',
-          {'title': TITLE,
-           'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
-          })
-      if not recaptcha_response.is_valid:
-        recaptcha_html = GenerateRecaptchaHTML(request,
-                                               recaptcha_response.error_code)
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_recover_validation.html',
-          {'title': TITLE,
-           'email': email,
-           'recaptcha_html': recaptcha_html,
-          })
+    recaptcha_response = DoRecaptchaValidation(request,
+      'simple_cfp/cfp_recover_validation.html',
+      {'title': TITLE,
+       'email': email,
+      })
+    if recaptcha_response:
+      return recaptcha_response
 
     speakers = models.Speaker.objects.filter(contact_email=email)
     speakers = speakers.filter(valid=True)
@@ -180,27 +182,13 @@ def RegisterSpeaker(request):
          'recaptcha_html': GenerateRecaptchaHTML(request),
         })
 
-    if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
-      try:
-        recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
-                                    request.POST['recaptcha_response_field'],
-                                    settings.RECAPTCHA_PRIVATE_KEY,
-                                    request.META['REMOTE_ADDR'])
-      except:
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_error.html',
-          {'title': TITLE,
-           'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
-          })
-      if not recaptcha_response.is_valid:
-        recaptcha_html = GenerateRecaptchaHTML(request,
-                                               recaptcha_response.error_code)
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_speaker.html',
-          {'title': TITLE,
-           'form': form,
-           'recaptcha_html': recaptcha_html,
-          })
+    recaptcha_response = DoRecaptchaValidation(request,
+      'simple_cfp/cfp_speaker.html',
+      {'title': TITLE,
+       'form': form,
+      })
+    if recaptcha_response:
+      return recaptcha_response
 
     new_speaker = form.save(commit=False)
     new_speaker.validation_code = GenerateSpeakerValidationCode()
@@ -339,29 +327,15 @@ def SubmitPresentation(request):
          'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
-    if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
-      try:
-        recaptcha_response = submit(request.POST['recaptcha_challenge_field'],
-                                    request.POST['recaptcha_response_field'],
-                                    settings.RECAPTCHA_PRIVATE_KEY,
-                                    request.META['REMOTE_ADDR'])
-      except:
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_error.html',
-          {'title': TITLE,
-           'error_message': ErrorMsg.CAPTCHA_SERVER_ERROR,
-          })
-      if not recaptcha_response.is_valid:
-        recaptcha_html = GenerateRecaptchaHTML(request,
-                                               recaptcha_response.error_code)
-        return cfp_render_to_response(request,
-          'simple_cfp/cfp_presentation.html',
-          {'title': TITLE,
-           'file_limit': settings.FILE_UPLOAD_MAX_MEMORY_SIZE,
-           'form': form,
-           'recaptcha_html': recaptcha_html,
-           'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
-          })
+    recaptcha_response = DoRecaptchaValidation(request,
+      'simple_cfp/cfp_presentation.html',
+      {'title': TITLE,
+       'file_limit': settings.FILE_UPLOAD_MAX_MEMORY_SIZE,
+       'form': form,
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
+      })
+    if recaptcha_response:
+      return recaptcha_response
 
     request.session[Cookies.CFP_LOGIN] = (request.POST['contact_email'],
                                           request.POST['speaker_code'])
