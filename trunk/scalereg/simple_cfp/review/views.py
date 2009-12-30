@@ -206,6 +206,8 @@ def ReviewPresentation(request, id=None):
   if not presentation:
     return HttpResponseServerError('Unknown id')
 
+  comments = models.Comment.objects.filter(presentation=presentation)
+
   review = models.Review.objects.filter(presentation=presentation)
   try:
     review = review.get(name=request.user)
@@ -219,24 +221,43 @@ def ReviewPresentation(request, id=None):
         score = int(request.POST.get('score'))
       except ValueError:
         score = 0
-      if score < 1 or score > 5:
-        return render_to_response('simple_cfp/review/review_presentation.html',
-          {'title': TITLE,
-           'presentation': presentation,
-           'review': review,
-          })
-
-      if not review:
-        review = models.Review()
-        review.presentation = presentation
-        review.name = request.user
-      review.score = score
-      review.save()
+      if score >= 1 and score <= 5:
+        if not review:
+          review = models.Review()
+          review.presentation = presentation
+          review.name = request.user
+        review.score = score
+        review.save()
       # Fall through to default GET response
-    # Fall through to default GET response
+    elif action == 'comment':
+      comment_data = request.POST.get('comment')
+      if comment_data:
+        comment = models.Comment()
+        comment.presentation = presentation
+        comment.name = request.user
+        comment.comment = comment_data
+        try:
+          comment.save()
+        except:
+          pass
+      # Fall through to default GET response
+    elif action == 'delete':
+      id = request.POST.get('delete')
+      if id:
+        try:
+          comment = models.Comment.objects.get(id=id)
+        except models.Comment.DoesNotExist:
+          comment = None
+        if comment and comment.name == request.user:
+          comment.delete()
+      # Fall through to default GET response
+    else:
+      pass # Ignore, fall through to default GET response
 
   return render_to_response('simple_cfp/review/review_presentation.html',
     {'title': TITLE,
+     'comments': comments,
      'presentation': presentation,
      'review': review,
+     'user': request.user,
     })
