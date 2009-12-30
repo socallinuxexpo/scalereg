@@ -1,0 +1,45 @@
+{% extends "simple_cfp/review/review_base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <h3>Overview</h3>
+
+    <p>
+    Total Presentations: {{ all|length }}<br />
+    Approved Presentations: {{ approved|length }}<br />
+    Pending Presentations: {{ pending|length }}<br />
+    Denied Presentations: {{ denied|length }}<br />
+    Cancelled Presentations: {{ cancelled|length }}<br />
+    Alternate Presentations: {{ alternate|length }}<br />
+    <br />
+    Reviewed Presentations: {{ reviewed|length }}<br />
+    Unreviewed Presentations: {{ unreviewed|length }}<br />
+    </p>
+
+    <h3>Unreviewed Presentations</h3>
+
+    {% if unreviewed %}
+        <table border="1" class="sortable">
+        {% include "simple_cfp/review/review_table_header_snippet.html" %}
+        {% for p in unreviewed %}
+            {% include "simple_cfp/review/review_table_content_snippet.html" %}
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No unreviewed presentations.</p>
+    {% endif %}
+
+    <h3>Reviewed Presentations</h3>
+
+    {% if reviewed %}
+        <table border="1" class="sortable">
+        {% include "simple_cfp/review/review_table_header_snippet.html" %}
+        {% for p in reviewed %}
+            {% include "simple_cfp/review/review_table_content_snippet.html" %}
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No reviewed presentations.</p>
+    {% endif %}
+</div>
+{% endblock %}

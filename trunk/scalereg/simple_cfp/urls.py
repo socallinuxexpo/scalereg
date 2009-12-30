@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     (r'^speaker_registration/$', 'scalereg.simple_cfp.views.RegisterSpeaker'),
     (r'^submission_status/$', 'scalereg.simple_cfp.views.SubmissionStatus'),
     (r'^submit_presentation/$', 'scalereg.simple_cfp.views.SubmitPresentation'),
+    (r'^review/', include('scalereg.simple_cfp.review.urls')),
 )
