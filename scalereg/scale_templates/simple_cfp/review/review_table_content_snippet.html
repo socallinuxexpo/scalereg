@@ -1,0 +1,24 @@
+<tr>
+    <td>{{ p.speaker.first_name }} {{ p.speaker.last_name }}</td>
+    <td>{{ p.title }}</td>
+    <td>{{ p.submit_date }}</td>
+    <td>{{ p.status }}</td>
+    <td>
+    {% for audience in p.audiences.all %}
+        {% if not forloop.last %}
+        {{ audience }},
+        {% else %}
+        {{ audience }}
+        {% endif %}
+    {% endfor %}
+    </td>
+    <td>
+    {% for category in p.categories.all %}
+        {% if not forloop.last %}
+        {{ category }},
+        {% else %}
+        {{ category }}
+        {% endif %}
+    {% endfor %}
+    </td>
+</tr>

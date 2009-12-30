@@ -1,0 +1,16 @@
+{% extends "admin/base_site_reg.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <div>
+        <ul class="scale_horizontal_list">
+            <li><a href="/simple_cfp/review/">CFP Review Home</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
