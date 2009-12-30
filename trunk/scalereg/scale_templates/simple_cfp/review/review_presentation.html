@@ -1,0 +1,124 @@
+{% extends "simple_cfp/review/review_base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <h3>
+    {{ presentation.speaker.first_name }}
+    {{ presentation.speaker.last_name }}
+    :
+    {{ presentation.title }}
+    </h3>
+
+    <p>
+    Submitted on {{ presentation.submit_date }},
+    Status: {{ presentation.status }},
+    Your Review:
+    {% if review %}
+    {{ review.score }}</p>
+    {% else %}
+    N/A.
+    {% endif %}
+    </p>
+
+    <p>
+    <form method="post" action=".">
+    <input type="hidden" name="action" value="score" />
+    <table>
+    <tr>
+        <td></td>
+        <td align="center">1</td>
+        <td align="center">2</td>
+        <td align="center">3</td>
+        <td align="center">4</td>
+        <td align="center">5</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><b>Score This Presentation:</b></td>
+        <td>
+            <input type="radio" name="score" value="1"
+            {% if review %}
+            {% ifequal review.score 1 %}
+            checked="checked"
+            {% endifequal %}
+            {% endif %}
+            />
+        </td>
+        <td>
+            <input type="radio" name="score" value="2"
+            {% if review %}
+            {% ifequal review.score 2 %}
+            checked="checked"
+            {% endifequal %}
+            {% endif %}
+            />
+        </td>
+        <td>
+            <input type="radio" name="score" value="3"
+            {% if review %}
+            {% ifequal review.score 3 %}
+            checked="checked"
+            {% endifequal %}
+            {% endif %}
+            />
+        </td>
+        <td>
+            <input type="radio" name="score" value="4"
+            {% if review %}
+            {% ifequal review.score 4 %}
+            checked="checked"
+            {% endifequal %}
+            {% endif %}
+            />
+        </td>
+        <td>
+        <input type="radio" name="score" value="5"
+            {% if review %}
+            {% ifequal review.score 5 %}
+            checked="checked"
+            {% endifequal %}
+            {% endif %}
+            />
+        </td>
+        <td><input type="submit" value="Score" /></td>
+    </tr>
+    </table>
+    </form>
+    </p>
+
+    <h4>Description</h4>
+    <p>
+    {{ presentation.description }}
+    </p>
+
+    <h4>Short Abstract</h4>
+    <p>
+    {{ presentation.short_abstract|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Long Abstract</h4>
+    <p>
+    {{ presentation.long_abstract|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Presentation</h4>
+    <p>
+    {% if presentation.file %}
+    <a href="{{ presentation.file.url }}">View presentation</a>
+    {% else %}
+    No Presentation.
+    {% endif %}
+    </p>
+
+    <h4>Message to Reviewers</h4>
+    <p>
+    {{ presentation.msg|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+</div>
+{% endblock %}
