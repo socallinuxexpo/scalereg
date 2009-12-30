@@ -34,3 +34,58 @@ def index(request):
      'reviewed': reviewed,
      'unreviewed': unreviewed,
     })
+
+
+@login_required
+def AudienceIndex(request):
+  TITLE = 'List of Audiences'
+  TYPE = 'audience'
+
+  audiences = models.Audience.objects.all()
+  audiences = [ obj.name for obj in audiences ]
+  return render_to_response('simple_cfp/review/review_by_type_index.html',
+    {'title': TITLE,
+     'type': TYPE,
+     'list': audiences,
+    })
+
+
+@login_required
+def CategoryIndex(request):
+  TITLE = 'List of Categories'
+  TYPE = 'category'
+
+  categories = models.Category.objects.all()
+  categories = [ obj.name for obj in categories ]
+  return render_to_response('simple_cfp/review/review_by_type_index.html',
+    {'title': TITLE,
+     'type': TYPE,
+     'list': categories,
+    })
+
+
+@login_required
+def SpeakerIndex(request):
+  TITLE = 'List of Speakers'
+  TYPE = 'speaker'
+
+  speakers = models.Speaker.objects.all()
+  speakers = [ '%s %s' % (obj.first_name, obj.last_name) for obj in speakers ]
+  return render_to_response('simple_cfp/review/review_by_type_index.html',
+    {'title': TITLE,
+     'type': TYPE,
+     'list': speakers,
+    })
+
+
+@login_required
+def StatusIndex(request):
+  TITLE = 'List of Status'
+  TYPE = 'status'
+
+  status = [ m[1] for m in models.STATUS_CHOICES ]
+  return render_to_response('simple_cfp/review/review_by_type_index.html',
+    {'title': TITLE,
+     'type': TYPE,
+     'list': status,
+    })
