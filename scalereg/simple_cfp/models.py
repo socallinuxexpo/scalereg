@@ -85,6 +85,13 @@ class Category(models.Model):
     return u'%s' % self.name
 
 
+class Comment(models.Model):
+  comment = models.CharField(max_length=1000)
+  name = models.ForeignKey('auth.User')
+  presentation = models.ForeignKey('Presentation')
+  date = models.DateTimeField(auto_now_add=True)
+
+
 class Review(models.Model):
   score = models.IntegerField(default=0)
   name = models.ForeignKey('auth.User')

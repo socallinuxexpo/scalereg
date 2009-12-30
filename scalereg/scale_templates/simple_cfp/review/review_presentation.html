@@ -14,10 +14,12 @@
     Status: {{ presentation.status }},
     Your Review:
     {% if review %}
-    {{ review.score }}</p>
+    {{ review.score }}.
     {% else %}
     N/A.
     {% endif %}
+
+    Comments: <a href="#comments">{{ comments|length }}</a>.
     </p>
 
     <p>
@@ -118,6 +120,33 @@
     <p>
     {{ presentation.msg|linebreaks }}
     </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Comments</h4>
+    <p>
+    <a name="comments" />
+
+    <b>Add New Comment:</b><br />
+    <form method="post" action=".#comments">
+    <input type="hidden" name="action" value="comment" />
+    <textarea name="comment" rows="6" cols="80"></textarea><br />
+    <input type="submit" value="Comment" />
+    <input type="reset" value="Reset" />
+    </form>
+    </p>
+
+    {% for comment in comments %}
+        <p>
+        <h5>{{ comment.name }} - {{ comment.date }}</h5>
+        <form method="post" action=".#comments">
+        <input type="hidden" name="action" value="delete" />
+        <input type="hidden" name="delete" value="{{ comment.id }}" />
+        <input type="submit" value="Delete Comment" />
+        </form>
+        {{ comment.comment|linebreaks }}
+        </p>
+    {% endfor %}
 
     <p><a href="#top">Return to top</a></p>
 </div>
