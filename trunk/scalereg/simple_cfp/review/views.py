@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
+from scalereg.common.utils import services_perm_checker
 from scalereg.simple_cfp import models
 
 def separate_unreviewed_presentations(my_reviews, all_presentations):
@@ -11,6 +13,10 @@ def separate_unreviewed_presentations(my_reviews, all_presentations):
 
 @login_required
 def index(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Review Presentations Overview'
 
   all = models.Presentation.objects.filter(valid=True)
@@ -39,6 +45,10 @@ def index(request):
 
 @login_required
 def AudienceIndex(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'List of Audiences'
   TYPE = 'audience'
 
@@ -53,6 +63,10 @@ def AudienceIndex(request):
 
 @login_required
 def Audience(request, id=None):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Presentations by Audience'
 
   try:
@@ -79,6 +93,10 @@ def Audience(request, id=None):
 
 @login_required
 def CategoryIndex(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'List of Categories'
   TYPE = 'category'
 
@@ -93,6 +111,10 @@ def CategoryIndex(request):
 
 @login_required
 def Category(request, id=None):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Presentations by Category'
 
   try:
@@ -119,6 +141,10 @@ def Category(request, id=None):
 
 @login_required
 def SpeakerIndex(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'List of Speakers'
   TYPE = 'speaker'
 
@@ -134,6 +160,10 @@ def SpeakerIndex(request):
 
 @login_required
 def Speaker(request, id=None):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Presentations by Speaker'
 
   try:
@@ -159,6 +189,10 @@ def Speaker(request, id=None):
 
 @login_required
 def StatusIndex(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'List of Status'
   TYPE = 'status'
 
@@ -172,6 +206,10 @@ def StatusIndex(request):
 
 @login_required
 def Status(request, status=None):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Presentations by Speaker'
 
   if status not in [ choice[0] for choice in models.STATUS_CHOICES ]:
@@ -195,6 +233,10 @@ def Status(request, status=None):
 
 @login_required
 def ReviewPresentation(request, id=None):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
   TITLE = 'Review Presentations'
 
   try:
