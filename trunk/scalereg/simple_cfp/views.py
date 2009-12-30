@@ -3,9 +3,9 @@ from django.forms.util import ErrorList
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from scalereg.common import utils
 from scalereg.simple_cfp import forms
 from scalereg.simple_cfp import models
-from scalereg.common import utils
 
 if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
   from django.core.mail import send_mail

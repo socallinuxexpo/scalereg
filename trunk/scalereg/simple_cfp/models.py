@@ -58,7 +58,7 @@ class Speaker(models.Model):
   signup_date = models.DateField(auto_now_add=True)
 
   # validation info
-  valid = models.BooleanField(default=True)
+  valid = models.BooleanField(default=True) # FIXME remove
   validation_code = models.CharField(max_length=10, unique=True)
 
   class Meta:
@@ -86,7 +86,7 @@ class Category(models.Model):
 
 
 class Review(models.Model):
-  score = models.IntegerField(default=0)
+  score = models.IntegerField(default=0) # FIXME remove
   name = models.ForeignKey('auth.User')
   presentation = models.ForeignKey('Presentation')
 
