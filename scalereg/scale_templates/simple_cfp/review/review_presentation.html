@@ -12,12 +12,14 @@
     <p>
     Submitted on {{ presentation.submit_date }},
     Status: {{ presentation.status }},
-    Your Review:
+    Your Score:
     {% if review %}
     {{ review.score }}.
     {% else %}
     N/A.
     {% endif %}
+
+    Reviews: {{ num_reviews }}.
 
     Comments: <a href="#comments">{{ comments|length }}</a>.
     </p>

@@ -263,6 +263,7 @@ def ReviewPresentation(request, id=None):
     review = review.get(name=request.user)
   except models.Review.DoesNotExist:
     review = None
+  num_reviews = models.Review.objects.filter(presentation=presentation).count()
 
   if request.method == 'POST':
     action = request.POST.get('action')
@@ -307,6 +308,7 @@ def ReviewPresentation(request, id=None):
   return render_to_response('simple_cfp/review/review_presentation.html',
     {'title': TITLE,
      'comments': comments,
+     'num_reviews': num_reviews,
      'presentation': presentation,
      'review': review,
      'user': request.user,
