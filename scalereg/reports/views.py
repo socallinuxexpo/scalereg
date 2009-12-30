@@ -4,11 +4,12 @@ from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.db.models import BooleanField
 from django.db.models.base import ModelBase
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.views.generic.list_detail import object_list as django_object_list
-from scalereg.auth_helper.models import Service
+from scalereg.common.utils import services_perm_checker
 from scalereg.reg6 import models
 import datetime
 import inspect
@@ -64,32 +65,6 @@ def paranoid_strip(value):
       raise ValueError
   return value
 
-def reports_perm_checker(user, path):
-  # figure out what services are available
-  if user.is_superuser:
-    return True
-
-  services_user = Service.objects.filter(users=user)
-  services_user = services_user.filter(active=True)
-
-  services_group = []
-  for f in user.groups.all():
-    group_s = Service.objects.filter(groups=f)
-    group_s = group_s.filter(active=True)
-    for s in group_s:
-      services_group.append(s)
-
-  services = []
-  for f in services_user:
-    services.append(f)
-  services = set(services + services_group)
-
-  can_access = False
-  for f in services:
-    if re.compile('%s/.*' % f.url).match(path):
-      can_access = True
-      break
-  return can_access
 
 def get_model_list(user):
   perms = user.get_all_permissions()
@@ -109,7 +84,7 @@ def get_model_list(user):
 
 @login_required
 def index(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
@@ -124,7 +99,7 @@ def object_list(request, queryset, paginate_by=None, page=None,
   allow_empty=False, template_name=None, template_loader=loader,
   extra_context=None, context_processors=None, template_object_name='object',
   mimetype=None):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
@@ -194,7 +169,7 @@ def object_list(request, queryset, paginate_by=None, page=None,
 
 @login_required
 def dashboard(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
@@ -364,7 +339,7 @@ def reg6log(request):
 
 @login_required
 def badorder(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 

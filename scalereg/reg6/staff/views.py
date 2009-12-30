@@ -5,12 +5,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from scalereg.common.views import handler500
 from scalereg.reg6 import models
-from scalereg.reports.views import reports_perm_checker
+from scalereg.common.utils import services_perm_checker
 from scalereg.reg6.views import GenerateOrderID
 
 @login_required
 def index(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
   return render_to_response('reg6/staff/index.html',
@@ -19,7 +19,7 @@ def index(request):
 
 @login_required
 def CheckIn(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
@@ -46,7 +46,7 @@ def CheckIn(request):
 
 @login_required
 def FinishCheckIn(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
@@ -74,7 +74,7 @@ def FinishCheckIn(request):
 
 @login_required
 def CashPayment(request):
-  can_access = reports_perm_checker(request.user, request.path)
+  can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
