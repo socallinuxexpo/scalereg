@@ -8,6 +8,14 @@ from scalereg.simple_cfp import models
 def separate_unreviewed_presentations(my_reviews, all_presentations):
   reviewed = [ r.presentation for r in my_reviews ]
   unreviewed = [ p for p in all_presentations.all() if p not in reviewed ]
+
+  # Add score data to presentations.
+  scores = [ r.score for r in my_reviews ]
+  for i in xrange(0, len(reviewed)):
+    reviewed[i].score = scores[i]
+  # Add number of reviews to presentations.
+  for p in reviewed + unreviewed:
+    p.reviews = models.Review.objects.filter(presentation=p).count()
   return (reviewed, unreviewed)
 
 

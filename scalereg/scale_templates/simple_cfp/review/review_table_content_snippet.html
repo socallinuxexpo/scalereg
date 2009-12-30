@@ -21,4 +21,14 @@
         {% endif %}
     {% endfor %}
     </td>
+    <td>
+    {% if p.score %}
+    {{ p.score }}
+    {% else %}
+    N/A
+    {% endif %}
+    </td>
+    <td>
+    {{ p.reviews }}
+    </td>
 </tr>
