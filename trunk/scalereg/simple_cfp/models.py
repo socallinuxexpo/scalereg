@@ -86,7 +86,7 @@ class Category(models.Model):
 
 
 class Review(models.Model):
-  score = models.IntegerField(default=0) # FIXME remove
+  score = models.IntegerField(default=0)
   name = models.ForeignKey('auth.User')
   presentation = models.ForeignKey('Presentation')
 
@@ -121,7 +121,7 @@ class Presentation(models.Model):
   submit_date = models.DateField(auto_now_add=True)
   status = models.CharField(max_length=20, choices=STATUS_CHOICES,
                             default='Pending')
-  score = models.IntegerField(default=0)
+  score = models.IntegerField(default=0) # FIXME remove
   notes = models.TextField(max_length=1000, blank=True)
 
   class Meta:
