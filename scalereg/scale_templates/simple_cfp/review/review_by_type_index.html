@@ -5,7 +5,7 @@
     <ul>
         {% for obj in list %}
         <li>
-        {{ obj }}
+        <a href="/simple_cfp/review/{{ type }}/{{ obj.0 }}">{{ obj.1 }}</a>
         </li>
         {% endfor %}
     </ul>

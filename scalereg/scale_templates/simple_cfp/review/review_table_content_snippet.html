@@ -1,23 +1,23 @@
 <tr>
-    <td>{{ p.speaker.first_name }} {{ p.speaker.last_name }}</td>
+    <td><a href="/simple_cfp/review/speaker/{{ p.speaker.id }}">{{ p.speaker.first_name }} {{ p.speaker.last_name }}</a></td>
     <td>{{ p.title }}</td>
     <td>{{ p.submit_date }}</td>
-    <td>{{ p.status }}</td>
+    <td><a href="/simple_cfp/review/status/{{ p.status }}">{{ p.status }}</a></td>
     <td>
     {% for audience in p.audiences.all %}
         {% if not forloop.last %}
-        {{ audience }},
+        <a href="/simple_cfp/review/audience/{{ audience.id }}">{{ audience }}</a>,
         {% else %}
-        {{ audience }}
+        <a href="/simple_cfp/review/audience/{{ audience.id }}">{{ audience }}</a>
         {% endif %}
     {% endfor %}
     </td>
     <td>
     {% for category in p.categories.all %}
         {% if not forloop.last %}
-        {{ category }},
+        <a href="/simple_cfp/review/category/{{ category.id }}">{{ category }}</a>,
         {% else %}
-        {{ category }}
+        <a href="/simple_cfp/review/category/{{ category.id }}">{{ category }}</a>
         {% endif %}
     {% endfor %}
     </td>
