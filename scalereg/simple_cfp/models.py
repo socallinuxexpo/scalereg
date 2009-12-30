@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 SALUTATION_CHOICES = (
@@ -82,6 +83,15 @@ class Category(models.Model):
 
   def __unicode__(self):
     return u'%s' % self.name
+
+
+class Review(models.Model):
+  score = models.IntegerField(default=0)
+  name = models.ForeignKey('auth.User')
+  presentation = models.ForeignKey('Presentation')
+
+  class meta:
+    unique_together = ('name', 'presentation')
 
 
 class Presentation(models.Model):

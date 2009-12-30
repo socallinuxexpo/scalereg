@@ -191,3 +191,52 @@ def Status(request, status=None):
      'reviewed': reviewed,
      'unreviewed': unreviewed,
     })
+
+
+@login_required
+def ReviewPresentation(request, id=None):
+  TITLE = 'Review Presentations'
+
+  try:
+    presentation = models.Presentation.objects.get(id=id)
+  except models.Presentation.DoesNotExist:
+    presentation = None
+  if presentation and not presentation.valid:
+    presentation = None
+  if not presentation:
+    return HttpResponseServerError('Unknown id')
+
+  review = models.Review.objects.filter(presentation=presentation)
+  try:
+    review = review.get(name=request.user)
+  except models.Review.DoesNotExist:
+    review = None
+
+  if request.method == 'POST':
+    action = request.POST.get('action')
+    if action == 'score':
+      try:
+        score = int(request.POST.get('score'))
+      except ValueError:
+        score = 0
+      if score < 1 or score > 5:
+        return render_to_response('simple_cfp/review/review_presentation.html',
+          {'title': TITLE,
+           'presentation': presentation,
+           'review': review,
+          })
+
+      if not review:
+        review = models.Review()
+        review.presentation = presentation
+        review.name = request.user
+      review.score = score
+      review.save()
+      # Fall through to default GET response
+    # Fall through to default GET response
+
+  return render_to_response('simple_cfp/review/review_presentation.html',
+    {'title': TITLE,
+     'presentation': presentation,
+     'review': review,
+    })
