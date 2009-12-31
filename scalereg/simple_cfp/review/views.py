@@ -264,7 +264,6 @@ def ReviewPresentation(request, id=None):
     review = review.get(name=request.user)
   except models.Review.DoesNotExist:
     review = None
-  num_reviews = models.Review.objects.filter(presentation=presentation).count()
 
   if request.method == 'POST':
     action = request.POST.get('action')
@@ -305,6 +304,8 @@ def ReviewPresentation(request, id=None):
       # Fall through to default GET response
     else:
       pass # Ignore, fall through to default GET response
+
+  num_reviews = models.Review.objects.filter(presentation=presentation).count()
 
   return render_to_response('simple_cfp/review/review_presentation.html',
     {'title': TITLE,
