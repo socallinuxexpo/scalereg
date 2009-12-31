@@ -192,6 +192,7 @@ def Speaker(request, id=None):
     {'title': TITLE + ': ' + speaker.first_name + ' ' + speaker.last_name,
      'reviewed': reviewed,
      'unreviewed': unreviewed,
+     'speaker': speaker,
     })
 
 
