@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<rss version="2.0" 
+xmlns:s="http://www.socallinuxexpo.org/simple_cfp/blah/1.0">
+<channel>
+<title>{{ title }}</title>
+<link>{{ link }}</link>
+<description>{{ desc }}</description>
+{% for s in speakers %}
+<item>
+<title>{{ s.first_name }} {{ s.last_name }}</title>
+<link>{{ s.url }}</link>
+<description>{{ s.bio }}</description>
+<s:id>{{ s.id }}</s:id>
+<s:salutation>{{ s.salutation }}</s:salutation>
+<s:first_name>{{ s.first_name }}</s:first_name>
+<s:last_name>{{ s.last_name }}</s:last_name>
+<s:job_title>{{ s.title }}</s:job_title>
+<s:org>{{ s.org }}</s:org>
+</item>
+{% endfor %}
+</channel>
+</rss>

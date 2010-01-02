@@ -33,6 +33,11 @@ class Cookies:
   CFP_LOGIN = 'cfp_login'
 
 
+class RSSMsg:
+  LINK = 'http://www.foobar.com' # CHANGE_THIS
+  ORG = 'Foo Bar Corporation' # CHANGE_THIS
+
+
 def DoRecaptchaValidation(request, template, template_dict):
   if settings.SCALEREG_SIMPLECFP_USE_RECAPTCHA:
     try:
@@ -379,3 +384,34 @@ def Logout(request):
   if request.META.get('HTTP_REFERER'):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
   return HttpResponseRedirect('/simple_cfp/')
+
+
+def AcceptedPresentations(request):
+  TITLE = 'Accepted Presentations'
+  DESC = 'Accepted Presentations for the '
+
+  presentations = models.Presentation.objects.filter(valid=True)
+  presentations = presentations.filter(status='Approved')
+
+  return render_to_response('simple_cfp/rss_presentation.html',
+    {'title': TITLE,
+     'link': RSSMsg.LINK,
+     'desc': DESC + RSSMsg.ORG,
+     'presentations': presentations,
+    })
+
+
+def AcceptedSpeakers(request):
+  TITLE = 'Accepted Speakers'
+  DESC = 'Accepted Speakers for the '
+
+  presentations = models.Presentation.objects.filter(valid=True)
+  presentations = presentations.filter(status='Approved')
+  speakers = set([p.speaker for p in presentations])
+
+  return render_to_response('simple_cfp/rss_speaker.html',
+    {'title': TITLE,
+     'link': RSSMsg.LINK,
+     'desc': DESC + RSSMsg.ORG,
+     'speakers': speakers,
+    })
