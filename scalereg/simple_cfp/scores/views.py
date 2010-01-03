@@ -18,7 +18,7 @@ def process_presentations(presentations):
   presentations = presentations.filter(valid=True).all()
   for p in presentations:
     p.comments = models.Comment.objects.filter(presentation=p).count()
-    (p.score, p.count) = get_presentation_score(p)
+    (p.score, p.reviews) = get_presentation_score(p)
   return presentations
 
 
