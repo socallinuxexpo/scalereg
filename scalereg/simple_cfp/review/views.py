@@ -13,8 +13,9 @@ def separate_unreviewed_presentations(my_reviews, all_presentations):
   scores = [ r.score for r in my_reviews ]
   for i in xrange(0, len(reviewed)):
     reviewed[i].score = scores[i]
-  # Add number of reviews to presentations.
+  # Add number of comments reviews to presentations.
   for p in reviewed + unreviewed:
+    p.comments = models.Comment.objects.filter(presentation=p).count()
     p.reviews = models.Review.objects.filter(presentation=p).count()
   return (reviewed, unreviewed)
 
