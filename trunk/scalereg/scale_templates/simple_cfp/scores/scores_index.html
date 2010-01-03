@@ -1,0 +1,18 @@
+{% extends "simple_cfp/scores/scores_base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <h3>Overview</h3>
+
+    {% if presentations %}
+        <table border="1" class="sortable">
+        {% include "simple_cfp/scores/scores_table_header_snippet.html" %}
+        {% for p in presentations %}
+            {% include "simple_cfp/scores/scores_table_content_snippet.html" %}
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No presentations.</p>
+    {% endif %}
+</div>
+{% endblock %}

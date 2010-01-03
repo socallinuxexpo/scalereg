@@ -1,0 +1,13 @@
+{% extends "simple_cfp/scores/scores_base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <ul>
+        {% for obj in list %}
+        <li>
+        <a href="/simple_cfp/scores/{{ type }}/{{ obj.0 }}">{{ obj.1 }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

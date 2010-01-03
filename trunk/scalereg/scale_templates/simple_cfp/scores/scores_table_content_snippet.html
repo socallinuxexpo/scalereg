@@ -1,0 +1,37 @@
+<tr>
+    <td><a href="/simple_cfp/scores/speaker/{{ p.speaker.id }}">{{ p.speaker.first_name }} {{ p.speaker.last_name }}</a></td>
+    <td><a href="/simple_cfp/scores/{{ p.id }}">{{ p.title }}</a></td>
+    <td>{{ p.submit_date }}</td>
+    <td><a href="/simple_cfp/scores/status/{{ p.status }}">{{ p.status }}</a></td>
+    <td>
+    {% for audience in p.audiences.all %}
+        {% if not forloop.last %}
+        <a href="/simple_cfp/scores/audience/{{ audience.id }}">{{ audience }}</a>,
+        {% else %}
+        <a href="/simple_cfp/scores/audience/{{ audience.id }}">{{ audience }}</a>
+        {% endif %}
+    {% endfor %}
+    </td>
+    <td>
+    {% for category in p.categories.all %}
+        {% if not forloop.last %}
+        <a href="/simple_cfp/scores/category/{{ category.id }}">{{ category }}</a>,
+        {% else %}
+        <a href="/simple_cfp/scores/category/{{ category.id }}">{{ category }}</a>
+        {% endif %}
+    {% endfor %}
+    </td>
+    <td>
+    {% if p.score %}
+    {{ p.score }}
+    {% else %}
+    N/A
+    {% endif %}
+    </td>
+    <td>
+    {{ p.reviews }}
+    </td>
+    <td>
+    <a href="/simple_cfp/scores/{{ p.id }}/#comments">{{ p.comments }}</a>
+    </td>
+</tr>
