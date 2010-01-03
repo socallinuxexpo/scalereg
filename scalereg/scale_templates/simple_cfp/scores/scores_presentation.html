@@ -1,0 +1,95 @@
+{% extends "simple_cfp/scores/scores_base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+    <h3>
+    {{ presentation.speaker.first_name }}
+    {{ presentation.speaker.last_name }}
+    :
+    {{ presentation.title }}
+    </h3>
+
+    <p>
+    Submitted on {{ presentation.submit_date }},
+    Status: {{ presentation.status }}
+    <a target="_blank" href="/admin/simple_cfp/presentation/{{ presentation.id }}/?_popup=1">[Change]</a>,
+    Scores:
+    {% if score %}
+    {{ score }}.
+    {% else %}
+    N/A.
+    {% endif %}
+
+    Reviews: {{ num_reviews }}.
+
+    Comments: <a href="#comments">{{ comments|length }}</a>.
+    </p>
+
+    <h4>Speaker Bio</h4>
+    <p>
+    {{ presentation.speaker.bio|linebreaks }}
+    </p>
+
+    <h4>Description</h4>
+    <p>
+    {{ presentation.description }}
+    </p>
+
+    <h4>Short Abstract</h4>
+    <p>
+    {{ presentation.short_abstract|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Long Abstract</h4>
+    <p>
+    {{ presentation.long_abstract|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Presentation</h4>
+    <p>
+    {% if presentation.file %}
+    <a href="{{ presentation.file.url }}">View presentation</a>
+    {% else %}
+    No Presentation.
+    {% endif %}
+    </p>
+
+    <h4>Message to Reviewers</h4>
+    <p>
+    {{ presentation.msg|linebreaks }}
+    </p>
+
+    <p><a href="#top">Return to top</a></p>
+
+    <h4>Comments</h4>
+    <p>
+    <a name="comments" />
+
+    <b>Add New Comment:</b><br />
+    <form method="post" action=".#comments">
+    <input type="hidden" name="action" value="comment" />
+    <textarea name="comment" rows="6" cols="80"></textarea><br />
+    <input type="submit" value="Comment" />
+    <input type="reset" value="Reset" />
+    </form>
+    </p>
+
+    {% for comment in comments %}
+        <p>
+        <h5>{{ comment.name }} - {{ comment.date }}</h5>
+        <form method="post" action=".#comments">
+        <input type="hidden" name="action" value="delete" />
+        <input type="hidden" name="delete" value="{{ comment.id }}" />
+        <input type="submit" value="Delete Comment" />
+        </form>
+        {{ comment.comment|linebreaks }}
+        </p>
+    {% endfor %}
+
+    <p><a href="#top">Return to top</a></p>
+</div>
+{% endblock %}

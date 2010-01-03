@@ -10,4 +10,5 @@ urlpatterns = patterns('',
     (r'^submission_status/$', 'scalereg.simple_cfp.views.SubmissionStatus'),
     (r'^submit_presentation/$', 'scalereg.simple_cfp.views.SubmitPresentation'),
     (r'^review/', include('scalereg.simple_cfp.review.urls')),
+    (r'^scores/', include('scalereg.simple_cfp.scores.urls')),
 )
