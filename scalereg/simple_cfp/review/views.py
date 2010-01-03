@@ -6,11 +6,12 @@ from scalereg.common.utils import services_perm_checker
 from scalereg.simple_cfp import models
 
 def separate_unreviewed_presentations(my_reviews, all_presentations):
-  reviewed = [ r.presentation for r in my_reviews ]
-  unreviewed = [ p for p in all_presentations.all() if p not in reviewed ]
+  all_presentations = all_presentations.filter(valid=True).all()
+  reviewed = [ r.presentation for r in my_reviews if r.presentation.valid ]
+  unreviewed = [ p for p in all_presentations if p not in reviewed ]
 
   # Add score data to presentations.
-  scores = [ r.score for r in my_reviews ]
+  scores = [ r.score for r in my_reviews if r.presentation.valid ]
   for i in xrange(0, len(reviewed)):
     reviewed[i].score = scores[i]
   # Add number of comments reviews to presentations.
@@ -85,7 +86,6 @@ def Audience(request, id=None):
   if not audience:
     return HttpResponseServerError('Unknown id')
   presentations = models.Presentation.objects.filter(audiences=audience)
-  presentations = presentations.filter(valid=True)
 
   my_reviews = models.Review.objects.filter(name=request.user)
   my_reviews = [ r for r in my_reviews
@@ -133,7 +133,6 @@ def Category(request, id=None):
   if not category:
     return HttpResponseServerError('Unknown id')
   presentations = models.Presentation.objects.filter(categories=category)
-  presentations = presentations.filter(valid=True)
 
   my_reviews = models.Review.objects.filter(name=request.user)
   my_reviews = [ r for r in my_reviews
@@ -182,7 +181,6 @@ def Speaker(request, id=None):
   if not speaker:
     return HttpResponseServerError('Unknown id')
   presentations = models.Presentation.objects.filter(speaker=speaker)
-  presentations = presentations.filter(valid=True)
 
   my_reviews = models.Review.objects.filter(name=request.user)
   my_reviews = [ r for r in my_reviews if r.presentation.speaker == speaker ]
@@ -227,7 +225,6 @@ def Status(request, status=None):
   if not status:
     return HttpResponseServerError('Unknown status')
   presentations = models.Presentation.objects.filter(status=status)
-  presentations = presentations.filter(valid=True)
 
   my_reviews = models.Review.objects.filter(name=request.user)
   my_reviews = [ r for r in my_reviews if r.presentation.status == status ]
