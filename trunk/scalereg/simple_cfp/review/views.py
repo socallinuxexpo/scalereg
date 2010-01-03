@@ -218,7 +218,7 @@ def Status(request, status=None):
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
-  TITLE = 'Presentations by Speaker'
+  TITLE = 'Presentations by Status'
 
   if status not in [ choice[0] for choice in models.STATUS_CHOICES ]:
     status = None
