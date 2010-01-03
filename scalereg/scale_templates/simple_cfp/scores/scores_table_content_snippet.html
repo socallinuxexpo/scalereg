@@ -23,7 +23,7 @@
     </td>
     <td>
     {% if p.score %}
-    {{ p.score }}
+    {{ p.score|floatformat:1 }}
     {% else %}
     N/A
     {% endif %}

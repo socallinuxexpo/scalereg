@@ -15,7 +15,7 @@
     <a target="_blank" href="/admin/simple_cfp/presentation/{{ presentation.id }}/?_popup=1">[Change]</a>,
     Scores:
     {% if score %}
-    {{ score }}.
+    {{ score|floatformat:1 }}.
     {% else %}
     N/A.
     {% endif %}
