@@ -14,7 +14,7 @@ xmlns:s="http://www.socallinuxexpo.org/simple_cfp/blah/1.0">
 <s:categories>{{ p.categories.all|join:", " }}</s:categories>
 <s:audiences>{{ p.audiences.all|join:", " }}</s:audiences>
 <s:short_abstract>{{ p.short_abstract }}</s:short_abstract>
-<s:long_abstract>{{ p.long_abstract }}</s:long_abstract>
+<s:long_abstract>{% if p.long_abstract %}{{ p.long_abstract }}{% else %}{{ p.short_abstract }}{% endif %}</s:long_abstract>
 </item>
 {% endfor %}
 </channel>
