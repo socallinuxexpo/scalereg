@@ -10,6 +10,7 @@ xmlns:s="http://www.socallinuxexpo.org/simple_cfp/blah/1.0">
 <title>{{ p.title }}</title>
 <link>{{ link }}</link>
 <description>{{ p.description }}</description>
+<s:presentation>{{ p.id }}</s:presentation>
 <s:speaker>{{ p.speaker.id }}</s:speaker>
 <s:categories>{{ p.categories.all|join:", " }}</s:categories>
 <s:audiences>{{ p.audiences.all|join:", " }}</s:audiences>
