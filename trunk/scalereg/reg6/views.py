@@ -1013,7 +1013,7 @@ def MassAddAttendee(request):
       'zip': entry_split[3],
       'email': entry_split[4],
     }
-    form = forms.MassAddAttendeeForm(entry_split)
+    form = forms.MassAddAttendeeForm(entry_dict)
     if not form.is_valid():
       response.write('bad entry: %s<br />\n' % entry)
       continue
