@@ -1012,12 +1012,13 @@ def MassAddAttendee(request):
       'org': entry_split[2],
       'zip': entry_split[3],
       'email': entry_split[4],
+      'badge_type': ticket,
     }
     form = forms.MassAddAttendeeForm(entry_dict)
     if not form.is_valid():
-      response.write('bad entry: %s<br />\n' % entry)
+      response.write('bad entry: %s, reason: %s<br />\n' % entry, form.errors)
       continue
-    attendees = form.save(commit=False)
+    attendee = form.save(commit=False)
     attendee.valid = True
     attendee.checked_in = False
     attendee.can_email = True
