@@ -97,7 +97,7 @@ class Review(models.Model):
   name = models.ForeignKey('auth.User')
   presentation = models.ForeignKey('Presentation')
 
-  class meta:
+  class Meta:
     unique_together = ('name', 'presentation')
 
 
