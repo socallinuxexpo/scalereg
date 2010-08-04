@@ -22,6 +22,7 @@ manage.py dumpdata -format=xml -indent=2 \
     <field type="CharField" name="type">full</field>
     <field type="DecimalField" name="price">30</field>
     <field type="BooleanField" name="public">True</field>
+    <field type="BooleanField" name="cash">True</field>
     <field type="DateField" name="start_date"><None></None></field>
     <field type="DateField" name="end_date"><None></None></field>
   </object>
@@ -30,6 +31,7 @@ manage.py dumpdata -format=xml -indent=2 \
     <field type="CharField" name="type">expo</field>
     <field type="DecimalField" name="price">10</field>
     <field type="BooleanField" name="public">True</field>
+    <field type="BooleanField" name="cash">False</field>
     <field type="DateField" name="start_date"><None></None></field>
     <field type="DateField" name="end_date"><None></None></field>
   </object>
@@ -38,6 +40,7 @@ manage.py dumpdata -format=xml -indent=2 \
     <field type="CharField" name="type">speaker</field>
     <field type="DecimalField" name="price">0</field>
     <field type="BooleanField" name="public">False</field>
+    <field type="BooleanField" name="cash">False</field>
     <field type="DateField" name="start_date"><None></None></field>
     <field type="DateField" name="end_date"><None></None></field>
   </object>
