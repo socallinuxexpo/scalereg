@@ -35,6 +35,14 @@ def CheckIn(request):
   if not attendees:
     attendees = models.Attendee.objects.filter(valid=True,
       zip=request.POST['zip'])
+  for att in attendees:
+    if att.checked_in:
+      try:
+        rp = models.Reprint.objects.get(attendee=att)
+        count = rp.count
+      except:
+        count = 0
+      att.rp_count = count + 1
 
   return render_to_response('reg6/staff/checkin.html',
     {'title': 'Attendee Check In',
@@ -165,3 +173,40 @@ def CashPayment(request):
      'success': True,
      'tickets': tickets,
     })
+
+@login_required
+def Reprint(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    return HttpResponseRedirect('/reg6/staff/checkin/')
+
+  if request.POST['id']:
+    REPRINT_TEMPLATE = 'reg6/staff/reprint.html'
+    try:
+      attendee = models.Attendee.objects.get(id=int(request.POST['id']))
+      reprint = None
+      try:
+        reprint = models.Reprint.objects.get(attendee=attendee)
+      except:
+        reprint = models.Reprint()
+        reprint.attendee = attendee
+        reprint.count = 0
+      reprint.count += 1
+      reprint.save()
+      return render_to_response(REPRINT_TEMPLATE,
+        {'title': 'Attendee Reprint',
+         'reprint': reprint,
+        })
+    except:
+      return render_to_response(REPRINT_TEMPLATE,
+        {'title': 'Attendee Reprint Error',
+         'reprint': None,
+        })
+  else:
+    return render_to_response(REPRINT_TEMPLATE,
+      {'title': 'Attendee Reprint Invalid',
+       'reprint': None,
+      })

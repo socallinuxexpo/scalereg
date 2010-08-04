@@ -41,6 +41,11 @@ def PrintAttendee(attendee):
   badge.append(attendee.email)
   badge.append(attendee.phone)
   badge.append(str(attendee.id))
+  try:
+    reprint = models.Reprint.objects.get(attendee=attendee)
+    badge.append(str(reprint.count))
+  except:
+    badge.append('0')
   badge.append(attendee.badge_type.type)
   if not attendee.order:
     return ''

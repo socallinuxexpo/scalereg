@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main">
+
+<p>
+{% if not reprint %}
+ERROR! Reprint failed.
+{% else %}
+Reprint {{ reprint.rp_count }} for {{ reprint.attendee.first_name }} {{ reprint.attendee.last_name }}
+{% endif %}
+</p>
+
+<a href="../checkin/">Back to Checkin!</a>
+
+</div>
+{% endblock %}
