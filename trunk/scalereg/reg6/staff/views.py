@@ -86,40 +86,7 @@ def CashPayment(request):
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
-  tickets = []
-  try:
-    tickets.append(models.Ticket.objects.get(name='7XSVN'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='OSSE'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='WIOS'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='6XE1'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='6XF2'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='7XSTD'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='7XKID'))
-  except:
-    pass
-  try:
-    tickets.append(models.Ticket.objects.get(name='T1'))
-  except:
-    pass
-
+  tickets = models.Ticket.objects.filter(cash=True)
   if request.method == 'GET':
     return render_to_response('reg6/staff/cash.html',
       {'title': 'Cash Payment',

@@ -94,7 +94,7 @@ class CouponOptions(admin.ModelAdmin):
 
 
 class TicketOptions(admin.ModelAdmin):
-  list_display = ('name', 'description', 'type', 'price', 'public',
+  list_display = ('name', 'description', 'type', 'price', 'public', 'cash',
                   'start_date', 'end_date')
   list_filter = ('type', 'public', 'start_date', 'end_date')
   save_on_top = True
