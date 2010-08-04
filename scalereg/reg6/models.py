@@ -362,3 +362,11 @@ class Coupon(models.Model):
   def save(self, *args, **kwargs):
     validators.isValidOrderNumber(self.code, self)
     return super(Coupon, self).save(*args, **kwargs)
+
+
+class Reprint(models.Model):
+  attendee =  models.ForeignKey(Attendee)
+  count = models.IntegerField()
+
+  def __unicode__(self):
+    return '%s %d' % (self.attendee, self.count)

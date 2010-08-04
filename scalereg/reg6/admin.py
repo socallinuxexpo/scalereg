@@ -10,6 +10,11 @@ from models import PromoCode
 from models import TextAnswer
 from models import TextQuestion
 from models import Ticket
+from models import Reprint
+
+
+class ReprintOptions(admin.ModelAdmin):
+  save_on_top = True
 
 
 class ListAnswerInline(admin.TabularInline):
@@ -102,6 +107,7 @@ admin.site.register(ListAnswer, ListAnswerOptions)
 admin.site.register(ListQuestion, ListQuestionOptions)
 admin.site.register(Order, OrderOptions)
 admin.site.register(PromoCode, PromoCodeOptions)
+admin.site.register(Reprint, ReprintOptions)
 admin.site.register(TextAnswer, TextAnswerOptions)
 admin.site.register(TextQuestion, TextQuestionOptions)
 admin.site.register(Ticket, TicketOptions)

@@ -16,7 +16,10 @@
     <tr>
         <th>Registration Number</th>
         <th>Name</th>
-        <th></th>
+        <th>Status</th>
+        {% if person.checked_in %}
+        <th>Reprint</th>
+        {% endif %}
     </tr>
     {% for person in attendees %}
         <tr>
@@ -32,6 +35,14 @@
         </form>
         {% endif %}
         </td>
+        {% if person.checked_in %}
+        <td>
+        <form method="post" action="../reprint/">
+        <input type="hidden" name="id" value="{{ person.id }}">
+        <input type="submit" value="Reprint {{ person.rp_count }}">
+        </form>
+        </td>
+        {% endif %}
         </tr>
     {% endfor %}
     </table>
