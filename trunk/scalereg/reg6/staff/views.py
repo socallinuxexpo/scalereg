@@ -152,14 +152,13 @@ def CashPayment(request):
   attendee.can_email = True
   attendee.order = order
   attendee.badge_type = ticket
-  invalid = attendee.validate()
-  if invalid:
-    return handler500(request, msg='cannot save attendee, bad data?')
   try:
+    attendee.save()
     order.save()
   except: # FIXME catch the specific db exceptions
+    attendee.delete()
+    order.delete()
     return handler500(request, msg='cannot save order, bad data?')
-  attendee.save()
 
   return render_to_response('reg6/staff/cash.html',
     {'title': 'Cash Payment',
