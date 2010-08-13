@@ -21,14 +21,13 @@
 
     <p>
     To start the registration process, start by selecting a ticket type. There are several different types of tickets:
+    </p>
 
     <ul>
     <li>Full Access Pass - Provides access to exhibit hall, all Saturday / Sunday speaker tracks, and evening events.</li>
     <li>Expo Only - Provides access to exhibit hall and Try It Labs.</li>
     <li>Friday Only Tickets - Provides access to a specific friday event.</li>
     </ul>
-
-    </p>
 
     <p>
     Please select a ticket type below:
@@ -90,18 +89,14 @@
     If you already registered, and would like to pay for your registration, or if you are paying for other registered attendees, then click the "Pay For Registration" button below.
     </p>
 
-    <p>
     <form method="post" action="start_payment/">
     <input type="submit" value="Pay For Previous Registration" />
     </form>
-    </p>
 
     {% if promo %}
-    <p>
     <form method="post" action=".">
     <input type="submit" value="Change promo code" />
     </form>
-    </p>
     {% endif %}
 {% else %}
 Registration is closed.
