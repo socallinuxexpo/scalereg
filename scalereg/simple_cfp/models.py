@@ -136,3 +136,15 @@ class Presentation(models.Model):
 
   def __unicode__(self):
     return u'(%s) - %s' % (self.speaker, self.title)
+
+
+class SpeakerPhoto(models.Model):
+  speaker = models.ForeignKey(Speaker)
+  file = models.FileField(upload_to='scale/simple_cfp/photos/')
+
+  class Meta:
+    unique_together = ('speaker', 'file')
+
+  def __unicode__(self):
+    return u'%s' % self.speaker
+

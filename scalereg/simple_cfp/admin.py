@@ -3,6 +3,7 @@ from models import Audience
 from models import Category
 from models import Presentation
 from models import Speaker
+from models import SpeakerPhoto
 
 
 class SpeakerOptions(admin.ModelAdmin):
@@ -38,3 +39,4 @@ admin.site.register(Audience)
 admin.site.register(Category)
 admin.site.register(Presentation, PresentationOptions)
 admin.site.register(Speaker, SpeakerOptions)
+admin.site.register(SpeakerPhoto)

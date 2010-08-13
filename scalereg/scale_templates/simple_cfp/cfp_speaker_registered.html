@@ -66,6 +66,17 @@
         <td>{{ speaker.url }}</td>
     </tr>
     </table>
+
+    {% if upload %}
+    <p>
+        {% if photo_url %} 
+        Photo<br />
+        <img src="{{ photo_url }}" />
+        {% else %}
+        No photo
+        {% endif %}
+    </p>
+    {% endif %}
 {% else %}
     Error: No speaker info.
 {% endif %}
