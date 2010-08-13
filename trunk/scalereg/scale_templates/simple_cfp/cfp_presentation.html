@@ -113,6 +113,17 @@
         <td valign="top">{{ form.file }}</td>
     </tr>
     {% endif %}
+    {% if form.additional_speakers.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.additional_speakers.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_additional_speakers">Additional Speakers:</label>
+        <p>Speaker email addresses, separated by commas</p>
+        </td>
+        <td valign="top">{{ form.additional_speakers }}</td>
+    </tr>
     {% if form.msg.errors %}
     <tr>
         <td colspan="2" class="cfp_form_error">{{ form.msg.errors|join:", " }}</td>

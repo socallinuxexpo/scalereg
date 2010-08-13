@@ -1,4 +1,5 @@
 from django.contrib import admin
+from models import AdditionalSpeaker
 from models import Audience
 from models import Category
 from models import Presentation
@@ -35,6 +36,7 @@ class PresentationOptions(admin.ModelAdmin):
   save_on_top = True
 
 
+admin.site.register(AdditionalSpeaker)
 admin.site.register(Audience)
 admin.site.register(Category)
 admin.site.register(Presentation, PresentationOptions)
