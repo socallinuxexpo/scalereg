@@ -374,6 +374,7 @@ def SubmitPresentation(request):
       {'title': TITLE,
        'email_sent': email_sent,
        'presentation': new_presentation,
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
   else:
     form = forms.PresentationForm()
