@@ -175,7 +175,7 @@ def RecoverValidation(request):
 
 
 def RegisterSpeaker(request):
-  TITLE = 'Register Speaker'
+  TITLE = 'Speaker Registration'
 
   if request.method == 'POST':
     form = forms.SpeakerForm(request.POST)
