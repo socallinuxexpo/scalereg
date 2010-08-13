@@ -270,7 +270,7 @@ def SubmissionStatus(request):
 
   # Handle new uploads and deletes
   error = ''
-  if request.method == 'POST':
+  if settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD and request.method == 'POST':
     if 'presentation' in request.POST:
       error = ErrorMsg.UPLOAD_SUCCESS
       try:
