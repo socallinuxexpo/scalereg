@@ -19,6 +19,7 @@ class PresentationForm(ModelForm):
       'file',
       'msg',
     )
+  additional_speakers = forms.Field()
 
 
 class SpeakerForm(ModelForm):

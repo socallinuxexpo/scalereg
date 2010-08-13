@@ -20,6 +20,7 @@ class ErrorMsg:
   # Common messages
   EMAIL_ERROR = 'Could not send email'
   # SubmitPresentation
+  INVALID_ADSP = 'Invalid additional speaker'
   INVALID_CODE = 'Invalid speaker code'
   INVALID_EMAIL = 'Contact email does not match speaker code'
   # SubmissionStatus
@@ -312,7 +313,21 @@ def SubmitPresentation(request):
       form = forms.PresentationForm(request.POST, request.FILES)
     else:
       form = forms.PresentationForm(request.POST)
-    if not form.is_valid():
+
+    additional_speakers = set()
+    invalid_speakers = set()
+    for sp in form.data['additional_speakers'].split(','):
+      sp = sp.strip()
+      try:
+        adsp = models.Speaker.objects.get(email=sp)
+        additional_speakers.add(adsp)
+      except models.Speaker.DoesNotExist:
+        invalid_speakers.add(sp)
+    if invalid_speakers:
+      form.errors['additional_speakers'] = ErrorList([
+          ErrorMsg.INVALID_ADSP + ': ' + ', '.join(invalid_speakers)])
+
+    if not form.is_valid() or invalid_speakers:
       return cfp_render_to_response(request,
         'simple_cfp/cfp_presentation.html',
         {'title': TITLE,
@@ -365,6 +380,12 @@ def SubmitPresentation(request):
     new_presentation = form.save()
     form.save_m2m()
 
+    for sp in additional_speakers:
+      adsp = models.AdditionalSpeaker()
+      adsp.speaker = sp
+      adsp.presentation = new_presentation;
+      adsp.save()
+
     email_sent = False
     if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
       email_sent = SendConfirmationEmail(new_presentation)
@@ -372,6 +393,7 @@ def SubmitPresentation(request):
     return cfp_render_to_response(request,
       'simple_cfp/cfp_presentation_submitted.html',
       {'title': TITLE,
+       'additional_speakers': additional_speakers,
        'email_sent': email_sent,
        'presentation': new_presentation,
        'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
@@ -408,10 +430,19 @@ def AcceptedPresentations(request):
 
   presentations = models.Presentation.objects.filter(valid=True)
   presentations = presentations.filter(status='Approved')
+  additional_speakers = []
+  for p in presentations:
+    # easier to preformat this now rather than doing it in the template.
+    adsp = models.AdditionalSpeaker.objects.filter(presentation=p)
+    adsp_text = ','.join('s%d' % s.speaker.id for s in adsp)
+    p.speakers = 's%d' % p.speaker.id
+    if adsp_text:
+      p.speakers += ',' + adsp_text
 
   return render_to_response('simple_cfp/rss_presentation.html',
     {'title': TITLE,
      'link': RSSMsg.LINK,
+     'additional_speakers': additional_speakers,
      'desc': DESC + RSSMsg.ORG,
      'presentations': presentations,
     })
@@ -423,7 +454,16 @@ def AcceptedSpeakers(request):
 
   presentations = models.Presentation.objects.filter(valid=True)
   presentations = presentations.filter(status='Approved')
-  speakers = set([p.speaker for p in presentations])
+  speakers = [p.speaker for p in presentations]
+  speakers = [p.speaker for p in presentations]
+  additional_speakers = models.AdditionalSpeaker.objects.all()
+  speakers += [adsp.speaker for adsp in additional_speakers if
+               adsp.presentation.valid and
+               adsp.presentation.status == 'Approved']
+  speakers = list(set(speakers))
+  for sp in speakers:
+    photos = models.SpeakerPhoto.objects.filter(speaker=sp)
+    sp.photo_urls = ' '.join([s.file.url for s in photos])
 
   return render_to_response('simple_cfp/rss_speaker.html',
     {'title': TITLE,

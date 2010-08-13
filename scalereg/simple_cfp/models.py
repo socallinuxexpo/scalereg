@@ -148,3 +148,14 @@ class SpeakerPhoto(models.Model):
   def __unicode__(self):
     return u'%s' % self.speaker
 
+
+class AdditionalSpeaker(models.Model):
+  speaker = models.ForeignKey(Speaker)
+  presentation = models.ForeignKey(Presentation)
+
+  class Meta:
+    unique_together = ('speaker', 'presentation')
+    verbose_name_plural = 'Additional Speakers'
+
+  def __unicode__(self):
+    return u'%s -> %s' % (self.speaker, self.presentation)

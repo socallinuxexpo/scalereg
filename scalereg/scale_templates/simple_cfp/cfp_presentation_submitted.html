@@ -48,6 +48,12 @@
         <td>Description</td>
         <td>{{ presentation.description }}</td>
     </tr>
+    {% if additional_speakers %}
+    <tr>
+        <td>Additional Speakers</td>
+        <td>{{ additional_speakers|join:", " }}</td>
+    </tr>
+    {% endif %}
     {% if upload %}
     <tr>
         <td colspan="2">
