@@ -38,4 +38,4 @@ class SpeakerForm(ModelForm):
       'url',
       'bio',
     )
-  photo_upload = forms.FileField(required=False)
+  photo_upload = forms.FileField()
