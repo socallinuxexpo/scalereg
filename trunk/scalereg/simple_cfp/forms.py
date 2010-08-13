@@ -1,3 +1,4 @@
+from django.forms import forms
 from django.forms import ModelForm
 from scalereg.simple_cfp.models import Presentation
 from scalereg.simple_cfp.models import Speaker
@@ -37,3 +38,4 @@ class SpeakerForm(ModelForm):
       'url',
       'bio',
     )
+  photo_upload = forms.FileField(required=False)

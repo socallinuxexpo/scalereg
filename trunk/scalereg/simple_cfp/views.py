@@ -185,12 +185,14 @@ def RegisterSpeaker(request):
         {'title': TITLE,
          'form': form,
          'recaptcha_html': GenerateRecaptchaHTML(request),
+         'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
     recaptcha_response = DoRecaptchaValidation(request,
       'simple_cfp/cfp_speaker.html',
       {'title': TITLE,
        'form': form,
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
     if recaptcha_response:
       return recaptcha_response
@@ -198,6 +200,16 @@ def RegisterSpeaker(request):
     new_speaker = form.save(commit=False)
     new_speaker.validation_code = GenerateSpeakerValidationCode()
     new_speaker = form.save()
+
+    photo_url = None
+    if (settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD and
+        'photo_upload' in request.FILES):
+      new_photo = models.SpeakerPhoto()
+      new_photo.speaker_id = new_speaker.id
+      photo_file = request.FILES['photo_upload']
+      new_photo.file.save(photo_file.name, photo_file)
+      new_photo.save()
+      photo_url = new_photo.file.url
 
     email_sent = False
     if settings.SCALEREG_SIMPLECFP_SEND_MAIL:
@@ -207,7 +219,9 @@ def RegisterSpeaker(request):
       'simple_cfp/cfp_speaker_registered.html',
       {'title': TITLE,
        'email_sent': email_sent,
+       'photo_url': photo_url,
        'speaker': new_speaker,
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
   else:
     return cfp_render_to_response(request,
@@ -215,6 +229,7 @@ def RegisterSpeaker(request):
       {'title': TITLE,
        'form': forms.SpeakerForm(),
        'recaptcha_html': GenerateRecaptchaHTML(request),
+       'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
       })
 
 

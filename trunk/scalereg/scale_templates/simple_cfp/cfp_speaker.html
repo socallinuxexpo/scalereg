@@ -15,7 +15,7 @@
     The fields in <b>bold</b> are required.
     </p>
 
-    <form method="post" action=".">
+    <form method="post" action="." enctype="multipart/form-data">
     <h3>Contact Info</h3>
     <p>
     This is the name and email we will contact you at.
@@ -135,6 +135,17 @@
         <td><label for="id_bio">Speaker Biography:</label></td>
         <td>{{ form.bio }}</td>
     </tr>
+    {% if upload %}
+    {% if form.file.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.file.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_file">Photo:</label></td>
+        <td>{{ form.file }}</td>
+    </tr>
+    {% endif %}
     </table>
 
     {% if recaptcha_html %}
