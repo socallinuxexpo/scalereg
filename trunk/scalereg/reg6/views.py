@@ -112,6 +112,13 @@ def GetTicketItems(ticket):
   return combined_set
 
 
+def IsTicketAvailable(ticket):
+  if ticket.limit == 0:
+    return True
+  attendees = models.Attendee.objects.filter(badge_type=ticket, valid=True)
+  return attendees.count() < ticket.limit
+
+
 def CheckVars(request, post, cookies):
   for var in post:
     if var not in request.POST:
@@ -139,7 +146,9 @@ def scale_render_to_response(request, template, vars):
 
 
 def index(request):
-  avail_tickets = models.Ticket.public_objects.order_by('description')
+  avail_tickets = [ticket for ticket in
+                   models.Ticket.public_objects.order_by('description')
+                   if IsTicketAvailable(ticket)]
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
@@ -267,7 +276,18 @@ def AddAttendee(request):
   if r:
     return r
 
-  ticket = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  try:
+    ticket = models.Ticket.public_objects.get(name=request.POST['ticket'])
+  except models.Ticket.DoesNotExist:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'You have selected an invalid ticket type.',
+      })
+  if not IsTicketAvailable(ticket):
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'The ticket you selected is sold out.',
+      })
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
@@ -276,7 +296,7 @@ def AddAttendee(request):
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
 
   promo_name = ApplyPromoToTickets(promo_in_use, ticket)
-  avail_items = GetTicketItems(ticket[0])
+  avail_items = GetTicketItems(ticket)
 
   selected_items = []
   for i in xrange(len(avail_items)):
@@ -287,13 +307,13 @@ def AddAttendee(request):
         selected_items.append(item)
   ApplyPromoToItems(promo_in_use, selected_items)
 
-  total = ticket[0].price
+  total = ticket.price
   for item in selected_items:
     total += item.price
 
-  list_questions = FindRelevantQuestions(models.ListQuestion, ticket[0],
+  list_questions = FindRelevantQuestions(models.ListQuestion, ticket,
       selected_items)
-  text_questions = FindRelevantQuestions(models.TextQuestion, ticket[0],
+  text_questions = FindRelevantQuestions(models.TextQuestion, ticket,
       selected_items)
 
   if action == 'add':
@@ -317,7 +337,7 @@ def AddAttendee(request):
       new_attendee = form.save(commit=False)
 
       # add badge type
-      new_attendee.badge_type = ticket[0]
+      new_attendee.badge_type = ticket
       # add promo
       new_attendee.promo = promo_in_use
 
@@ -358,7 +378,7 @@ def AddAttendee(request):
 
   return scale_render_to_response(request, 'reg6/reg_attendee.html',
     {'title': 'Register Attendee',
-     'ticket': ticket[0],
+     'ticket': ticket,
      'promo': promo_name,
      'items': selected_items,
      'total': total,
