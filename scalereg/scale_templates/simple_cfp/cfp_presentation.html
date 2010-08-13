@@ -84,7 +84,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_short_abstract"><b>Short Abstract:</b></label>
+        <td valign="top"><label for="id_short_abstract"><b>Short Abstract:</b></label>
         <p>(up to 1000 characters)</p>
         </td>
         <td>{{ form.short_abstract }}</td>
@@ -95,7 +95,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_long_abstract">Long Abstract:</label>
+        <td valign="top"><label for="id_long_abstract">Long Abstract:</label>
         <p>(up to 10000 characters)</p>
         </td>
         <td>{{ form.long_abstract }}</td>
@@ -110,7 +110,7 @@
         <td><label for="id_file">Presentation to upload:</label>
         <p>Up to {{ file_limit|filesizeformat }}.</p>
         </td>
-        <td>{{ form.file }}</td>
+        <td valign="top">{{ form.file }}</td>
     </tr>
     {% endif %}
     {% if form.msg.errors %}
