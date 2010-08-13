@@ -48,6 +48,11 @@
         <td>Description</td>
         <td>{{ presentation.description }}</td>
     </tr>
+    {% if upload %}
+    <tr>
+        <td colspan="2"><a href="{{ presentation.file.url }}">Presentation</a></td>
+    </tr>
+    {% endif %}
     </table>
 {% else %}
     Error: No presentation info.
