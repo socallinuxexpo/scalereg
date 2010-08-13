@@ -50,7 +50,13 @@
     </tr>
     {% if upload %}
     <tr>
-        <td colspan="2"><a href="{{ presentation.file.url }}">Presentation</a></td>
+        <td colspan="2">
+        {% if presentation.file %}
+        <a href="{{ presentation.file.url }}">Presentation</a>
+        {% else %}
+        No Presentation
+        {% endif %}
+        </td>
     </tr>
     {% endif %}
     </table>
