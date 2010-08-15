@@ -242,12 +242,6 @@ def RegisterSpeaker(request):
 def SubmissionStatus(request):
   TITLE = 'Submission Status'
 
-  if request.method != 'POST':
-    return cfp_render_to_response(request,
-      'simple_cfp/cfp_submission_status.html',
-      {'title': TITLE,
-      })
-
   code = request.REQUEST.get('code')
   contact_email = request.REQUEST.get('contact_email')
   speaker_email = request.REQUEST.get('speaker_email')
@@ -258,6 +252,9 @@ def SubmissionStatus(request):
       pass
 
   if not (code and contact_email and speaker_email):
+    error = ''
+    if request.method == 'POST':
+      error = ErrorMsg.INVALID_INCOMPLETE
     return cfp_render_to_response(request,
       'simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
