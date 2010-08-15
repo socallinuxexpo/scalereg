@@ -27,6 +27,15 @@
         <td><label for="id_contact_email"><b>Contact Email:</b></label></td>
         <td>{{ form.contact_email }}</td>
     </tr>
+    {% if form.speaker_email.errors %}
+    <tr>
+        <td colspan="2" class="cfp_form_error">{{ form.speaker_email.errors|join:", " }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label for="id_speaker_email"><b>Speaker Email:</b></label></td>
+        <td>{{ form.speaker_email }}</td>
+    </tr>
     {% if form.speaker_code.errors %}
     <tr>
         <td colspan="2" class="cfp_form_error">{{ form.speaker_code.errors|join:", " }}</td>

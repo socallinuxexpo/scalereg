@@ -37,7 +37,7 @@ CATEGORY_CHOICES = (
 class Speaker(models.Model):
   # administrative contact info
   contact_name = models.CharField(max_length=60)
-  contact_email = models.EmailField(unique=True)
+  contact_email = models.EmailField()
 
   # speaker name
   salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES,
@@ -105,6 +105,7 @@ class Presentation(models.Model):
   speaker = models.ForeignKey(Speaker)
   # not strictly needed, convenience items to put on the form
   contact_email = models.EmailField()
+  speaker_email = models.EmailField()
   speaker_code = models.CharField(max_length=10)
 
   # categories
