@@ -11,6 +11,7 @@
         Submissions by {{ speaker.first_name }} {{ speaker.last_name }}.
         </p>
 
+        {% if presentations %}
         <table border="1">
         <tr>
             <th>Status</th>
@@ -64,6 +65,10 @@
         </tr>
         {% endfor %}
         </table>
+        {% else %}
+        No submitted presentations. Please
+        <a href="../submit_presentation/">submit presentations</a> first.
+        {% endif %}
     {% else %}
     <p>
     Please type in your contact email, speaker email, and validation code to
@@ -82,15 +87,15 @@
     <table>
     <tr>
         <td><b>Contact Email:</b></td>
-        <td><input type="text" name="contact_email" maxlength="80" /></td>
+        <td><input type="text" name="contact_email" maxlength="80" value="{{ contact_email }}" /></td>
     </tr>
     <tr>
         <td><b>Speaker Email:</b></td>
-        <td><input type="text" name="speaker_email" maxlength="80" /></td>
+        <td><input type="text" name="speaker_email" maxlength="80" value="{{ speaker_email }}" /></td>
     </tr>
     <tr>
         <td><b>Validation Code:</b></td>
-        <td><input type="text" name="code" maxlength="80" /></td>
+        <td><input type="text" name="code" maxlength="80" value="{{ code }}" /></td>
     </tr>
     </table>
 
