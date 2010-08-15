@@ -242,6 +242,12 @@ def RegisterSpeaker(request):
 def SubmissionStatus(request):
   TITLE = 'Submission Status'
 
+  if request.method != 'POST':
+    return cfp_render_to_response(request,
+      'simple_cfp/cfp_submission_status.html',
+      {'title': TITLE,
+      })
+
   code = request.REQUEST.get('code')
   contact_email = request.REQUEST.get('contact_email')
   speaker_email = request.REQUEST.get('speaker_email')
@@ -256,6 +262,9 @@ def SubmissionStatus(request):
       'simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
        'error': ErrorMsg.INVALID_INCOMPLETE,
+       'code': code,
+       'contact_email': contact_email,
+       'speaker_email': speaker_email,
       })
 
   speaker = None
@@ -270,6 +279,9 @@ def SubmissionStatus(request):
       'simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
        'error': ErrorMsg.INVALID_CREDENTIAL,
+       'code': code,
+       'contact_email': contact_email,
+       'speaker_email': speaker_email,
       })
 
   presentations = models.Presentation.objects.filter(speaker=speaker)
