@@ -22,10 +22,12 @@ class ErrorMsg:
   # SubmitPresentation
   INVALID_ADSP = 'Invalid additional speaker'
   INVALID_CODE = 'Invalid speaker code'
-  INVALID_EMAIL = 'Contact email does not match speaker code'
+  INVALID_EMAIL = 'Email address does not match speaker code'
   # SubmissionStatus
   DELETE_SUCCESS = 'Presentation successfully deleted'
   DELETE_FAIL = 'Could not delete presentation'
+  INVALID_CREDENTIAL = 'Cannot find speaker with given info'
+  INVALID_INCOMPLETE = 'Please fill out all the fields'
   UPLOAD_SUCCESS = 'Presentation successfully uploaded'
   UPLOAD_FAIL = 'Could not upload presentation'
 
@@ -79,9 +81,11 @@ def SendConfirmationEmail(presentation):
     return False
   try:
     send_mail('Your simple_cfp submission',
-              '''Your presentation: %s has been submitted.
-Your simple_cfp submission code is %s''' % \
-              (presentation.title, presentation.submission_code),
+              '''Your presentation: %s has been submitted for:
+%s
+Your simple_cfp submission code is %s.''' % \
+              (presentation.title, presentation.speaker.email,
+               presentation.submission_code),
               settings.SCALEREG_SIMPLECFP_EMAIL,
               [presentation.speaker.contact_email])
     return True
@@ -97,9 +101,9 @@ def SendValidationEmail(speaker):
     return False
   try:
     send_mail('Your simple_cfp validation code',
-              '''Your simple_cfp validation code is %s.
+              '''Your simple_cfp validation code for %s is: %s.
 If this email was sent to you by mistake, please reply and let us know.''' % \
-              speaker.validation_code,
+              (speaker.email, speaker.validation_code),
               settings.SCALEREG_SIMPLECFP_EMAIL,
               [speaker.contact_email])
     return True
@@ -131,10 +135,8 @@ def RecoverValidation(request):
     return HttpResponse()
 
   if request.method == 'POST':
-    if 'email' in request.POST:
-      email = request.POST['email']
-    else:
-      email = ''
+    contact_email = request.POST.get('contact_email')
+    email = request.POST.get('email')
 
     recaptcha_response = DoRecaptchaValidation(request,
       'simple_cfp/cfp_recover_validation.html',
@@ -144,12 +146,14 @@ def RecoverValidation(request):
     if recaptcha_response:
       return recaptcha_response
 
-    speakers = models.Speaker.objects.filter(contact_email=email)
+    speakers = models.Speaker.objects.filter(contact_email=contact_email,
+      email=email)
     speakers = speakers.filter(valid=True)
     if not speakers:
       return cfp_render_to_response(request,
         'simple_cfp/cfp_recover_validation.html',
         {'title': TITLE,
+         'contact_email': contact_email,
          'email': email,
          'error': True,
          'recaptcha_html': GenerateRecaptchaHTML(request),
@@ -164,6 +168,7 @@ def RecoverValidation(request):
     return cfp_render_to_response(request,
       'simple_cfp/cfp_recover_validation.html',
       {'title': TITLE,
+       'contact_email': contact_email,
        'email': email,
        'sent': True,
       })
@@ -237,25 +242,26 @@ def RegisterSpeaker(request):
 def SubmissionStatus(request):
   TITLE = 'Submission Status'
 
-  email = request.REQUEST.get('email')
   code = request.REQUEST.get('code')
-  if not (email and code):
+  contact_email = request.REQUEST.get('contact_email')
+  speaker_email = request.REQUEST.get('speaker_email')
+  if not (code and contact_email and speaker_email):
     try:
-      (email, code) = request.session[Cookies.CFP_LOGIN]
+      (code, contact_email, speaker_email) = request.session[Cookies.CFP_LOGIN]
     except:
       pass
 
-  if not (email and code):
+  if not (code and contact_email and speaker_email):
     return cfp_render_to_response(request,
       'simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
+       'error': ErrorMsg.INVALID_INCOMPLETE,
       })
 
   speaker = None
   try:
-    speaker = models.Speaker.objects.get(contact_email=email)
-    if speaker.validation_code != code:
-      speaker = None
+    speaker = models.Speaker.objects.get(validation_code=code,
+      contact_email=contact_email, email=speaker_email)
   except models.Speaker.DoesNotExist:
     pass
 
@@ -263,11 +269,11 @@ def SubmissionStatus(request):
     return cfp_render_to_response(request,
       'simple_cfp/cfp_submission_status.html',
       {'title': TITLE,
-       'error': ErrorMsg.INVALID_EMAIL,
+       'error': ErrorMsg.INVALID_CREDENTIAL,
       })
 
   presentations = models.Presentation.objects.filter(speaker=speaker)
-  request.session[Cookies.CFP_LOGIN] = (email, code)
+  request.session[Cookies.CFP_LOGIN] = (code, contact_email, speaker_email)
 
   # Handle new uploads and deletes
   error = ''
@@ -297,9 +303,10 @@ def SubmissionStatus(request):
     'simple_cfp/cfp_submission_status.html',
     {'title': TITLE,
      'code': code,
-     'email': email,
+     'contact_email': contact_email,
      'error': error,
      'presentations': presentations,
+     'speaker_email': speaker_email,
      'speaker': speaker,
      'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
     })
@@ -353,8 +360,15 @@ def SubmitPresentation(request):
          'upload': settings.SCALEREG_SIMPLECFP_ALLOW_UPLOAD,
         })
 
+    bad_email = False
     if speaker.contact_email != form.cleaned_data['contact_email']:
       form.errors['contact_email'] = ErrorList([ErrorMsg.INVALID_EMAIL])
+      bad_email = True
+    if speaker.email != form.cleaned_data['speaker_email']:
+      form.errors['speaker_email'] = ErrorList([ErrorMsg.INVALID_EMAIL])
+      bad_email = True
+
+    if bad_email:
       return cfp_render_to_response(request,
         'simple_cfp/cfp_presentation.html',
         {'title': TITLE,
@@ -374,8 +388,9 @@ def SubmitPresentation(request):
     if recaptcha_response:
       return recaptcha_response
 
-    request.session[Cookies.CFP_LOGIN] = (request.POST['contact_email'],
-                                          request.POST['speaker_code'])
+    request.session[Cookies.CFP_LOGIN] = (request.POST['speaker_code'],
+                                          request.POST['contact_email'],
+                                          request.POST['speaker_email'])
     new_presentation = form.save(commit=False)
     new_presentation.speaker = speaker
     new_presentation.submission_code = GeneratePresentationValidationCode()
@@ -403,9 +418,10 @@ def SubmitPresentation(request):
   else:
     form = forms.PresentationForm()
     try:
-      (email, code) = request.session[Cookies.CFP_LOGIN]
-      form.fields['contact_email'].initial = email
+      (code, contact_email, speaker_email) = request.session[Cookies.CFP_LOGIN]
       form.fields['speaker_code'].initial = code
+      form.fields['contact_email'].initial = contact_email
+      form.fields['speaker_email'].initial = speaker_email
     except:
       pass
 

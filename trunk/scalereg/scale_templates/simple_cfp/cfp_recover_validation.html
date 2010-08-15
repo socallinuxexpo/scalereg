@@ -4,25 +4,32 @@
 <div id="content-main">
     {% if sent %}
     <p>
-    Your validation code has been send to {{ email }}.
+    Your validation code for {{ email }} has been send to {{ contact_email }}.
     </p>
     {% else %}
         {% if error %}
         <p>
-        Your email address: "{{ email }}", is not in our records.
+        A speaker with email address {{ email }} and contact email
+        {{ contact_email }} is not in our records.
         </p>
         {% endif %}
 
         <p>
-        If you forgot your validation code, type your contact email address
-        below and your validation code will be emailed to you.
+        If you forgot your validation code, type your speaker email address
+        and contact email address below we will send your validation code to
+        your contact email address.
         </p>
 
         <form method="post" action=".">
         <p>
-        <b>Contact Email Address:</b>
+        <b>Speaker Email Address:</b>
         <input name="email" type="textbox" maxlength="60"
          value="{{ email }}" />
+        </p>
+        <p>
+        <b>Contact Email Address:</b>
+        <input name="contact_email" type="textbox" maxlength="60"
+         value="{{ contact_email }}" />
         </p>
 
         {% if recaptcha_html %}

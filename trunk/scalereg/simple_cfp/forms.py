@@ -9,6 +9,7 @@ class PresentationForm(ModelForm):
     model = Presentation
     fields = (
       'contact_email',
+      'speaker_email',
       'speaker_code',
       'categories',
       'audiences',
