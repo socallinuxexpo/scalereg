@@ -19,7 +19,7 @@ class PresentationForm(ModelForm):
       'file',
       'msg',
     )
-  additional_speakers = forms.Field()
+  additional_speakers = forms.Field(required=False)
 
 
 class SpeakerForm(ModelForm):
@@ -39,4 +39,4 @@ class SpeakerForm(ModelForm):
       'url',
       'bio',
     )
-  photo_upload = forms.FileField()
+  photo_upload = forms.FileField(required=False)

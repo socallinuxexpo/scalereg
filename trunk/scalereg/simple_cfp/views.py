@@ -317,6 +317,8 @@ def SubmitPresentation(request):
     additional_speakers = set()
     invalid_speakers = set()
     for sp in form.data['additional_speakers'].split(','):
+      if not sp:
+        continue
       sp = sp.strip()
       try:
         adsp = models.Speaker.objects.get(email=sp)
