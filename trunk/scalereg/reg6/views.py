@@ -320,7 +320,7 @@ def AddAttendee(request):
     request.session['attendee'] = ''
     form = forms.AttendeeForm()
   else:
-    if request.session['attendee']:
+    if 'attendee' in request.session and request.session['attendee']:
       return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
          'error_message': 'You already added this attendee.',
