@@ -9,7 +9,7 @@ for PNGFILE in $SCRIPTDIR/out_png/*.png; do
   if [ ! -e "$SCRIPTDIR/out_print/$PDFFILE" ]; then
     echo printing $PDFFILE to $PRINTER
     convert -density 300 -units PixelsPerInch "$PNGFILE" \
-            -density 72 -units PixelsPerInch "$SCRIPTDIR/out_print/$PDFFILE"
+      "$SCRIPTDIR/out_print/$PDFFILE"
     # Remove the echo to actually print
     #/usr/bin/lp -d "$PRINTER" "$SCRIPTDIR/out_print/$PDFFILE"
   fi
