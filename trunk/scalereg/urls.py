@@ -1,3 +1,4 @@
+from django.conf.urls import *
 from django.conf.urls.defaults import *
 
 # Uncomment the next two lines to enable the admin:
@@ -14,7 +15,7 @@ urlpatterns = patterns('',
      'django.contrib.auth.views.password_change'),
     (r'^accounts/password_change/done/$',
      'django.contrib.auth.views.password_change_done'),
-    (r'^admin/(.*)', admin.site.urls),
+    (r'^admin/', include(admin.site.urls)),
     (r'^reg6/', include('scalereg.reg6.urls')),
     (r'^reports/', include('scalereg.reports.urls')),
     (r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
