@@ -1,9 +1,9 @@
 from scalereg.common.validators import ScaleValidationError
 from scalereg.reg6 import models
-import sha
+import hashlib
 
 def hash(data):
-  return sha.new('SECRET' + data).hexdigest()
+  return hashlib.sha1.new('SECRET' + data).hexdigest()
 
 def isValid7XHash(field_data, all_data):
   if not field_data:
