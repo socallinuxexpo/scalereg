@@ -1,0 +1,26 @@
+1. INTRODUCTION
+
+Print is the badge printing component of the ScaleReg registration
+system. used by SCALE, the Southern California Linux Expo. 
+
+2. REQUIREMENTS
+
+To run Print, you need the following:
+
+- Python 2.3 to 2.6.
+- Python GD
+- ImageMagick
+
+3. GETTING STARTED
+
+After extracting the Scalereg tarball, from the top-level directory
+of the Scalereg source (which contains this file), go to the print/
+directory that contains settings.sh.
+
+Now edit settings.sh and make sure all the settings look correct. 
+
+To load some sample data:
+
+* <instructions>
+
+And to start the service:
