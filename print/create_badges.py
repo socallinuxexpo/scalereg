@@ -36,7 +36,7 @@ class Badge:
     self.amount = badge_data[9]
     self.addons = badge_data[11:]
     self.data = '%s' % '~'.join(
-        [str(self.id), self.first_name, self.last_name, self.email])
+      [str(self.id), self.first_name, self.last_name, self.title, self.company, self.phone, self.email])
 
   def printBadge(self):
     badge_file = os.path.join(self.datadir, 'out_png', '%05d.png' % self.id)
@@ -65,7 +65,8 @@ class Badge:
       barcode_script = os.path.join(self.datadir, 'barcode.sh')
       barcode_out = os.path.join(self.datadir, 'out_barcodes',
                                  '%05d.png' % self.id)
-      process = subprocess.Popen([barcode_script, barcode_out, self.data])
+      barcode_type="dummy"
+      process = subprocess.Popen([barcode_script, barcode_out, self.data, barcode_type])
       (_, ret) = os.waitpid(process.pid, 0)
       if ret != 0:
         return None
@@ -74,14 +75,14 @@ class Badge:
       out = gd.image(os.path.join(self.datadir, 'badge.png'))
 
       # get and paste barcode
-      ##barcode = gd.image(barcode_out)
+      barcode = gd.image(barcode_out)
       barcode_left = 2100
-      barcode_bottom = 2750
-      #imageHeight = barcode.size()[1]
-      #barcode_top = barcode_bottom - imageHeight
-      #barcode.copyTo(out, (barcode_left, barcode_top))
+      barcode_bottom = 2650
+      imageHeight = barcode.size()[1]
+      barcode_top = barcode_bottom - imageHeight
+      barcode.copyTo(out, (barcode_left, barcode_top))
 
-      main_top = barcode_bottom 
+      main_top = barcode_bottom + 200 
       main_left = 1600 - 50 
       main_width = 800
 
