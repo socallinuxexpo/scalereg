@@ -8,7 +8,7 @@ for PNGFILE in $SCRIPTDIR/out_png/*.png; do
   PDFFILE=$(echo $PDFFILE | sed 's/png$/pdf/')
   if [ ! -e "$SCRIPTDIR/out_print/$PDFFILE" ]; then
     echo printing $PDFFILE to $PRINTER
-    convert -density 300 -units PixelsPerInch "$PNGFILE" \
+    convert -density 72 -units PixelsPerInch "$PNGFILE" \
       "$SCRIPTDIR/out_print/$PDFFILE"
     # Remove the echo to actually print
     #/usr/bin/lp -d "$PRINTER" "$SCRIPTDIR/out_print/$PDFFILE"
