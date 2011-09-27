@@ -21,7 +21,7 @@ class Badge:
     }
 
     badge_data = data.split('~')[1:-1]
-    if len(badge_data) < 11:
+    if len(badge_data) < 12:
       raise ValueError
     self.salutation = badge_data[0]
     self.first_name = badge_data[1]
@@ -32,9 +32,11 @@ class Badge:
     self.email = badge_data[5]
     self.phone = badge_data[6]
     self.id = int(badge_data[7])
-    self.type = tickets[badge_data[8]]
-    self.amount = badge_data[9]
-    self.addons = badge_data[11:]
+    self.reprint = int(badge_data[8])
+    self.type = tickets[badge_data[9]]
+    self.amount = badge_data[10]
+    self.shirt = badge_data[11]
+    self.addons = badge_data[12:]
     self.data = '%s' % '~'.join(
       [str(self.id), self.first_name, self.last_name, self.title, self.company, self.phone, self.email])
 
@@ -137,10 +139,10 @@ def realFetchDB(datadir):
 
 def fakeFetchDB(datadir):
   print "Using fake data, see fetchDB()"
-  return """~Salutation~First Name~Last Name~Title~Company~Email~Phone~1324~friday~100~Large~Foo~Bar~Qux~XYZZY 12345~
-~Mr.~Lei~Zhang~Slacker~Home~leiz@example.org~6261234567~555~staff~50~Medium~
-~Mr.~John Billy~Scott~President~ACME Incorporated~president@acme.inc~1234567890~999~expo~10~Medium~"""
-
+  return """~Mr.~John~Doe~Title~Company~sdf@asdf.com~555-555-1212~1~0~expo~130.00~???~~
+~Salutation~First Name~Last Name~Title~Company~Email~Phone~1324~0~friday~100.00~Large~Foo~Bar~Qux~XYZZY 12345~
+~Mr.~Lei~Zhang~Slacker~Home~leiz@example.org~6261234567~555~0~staff~50~Medium~
+~Mr.~John Billy~Scott~President~ACME Incorporated~president@acme.inc~1234567890~999~1~expo~10~Medium~"""
 
 def printRun():
   print 'Starting print run at %s' % datetime.datetime.today().isoformat(' ')
