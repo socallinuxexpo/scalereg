@@ -586,6 +586,7 @@ def Sale(request):
     'EMAIL',
     'AMOUNT',
     'AUTHCODE',
+    'PNREF',
     'RESULT',
     'RESPMSG',
     'USER1',
@@ -647,6 +648,7 @@ def Sale(request):
       amount=request.POST['AMOUNT'],
       payment_type='verisign',
       auth_code=request.POST['AUTHCODE'],
+      pnref=request.POST['PNREF'],
       resp_msg=request.POST['RESPMSG'],
       result=request.POST['RESULT'],
     )
