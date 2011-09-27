@@ -644,7 +644,7 @@ def Sale(request):
       country=request.POST['COUNTRY'],
       email=request.POST['EMAIL'],
       phone=request.POST['PHONE'],
-      amount=float(request.POST['AMOUNT']),
+      amount=request.POST['AMOUNT'],
       payment_type='verisign',
       auth_code=request.POST['AUTHCODE'],
       resp_msg=request.POST['RESPMSG'],
