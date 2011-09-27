@@ -565,7 +565,7 @@ def Payment(request):
 def Sale(request):
   if request.method != 'POST':
     ScaleDebug('not POST')
-    return HttpResponseServerError('not POST')
+    HttpResponse('Method not allowed: %s' % request.method, status=405)
 #  if 'HTTP_REFERER' in request.META:
 #    print request.META['HTTP_REFERER']
 #  if 'HTTP_REFERER' not in request.META  or \
