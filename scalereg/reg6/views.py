@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
+from django.conf import settings
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
@@ -556,6 +557,8 @@ def Payment(request):
     {'title': 'Registration Payment',
      'attendees': all_attendees_data,
      'order': order_num,
+     'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
+     'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
      'total': total,

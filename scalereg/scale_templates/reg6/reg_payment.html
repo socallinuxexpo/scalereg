@@ -48,9 +48,9 @@
 
     <form method="post" action="https://payflowlink.paypal.com/">
     <p>
-    <input type="hidden" name="LOGIN" value="PAYFLOW_LOGIN">
-    <input type="hidden" name="PARTNER" value="verisign">
     <input type="hidden" name="AMOUNT" value="{{ total }}">
+    <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
+    <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
     <input type="hidden" name="TYPE" value="S">
     <input type="hidden" name="USER1" value="{{ order }}">
     {% if kiosk %}
