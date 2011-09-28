@@ -1,11 +1,11 @@
 # Create your views here.
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
-from django.conf import settings
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
@@ -13,11 +13,10 @@ import datetime
 import re
 import sys
 
-DEBUG_LOGGING = False
 STEPS_TOTAL = 7
 
 def ScaleDebug(msg):
-  if not DEBUG_LOGGING:
+  if not settings.SCALEREG_DEBUG_LOGGING_ENABLED:
     return
 
   frame = sys._getframe(1)
@@ -27,7 +26,7 @@ def ScaleDebug(msg):
   filename = frame.f_code.co_filename
 
   line = 'File "%s", line %d, in %s: %s' % (filename, line_number, name, msg)
-  handle = open('/tmp/scale_reg.log', 'a')
+  handle = open(settings.SCALEREG_DEBUG_LOGGING_PATH, 'a')
   handle.write('%s: %s\n' % (datetime.datetime.now(), line))
   handle.close()
 

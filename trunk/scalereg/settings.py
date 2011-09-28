@@ -3,6 +3,11 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# Additional debug logging for sales transactions
+# Set to True to enable.
+SCALEREG_DEBUG_LOGGING_ENABLED = False
+SCALEREG_DEBUG_LOGGING_PATH = "/tmp/scale_reg.log"
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
