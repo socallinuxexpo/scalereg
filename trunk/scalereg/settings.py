@@ -117,5 +117,12 @@ SCALEREG_SIMPLECFP_EMAIL = ''
 # MEDIA_ROOT and MEDIA_URL need to be set for uploads to work.
 SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
 
+
+#PayFlow Account Settings must be set to use PayFlow
+#Manager User Login
+SCALEREG_PAYFLOW_LOGIN = ''
+# Partner (either Payapl or Verisign)
+SCALEREG_PAYFLOW_PARTNER = ''
+
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
 #FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
