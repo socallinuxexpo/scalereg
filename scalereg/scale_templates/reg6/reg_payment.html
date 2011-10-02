@@ -5,7 +5,6 @@
 <div id="content-main">
 
 {% if attendees and total %}
-    <br />
     <h2>
     You are paying for the following attendee(s):
     </h2>
@@ -21,7 +20,7 @@
     </tr>
     </thead>
     <tbody>
-    {% for person  in attendees %}
+    {% for person in attendees %}
     <tr>
         <td>{{ person.id }}</td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
@@ -62,10 +61,10 @@
     </p>
     </form>
 
-    <h2>Pay With A Coupon:</h2>
+    <h2>Pay With a Coupon:</h2>
 
     <p>
-    If you have a coupon to redeem, please enter the code below:
+    If you have a coupon to redeem, please enter the 10 digit code below:
     </p>
 
     <form method="post" action="../redeem_coupon/">

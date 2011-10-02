@@ -4,9 +4,13 @@
 {% block content %}
 <div id="content-main">
 
-{% if code %}
+{% if coupon_code %}
 <p>
-Coupon code: {{ code|upper }}
+Coupon code: {{ coupon_code|upper }}
+</p>
+
+<p>
+Please note coupon codes does not pay for non-free addon items.
 </p>
 {% else %}
 <table>
@@ -35,7 +39,8 @@ Coupon code: {{ code|upper }}
         <th>Registration Number</th>
         <th>Name</th>
         <th>Email</th>
-        {% if not code %}
+        <th>Items</th>
+        {% if not coupon_code %}
         <th>Amount</th>
         {% endif %}
     </tr>
@@ -46,7 +51,12 @@ Coupon code: {{ code|upper }}
         <td>{{ person.id }}</td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.email }}</td>
-        {% if not code %}
+        <td>
+        {% for item in person.ordered_items.all %}
+        * {{ item.description }} <br />
+        {% endfor %}
+        </td>
+        {% if not coupon_code %}
         <td>{{ person.ticket_cost|money }}</td>
         {% endif %}
     </tr>
@@ -60,6 +70,8 @@ Thank you for registering, please close this browser and go to the registration
 counter to pick up your badge. If you need a receipt, please ask for it at the
 registration counter.
 </p>
+{% else %}
+<button type="button" onclick="window.print()">Print receipt</button>
 {% endif %}
 
 </div>
