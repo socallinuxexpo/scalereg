@@ -39,6 +39,7 @@ Please note coupon codes does not pay for non-free addon items.
         <th>Registration Number</th>
         <th>Name</th>
         <th>Email</th>
+        <th>Ticket</th>
         <th>Items</th>
         {% if not coupon_code %}
         <th>Amount</th>
@@ -51,6 +52,7 @@ Please note coupon codes does not pay for non-free addon items.
         <td>{{ person.id }}</td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.email }}</td>
+        <td>{{ person.badge_type.description }}</td>
         <td>
         {% for item in person.ordered_items.all %}
         * {{ item.description }} <br />
