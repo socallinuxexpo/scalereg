@@ -894,7 +894,7 @@ def RedeemCoupon(request):
   return scale_render_to_response(request, 'reg6/reg_receipt.html',
     {'title': 'Registration Payment Receipt',
      'attendees': all_attendees_data,
-     'code': request.POST['code'],
+     'coupon_code': request.POST['code'],
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
     })
