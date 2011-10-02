@@ -34,7 +34,12 @@
         <tr>
         <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name }}" /></td>
         <td>{{ item.description }}</td>
-        <td>{{ item.price|money }}</td>
+        <td>
+            {{ item.price|money }}
+            {% if item.ticket_offset %}
+            (Waives ticket price of {{ ticket.price|money }})
+            {% endif %}
+        </td>
         </tr>
     {% endfor %}
     </tbody>

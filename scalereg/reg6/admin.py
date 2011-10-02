@@ -40,8 +40,9 @@ class TextQuestionOptions(admin.ModelAdmin):
 
 
 class ItemOptions(admin.ModelAdmin):
-  list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo')
-  list_filter = ('active', 'pickup', 'promo')
+  list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo',
+                  'ticket_offset')
+  list_filter = ('active', 'pickup', 'promo', 'ticket_offset')
   save_on_top = True
 
 

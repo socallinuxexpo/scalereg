@@ -208,6 +208,7 @@ class Item(models.Model):
   active = models.BooleanField()
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
   promo = models.BooleanField(help_text='Price affected by promo code?')
+  ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
   applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
@@ -311,13 +312,16 @@ class Attendee(models.Model):
           self.badge_type in self.promo.applies_to.all()):
         price_modifier = self.promo.price_modifier
 
-    total = self.badge_type.price * price_modifier
+    ticket_price = self.badge_type.price * price_modifier
+    items_price = 0
     for item in self.ordered_items.all():
       additional_cost = item.price
       if item.promo:
         additional_cost *= price_modifier
-      total += additional_cost
-    return total
+      items_price += additional_cost
+      if item.ticket_offset:
+        ticket_price = 0
+    return ticket_price + items_price
 
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)

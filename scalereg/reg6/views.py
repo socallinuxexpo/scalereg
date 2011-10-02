@@ -312,8 +312,15 @@ def AddAttendee(request):
   ApplyPromoToItems(promo_in_use, selected_items)
 
   total = ticket.price
+  offset_item = None
   for item in selected_items:
     total += item.price
+    if offset_item:
+      continue
+    if item.ticket_offset:
+      offset_item = item
+  if offset_item:
+    total -= ticket.price
 
   list_questions = FindRelevantQuestions(models.ListQuestion, ticket,
       selected_items)
@@ -385,6 +392,7 @@ def AddAttendee(request):
      'ticket': ticket,
      'promo': promo_name,
      'items': selected_items,
+     'offset_item': offset_item,
      'total': total,
      'list_questions': list_questions,
      'text_questions': text_questions,

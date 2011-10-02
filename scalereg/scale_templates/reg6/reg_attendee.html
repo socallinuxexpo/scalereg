@@ -30,6 +30,17 @@
     </p>
     {% endif %}
 
+    {% if offset_item %}
+    <p>
+    You received the following credits:
+    </p>
+
+    <p>
+    * {{ offset_item.description }} waives the ticket price of
+      {{ ticket.price|money }}.
+    </p>
+    {% endif %}
+
     <p>
     Your total is {{ total|money }}.
     </p>
