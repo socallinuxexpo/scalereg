@@ -66,6 +66,41 @@ Please note coupon codes does not pay for non-free addon items.
     </tbody>
 </table>
 
+{% if already_paid_attendees %}
+<p>
+Already paid attendees charged on this order:
+</p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Registration Number</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Ticket</th>
+        <th>Items</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in already_paid_attendees %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.badge_type.description }}</td>
+        <td>
+        {% for item in person.ordered_items.all %}
+        * {{ item.description }} <br />
+        {% endfor %}
+        </td>
+        <td>{{ person.ticket_cost|money }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
 {% if kiosk %}
 <p>
 Thank you for registering, please close this browser and go to the registration

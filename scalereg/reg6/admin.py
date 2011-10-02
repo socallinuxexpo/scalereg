@@ -63,7 +63,8 @@ class OrderOptions(admin.ModelAdmin):
     ('Contact Info', {'fields': ('email', 'phone')}),
     ('Order Info', {'fields': ('order_num', 'valid')}),
     ('Payment Info', {'fields': ('amount', 'payment_type', 'auth_code',
-                                 'pnref', 'resp_msg', 'result')}),
+                                 'pnref', 'resp_msg', 'result',
+                                 'already_paid_attendees')}),
   )
   list_display = ('order_num', 'date', 'name', 'address', 'city', 'state',
                   'zip', 'country', 'email', 'phone', 'amount', 'payment_type',

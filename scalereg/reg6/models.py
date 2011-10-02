@@ -60,6 +60,9 @@ class Order(models.Model):
     help_text='Only used by Verisign')
   result = models.CharField(max_length=60, blank=True,
     help_text='Only used by Verisign')
+  already_paid_attendees = models.ManyToManyField('Attendee', blank=True,
+    null=True, related_name='already_paid',
+    help_text='Attendees charged multiple times on this order')
 
   # additional order for upgrades
   additional_order = models.OneToOneField('self', blank=True, null=True)

@@ -630,10 +630,13 @@ def Sale(request):
     return HttpResponseServerError('order already exists')
 
   all_attendees_data = []
+  already_paid_attendees_data = []
   for id in temp_order.attendees_list():
     try:
       attendee = models.Attendee.objects.get(id=id)
-      if not attendee.valid:
+      if attendee.valid:
+        already_paid_attendees_data.append(attendee)
+      else:
         all_attendees_data.append(attendee)
     except models.Attendee.DoesNotExist:
       ScaleDebug('cannot find an attendee')
@@ -642,7 +645,11 @@ def Sale(request):
   total = 0
   for person in all_attendees_data:
     total += person.ticket_cost()
-  assert int(total) == int(float(request.POST['AMOUNT']))
+  for person in already_paid_attendees_data:
+    total += person.ticket_cost()
+  if int(total) != int(float(request.POST['AMOUNT'])):
+    ScaleDebug('incorrect payment amount')
+    return HttpResponseServerError('incorrect payment amount')
 
   try:
     order = models.Order(order_num=request.POST['USER1'],
@@ -663,6 +670,8 @@ def Sale(request):
       result=request.POST['RESULT'],
     )
     order.save()
+    for attendee in already_paid_attendees_data:
+      order.already_paid_attendees.add(attendee)
   except Exception, inst: # FIXME catch the specific db exceptions
     ScaleDebug('cannot save order')
     print inst
@@ -713,12 +722,14 @@ def FinishPayment(request):
     return HttpResponseServerError('Your order cannot be found')
 
   all_attendees_data = models.Attendee.objects.filter(order=order.order_num)
+  already_paid_attendees_data = order.already_paid_attendees
 
   return scale_render_to_response(request, 'reg6/reg_receipt.html',
     {'title': 'Registration Payment Receipt',
      'name': request.POST['NAME'],
      'email': request.POST['EMAIL'],
      'attendees': all_attendees_data,
+     'already_paid_attendees': already_paid_attendees_data.all(),
      'order': request.POST['USER1'],
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
