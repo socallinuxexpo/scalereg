@@ -103,12 +103,15 @@ Already paid attendees charged on this order:
 
 {% if kiosk %}
 <p>
-Thank you for registering, please close this browser and go to the registration
-counter to pick up your badge. If you need a receipt, please ask for it at the
-registration counter.
+Thank you for registering!<br />
+Please close this browser and go to the badge pickup area at registration
+to pick up your badge.<br />
+If you need a receipt, please ask for it at the registration counter.
 </p>
 {% else %}
+<p>
 <button type="button" onclick="window.print()">Print receipt</button>
+</p>
 {% endif %}
 
 </div>
