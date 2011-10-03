@@ -48,14 +48,14 @@
     </p>
 
     <p>
-    <form action="../start_payment/" method="post">
+    <form method="get" action="../start_payment/">
     <input type="submit" value="Pay For Registration" />
     </form>
     <br />
     </p>
 
     <p>
-    <form action="../" method="post">
+    <form method="post" action="../">
     {% if attendee.promo %}
     <input type="hidden" name="promo" value="{{ attendee.promo }}" />
     {% endif %}
