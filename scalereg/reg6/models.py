@@ -64,9 +64,6 @@ class Order(models.Model):
     null=True, related_name='already_paid',
     help_text='Attendees charged multiple times on this order')
 
-  # additional order for upgrades
-  additional_order = models.OneToOneField('self', blank=True, null=True)
-
   class Meta:
     permissions = (('view_order', 'Can view order'),)
 
