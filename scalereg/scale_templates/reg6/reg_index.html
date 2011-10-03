@@ -61,7 +61,7 @@
     </p>
     {% else %}
     <p>
-    If you have a promo code, enter it here:
+    If you have a 1-5 digit promo code, enter it here:
     </p>
 
     <p>
@@ -86,7 +86,9 @@
     <h4>Pay For Previous Registration</h4>
 
     <p>
-    If you already registered, and would like to pay for your registration, or if you are paying for other registered attendees, then click the "Pay For Registration" button below.
+    If you already registered, and would like to pay for your registration,
+    or if you are paying for other registered attendees,
+    then click the "Pay For Previous Registration" button below.
     </p>
 
     <form method="post" action="start_payment/">
@@ -94,6 +96,8 @@
     </form>
 
     {% if promo %}
+    <h4>Change Promo Code</h4>
+
     <form method="post" action=".">
     <input type="submit" value="Change promo code" />
     </form>
