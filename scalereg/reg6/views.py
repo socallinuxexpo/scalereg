@@ -103,6 +103,14 @@ def FindRelevantQuestions(type, ticket, selected_items):
   return questions
 
 
+def ItemNameCompare(x, y):
+  if x.name == y.name:
+    return 0
+  if x.name < y.name:
+    return -1
+  return 1
+
+
 def GetTicketItems(ticket):
   set1 = ticket.item_set.all()
   set2 = models.Item.objects.filter(applies_to_all=True)
@@ -112,7 +120,7 @@ def GetTicketItems(ticket):
       continue
     if s not in combined_set:
       combined_set.append(s)
-  combined_set.sort()
+  combined_set.sort(cmp=ItemNameCompare)
   return combined_set
 
 
