@@ -438,12 +438,11 @@ def StartPayment(request):
   if 'payment' not in request.session:
     request.session['payment'] = []
 
-  new_attendee = None
   all_attendees = []
+  new_attendee = None
   bad_attendee = None
   paid_attendee = None
   removed_attendee = None
-  total = 0
 
   # sanitize session data first
   for id in request.session['payment']:
@@ -454,32 +453,33 @@ def StartPayment(request):
     if not person.valid:
       all_attendees.append(id)
 
-  if 'remove' in request.POST:
-    try:
-      remove_id = int(request.POST['remove'])
-      if remove_id in all_attendees:
-        all_attendees.remove(remove_id)
-    except ValueError:
-      pass
-  elif 'id' in request.POST and 'email' in request.POST:
-    try:
-      id = int(request.POST['id'])
-      new_attendee = models.Attendee.objects.get(id=id)
-    except (ValueError, models.Attendee.DoesNotExist):
-      id = None
-
-    if id in all_attendees:
-      new_attendee = None
-    elif new_attendee and new_attendee.email == request.POST['email']:
-      if not new_attendee.valid:
-        if new_attendee not in all_attendees:
-          all_attendees.append(id)
-      else:
-        paid_attendee = new_attendee
+  if request.method == 'POST':
+    if 'remove' in request.POST:
+      try:
+        remove_id = int(request.POST['remove'])
+        if remove_id in all_attendees:
+          all_attendees.remove(remove_id)
+      except ValueError:
+        pass
+    elif 'id' in request.POST and 'email' in request.POST:
+      try:
+        id = int(request.POST['id'])
+        new_attendee = models.Attendee.objects.get(id=id)
+      except (ValueError, models.Attendee.DoesNotExist):
+        id = None
+ 
+      if id in all_attendees:
         new_attendee = None
-    else:
-      bad_attendee = [request.POST['id'], request.POST['email']]
-      new_attendee = None
+      elif new_attendee and new_attendee.email == request.POST['email']:
+        if not new_attendee.valid:
+          if new_attendee not in all_attendees:
+            all_attendees.append(id)
+        else:
+          paid_attendee = new_attendee
+          new_attendee = None
+      else:
+        bad_attendee = [request.POST['id'], request.POST['email']]
+        new_attendee = None
 
   # sanity check
   checksum = 0
@@ -497,9 +497,9 @@ def StartPayment(request):
     except models.Attendee.DoesNotExist:
       pass
 
-  all_attendees = [attendee.id for attendee in all_attendees_data]
+  request.session['payment'] = [attendee.id for attendee in all_attendees_data]
 
-  request.session['payment'] = all_attendees
+  total = 0
   for person in all_attendees_data:
     total += person.ticket_cost()
 
