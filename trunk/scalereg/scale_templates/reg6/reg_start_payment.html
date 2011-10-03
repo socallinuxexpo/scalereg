@@ -4,7 +4,6 @@
 {% block content %}
 <div id="content-main">
 
-<br />
 {% if bad_attendee %}
     <h2>Attendee Not Found</h2>
     <p>
@@ -113,8 +112,6 @@
     Total: {{ total|money }}
     </p>
 
-{% if attendees and total %}
-
     <p>
     If you are ready to pay for the above attendee(s), click "Pay For This Order" to continue.
     </p>
@@ -126,8 +123,6 @@
     <br />
     </p>
     <h2>Pay for additional attendees:</h2>
-
-{% endif %}
 
     <p>
     If you want to pay for more attendees at once, use the 'add attendee' form here.
