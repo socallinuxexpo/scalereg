@@ -15,6 +15,8 @@ import sys
 
 STEPS_TOTAL = 7
 
+REGISTRATION_PAYMENT_COOKIE = 'payment'
+
 def ScaleDebug(msg):
   if not settings.SCALEREG_DEBUG_LOGGING_ENABLED:
     return
@@ -394,10 +396,10 @@ def AddAttendee(request):
       request.session['attendee'] = new_attendee.id
 
       # add attendee to order
-      if 'payment' not in request.session:
-        request.session['payment'] = [new_attendee.id]
+      if REGISTRATION_PAYMENT_COOKIE not in request.session:
+        request.session[REGISTRATION_PAYMENT_COOKIE] = [new_attendee.id]
       else:
-        request.session['payment'].append(new_attendee.id)
+        request.session[REGISTRATION_PAYMENT_COOKIE].append(new_attendee.id)
 
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
@@ -441,8 +443,8 @@ def RegisteredAttendee(request):
 def StartPayment(request):
   PAYMENT_STEP = 5
 
-  if 'payment' not in request.session:
-    request.session['payment'] = []
+  if REGISTRATION_PAYMENT_COOKIE not in request.session:
+    request.session[REGISTRATION_PAYMENT_COOKIE] = []
 
   all_attendees = []
   new_attendee = None
@@ -451,7 +453,7 @@ def StartPayment(request):
   removed_attendee = None
 
   # sanitize session data first
-  for id in request.session['payment']:
+  for id in request.session[REGISTRATION_PAYMENT_COOKIE]:
     try:
       person = models.Attendee.objects.get(id=id)
     except models.Attendee.DoesNotExist:
@@ -503,7 +505,8 @@ def StartPayment(request):
     except models.Attendee.DoesNotExist:
       pass
 
-  request.session['payment'] = [attendee.id for attendee in all_attendees_data]
+  request.session[REGISTRATION_PAYMENT_COOKIE] =
+    [attendee.id for attendee in all_attendees_data]
 
   total = 0
   for person in all_attendees_data:
@@ -531,14 +534,14 @@ def Payment(request):
   if r:
     return r
 
-  required_cookies = ['payment']
+  required_cookies = [REGISTRATION_PAYMENT_COOKIE]
   r = CheckVars(request, [], required_cookies)
   if r:
     return r
 
   total = 0
 
-  all_attendees = request.session['payment']
+  all_attendees = request.session[REGISTRATION_PAYMENT_COOKIE]
   all_attendees_data = []
   for id in all_attendees:
     try:
@@ -549,7 +552,7 @@ def Payment(request):
       pass
 
   all_attendees = [attendee.id for attendee in all_attendees_data]
-  request.session['payment'] = all_attendees
+  request.session[REGISTRATION_PAYMENT_COOKIE] = all_attendees
 
   for person in all_attendees_data:
     total += person.ticket_cost()
