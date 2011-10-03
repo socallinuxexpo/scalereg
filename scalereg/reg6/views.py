@@ -147,6 +147,12 @@ def CheckVars(request, post, cookies):
   return None
 
 
+def CheckReferrer(meta, path):
+  if 'HTTP_REFERER' in meta and path in meta['HTTP_REFERER']:
+    return None
+  return HttpResponseRedirect('/reg6/')
+
+
 def GenerateOrderID(bad_nums):
   return utils.GenerateUniqueID(10, bad_nums)
 
@@ -237,9 +243,9 @@ def kiosk_index(request):
 def AddItems(request):
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
-  if 'HTTP_REFERER' not in request.META or \
-    '/reg6/' not in request.META['HTTP_REFERER']:
-    return HttpResponseRedirect('/reg6/')
+  r = CheckReferrer(request.META, '/reg6/')
+  if r:
+    return r
 
   required_vars = ['promo', 'ticket']
   r = CheckVars(request, required_vars, [])
@@ -413,9 +419,9 @@ def AddAttendee(request):
 def RegisteredAttendee(request):
   if request.method != 'GET':
     return HttpResponseRedirect('/reg6/')
-  if 'HTTP_REFERER' not in request.META  or \
-    '/reg6/add_attendee/' not in request.META['HTTP_REFERER']:
-    return HttpResponseRedirect('/reg6/')
+  r = CheckReferrer(request.META, '/reg6/add_attendee/')
+  if r:
+    return r
 
   required_cookies = ['attendee']
   r = CheckVars(request, [], required_cookies)
@@ -521,9 +527,9 @@ def Payment(request):
 
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
-  if 'HTTP_REFERER' not in request.META  or \
-    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
-    return HttpResponseRedirect('/reg6/')
+  r = CheckReferrer(request.META, '/reg6/start_payment/')
+  if r:
+    return r
 
   required_cookies = ['payment']
   r = CheckVars(request, [], required_cookies)
@@ -851,9 +857,9 @@ def RedeemCoupon(request):
 
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
-  if 'HTTP_REFERER' not in request.META  or \
-    '/reg6/payment/' not in request.META['HTTP_REFERER']:
-    return HttpResponseRedirect('/reg6/')
+  r = CheckReferrer(request.META, '/reg6/payment/')
+  if r:
+    return r
 
   required_vars = [
     'code',
