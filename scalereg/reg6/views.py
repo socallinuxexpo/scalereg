@@ -307,7 +307,7 @@ def AddAttendee(request):
   if request.POST['promo'] in avail_promocodes:
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
 
-  promo_name = ApplyPromoToTickets(promo_in_use, ticket)
+  promo_name = ApplyPromoToTickets(promo_in_use, [ticket])
   avail_items = GetTicketItems(ticket)
 
   selected_items = []
