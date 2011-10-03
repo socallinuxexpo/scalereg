@@ -5,37 +5,49 @@
 <div id="content-main">
 
 {% if search %}
-    <p>
-    Search results for: {{ email }} and {{ zip }}.
-    </p>
-{% endif %}
+    <hr />
 
-{% if attendees %}
-    <table border="1">
-    <head>
-    <tr>
-        <th>Registration Number</th>
-        <th>Name</th>
-        <th>Paid For</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for person in attendees %}
+    <p>
+    {% if email and zip %}
+        Search results for: {{ email }} and {{ zip }}.
+    {% else %}
+        Please fill out all required fields to search.
+    {% endif %}
+    </p>
+
+    {% if attendees %}
+        <table border="1">
+        <head>
         <tr>
-        <td>{{ person.id }}</td>
-        <td>{{ person.first_name }} {{ person.last_name }}</td>
-        <td>
-        {% if person.valid %}
-        Yes
-        {% else %}
-        No
-        {% endif %}
-        </td>
+            <th>Registration Number</th>
+            <th>Name</th>
+            <th>Paid For</th>
         </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-{% endif %}
+        </thead>
+        <tbody>
+        {% for person in attendees %}
+            <tr>
+            <td>{{ person.id }}</td>
+            <td>{{ person.first_name }} {{ person.last_name }}</td>
+            <td>
+            {% if person.valid %}
+            Yes
+            {% else %}
+            No
+            {% endif %}
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% endif %}
+
+    <hr />
+{% endif%}
+
+<p>
+Use this form to look up existing registrations. All fields are required.
+</p>
 
 <p>
 <form method="post" action=".">
@@ -54,8 +66,13 @@
 </p>
 
 <p>
+When you are done, click one of the buttons below
+to return to your previous form.
+</p>
+
+<p>
 <form method="post" action="../start_payment/">
-<input type="submit" value="Order Tickets" />
+<input type="submit" value="Pay For Registration" />
 </form>
 </p>
 </div>
