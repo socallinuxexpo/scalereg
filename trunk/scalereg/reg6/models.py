@@ -305,14 +305,13 @@ class Attendee(models.Model):
   answers = models.ManyToManyField(Answer, blank=True, null=True)
 
   def ticket_cost(self):
-    price_modifier = 1
-    if self.promo:
-      price_modifier = self.promo.price_modifier
-      if (self.promo.applies_to_all or
-          self.badge_type in self.promo.applies_to.all()):
-        price_modifier = self.promo.price_modifier
+    promo = self.promo
+    price_modifier = promo.price_modifier if promo else 1
+    ticket_price = self.badge_type.price
+    if promo and (promo.applies_to_all or
+                  self.badge_type in promo.applies_to.all()):
+      ticket_price *= price_modifier
 
-    ticket_price = self.badge_type.price * price_modifier
     items_price = 0
     for item in self.ordered_items.all():
       additional_cost = item.price
