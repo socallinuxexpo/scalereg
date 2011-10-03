@@ -505,8 +505,9 @@ def StartPayment(request):
     except models.Attendee.DoesNotExist:
       pass
 
-  request.session[REGISTRATION_PAYMENT_COOKIE] =
-    [attendee.id for attendee in all_attendees_data]
+  request.session[REGISTRATION_PAYMENT_COOKIE] = [
+    attendee.id for attendee in all_attendees_data
+  ]
 
   total = 0
   for person in all_attendees_data:
