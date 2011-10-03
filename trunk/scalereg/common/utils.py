@@ -11,6 +11,7 @@ def GenerateUniqueID(length, existing_ids):
   id = GenerateID(length)
   if not existing_ids:
     return id
+  existing_ids = set(existing_ids)
   while id in existing_ids:
     id = GenerateID(length)
   return id
