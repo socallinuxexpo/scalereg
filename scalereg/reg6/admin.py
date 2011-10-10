@@ -7,10 +7,10 @@ from models import ListAnswer
 from models import ListQuestion
 from models import Order
 from models import PromoCode
+from models import Reprint
 from models import TextAnswer
 from models import TextQuestion
 from models import Ticket
-from models import Reprint
 
 
 class ReprintOptions(admin.ModelAdmin):
