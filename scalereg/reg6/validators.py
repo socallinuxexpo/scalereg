@@ -52,3 +52,9 @@ def isCommaSeparatedInts(field_data, all_data):
       int(f)
   except ValueError:
     raise ScaleValidationError('Not a number')
+
+
+def isValidTempOrder(field_data, all_data):
+  isValidOrderNumber(all_data.order_num, all_data)
+  if all_data.attendees:
+    isCommaSeparatedInts(all_data.attendees, all_data)
