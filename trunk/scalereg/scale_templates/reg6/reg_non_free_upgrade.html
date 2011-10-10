@@ -1,0 +1,114 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee and upgrade %}
+    <h3>
+    <b>Please note:</b> You're not done yet! This registration upgrade
+    <b>IS NOT VALID</b> until it has been <b>PAID</b> for.
+    </h3>
+    <p>
+    You started upgrading the following attendee:
+    </p>
+
+    <table>
+    <tr>
+    <td>Name:</td>
+    <td>{{ attendee.first_name }} {{ attendee.last_name }}</td>
+    </tr>
+    <tr>
+    <td>Email:</td>
+    <td>{{ attendee.email }}</td>
+    </tr>
+    <tr>
+    <td>Registration Number:</td>
+    <td>{{ attendee.id }}</td>
+    </tr>
+    <tr>
+    <td>Original Ticket Type:</td>
+    <td>{{ upgrade.old_badge_type.description }}</td>
+    </tr>
+    <tr>
+    <td>Original Items:</td>
+    <td>
+    {% if upgrade.old_ordered_items.all %}
+        {% for item in upgrade.old_ordered_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+    {% else %}
+        None
+    {% endif %}
+    </td>
+    </tr>
+    <tr>
+    <td>New Ticket Type:</td>
+    <td>{{ upgrade.new_badge_type.description }}</td>
+    </tr>
+    <tr>
+    <td>New Items:</td>
+    <td>
+    {% if upgrade.new_ordered_items.all %}
+        {% for item in upgrade.new_ordered_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+    {% else %}
+        None
+    {% endif %}
+    </td>
+    </tr>
+    <tr>
+    <td>Upgrade Cost:</td>
+    <td>{{ upgrade.upgrade_cost|money }}</td>
+    </tr>
+    <tr>
+    <td>Upgrade Status:</td>
+    <td><b>Unpaid</b></td>
+    </tr>
+    </table>
+
+    <p>
+    To pay for your registration upgrade, follow the instructions below:
+    </p>
+
+    <h2>Payment Through Paypal Payflow Link:</h2>
+
+    <p>
+    You will now be redirected to Paypal Payflow Link to make the payment.
+    Paypal accepts VISA, Mastercard, American Express, and Discover. You do not
+    need a Paypal account to purchase tickets. We do not handle your credit
+    card information at all.
+    </p>
+
+    <form method="post" action="https://payflowlink.paypal.com/">
+    <p>
+    <input type="hidden" name="AMOUNT" value="{{ upgrade.upgrade_cost|money }}">
+    <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
+    <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order }}">
+    {% if kiosk %}
+    <input type="hidden" name="USER2" value="Y">
+    {% else %}
+    <input type="hidden" name="USER2" value="N">
+    {% endif %}
+    <input type="submit" value="Continue With Paypal Payflow Link" />
+    </p>
+    </form>
+
+    <p>
+    <form method="post" action="../">
+    {% if attendee.promo %}
+    <input type="hidden" name="promo" value="{{ attendee.promo }}" />
+    {% endif %}
+    <input type="submit" value="Start Over" />
+    </form>
+    </p>
+{% else %}
+<b>We cannot pull up your registration data. Please contact us with your full name and this error message.</b>
+{% endif %}
+</div>
+{% endblock %}
+
+
