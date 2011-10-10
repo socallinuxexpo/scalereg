@@ -126,7 +126,7 @@ SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
 #PayFlow Account Settings must be set to use PayFlow
 #Manager User Login
 SCALEREG_PAYFLOW_LOGIN = ''
-# Partner (either Payapl or Verisign)
+# Partner (either Paypal or Verisign)
 SCALEREG_PAYFLOW_PARTNER = ''
 
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
