@@ -149,12 +149,12 @@ def IsTicketAvailable(ticket):
   return attendees.count() < ticket.limit
 
 
-def CalculateTicketCost(ticket, items):                                                                               
-  total = ticket.price 
+def CalculateTicketCost(ticket, items):
+  total = ticket.price
   offset_item = None
   for item in items:
     total += item.price
-    if offset_item:                                                                                                   
+    if offset_item:
       continue
     if item.ticket_offset:
       offset_item = item
@@ -499,7 +499,7 @@ def StartPayment(request):
         new_attendee = models.Attendee.objects.get(id=id)
       except (ValueError, models.Attendee.DoesNotExist):
         id = None
- 
+
       if id in all_attendees:
         new_attendee = None
       elif new_attendee and new_attendee.email == request.POST['email']:
