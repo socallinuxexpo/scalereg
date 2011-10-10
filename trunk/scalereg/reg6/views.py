@@ -163,6 +163,30 @@ def CalculateTicketCost(ticket, items):
   return (total, offset_item)
 
 
+def FindUpgradeAttendee(attendee_id, attendee_email):
+  not_eligible = None
+  not_found = False
+  not_paid = False
+
+  try:
+    attendee_id = int(attendee_id)
+    attendee = models.Attendee.objects.get(id=attendee_id)
+  except (ValueError, models.Attendee.DoesNotExist):
+    attendee = None
+
+  if attendee and attendee.email != attendee_email:
+    attendee = None
+
+  if not attendee:
+    not_found = True
+  else:
+    if not attendee.valid:
+      not_paid = True
+    elif not attendee.badge_type.upgradable:
+      not_eligible = attendee
+  return (attendee, not_eligible, not_found, not_paid)
+
+
 def HandleBadUpgrade(request, not_found, not_paid, not_eligible):
   if not_found:
     return scale_render_to_response(request, 'reg6/reg_error.html',
