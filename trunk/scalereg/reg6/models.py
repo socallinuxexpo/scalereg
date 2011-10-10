@@ -347,18 +347,21 @@ class Attendee(models.Model):
 class TempOrder(models.Model):
   order_num = models.CharField(max_length=10, primary_key=True,
     help_text='Unique 10 upper-case letters + numbers code')
-  attendees = models.TextField()
+  attendees = models.TextField(blank=True)
+  upgrade = models.ForeignKey('Upgrade', blank=True, null=True)
   date = models.DateTimeField(auto_now_add=True)
 
   def attendees_list(self):
+    return [int(x) for x in self.attendees.split(',')]
+
+  def upgrades_list(self):
     return [int(x) for x in self.attendees.split(',')]
 
   def __unicode__(self):
     return '%s' % self.order_num
 
   def save(self, *args, **kwargs):
-    validators.isValidOrderNumber(self.order_num, self)
-    validators.isCommaSeparatedInts(self.attendees, self)
+    validators.isValidTempOrder(None, self)
     return super(TempOrder, self).save(*args, **kwargs)
 
 
