@@ -11,6 +11,7 @@ from models import Reprint
 from models import TextAnswer
 from models import TextQuestion
 from models import Ticket
+from models import Upgrade
 
 
 class ReprintOptions(admin.ModelAdmin):
@@ -102,6 +103,13 @@ class TicketOptions(admin.ModelAdmin):
   save_on_top = True
 
 
+class UpgradeOptions(admin.ModelAdmin):
+  list_display = ('valid', 'attendee', 'old_badge_type', 'new_badge_type',
+                  'old_order', 'new_order')
+  list_filter = ['valid']
+  save_on_top = True
+
+
 admin.site.register(Attendee, AttendeeOptions)
 admin.site.register(Coupon, CouponOptions)
 admin.site.register(Item, ItemOptions)
@@ -113,3 +121,4 @@ admin.site.register(Reprint, ReprintOptions)
 admin.site.register(TextAnswer, TextAnswerOptions)
 admin.site.register(TextQuestion, TextQuestionOptions)
 admin.site.register(Ticket, TicketOptions)
+admin.site.register(Upgrade, UpgradeOptions)
