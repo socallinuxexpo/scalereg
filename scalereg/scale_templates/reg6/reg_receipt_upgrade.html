@@ -1,0 +1,74 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+<table>
+<tr>
+<td>Name:</td>
+<td>{{ name }}</td>
+</tr>
+<tr>
+<td>Email:</td>
+<td>{{ email }}</td>
+</tr>
+<tr>
+<td>Order Number:</td>
+<td>{{ order }}</td>
+</tr>
+<tr>
+<td>Amount:</td>
+<td>{{ total|money }}</td>
+</tr>
+</table>
+
+<p>Registration Upgrade Details:</p>
+
+<table border="1">
+<tr>
+    <td>&nbsp;</td>
+    <td>Old</td>
+    <td>New</td>
+</tr>
+<tr>
+    <td>Order Number</td>
+    <td>{{ upgrade.old_order }}</td>
+    <td>{{ upgrade.new_order }}</td>
+</tr>
+<tr>
+    <td>Ticket Type</td>
+    <td>{{ upgrade.old_badge_type.description }}</td>
+    <td>{{ upgrade.new_badge_type.description }}</td>
+</tr>
+<tr>
+    <td>Items</td>
+    <td>
+    {% for item in upgrade.old_ordered_items.all %}
+        {{ item.description }}<br />
+    {% endfor %}
+    </td>
+    <td>
+    {% for item in upgrade.new_ordered_items.all %}
+        {{ item.description }}<br />
+    {% endfor %}
+    </td>
+</tr>
+</table>
+
+{% if kiosk %}
+<p>
+Thank you for upgrading your registration.<br />
+Please close this browser and go to the registration counter to complete the
+upgrade process.<br />
+if you need a receipt, please ask for it at the registration counter.<br />
+</p>
+{% else %}
+<p>
+<button type="button" onclick="window.print()">print receipt</button>
+</p>
+{% endif %}
+
+</div>
+{% endblock %}
+
