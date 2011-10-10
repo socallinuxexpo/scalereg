@@ -163,6 +163,18 @@ def CalculateTicketCost(ticket, items):
   return (total, offset_item)
 
 
+def IsUpgradeUnchanged(attendee, ticket, items):
+  if attendee.badge_type != ticket:
+    return False
+  attendee_items = attendee.ordered_items.all()
+  if len(items) != len(attendee_items):
+    return False
+  for item in selected_items:
+    if item not in attendee_items:
+      return False
+  return True
+
+
 def FindUpgradeAttendee(attendee_id, attendee_email):
   not_eligible = None
   not_found = False
@@ -879,6 +891,86 @@ def FinishPayment(request):
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
      'total': request.POST['AMOUNT'],
+    })
+
+
+def NonFreeUpgrade(request):
+  if request.method != 'POST':
+    return HttpResponseRedirect('/reg6/')
+  r = CheckReferrer(request.META, '/reg6/start_upgrade/')
+  if r:
+    return r
+
+  required_vars = [
+    'email',
+    'id',
+    'ticket'
+  ]
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  (attendee, not_eligible, not_found, not_paid) = \
+    FindUpgradeAttendee(request.POST['id'], request.POST['email'])
+  r = HandleBadUpgrade(request, not_found, not_paid, not_eligible)
+  if r:
+    return r
+
+  # Valid attendee found.
+  tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  if len(tickets) != 1:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Invalid ticket type.',
+      })
+  ApplyPromoToTickets(attendee.promo, tickets)
+  selected_ticket = tickets[0]
+  selected_items = ApplyPromoToPostedItems(selected_ticket, attendee.promo,
+                                           request.POST)
+  (total, offset_item) = CalculateTicketCost(selected_ticket, selected_items)
+  upgrade_cost = total - attendee.ticket_cost()
+
+  # Check for unchanged registration
+  unchanged = IsUpgradeUnchanged(attendee, selected_ticket, selected_items)
+  if unchanged:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Unchanged attendee.',
+      })
+
+  try:
+    upgrade = CreateUpgrade(attendee, selected_ticket, selected_items)
+  except: # FIXME catch the specific db exceptions
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Cannot save upgrade',
+      })
+
+  order_tries = 0
+  order_saved = False
+  while not order_saved:
+    try:
+      bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+      bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
+      order_num = GenerateOrderID(bad_order_nums)
+      temp_order = models.TempOrder(order_num=order_num, upgrade=upgrade)
+      temp_order.save()
+      order_saved = True
+    except: # FIXME catch the specific db exceptions
+      order_tries += 1
+      if order_tries > 10:
+        return scale_render_to_response(request, 'reg6/reg_error.html',
+          {'title': 'Registration Problem',
+           'error_message': 'We cannot generate an order ID for you.',
+          })
+
+  return scale_render_to_response(request, 'reg6/reg_non_free_upgrade.html',
+    {'title': 'Registration Upgrade',
+     'attendee': attendee,
+     'order': order_num,
+     'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
+     'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
+     'upgrade': upgrade,
     })
 
 
