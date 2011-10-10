@@ -90,6 +90,22 @@ def ApplyPromoToItems(promo, items):
   return promo.name
 
 
+def ApplyPromoToPostedItems(ticket, promo, post):
+  avail_items = GetTicketItems(ticket)
+  selected_items = []
+  for i in xrange(len(avail_items)):
+    item_number = 'item%d' % i
+    if item_number in post:
+      try:
+        item = models.Item.objects.get(name=post[item_number])
+      except:
+        continue
+      if item in avail_items:
+        selected_items.append(item)
+  ApplyPromoToItems(promo, selected_items)
+  return selected_items
+
+
 def FindRelevantQuestions(type, ticket, selected_items):
   questions = []
   all_active_questions = type.objects.filter(active=True)
@@ -329,16 +345,7 @@ def AddAttendee(request):
     promo_in_use = active_promocode_set.get(name=request.POST['promo'])
 
   promo_name = ApplyPromoToTickets(promo_in_use, [ticket])
-  avail_items = GetTicketItems(ticket)
-
-  selected_items = []
-  for i in xrange(len(avail_items)):
-    item_number = 'item%d' % i
-    if item_number in request.POST:
-      item = models.Item.objects.get(name=request.POST[item_number])
-      if item in avail_items:
-        selected_items.append(item)
-  ApplyPromoToItems(promo_in_use, selected_items)
+  selected_items = ApplyPromoToPostedItems(ticket, promo_in_use, request.POST)
 
   total = ticket.price
   offset_item = None
