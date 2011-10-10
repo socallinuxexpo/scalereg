@@ -380,5 +380,8 @@ class Reprint(models.Model):
   attendee =  models.ForeignKey(Attendee)
   count = models.IntegerField()
 
+  class Meta:
+    permissions = (('view_reprint', 'Can view reprint'),)
+
   def __unicode__(self):
     return '%s %d' % (self.attendee, self.count)
