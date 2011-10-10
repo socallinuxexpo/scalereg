@@ -328,6 +328,9 @@ class Attendee(models.Model):
     return Ticket.ticket_cost(self.badge_type, self.ordered_items.all(),
                               self.promo)
 
+  def full_name(self):
+    return '%s %s' % (self.first_name, self.last_name)
+
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
 
