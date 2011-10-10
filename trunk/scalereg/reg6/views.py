@@ -793,10 +793,21 @@ def FinishPayment(request):
     return r
 
   try:
+    temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
     order = models.Order.objects.get(order_num=request.POST['USER1'])
   except models.Order.DoesNotExist:
     ScaleDebug('Your order cannot be found')
     return HttpResponseServerError('Your order cannot be found')
+
+  if temp_order.upgrade:
+    return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
+      {'title': 'Registration Payment Receipt',
+       'name': request.POST['NAME'],
+       'email': request.POST['EMAIL'],
+       'order': request.POST['USER1'],
+       'total': request.POST['AMOUNT'],
+       'upgrade': temp_order.upgrade
+      })
 
   all_attendees_data = models.Attendee.objects.filter(order=order.order_num)
   already_paid_attendees_data = order.already_paid_attendees
