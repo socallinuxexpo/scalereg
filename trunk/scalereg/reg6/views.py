@@ -149,6 +149,20 @@ def IsTicketAvailable(ticket):
   return attendees.count() < ticket.limit
 
 
+def CalculateTicketCost(ticket, items):                                                                               
+  total = ticket.price 
+  offset_item = None
+  for item in items:
+    total += item.price
+    if offset_item:                                                                                                   
+      continue
+    if item.ticket_offset:
+      offset_item = item
+  if offset_item:
+    total -= ticket.price
+  return (ticket, offset_item)
+
+
 def CheckPaymentAmount(request, expected_cost):
   r = CheckVars(request, ['AMOUNT'], [])
   if r:
@@ -346,17 +360,7 @@ def AddAttendee(request):
 
   promo_name = ApplyPromoToTickets(promo_in_use, [ticket])
   selected_items = ApplyPromoToPostedItems(ticket, promo_in_use, request.POST)
-
-  total = ticket.price
-  offset_item = None
-  for item in selected_items:
-    total += item.price
-    if offset_item:
-      continue
-    if item.ticket_offset:
-      offset_item = item
-  if offset_item:
-    total -= ticket.price
+  (total, offset_item) = CalculateTicketCost(ticket, selected_items)
 
   list_questions = FindRelevantQuestions(models.ListQuestion, ticket,
       selected_items)
