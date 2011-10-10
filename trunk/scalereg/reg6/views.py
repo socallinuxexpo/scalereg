@@ -477,13 +477,13 @@ def StartPayment(request):
   removed_attendee = None
 
   # sanitize session data first
-  for id in request.session[REGISTRATION_PAYMENT_COOKIE]:
+  for attendee_id in request.session[REGISTRATION_PAYMENT_COOKIE]:
     try:
-      person = models.Attendee.objects.get(id=id)
+      person = models.Attendee.objects.get(id=attendee_id)
     except models.Attendee.DoesNotExist:
       continue
     if not person.valid:
-      all_attendees.append(id)
+      all_attendees.append(attendee_id)
 
   if request.method == 'POST':
     if 'remove' in request.POST:
@@ -495,17 +495,17 @@ def StartPayment(request):
         pass
     elif 'id' in request.POST and 'email' in request.POST:
       try:
-        id = int(request.POST['id'])
-        new_attendee = models.Attendee.objects.get(id=id)
+        attendee_id = int(request.POST['id'])
+        new_attendee = models.Attendee.objects.get(id=attendee_id)
       except (ValueError, models.Attendee.DoesNotExist):
-        id = None
+        attendee_id = None
 
-      if id in all_attendees:
+      if attendee_id in all_attendees:
         new_attendee = None
       elif new_attendee and new_attendee.email == request.POST['email']:
         if not new_attendee.valid:
           if new_attendee not in all_attendees:
-            all_attendees.append(id)
+            all_attendees.append(attendee_id)
         else:
           paid_attendee = new_attendee
           new_attendee = None
@@ -521,9 +521,9 @@ def StartPayment(request):
   assert checksum <= 1
 
   all_attendees_data = []
-  for id in all_attendees:
+  for attendee_id in all_attendees:
     try:
-      attendee = models.Attendee.objects.get(id=id)
+      attendee = models.Attendee.objects.get(id=attendee_id)
       if not attendee.valid:
         all_attendees_data.append(attendee)
     except models.Attendee.DoesNotExist:
@@ -568,9 +568,9 @@ def Payment(request):
 
   all_attendees = request.session[REGISTRATION_PAYMENT_COOKIE]
   all_attendees_data = []
-  for id in all_attendees:
+  for attendee_id in all_attendees:
     try:
-      attendee = models.Attendee.objects.get(id=id)
+      attendee = models.Attendee.objects.get(id=attendee_id)
       if not attendee.valid:
         all_attendees_data.append(attendee)
     except models.Attendee.DoesNotExist:
@@ -673,9 +673,9 @@ def Sale(request):
 
   all_attendees_data = []
   already_paid_attendees_data = []
-  for id in temp_order.attendees_list():
+  for attendee_id in temp_order.attendees_list():
     try:
-      attendee = models.Attendee.objects.get(id=id)
+      attendee = models.Attendee.objects.get(id=attendee_id)
       if attendee.valid:
         already_paid_attendees_data.append(attendee)
       else:
@@ -928,9 +928,9 @@ def RedeemCoupon(request):
       })
 
   all_attendees_data = []
-  for id in temp_order.attendees_list():
+  for attendee_id in temp_order.attendees_list():
     try:
-      attendee = models.Attendee.objects.get(id=id)
+      attendee = models.Attendee.objects.get(id=attendee_id)
       if not attendee.valid:
         all_attendees_data.append(attendee)
     except models.Attendee.DoesNotExist:
