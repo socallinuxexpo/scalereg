@@ -133,6 +133,19 @@ def IsTicketAvailable(ticket):
   return attendees.count() < ticket.limit
 
 
+def CheckPaymentAmount(request, expected_cost):
+  r = CheckVars(request, ['AMOUNT'], [])
+  if r:
+    return r
+  actual = int(float(request.POST['AMOUNT']))
+  expected = int(expected_cost)
+  if actual == expected:
+    return None
+  reason = 'incorrect payment amount, expected %d, got %d' % (expected, actual)
+  ScaleDebug(reason)
+  return HttpResponseServerError(reason)
+
+
 def CheckVars(request, post, cookies):
   for var in post:
     if var not in request.POST:
@@ -665,9 +678,9 @@ def Sale(request):
     total += person.ticket_cost()
   for person in already_paid_attendees_data:
     total += person.ticket_cost()
-  if int(total) != int(float(request.POST['AMOUNT'])):
-    ScaleDebug('incorrect payment amount')
-    return HttpResponseServerError('incorrect payment amount')
+  r = CheckPaymentAmount(request, total)
+  if r:
+    return r
 
   try:
     order = models.Order(order_num=request.POST['USER1'],
