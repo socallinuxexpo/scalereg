@@ -163,6 +163,20 @@ def CalculateTicketCost(ticket, items):
   return (total, offset_item)
 
 
+def UpgradeAttendee(upgrade, new_order):
+  upgrade.new_order = new_order
+  upgrade.valid = True
+  upgrade.save()
+
+  person = upgrade.attendee
+  person.badge_type = upgrade.new_badge_type
+  person.order = new_order
+  person.save()
+  person.ordered_items.clear()
+  for s in upgrade.new_ordered_items.all():
+    person.ordered_items.add(s)
+
+
 def CheckPaymentAmount(request, expected_cost):
   r = CheckVars(request, ['AMOUNT'], [])
   if r:
@@ -673,25 +687,43 @@ def Sale(request):
 
   all_attendees_data = []
   already_paid_attendees_data = []
-  for attendee_id in temp_order.attendees_list():
-    try:
-      attendee = models.Attendee.objects.get(id=attendee_id)
-      if attendee.valid:
-        already_paid_attendees_data.append(attendee)
-      else:
-        all_attendees_data.append(attendee)
-    except models.Attendee.DoesNotExist:
-      ScaleDebug('cannot find an attendee')
-      return HttpResponseServerError('cannot find an attendee')
+  upgrade = temp_order.upgrade
+  if upgrade:
+    r = CheckPaymentAmount(request, upgrade.upgrade_cost())
+    if r:
+      return r
+    person = upgrade.attendee
+    items = [item.name for item in person.ordered_items.all()]
+    items = set(items)
+    orig_items = [item.name for item in upgrade.old_ordered_items.all()]
+    orig_items = set(orig_items)
+    if (upgrade.valid or
+        person.badge_type != upgrade.old_badge_type or
+        person.order != upgrade.old_order or
+        items != orig_items):
+      ScaleDebug('bad upgrade')
+      return HttpResponseServerError('bad upgrade')
 
-  total = 0
-  for person in all_attendees_data:
-    total += person.ticket_cost()
-  for person in already_paid_attendees_data:
-    total += person.ticket_cost()
-  r = CheckPaymentAmount(request, total)
-  if r:
-    return r
+  else:
+    for attendee_id in temp_order.attendees_list():
+      try:
+        attendee = models.Attendee.objects.get(id=attendee_id)
+        if attendee.valid:
+          already_paid_attendees_data.append(attendee)
+        else:
+          all_attendees_data.append(attendee)
+      except models.Attendee.DoesNotExist:
+        ScaleDebug('cannot find an attendee')
+        return HttpResponseServerError('cannot find an attendee')
+
+    total = 0
+    for person in all_attendees_data:
+      total += person.ticket_cost()
+    for person in already_paid_attendees_data:
+      total += person.ticket_cost()
+    r = CheckPaymentAmount(request, total)
+    if r:
+      return r
 
   try:
     order = models.Order(order_num=request.POST['USER1'],
@@ -721,12 +753,15 @@ def Sale(request):
     ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
 
-  for person in all_attendees_data:
-    person.valid = True
-    person.order = order
-    if request.POST['USER2'] == 'Y':
-      person.checked_in = True
-    person.save()
+  if upgrade:
+    UpgradeAttendee(upgrade, order)
+  else:
+    for person in all_attendees_data:
+      person.valid = True
+      person.order = order
+      if request.POST['USER2'] == 'Y':
+        person.checked_in = True
+      person.save()
 
   return HttpResponse('success')
 
