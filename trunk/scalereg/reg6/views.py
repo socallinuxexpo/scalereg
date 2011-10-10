@@ -163,6 +163,39 @@ def CalculateTicketCost(ticket, items):
   return (total, offset_item)
 
 
+def HandleBadUpgrade(request, not_found, not_paid, not_eligible):
+  if not_found:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Attendee not found'
+      })
+  if not_paid:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Unpaid attendee'
+      })
+  if not_eligible:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Ineligible attendee'
+      })
+  return None
+
+
+def CreateUpgrade(attendee, new_ticket, new_items):
+  upgrade = models.Upgrade()
+  upgrade.attendee = attendee
+  upgrade.old_badge_type = attendee.badge_type
+  upgrade.old_order = attendee.order
+  upgrade.new_badge_type = new_ticket
+  upgrade.save()
+  for s in attendee.ordered_items.all():
+    upgrade.old_ordered_items.add(s)
+  for s in new_items:
+    upgrade.new_ordered_items.add(s)
+  return upgrade
+
+
 def UpgradeAttendee(upgrade, new_order):
   upgrade.new_order = new_order
   upgrade.valid = True
@@ -822,6 +855,91 @@ def FinishPayment(request):
      'step': PAYMENT_STEP,
      'steps_total': STEPS_TOTAL,
      'total': request.POST['AMOUNT'],
+    })
+
+
+def FreeUpgrade(request):
+  if request.method != 'POST':
+    ScaleDebug('not POST')
+    return HttpResponse('Method not allowed: %s' % request.method, status=405)
+  required_vars = [
+    'id',
+    'email',
+    'ticket',
+  ]
+  r = CheckVars(request, required_vars, [])
+  if r:
+    return r
+
+  (attendee, not_eligible, not_found, not_paid) = \
+    FindUpgradeAttendee(request.POST['id'], request.POST['email'])
+  r = HandleBadUpgrade(request, not_found, not_paid, not_eligible)
+  if r:
+    return r
+
+  # Valid attendee found.
+  tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  if len(tickets) != 1:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Invalid ticket type.',
+      })
+  ApplyPromoToTickets(attendee.promo, tickets)
+  selected_ticket = tickets[0]
+  selected_items = ApplyPromoToPostedItems(selected_ticket, attendee.promo,
+                                           request.POST)
+  (total, offset_item) = CalculateTicketCost(selected_ticket, selected_items)
+  upgrade_cost = total - attendee.ticket_cost()
+  if upgrade_cost >= 0:
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Invalid upgrade: Not Free.',
+      })
+
+  try:
+    upgrade = CreateUpgrade(attendee, selected_ticket, selected_items)
+  except: # FIXME catch the specific db exceptions
+    return scale_render_to_response(request, 'reg6/reg_error.html',
+      {'title': 'Registration Problem',
+       'error_message': 'Cannot save upgrade',
+      })
+
+  order_tries = 0
+  order_saved = False
+  while not order_saved:
+    try:
+      bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+      bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
+      order_num = GenerateOrderID(bad_order_nums)
+      order = models.Order(order_num=order_num,
+        valid=True,
+        name='Free Upgrade',
+        address='N/A',
+        city='N/A',
+        state='N/A',
+        zip='N/A',
+        email=attendee.email,
+        amount=0,
+        payment_type='free_upgrade',
+      )
+      order.save()
+      order_saved = True
+    except: # FIXME catch the specific db exceptions
+      order_tries += 1
+      if order_tries > 10:
+        return scale_render_to_response(request, 'reg6/reg_error.html',
+          {'title': 'Registration Problem',
+           'error_message': 'We cannot generate an order ID for you.',
+          })
+
+  UpgradeAttendee(upgrade, order)
+  return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
+    {'title': 'Registration Payment Receipt',
+     'name': attendee.full_name(),
+     'email': attendee.email,
+     'order': order,
+     'total': 0,
+     'upgrade': upgrade,
     })
 
 
