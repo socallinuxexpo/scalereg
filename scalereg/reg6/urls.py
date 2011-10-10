@@ -14,6 +14,9 @@ urlpatterns = patterns('',
     (r'^failed_payment/$', 'scalereg.reg6.views.FailedPayment'),
     (r'^finish_payment/$', 'scalereg.reg6.views.FinishPayment'),
 
+    # Upgrade
+    (r'^free_upgrade/$', 'scalereg.reg6.views.FreeUpgrade'),
+
     # Misc
     (r'^reg_lookup/$', 'scalereg.reg6.views.RegLookup'),
     (r'^kiosk/$', 'scalereg.reg6.views.kiosk_index'),
