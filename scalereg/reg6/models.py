@@ -102,6 +102,7 @@ class Ticket(models.Model):
   price = models.DecimalField(max_digits=5, decimal_places=2)
   public = models.BooleanField(help_text='Publicly available on the order page')
   cash = models.BooleanField(help_text='Available for cash purchase')
+  upgradable = models.BooleanField(help_text='Eligible for upgrades')
   limit = models.PositiveIntegerField(
     help_text='Maximum number of tickets, 0 for unlimited')
   start_date = models.DateField(null=True, blank=True,
