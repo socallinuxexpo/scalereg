@@ -17,6 +17,7 @@ PAYMENT_CHOICES = (
   ('exhibitor', 'Exhibitor'),
   ('speaker', 'Speaker'),
   ('press', 'Press'),
+  ('free_upgrade', 'Free Upgrade'),
 )
 
 TICKET_CHOICES = (
@@ -395,3 +396,32 @@ class Reprint(models.Model):
 
   def __unicode__(self):
     return '%s %d' % (self.attendee, self.count)
+
+
+class Upgrade(models.Model):
+  attendee = models.ForeignKey(Attendee)
+  valid = models.BooleanField()
+
+  old_badge_type = models.ForeignKey(Ticket, related_name='old_badge_type')
+  old_ordered_items = models.ManyToManyField(Item, blank=True, null=True,
+    related_name='old_ordered_items')
+  old_order = models.ForeignKey(Order, related_name='old_order')
+
+  new_badge_type = models.ForeignKey(Ticket)
+  new_ordered_items = models.ManyToManyField(Item, blank=True, null=True)
+  new_order = models.ForeignKey(Order, blank=True, null=True)
+
+  def upgrade_cost(self):
+    old_total = Ticket.ticket_cost(self.old_badge_type,
+                                   self.old_ordered_items.all(),
+                                   self.attendee.promo)
+    new_total = Ticket.ticket_cost(self.new_badge_type,
+                                   self.new_ordered_items.all(),
+                                   self.attendee.promo)
+    return new_total - old_total
+
+  class Meta:
+    permissions = (('view_upgrade', 'Can view upgrade'),)
+
+  def __unicode__(self):
+    return '%s' % self.attendee
