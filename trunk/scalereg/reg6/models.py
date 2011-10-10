@@ -112,6 +112,24 @@ class Ticket(models.Model):
   objects = models.Manager()
   public_objects = TicketManager()
 
+  @staticmethod
+  def ticket_cost(ticket, items, promo):
+    price_modifier = promo.price_modifier if promo else 1
+    ticket_price = ticket.price
+    if promo and (promo.applies_to_all or
+                  ticket in promo.applies_to.all()):
+      ticket_price *= price_modifier
+
+    items_price = 0
+    for item in items:
+      additional_cost = item.price
+      if item.promo:
+        additional_cost *= price_modifier
+      items_price += additional_cost
+      if item.ticket_offset:
+        ticket_price = 0
+    return ticket_price + items_price
+
   def is_public(self):
     if not self.public:
       return False
@@ -305,22 +323,8 @@ class Attendee(models.Model):
   answers = models.ManyToManyField(Answer, blank=True, null=True)
 
   def ticket_cost(self):
-    promo = self.promo
-    price_modifier = promo.price_modifier if promo else 1
-    ticket_price = self.badge_type.price
-    if promo and (promo.applies_to_all or
-                  self.badge_type in promo.applies_to.all()):
-      ticket_price *= price_modifier
-
-    items_price = 0
-    for item in self.ordered_items.all():
-      additional_cost = item.price
-      if item.promo:
-        additional_cost *= price_modifier
-      items_price += additional_cost
-      if item.ticket_offset:
-        ticket_price = 0
-    return ticket_price + items_price
+    return Ticket.ticket_cost(self.badge_type, self.ordered_items.all(),
+                              self.promo)
 
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
