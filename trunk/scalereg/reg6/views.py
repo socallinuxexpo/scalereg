@@ -160,7 +160,7 @@ def CalculateTicketCost(ticket, items):
       offset_item = item
   if offset_item:
     total -= ticket.price
-  return (ticket, offset_item)
+  return (total, offset_item)
 
 
 def CheckPaymentAmount(request, expected_cost):
