@@ -894,6 +894,92 @@ def FinishPayment(request):
     })
 
 
+def StartUpgrade(request):
+  if request.method != 'POST':
+    return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+      {'title': 'Registration Upgrade',
+      })
+
+  # POST, look for attendee first.
+  if not 'id' in request.POST or not 'email' in request.POST:
+    return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+      {'title': 'Registration Upgrade',
+      })
+
+  (attendee, not_eligible, not_found, not_paid) = \
+    FindUpgradeAttendee(request.POST['id'], request.POST['email'])
+
+  if not_found or not_paid or not_eligible:
+    return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+      {'title': 'Registration Upgrade',
+       'email': request.POST['email'],
+       'id': request.POST['id'],
+       'not_eligible': not_eligible,
+       'not_found': not_found,
+       'not_paid': not_paid,
+      })
+
+  # Valid attendee found.
+
+  # Show final upgrade confirmation if items have been selected.
+  if 'has_selected_items' in request.POST and 'ticket' in request.POST:
+    tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+    if len(tickets) != 1:
+      return scale_render_to_response(request, 'reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'You have selected an invalid ticket type.',
+        })
+    ApplyPromoToTickets(attendee.promo, tickets)
+    selected_ticket = tickets[0]
+    selected_items = ApplyPromoToPostedItems(selected_ticket, attendee.promo,
+                                             request.POST)
+    (total, offset_item) = CalculateTicketCost(selected_ticket, selected_items)
+    upgrade_cost = total - attendee.ticket_cost()
+    unchanged = IsUpgradeUnchanged(attendee, selected_ticket, selected_items)
+
+    return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+      {'title': 'Registration Upgrade',
+       'attendee': attendee,
+       'has_selected_items': True,
+       'selected_items': selected_items,
+       'selected_ticket': selected_ticket,
+       'total': total,
+       'unchanged': unchanged,
+       'upgrade_cost': upgrade_cost,
+      })
+
+  # Show available items if there is a ticket selected.
+  if 'ticket' in request.POST:
+    tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+    if len(tickets) != 1:
+      return scale_render_to_response(request, 'reg6/reg_error.html',
+        {'title': 'Registration Problem',
+         'error_message': 'You have selected an invalid ticket type.',
+        })
+    ApplyPromoToTickets(attendee.promo, tickets)
+    selected_ticket = tickets[0]
+    items = GetTicketItems(selected_ticket)
+    ApplyPromoToItems(attendee.promo, items)
+    return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+      {'title': 'Registration Upgrade',
+       'attendee': attendee,
+       'items': items,
+       'selected_ticket': selected_ticket,
+      })
+
+  # Show available tickets.
+  avail_tickets = [ticket for ticket in
+                   models.Ticket.public_objects.order_by('description')
+                   if (IsTicketAvailable(ticket) and
+                       ticket != attendee.badge_type)]
+  ApplyPromoToTickets(attendee.promo, avail_tickets)
+  return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
+    {'title': 'Registration Upgrade',
+     'attendee': attendee,
+     'tickets': avail_tickets,
+    })
+
+
 def NonFreeUpgrade(request):
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')

@@ -1,0 +1,273 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee %}
+    <h3>Registration Information</h3>
+
+    <table>
+    <tr>
+        <td>Name:</td>
+        <td>{{ attendee.first_name }} {{ attendee.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Registration Number:</td>
+        <td>{{ attendee.id }}</td>
+    </tr>
+    <tr>
+        <td>Email:</td>
+        <td>{{ attendee.email }}</td>
+    </tr>
+    {% if attendee.promo %}
+        <tr>
+            <td>Promo Code:</td>
+            <td>{{ attendee.promo }}</td>
+        </tr>
+    {% endif %}
+    </table>
+
+    <h3>Current Status</h3>
+
+    <table>
+    <tr>
+        <td>Badge Type:</td>
+        <td>{{ attendee.badge_type.description }}</td>
+    </tr>
+    <tr>
+        <td>Items:</td>
+        <td>
+        {% if attendee.ordered_items.all %}
+            {% for item in attendee.ordered_items.all %}
+                {{ item.description }}<br />
+            {% endfor %}
+        {% else %}
+            None
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Registration Cost:</td>
+        <td>{{ attendee.ticket_cost|money }}</td>
+    </tr>
+    </table>
+
+    <h3>Upgrade Ticket</h3>
+
+    {% if has_selected_items %}
+    <p>
+    You have selected the following ticket: {{ selected_ticket.description }},
+    and the following items:
+    <ul>
+        {% for item in selected_items %}
+        <li>{{ item.description }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+    <p>Your upgraded ticket costs: {{ total|money }}.</p>
+        {% if upgrade_cost > 0 %}
+            <form method="post" action="../nonfree_upgrade/">
+            <p>The difference in price is {{ upgrade_cost|money }}.</p>
+            <p>
+            Click "Confirm Upgrade" below to continue.
+            </p>
+            <input type="hidden" name="id" value="{{ attendee.id }}" />
+            <input type="hidden" name="email" value="{{ attendee.email }}" />
+            <input type="hidden" name="ticket"
+                   value="{{ selected_ticket.name }}" />
+            {% for item in selected_items %}
+                <input type="hidden" name="item{{ forloop.counter0 }}"
+                       value="{{ item.name }}" />
+            {% endfor %}
+            <input type="submit" value="Confirm Upgrade" />
+            </form>
+        {% else %}
+            {% if unchanged %}
+                <p>
+                You have selected an upgrade that is exactly the same as what
+                you started with. So there is nothing more to do here.
+                </p>
+            {% else %}
+                <form method="post" action="../free_upgrade/">
+                {% if upgrade_cost == 0 %}
+                    <p>There is no difference in price.</p>
+                    <p>Click "Free Upgrade" to finish this upgrade.</p>
+                {% else %}
+                    <p>
+                    The upgrade costs less money than your original ticket.
+                    <b>
+                    However, we cannot issue a refund for the difference, and
+                    the difference will not be available for future upgrades!
+                    </b>
+                    </p>
+                    <p>
+                    If you still want to continue,
+                    click "Free Upgrade" below to finish this upgrade.
+                    </p>
+                {% endif %}
+                <input type="hidden" name="id" value="{{ attendee.id }}" />
+                <input type="hidden" name="email" value="{{ attendee.email }}" />
+                <input type="hidden" name="ticket"
+                       value="{{ selected_ticket.name }}" />
+                {% for item in selected_items %}
+                    <input type="hidden" name="item{{ forloop.counter0 }}"
+                           value="{{ item.name }}" />
+                {% endfor %}
+                <input type="submit" value="Free Upgrade" />
+                </form>
+            {%endif %}
+        {%endif %}
+    {% else %}
+        {% if selected_ticket %}
+            <p>
+            You have selected the following ticket:
+            {{ selected_ticket.description }},
+            which costs: {{ selected_ticket.price|money }}.
+            </p>
+            <p>Select the items you would like to add to this ticket:</p>
+
+            <form method="post" action=".">
+            {% if items %}
+                <table border="1">
+                <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Item</th>
+                    <th>Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    <tr>
+                    <td>
+                        <input type="checkbox" name="item{{ forloop.counter0 }}"
+                               value="{{ item.name }}" />
+                    </td>
+                    <td>{{ item.description }}</td>
+                    <td>
+                        {{ item.price|money }}
+                        {% if item.ticket_offset %}
+                            (Waives ticket price of
+                            {{ selected_ticket.price|money }})
+                        {% endif %}
+                    </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            {% else %}
+                <p>No addon items available. </p>
+            {% endif %}
+            <p>
+            <input type="hidden" name="id" value="{{ attendee.id }}" />
+            <input type="hidden" name="email" value="{{ attendee.email }}" />
+            <input type="hidden" name="ticket"
+                   value="{{ selected_ticket.name }}" />
+            <input type="hidden" name="has_selected_items"
+                   value="1" />
+            <input type="submit" value="Select Upgrade Items" />
+            </p>
+            </form>
+        {% else %}
+            <p>Select the ticket you would like to upgrade to:</p>
+
+            <form method="post" action=".">
+            <table border="1">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Ticket</th>
+                <th>Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>
+                <input type="radio" name="ticket"
+                       value="{{ attendee.badge_type.name }}" />
+            </td>
+            <td>{{ attendee.badge_type.description }}</td>
+            <td>Keep existing ticket, upgrade items on the next page.</td>
+            </tr>
+            {% for t in tickets %}
+                <tr>
+                    <td>
+                        <input type="radio" name="ticket"
+                               value="{{ t.name }}" />
+                    </td>
+                    <td>{{ t.description }}</td>
+                    <td>{{ t.price|money }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            <p>
+            <input type="hidden" name="id" value="{{ attendee.id }}" />
+            <input type="hidden" name="email" value="{{ attendee.email }}" />
+            <input type="submit" value="Select Upgrade Ticket" />
+            </p>
+            </form>
+        {% endif %}
+    {% endif %}
+    <form method="get" action=".">
+    <p><input type="submit" value="Start Over" /></p>
+    </form>
+{% else %}
+    <h2>Find an attendee to upgrade:</h2>
+
+    {% if not_found %}
+        No Attendee with id: {{ id }} and email: {{ email }} found.
+    {% else %}
+        {% if not_paid %}
+            Attendee with id: {{ id }} and email: {{ email }} found,
+            but is not eligible for an upgrade because
+            the registration has not been paid in the first place.
+        {% else %}
+            {% if not_eligible %}
+                Attendee with id: {{ id }} and email: {{ email }} found,
+                but is not eligible for an upgrade because
+                {{ not_eligible.badge_type.description }} tickets
+                cannot be upgraded.
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    <p>
+    <form method="post" action=".">
+    <table>
+    <tr>
+        <td><b>Registration Number:</b></td>
+        <td><input type="text" name="id" maxlength="10" size="10" /></td>
+        <td><a href="../reg_lookup/">Registration Number Lookup</a></td>
+    </tr>
+    <tr>
+        <td><b>Email:</b></td>
+        <td colspan="2">
+            <input type="text" name="email" maxlength="75" size="50" />
+        </td>
+    </tr>
+    </table>
+
+    <br />
+    <input type="submit" value="Find Attendee" />
+    </form>
+    <br />
+    </p>
+{% endif %}
+
+<h2>Other Options:</h2>
+<p>
+<form method="post" action="..">
+<input type="submit" value="Register Another Attendee" />
+</form>
+</p>
+<p>
+<form method="get" action="../start_payment/">
+<input type="submit" value="Pay For Previous Registrations" />
+</form>
+</p>
+
+</div>
+{% endblock %}
+
