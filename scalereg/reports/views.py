@@ -364,8 +364,9 @@ def badorder(request):
   order_google = valid_orders.filter(payment_type='google')
   order_cash = valid_orders.filter(payment_type='cash')
   paid_orders = order_verisign|order_google|order_cash
+  valid_upgrades = models.Upgrade.objects.filter(valid=True)
   for f in paid_orders:
-    if f.attendee_set.count() == 0:
+    if f.attendee_set.count() == 0 and not valid_upgrades.filter(old_order=f):
       response.write('Empty Order: %s %s\n' % (f.order_num, f.name))
   for f in paid_orders.filter(amount__lte=0):
     response.write('Paid Order with $0 cost: %s %s\n' % (f.order_num, f.name))
