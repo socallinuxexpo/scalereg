@@ -5,6 +5,8 @@
 <div id="content-main">
 <style type="text/css">
 .reg6_form_error { color: #FF0000; font-weight: bold }
+.reg6_label { font-weight: normal }
+b { font-weight: bold }
 </style>
 
 {% if ticket and total %}
@@ -64,7 +66,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_salutation">Salutation:</label></td>
+        <td><label class="reg6_label" for="id_salutation">Salutation:</label></td>
         <td>{{ form.salutation }}</td>
     </tr>
     {% if form.first_name.errors %}
@@ -73,7 +75,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_first_name"><b>First Name:</b></label></td>
+        <td><label class="reg6_label" for="id_first_name"><b>First Name:</b></label></td>
         <td>{{ form.first_name }}</td>
     </tr>
     {% if form.last_name.errors %}
@@ -82,7 +84,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_last_name"><b>Last Name:</b></label></td>
+        <td><label class="reg6_label" for="id_last_name"><b>Last Name:</b></label></td>
         <td>{{ form.last_name }}</td>
     </tr>
     {% if form.title.errors %}
@@ -91,7 +93,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_title">Title:</label></td>
+        <td><label class="reg6_label" for="id_title">Title:</label></td>
         <td>{{ form.title }}</td>
     </tr>
     {% if form.org.errors %}
@@ -100,7 +102,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_org">Organization:</label></td>
+        <td><label class="reg6_label" for="id_org">Organization:</label></td>
         <td>{{ form.org }}</td>
     </tr>
     {% if form.zip.errors %}
@@ -109,7 +111,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_zip"><b>Zip/Postal Code:</b></label></td>
+        <td><label class="reg6_label" for="id_zip"><b>Zip/Postal Code:</b></label></td>
         <td>{{ form.zip }}</td>
     </tr>
     {% if form.email.errors %}
@@ -118,7 +120,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_email"><b>Email:</b></label></td>
+        <td><label class="reg6_label" for="id_email"><b>Email:</b></label></td>
         <td>{{ form.email }}</td>
     </tr>
     {% if form.phone.errors %}
@@ -127,7 +129,7 @@
     </tr>
     {% endif %}
     <tr>
-        <td><label for="id_phone">Phone:</label></td>
+        <td><label class="reg6_label" for="id_phone">Phone:</label></td>
         <td>{{ form.phone }}</td>
     </tr>
     {% if form.can_email.errors %}
@@ -136,8 +138,8 @@
     </tr>
     {% endif %}
     <tr>
-        <td colspan="2"><label for="id_can_email">Add me to the SCALE mailing list:</label>
-        {{ form.can_email }}</td>
+        <td><label class="reg6_label" for="id_can_email">Add me to the SCALE mailing list:</label></td>
+        <td>{{ form.can_email }}</td>
     </tr>
     </table>
 
