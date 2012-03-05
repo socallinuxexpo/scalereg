@@ -41,6 +41,7 @@ class MassAddAttendeeForm(ModelForm):
     fields = (
       'first_name',
       'last_name',
+      'title',
       'org',
       'zip',
       'email',
