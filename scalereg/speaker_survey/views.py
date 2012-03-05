@@ -170,11 +170,11 @@ def MassAdd(request):
     speaker.name = name
     speaker.title = title
     speaker.url = url
-    invalid = speaker.validate()
-    if invalid:
+    try:
+      speaker.save()
+    except:
       response.write('bad entry: %s<br />\n' % invalid)
       continue
-    speaker.save()
     response.write('Added %s<br />\n' % speaker)
 
   response.write('</body></html>')
