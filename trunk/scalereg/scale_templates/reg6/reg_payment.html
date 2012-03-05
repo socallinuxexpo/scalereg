@@ -36,13 +36,10 @@
     Total: {{ total|money }}
     </p>
 
-    <h2>Payment Through Paypal Payflow Link:</h2>
+    <h2>Credit Card Payments:</h2>
 
     <p>
-    You will now be redirected to Paypal Payflow Link to make the payment.
-    Paypal accepts VISA, Mastercard, American Express, and Discover. You do not
-    need a Paypal account to purchase tickets. We do not handle your credit
-    card information at all.
+    You will now be redirected to our payment gateway. We accept VISA, Mastercard, American Express, and Discover.
     </p>
 
     <form method="post" action="https://payflowlink.paypal.com/">
@@ -57,7 +54,7 @@
     {% else %}
     <input type="hidden" name="USER2" value="N">
     {% endif %}
-    <input type="submit" value="Continue With Paypal Payflow Link" />
+    <input type="submit" value="Continue With Credit Card Payment" />
     </p>
     </form>
 
