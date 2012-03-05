@@ -75,7 +75,7 @@
 
     <form method="post" action="https://payflowlink.paypal.com/">
     <p>
-    <input type="hidden" name="AMOUNT" value="{{ upgrade.upgrade_cost|money }}">
+    <input type="hidden" name="AMOUNT" value="{{ upgrade.upgrade_cost|floatformat:2 }}">
     <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
     <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
     <input type="hidden" name="TYPE" value="S">
