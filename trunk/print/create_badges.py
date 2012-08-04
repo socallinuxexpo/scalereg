@@ -41,7 +41,9 @@ class Badge:
       [str(self.id), self.first_name, self.last_name, self.title, self.company, self.phone, self.email])
 
   def printBadge(self):
-    badge_file = os.path.join(self.datadir, 'out_png', '%05d.png' % self.id)
+    badge_file = os.path.join(self.datadir,
+                              'out_png',
+                              '%05d_%d.png' % (self.id, self.reprint))
     if os.path.exists(badge_file):
       return
     out = self.genBadge()
