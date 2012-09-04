@@ -1432,7 +1432,7 @@ def MassAddAttendee(request):
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
-    response.write('<p>first_name,last_name,org,zip,email,order_number,ticket_code</p>')
+    response.write('<p>first_name,last_name,title,org,zip,email,phone,order_number,ticket_code</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -1450,28 +1450,30 @@ def MassAddAttendee(request):
     if not entry:
       continue
     entry_split = entry.split(',')
-    if len(entry_split) != 7:
+    if len(entry_split) != 9:
       response.write('bad data: %s<br />\n' % entry)
       continue
 
     try:
-      order = models.Order.objects.get(order_num=entry_split[5])
+      order = models.Order.objects.get(order_num=entry_split[7])
     except models.Order.DoesNotExist:
-      response.write('bad order number: %s<br />\n' % entry_split[5])
+      response.write('bad order number: %s<br />\n' % entry_split[7])
       continue
 
     try:
-      ticket = models.Ticket.objects.get(name=entry_split[6])
+      ticket = models.Ticket.objects.get(name=entry_split[8])
     except models.Ticket.DoesNotExist:
-      response.write('bad ticket type: %s<br />\n' % entry_split[6])
+      response.write('bad ticket type: %s<br />\n' % entry_split[8])
       continue
 
     entry_dict = {
       'first_name': entry_split[0],
       'last_name': entry_split[1],
-      'org': entry_split[2],
-      'zip': entry_split[3],
-      'email': entry_split[4],
+      'title': entry_split[2],
+      'org': entry_split[3],
+      'zip': entry_split[4],
+      'email': entry_split[5],
+      'phone': entry_split[6],
       'badge_type': ticket,
     }
     form = forms.MassAddAttendeeForm(entry_dict)
