@@ -17,6 +17,49 @@ manage.py dumpdata -format=xml -indent=2 \
     </field>
     <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
   </object>
+  <object pk="Registration Dashboard" model="auth_helper.service">
+    <field type="CharField" name="url">/reports/dashboard</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Create New Coupon" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/add_coupon</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Import Attendees from CSV" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/mass_add_attendee</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Kiosk Mode" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/kiosk</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Check in Attendee" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/staff/checkin</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Cash Payment" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/staff/cash_payment</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+  <object pk="Reprint Badge" model="auth_helper.service">
+    <field type="CharField" name="url">/reg6/staff/reprint</field>
+    <field type="BooleanField" name="active">True</field>
+    <field to="auth.user" name="users" rel="ManyToManyRel"></field>
+    <field to="auth.group" name="groups" rel="ManyToManyRel"></field>
+  </object>
+
   <object pk="FULL" model="reg6.ticket">
     <field type="CharField" name="description">Full Ticket</field>
     <field type="CharField" name="type">full</field>
