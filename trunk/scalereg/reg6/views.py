@@ -1478,7 +1478,7 @@ def MassAddAttendee(request):
     }
     form = forms.MassAddAttendeeForm(entry_dict)
     if not form.is_valid():
-      response.write('bad entry: %s, reason: %s<br />\n' % entry, form.errors)
+      response.write('bad entry: %s, reason: %s<br />\n' % (entry, form.errors))
       continue
     attendee = form.save(commit=False)
     attendee.valid = True
