@@ -72,6 +72,18 @@
     </p>
     </form>
 
+{% else %}
+    <h2>Cannot complete this transaction</h2>
+
+    {% if tickets_soldout %}
+        <h3>The following tickets have been sold out:</h3>
+
+        {% for ticket in tickets_soldout %}
+        <p>{{ ticket }}</p>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+
     <h2>Other Options:</h2>
 
     <form method="post" action="../">
@@ -79,10 +91,6 @@
     <input type="submit" value="Start Over" />
     </p>
     </form>
-{% else %}
-    <h2>Not Enough Information</h2>
-{% endif %}
-
 </div>
 {% endblock %}
 

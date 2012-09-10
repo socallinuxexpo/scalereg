@@ -142,11 +142,11 @@ def GetTicketItems(ticket):
   return combined_set
 
 
-def IsTicketAvailable(ticket):
+def IsTicketAvailable(ticket, num_to_buy):
   if ticket.limit == 0:
     return True
   attendees = models.Attendee.objects.filter(badge_type=ticket, valid=True)
-  return attendees.count() < ticket.limit
+  return (attendees.count() + num_to_buy) <= ticket.limit
 
 
 def CalculateTicketCost(ticket, items):
@@ -294,7 +294,7 @@ def scale_render_to_response(request, template, vars):
 def index(request):
   avail_tickets = [ticket for ticket in
                    models.Ticket.public_objects.order_by('description')
-                   if IsTicketAvailable(ticket)]
+                   if IsTicketAvailable(ticket), 1]
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
@@ -429,7 +429,7 @@ def AddAttendee(request):
       {'title': 'Registration Problem',
        'error_message': 'You have selected an invalid ticket type.',
       })
-  if not IsTicketAvailable(ticket):
+  if not IsTicketAvailable(ticket, 1):
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
        'error_message': 'The ticket you selected is sold out.',
@@ -661,6 +661,24 @@ def Payment(request):
 
   all_attendees = [attendee.id for attendee in all_attendees_data]
   request.session[REGISTRATION_PAYMENT_COOKIE] = all_attendees
+
+  attendees_by_ticket = {}
+  for person in all_attendees_data:
+    if person.badge_type in attendees_by_ticket:
+      attendees_by_ticket[person.badge_type] += 1
+    else:
+      attendees_by_ticket[person.badge_type] = 1
+  tickets_soldout = []
+  for ticket,num_to_buy in attendees_by_ticket.iteritems():
+    if not IsTicketAvailable(ticket, num_to_buy):
+      tickets_soldout.append(ticket.description)
+  if tickets_soldout:
+    return scale_render_to_response(request, 'reg6/reg_payment.html',
+      {'title': 'Registration Payment',
+       'step': PAYMENT_STEP,
+       'steps_total': STEPS_TOTAL,
+       'tickets_soldout': tickets_soldout,
+    })
 
   for person in all_attendees_data:
     total += person.ticket_cost()
