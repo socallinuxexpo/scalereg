@@ -116,6 +116,7 @@ class Ticket(models.Model):
 
   @staticmethod
   def ticket_cost(ticket, items, promo):
+    # TODO remove this without double-apply promo.
     ticket = Ticket.objects.get(name=ticket.name)
     price_modifier = promo.price_modifier if promo else 1
     ticket_price = ticket.price
@@ -125,6 +126,7 @@ class Ticket(models.Model):
 
     items_price = 0
     for item in items:
+      # TODO remove this without double-apply promo.
       item = Item.objects.get(name=item.name)
       additional_cost = item.price
       if item.promo:
