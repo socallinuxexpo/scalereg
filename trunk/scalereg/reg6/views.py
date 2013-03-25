@@ -941,7 +941,7 @@ def StartUpgrade(request):
 
   # Show final upgrade confirmation if items have been selected.
   if 'has_selected_items' in request.POST and 'ticket' in request.POST:
-    tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+    tickets = models.Ticket.objects.filter(name=request.POST['ticket'])
     if len(tickets) != 1:
       return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
@@ -968,7 +968,7 @@ def StartUpgrade(request):
 
   # Show available items if there is a ticket selected.
   if 'ticket' in request.POST:
-    tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+    tickets = models.Ticket.objects.filter(name=request.POST['ticket'])
     if len(tickets) != 1:
       return scale_render_to_response(request, 'reg6/reg_error.html',
         {'title': 'Registration Problem',
@@ -1021,7 +1021,7 @@ def NonFreeUpgrade(request):
     return r
 
   # Valid attendee found.
-  tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  tickets = models.Ticket.objects.filter(name=request.POST['ticket'])
   if len(tickets) != 1:
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
@@ -1098,7 +1098,7 @@ def FreeUpgrade(request):
     return r
 
   # Valid attendee found.
-  tickets = models.Ticket.public_objects.filter(name=request.POST['ticket'])
+  tickets = models.Ticket.objects.filter(name=request.POST['ticket'])
   if len(tickets) != 1:
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
