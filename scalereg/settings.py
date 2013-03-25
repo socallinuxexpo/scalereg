@@ -123,6 +123,7 @@ SCALEREG_SIMPLECFP_EMAIL = ''
 SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
 
 # Optional questions about PGP keys for a PGP Key Signing Party.
+#
 # Integer value corresponding to the first PGP question. Set to -1 to disable.
 # The 6 questions must have consecutive IDs:
 # Text: What is your PGP fingerprint?
@@ -132,6 +133,9 @@ SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
 # Text: What is your second PGP fingerprint size? (number of bits)
 # List: What is your second PGP fingerprint type? / [DSA, RSA]
 SCALEREG_PGP_QUESTION_ID_START = -1
+
+# The PGP Key Signing Party addon item name.
+SCALEREG_PGP_KSP_ITEM_NAME = 'KSP'
 
 #PayFlow Account Settings must be set to use PayFlow
 #Manager User Login
