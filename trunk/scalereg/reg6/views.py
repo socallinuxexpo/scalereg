@@ -576,6 +576,26 @@ def AddAttendee(request):
 
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
+  pgp_question = pgp_question_size = pgp_question_type = -1
+  pgp_question2 = pgp_question2_size = pgp_question2_type = -1
+  pgp_questions = []
+  if IsPGPEnabled():
+    pgp_question = GetPGPKey1QuestionIndex()
+    pgp_question_size = GetPGPKey1QuestionIndex() + 1
+    pgp_question_type = GetPGPKey1QuestionIndex() + 2
+    pgp_question2 = GetPGPKey2QuestionIndex()
+    pgp_question2_size = GetPGPKey2QuestionIndex() + 1
+    pgp_question2_type = GetPGPKey2QuestionIndex() + 2
+
+    q_range = range(len(questions))
+    q_range.reverse()
+    for i in q_range:
+      q_id = questions[i].id
+      if (q_id >= GetPGPKey1QuestionIndex() and
+          q_id < GetPGPKey2QuestionIndex() + PGP_KEY_QUESTION_INDEX_OFFSET):
+        pgp_questions.append(questions.pop(i))
+    pgp_questions.reverse()
+
   return scale_render_to_response(request, 'reg6/reg_attendee.html',
     {'title': 'Register Attendee',
      'ticket': ticket,
@@ -583,6 +603,13 @@ def AddAttendee(request):
      'items': selected_items,
      'offset_item': offset_item,
      'total': total,
+     'pgp_question': pgp_question,
+     'pgp_question_size': pgp_question_size,
+     'pgp_question_type': pgp_question_type,
+     'pgp_question2': pgp_question2,
+     'pgp_question2_size': pgp_question2_size,
+     'pgp_question2_type': pgp_question2_type,
+     'pgp_questions': pgp_question,
      'questions': questions,
      'form': form,
      'step': 3,
@@ -1533,7 +1560,7 @@ def CheckedIn(request):
     attendees = checked_in_attendees
 
   return HttpResponse(
-      '\n'.join([PrintAttendee(f, reprint_ids, ksp_ids, qpgp) 
+      '\n'.join([PrintAttendee(f, reprint_ids, ksp_ids, qpgp)
                  for f in attendees]),
       mimetype='text/plain')
 
