@@ -1439,14 +1439,26 @@ def CheckedIn(request):
     return HttpResponse('')
 
   attendees = models.Attendee.objects.filter(valid=True)
-  if request.method == 'GET':
-    attendees = attendees.filter(checked_in=True)
-    if 'idsonly' in request.GET:
-      return HttpResponse('\n'.join([str(f.id) for f in attendees]),
-                          mimetype='text/plain')
+  attendees = attendees.filter(checked_in=True)
+  if request.method == 'GET' and 'idsonly' in request.GET:
+    return HttpResponse('\n'.join([str(f.id) for f in attendees]),
+                        mimetype='text/plain')
 
   reprint_ids = [reprint.attendee.id
                  for reprint in models.Reprint.objects.all()]
+  if request.method == 'POST':
+    # Only get requested attendees instead of all checked in attendees.
+    attendee_ids = [int(x) for x in request.POST['attendees'].split(',')]
+    attendee_ids = set(attendee_ids + reprint_ids)
+    checked_in_attendees = []
+    for attendee_id in attendee_ids:
+      try:
+        attendee = attendees.get(id=attendee_id)
+        checked_in_attendees.append(attendee)
+      except:
+        pass
+    attendees = checked_in_attendees
+
   return HttpResponse(
       '\n'.join([PrintAttendee(f, reprint_ids) for f in attendees]),
           mimetype='text/plain')
