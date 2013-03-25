@@ -256,7 +256,8 @@ def ScoreSurveys(surveys):
       scores[i][int(s[0])] += 1
       sc2 += GetScore(s)
   for i in xrange(0, 15):
-    total = sum([ GetScore(models.VALUE_CHOICES[j][0]) * scores[i][j] for j in xrange(0,5) ])
+    total = sum([GetScore(models.VALUE_CHOICES[j][0]) * scores[i][j]
+                 for j in xrange(0,5)])
     scores[i][5] = round(float(total) / num, 1)
   sc1 = round(float(sc1) / num, 1)
   sc2 = round(float(sc2) / num, 1)
