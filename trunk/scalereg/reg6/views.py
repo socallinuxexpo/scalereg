@@ -17,6 +17,8 @@ STEPS_TOTAL = 7
 
 REGISTRATION_PAYMENT_COOKIE = 'payment'
 
+PGP_KEY_QUESTION_INDEX_OFFSET = 3
+
 def ScaleDebug(msg):
   if not settings.SCALEREG_DEBUG_LOGGING_ENABLED:
     return
@@ -33,7 +35,31 @@ def ScaleDebug(msg):
   handle.close()
 
 
-def PrintAttendee(attendee, reprint_ids):
+def IsPGPEnabled():
+  return settings.SCALEREG_PGP_QUESTION_ID_START >= 0
+
+
+def GetPGPKey1QuestionIndex():
+  assert IsPGPEnabled()
+  return settings.SCALEREG_PGP_QUESTION_ID_START
+
+def GetPGPKey2QuestionIndex():
+  assert IsPGPEnabled()
+  return settings.SCALEREG_PGP_QUESTION_ID_START + PGP_KEY_QUESTION_INDEX_OFFSET
+
+
+def GetPGPText(attendee, qpgp, q_index):
+  pgp_keys = attendee.answers.filter(question=qpgp[q_index])
+  if not pgp_keys:
+    return ''
+  pgp_sizes = attendee.answers.filter(question=qpgp[q_index + 1])
+  pgp_types = attendee.answers.filter(question=qpgp[q_index + 2])
+  if not pgp_sizes or not pgp_types:
+    return ''
+  return '%s,%s%s' % (pgp_keys[0].text, pgp_sizes[0].text, pgp_types[0].text[0])
+
+
+def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
   badge = []
   badge.append(attendee.salutation)
   badge.append(attendee.first_name)
@@ -56,6 +82,23 @@ def PrintAttendee(attendee, reprint_ids):
     badge.append('%2.2f' % attendee.ticket_cost())
   else:
     badge.append('0.00')
+
+  if IsPGPEnabled():
+    ksp = attendee.id in ksp_ids
+    has_pgp_text = 'NO PGP'
+    pgp_key1_text = 'NO PGP KEY 1'
+    pgp_key2_text = 'NO PGP KEY 2'
+    if ksp:
+      has_pgp_text = 'PGP'
+      pgp_text = GetPGPText(attendee, qpgp, 0)
+      if pgp_text:
+        pgp_key1_text = pgp_text
+      pgp_text = GetPGPText(attendee, qpgp, PGP_KEY_QUESTION_INDEX_OFFSET)
+      if pgp_text:
+        pgp_key2_text = pgp_text
+    badge.append(has_pgp_text)
+    badge.append(pgp_key1_text)
+    badge.append(pgp_key2_text)
 
   tshirt_size = '???'
   try:
@@ -1467,6 +1510,15 @@ def CheckedIn(request):
 
   reprint_ids = [reprint.attendee.id
                  for reprint in models.Reprint.objects.all()]
+  ksp_ids = []
+  qpgp = []
+  if IsPGPEnabled():
+    ksp_attendees = models.Item.objects.get(
+        name=settings.SCALEREG_PGP_KSP_ITEM_NAME).attendee_set.all()
+    ksp_ids = [attendee.id for attendee in ksp_attendees]
+    for i in range(2 * PGP_KEY_QUESTION_INDEX_OFFSET):
+      qpgp.append(models.Question.objects.get(id=GetPGPKey1QuestionIndex() + i))
+
   if request.method == 'POST':
     # Only get requested attendees instead of all checked in attendees.
     attendee_ids = [int(x) for x in request.POST['attendees'].split(',')]
@@ -1481,7 +1533,8 @@ def CheckedIn(request):
     attendees = checked_in_attendees
 
   return HttpResponse(
-      '\n'.join([PrintAttendee(f, reprint_ids) for f in attendees]),
+      '\n'.join([PrintAttendee(f, reprint_ids, ksp_ids, qpgp) 
+                 for f in attendees]),
       mimetype='text/plain')
 
 
