@@ -1461,7 +1461,7 @@ def CheckedIn(request):
 
   return HttpResponse(
       '\n'.join([PrintAttendee(f, reprint_ids) for f in attendees]),
-          mimetype='text/plain')
+      mimetype='text/plain')
 
 
 @login_required
