@@ -16,6 +16,7 @@
     <tr>
         <th>Registration Number</th>
         <th>Name</th>
+        <th>Type</th>
         <th>Status</th>
         {% if person.checked_in %}
         <th>Reprint</th>
@@ -25,6 +26,7 @@
         <tr>
         <td>{{ person.id }}</td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.badge_type.description }}</td>
         <td>
         {% if person.checked_in %}
         Already Checked In
