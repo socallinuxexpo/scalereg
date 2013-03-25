@@ -988,7 +988,7 @@ def StartUpgrade(request):
   # Show available tickets.
   avail_tickets = [ticket for ticket in
                    models.Ticket.public_objects.order_by('description')
-                   if (IsTicketAvailable(ticket) and
+                   if (IsTicketAvailable(ticket, 1) and
                        ticket != attendee.badge_type)]
   ApplyPromoToTickets(attendee.promo, avail_tickets)
   return scale_render_to_response(request, 'reg6/reg_start_upgrade.html',
