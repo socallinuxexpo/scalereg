@@ -52,7 +52,71 @@ b { font-weight: bold }
     are required.
     </p>
 
+    {% if pgp_questions %}
+    <script language="JavaScript">
+    function pgpcheck_impl(fingerprint, size, type, blank_ok) {
+      var str = fingerprint;
+      while (str.indexOf(' ') >= 0) {
+        str = str.replace(' ', '');
+      }
+      if (blank_ok && str.length == 0 && size.length == 0 && !type)
+        return true;
+      if (str.length == 40 || str.length == 32) {
+        for (var i = 0; i < str.length; ++i) {
+          var c = str[i];
+          if ((c >= '0' && c <= '9') ||
+              (c >= 'a' && c <= 'f') ||
+              (c >= 'A' && c <= 'F')) {
+            continue;
+          }
+          alert('PGP fingerprint character ' + i + ' is invalid: ' + c + '.');
+          return false;
+        }
+      } else {
+        alert('PGP fingerprint should be 32 or 40 characters long. Input is ' +
+              str.length + ' characters.');
+        return false;
+      }
+
+      var valid_size = false;
+      size = parseInt(size);
+      if (size > 0 && size < 9999) {
+        valid_size = true;
+      }
+      if (!valid_size) {
+        alert('PGP fingerprint size is invalid');
+        return false;
+      }
+
+      if (!type) {
+        alert('PGP fingerprint type is invalid');
+        return false;
+      }
+      return true;
+    }
+
+    function pgpcheck() {
+      var q1 = document.getElementsByName('tq{{ pgp_question}}');
+      var q1_size = document.getElementsByName('tq{{ pgp_question_size}}');
+      var q1_type = document.getElementsByName('lq{{ pgp_question_type}}');
+      var q2 = document.getElementsByName('tq{{ pgp_question2}}');
+      var q2_size = document.getElementsByName('tq{{ pgp_question2_size}}');
+      var q2_type = document.getElementsByName('lq{{ pgp_question2_type}}');
+      if (q1.length == 0 || q1_size.length == 0 || q1_type.length == 0 ||
+          q2.length == 0 || q2_size.length == 0 || q2_type.length == 0) {
+        alert('Something is wrong with the PGP check, please report.')
+        return true;
+      }
+      var r1 = pgpcheck_impl(q1[0].value, q1_size[0].value, q1_type[0].value, false);
+      var r2 = pgpcheck_impl(q2[0].value, q2_size[0].value, q2_type[0].value, true);
+      return (r1 && r2);
+    }
+    </script>
+    <form method="post" action="." onsubmit="return pgpcheck()">
+    {% else %}
     <form method="post" action=".">
+    {% endif %}
+
     <input type="hidden" name="promo" value="{{ promo }}" />
     <input type="hidden" name="ticket" value="{{ ticket.name }}" />
     {% for item in items %}
