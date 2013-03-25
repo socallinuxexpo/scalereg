@@ -1110,7 +1110,7 @@ def FreeUpgrade(request):
                                            request.POST)
   (total, offset_item) = CalculateTicketCost(selected_ticket, selected_items)
   upgrade_cost = total - attendee.ticket_cost()
-  if upgrade_cost >= 0:
+  if upgrade_cost > 0:
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
        'error_message': 'Invalid upgrade: Not Free.',
