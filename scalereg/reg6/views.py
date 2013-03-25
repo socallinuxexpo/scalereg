@@ -57,15 +57,13 @@ def PrintAttendee(attendee, reprint_ids):
   else:
     badge.append('0.00')
 
+  tshirt_size = '???'
   try:
     tshirt = attendee.answers.filter(question='What is your shirt size?')
-    if tshirt:
-      badge.append(tshirt[0].text)
-    else:
-      badge.append('???')
+    tshirt_size = tshirt[0].text
   except:
-    badge.append('???')
     pass
+  badge.append(tshirt_size)
 
   for i in attendee.ordered_items.all():
     badge.append(i.name)
