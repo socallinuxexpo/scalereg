@@ -2,8 +2,11 @@ from scalereg.common.validators import ScaleValidationError
 from scalereg.reg6 import models
 import hashlib
 
-def hash(data):
+def hashfunc(data):
   return hashlib.sha1.new('SECRET' + data).hexdigest()
+
+def hashAttendee(attendee):
+  return hashfunc(attendee.first_name + attendee.last_name)[:6]
 
 def isValid7XHash(field_data, all_data):
   if not field_data:
@@ -18,7 +21,7 @@ def isValid7XHash(field_data, all_data):
     attendee = models.Attendee.objects.get(id=id)
     if not attendee.valid or not attendee.checked_in:
       raise ScaleValidationError('Invalid attendee')
-    if field_data[:6] != hash(attendee.first_name + attendee.last_name)[:6]:
+    if field_data[:6] != hashAttendee(attendee):
       raise ScaleValidationError('Incorrect hash')
   except ValueError:
     raise ScaleValidationError('Not a number')
