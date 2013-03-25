@@ -179,6 +179,53 @@ b { font-weight: bold }
     </p>
     {% endif %}
 
+    {% if pgp_questions %}
+
+    <p>
+    Key Signing Party Questions:
+    </p>
+
+    <p>
+    <b>All keys must be on either pgp.mit.edu or pool.sks-keyservers.net.</b>
+    </p>
+
+<!--
+    <p>
+    Don't know what this is? Please go back and remove the "Key Signing Party" item.
+    </p>
+//-->
+
+    <p>
+    <table>
+    {% for q in pgp_questions %}
+    <tr>
+        <td colspan="2">
+        {% if q.id < pgp_question2%}
+        <b>{{ q.text }}</b>
+        {% else %}
+        {{ q.text }}
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+    <td>
+    {% ifequal q.type_value 'list' %}
+    <select name="lq{{ q.id }}" size="1">
+        <option value="" selected="selected"></option>
+        {% for ans in q.get_answers %}
+        <option value="{{ ans.id }}">{{ ans.text }}</option>
+        {% endfor %}
+    </select>
+    {% else %}
+    <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
+    {% endifequal %}
+    </td>
+    </tr>
+    {% endfor %}
+    </table>
+    </p>
+    {% endif %}
+
     <p>
     <input type="submit" value="Continue" />
     </p>
