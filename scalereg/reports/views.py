@@ -16,6 +16,8 @@ import inspect
 import re
 import string
 
+PGP_KEY_QUESTION_INDEX_OFFSET = 3
+
 class Filter:
   def __init__(self, name):
     self.name = name
@@ -426,3 +428,289 @@ def getleads(request):
     response.write('\n')
   return response
 
+
+def GetAttendeePGPData(attendee, qindex):
+  answers = attendee.answers.filter(question=qindex)
+  if answers:
+    key = answers[0].text.replace(',', ' ')
+  else:
+    key = 'no pgp key'
+  answers = attendee.answers.filter(question=qindex + 1)
+  if answers:
+    size = answers[0].text.replace(',', ' ')
+  else:
+    size = 'no size'
+  answers = attendee.answers.filter(question=qindex + 2)
+  if answers:
+    keytype = answers[0].text.replace(',', ' ')
+  else:
+    keytype = 'no type'
+  return (key, size, keytype)
+
+
+@login_required
+def getpgp(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  response = HttpResponse(mimetype='text/plain')
+
+  item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
+  for attendee in item.attendee_set.all():
+    if attendee.valid:
+      valid = 'V'
+    else:
+      valid = 'I'
+
+    full_name = "%s %s" % (attendee.first_name, attendee.last_name)
+    full_name = full_name.replace(',', ' ')
+    email = attendee.email.replace(',', ' ')
+
+    qindex = settings.SCALEREG_PGP_QUESTION_ID_START
+    (key, size, keytype) = GetAttendeePGPData(attendee, qindex)
+    response.write('%s,%d,%s,%s,%s,%s,%s\n' % (valid, 1, full_name, email, key,
+                                               size, keytype))
+    qindex += PGP_KEY_QUESTION_INDEX_OFFSET
+    (key, size, keytype) = GetAttendeePGPData(attendee, qindex)
+    if key != 'no pgp key':
+      response.write('%s,%d,%s,%s,%s,%s,%s\n' % (valid, 2, full_name, email,
+                                                 key, size, keytype))
+  return response
+
+
+@login_required
+def putpgp(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<p>email, nth (1 or 2), fingerprint, size, type (RSA or DSA)</p>')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
+  attendees = item.attendee_set.filter(valid=True)
+
+  response = HttpResponse(mimetype='text/plain')
+  data = request.POST['data'].split('\n')
+
+  qpgp = []
+  start = settings.SCALEREG_PGP_QUESTION_ID_START
+  stop = start + 2 * PGP_KEY_QUESTION_INDEX_OFFSET
+  for i in range(start, stop):
+     qpgp.append(models.Question.objects.get(id=i)
+
+  for entry in data:
+    entry = entry.strip()
+    if not entry:
+      continue
+    entry_split = entry.split(',')
+    if len(entry_split) != 5:
+      response.write('bad data: %s<br />\n' % entry)
+      continue
+    (email, nth, fingerprint, size, keytype) = entry_split
+    email = email.strip()
+    nth = nth.strip()
+    fingerprint = fingerprint.strip()
+    size = size.strip()
+    keytype = keytype.strip()
+
+    if nth == '1':
+      qfingerprint = qpgp[0]
+      qsize = qpgp[1]
+      qkeytype = qpgp[2]
+    elif nth == '2':
+      qfingerprint = qpgp[3]
+      qsize = qpgp[4]
+      qkeytype = qpgp[5]
+    else:
+      response.write('bad data (nth): %s<br />\n' % entry)
+      continue
+
+    try:
+      int(size)
+    except:
+      response.write('bad size: %s\n' % size)
+      continue
+
+    if keytype not in ('RSA', 'DSA'):
+      response.write('bad fingerprint type: %s' % keytype)
+      continue
+
+    try:
+      attendee = attendees.get(email=email)
+    except:
+      response.write('cannot find %s\n' % email)
+      continue
+    change = True
+    try:
+      afingerprint = attendee.answers.get(question=qfingerprint)
+      asize = attendee.answers.get(question=qsize)
+      akeytype = attendee.answers.get(question=qkeytype)
+    except:
+      change = False
+
+    if change:
+      afingerprint.text = fingerprint
+      try:
+        afingerprint.save()
+        response.write('change part 1/3 ok: %s %s => %s\n' %
+                       (attendee.email, afingerprint, fingerprint))
+      except:
+        response.write('change part 1/3 error: %s %s => %s\n' %
+                       (attendee.email, afingerprint, fingerprint))
+      asize.text = size
+      try:
+        asize.save()
+        response.write('change part 2/3 ok: %s %s => %s\n' %
+                       (attendee.email, asize, size))
+      except:
+        response.write('change part 2/3 error: %s %s => %s\n' %
+                       (attendee.email, asize, size))
+      akeytype.text = keytype
+      try:
+        akeytype.save()
+        response.write('change part 3/3 ok: %s %s => %s\n' %
+                       (attendee.email, akeytype, keytype))
+      except:
+        response.write('change part 3/3 error: %s %s => %s\n' %
+                       (attendee.email, akeytype, keytype))
+    else:
+      afingerprint = models.TextAnswer()
+      afingerprint.question = models.Question.objects.get(id=qfingerprint)
+      afingerprint.text = fingerprint
+      try:
+        afingerprint.save()
+        response.write('add part 1/4 ok: %s %s => %s\n' %
+                       (attendee.email, afingerprint, fingerprint))
+      except:
+        response.write('add part 1/4 error: %s %s => %s\n' %
+                       (attendee.email, afingerprint, fingerprint))
+        continue
+      asize = models.TextAnswer()
+      asize.question = models.Question.objects.get(id=qsize)
+      asize.text = size
+      try:
+        asize.save()
+        response.write('add part 2/4 ok: %s %s => %s\n' %
+                       (attendee.email, asize, size))
+      except:
+        response.write('add part 2/4 error: %s %s => %s\n' %
+                       (attendee.email, asize, size))
+        continue
+      akeytype = models.TextAnswer()
+      akeytype.question = models.Question.objects.get(id=qkeytype)
+      akeytype.text = keytype
+      try:
+        akeytype.save()
+        response.write('add part 3/4 ok: %s %s => %s\n' %
+                       (attendee.email, akeytype, keytype))
+      except:
+        response.write('add part 3/4 error: %s %s => %s\n' %
+                       (attendee.email, akeytype, keytype))
+        continue
+
+      try:
+        attendee.answers.add(afingerprint)
+        attendee.answers.add(asize)
+        attendee.answers.add(akeytype)
+        attendee.save()
+        response.write('add part 4/4 ok: %s\n' % attendee.email)
+      except:
+        response.write('add part 4/4 error: %s\n' % attendee.email)
+        continue
+  return response
+
+
+@login_required
+def checkpgp(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<p>email address(es) to check</p>')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
+  attendees = item.attendee_set
+
+  response = HttpResponse(mimetype='text/plain')
+  data = request.POST['data'].split('\n')
+
+  qpgp = []
+  start = settings.SCALEREG_PGP_QUESTION_ID_START
+  stop = start + 2 * PGP_KEY_QUESTION_INDEX_OFFSET
+  for i in range(start, stop):
+     qpgp.append(models.Question.objects.get(id=i)
+
+  for email in data:
+    email = email.strip()
+    if not email:
+      continue
+    response.write('----\n')
+    attendee = None
+    try:
+      attendee = attendees.get(email=email)
+    except:
+      pass
+
+    if not attendee:
+      attendees_with_email = models.Attendee.objects.filter(email=email)
+      response.write('ERROR: ')
+      if attendees_with_email:
+        response.write('found attendee with email %s, '
+                       'but not signed up for KSP\n' % email)
+      else:
+        response.write('cannot find attendee with email %s\n' % email)
+      continue
+
+    try:
+      answer = attendee.answers.get(question=qpgp[0])
+      response.write('fingerprint 1: %s\n' % answer)
+    except:
+      response.write('no fingerprint 1\n')
+    try:
+      answer = attendee.answers.get(question=qpgp[1])
+      response.write('size 1: %s\n' % answer)
+    except:
+      response.write('no size 1\n')
+    try:
+      answer = attendee.answers.get(question=qpgp[2])
+      response.write('type 1: %s\n' % answer)
+    except:
+      response.write('no type 1\n')
+    try:
+      answer = attendee.answers.get(question=qpgp[3])
+      response.write('fingerprint 2: %s\n' % answer)
+    except:
+      response.write('no fingerprint 2\n')
+    try:
+      answer = attendee.answers.get(question=qpgp[4])
+      response.write('size 2: %s\n' % answer)
+    except:
+      response.write('no size 2\n')
+    try:
+      answer = attendee.answers.get(question=qpgp[5])
+      response.write('type 2: %s\n' % answer)
+    except:
+      response.write('no type 2\n')
+
+  return response

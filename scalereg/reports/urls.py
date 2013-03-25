@@ -82,4 +82,7 @@ urlpatterns = patterns('',
     (r'^dashboard/$', 'scalereg.reports.views.dashboard'),
     (r'^badorder/$', 'scalereg.reports.views.badorder'),
     (r'^getleads/$', 'scalereg.reports.views.getleads'),
+    (r'^getpgp/$', 'scalereg.reports.views.getpgp'),
+    (r'^putpgp/$', 'scalereg.reports.views.putpgp'),
+    (r'^checkpgp/$', 'scalereg.reports.views.checkpgp'),
 )
