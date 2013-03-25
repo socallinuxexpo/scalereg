@@ -163,11 +163,11 @@ def CalculateTicketCost(ticket, items):
   return (total, offset_item)
 
 
-def IsUpgradeUnchanged(attendee, ticket, items):
+def IsUpgradeUnchanged(attendee, ticket, selected_items):
   if attendee.badge_type != ticket:
     return False
   attendee_items = attendee.ordered_items.all()
-  if len(items) != len(attendee_items):
+  if len(selected_items) != len(attendee_items):
     return False
   for item in selected_items:
     if item not in attendee_items:
