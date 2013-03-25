@@ -1,9 +1,10 @@
 # Create your views here.
 
 from __future__ import division
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import BooleanField
 from django.db.models.base import ModelBase
+from django.db.models import BooleanField
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -507,7 +508,7 @@ def putpgp(request):
   start = settings.SCALEREG_PGP_QUESTION_ID_START
   stop = start + 2 * PGP_KEY_QUESTION_INDEX_OFFSET
   for i in range(start, stop):
-     qpgp.append(models.Question.objects.get(id=i)
+     qpgp.append(models.Question.objects.get(id=i))
 
   for entry in data:
     entry = entry.strip()
@@ -659,7 +660,7 @@ def checkpgp(request):
   start = settings.SCALEREG_PGP_QUESTION_ID_START
   stop = start + 2 * PGP_KEY_QUESTION_INDEX_OFFSET
   for i in range(start, stop):
-     qpgp.append(models.Question.objects.get(id=i)
+     qpgp.append(models.Question.objects.get(id=i))
 
   for email in data:
     email = email.strip()
