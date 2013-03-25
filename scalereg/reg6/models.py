@@ -17,7 +17,7 @@ PAYMENT_CHOICES = (
   ('exhibitor', 'Exhibitor'),
   ('speaker', 'Speaker'),
   ('press', 'Press'),
-  ('free_upgrade', 'Free Upgrade'),
+  ('freeup', 'Free Upgrade'),
 )
 
 TICKET_CHOICES = (
