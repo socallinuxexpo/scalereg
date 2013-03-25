@@ -143,7 +143,7 @@ b { font-weight: bold }
     </tr>
     </table>
 
-    {% if list_questions or text_questions %}
+    {% if questions %}
     <p>
     Survey Questions:
     </p>
@@ -154,40 +154,24 @@ b { font-weight: bold }
     </p>
     {% endif %}
 
-    {% endif %}
-
-    {% if list_questions %}
     <p>
     <table>
-    {% for q in list_questions %}
+    {% for q in questions %}
     <tr>
         <td colspan="2">{{ q.text }}</td>
     </tr>
     <tr>
     <td>
-    <select name="lq{{ forloop.counter0 }}" size="1">
+    {% ifequal q.type_value 'list' %}
+    <select name="lq{{ q.id }}" size="1">
         <option value="" selected="selected"></option>
         {% for ans in q.get_answers %}
         <option value="{{ ans.id }}">{{ ans.text }}</option>
         {% endfor %}
     </select>
-    </td>
-    </tr>
-    {% endfor %}
-    </table>
-    </p>
-    {% endif %}
-
-    {% if text_questions %}
-    <p>
-    <table>
-    {% for q in text_questions %}
-    <tr>
-        <td colspan="2">{{ q.text }}</td>
-    </tr>
-    <tr>
-    <td>
-      <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
+    {% else %}
+    <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
+    {% endifequal %}
     </td>
     </tr>
     {% endfor %}
