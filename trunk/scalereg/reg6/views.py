@@ -1140,7 +1140,7 @@ def FreeUpgrade(request):
         zip='N/A',
         email=attendee.email,
         amount=0,
-        payment_type='free_upgrade',
+        payment_type='freeup',
       )
       order.save()
       order_saved = True
