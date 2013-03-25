@@ -42,6 +42,7 @@ def PrintAttendee(attendee):
   badge.append(attendee.org)
   badge.append(attendee.email)
   badge.append(attendee.phone)
+  badge.append(attendee.zip)
   badge.append(str(attendee.id))
   try:
     reprint = models.Reprint.objects.get(attendee=attendee)
