@@ -120,7 +120,7 @@ def SurveyLookup(request):
     if not error:
       try:
         attendee = reg6models.Attendee.objects.get(id=id)
-        if attendee.first_name == request.POST['name']:
+        if attendee.checked_in and attendee.first_name == request.POST['name']:
           hashval = validators.hashAttendee(attendee) + '%04d' % id
       except reg6models.Attendee.DoesNotExist:
         error = True
