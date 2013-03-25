@@ -294,7 +294,7 @@ def scale_render_to_response(request, template, vars):
 def index(request):
   avail_tickets = [ticket for ticket in
                    models.Ticket.public_objects.order_by('description')
-                   if IsTicketAvailable(ticket), 1]
+                   if IsTicketAvailable(ticket, 1)]
   active_promocode_set = models.PromoCode.active_objects
   avail_promocodes = active_promocode_set.names()
 
