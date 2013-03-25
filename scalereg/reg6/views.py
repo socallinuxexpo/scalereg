@@ -609,7 +609,7 @@ def AddAttendee(request):
      'pgp_question2': pgp_question2,
      'pgp_question2_size': pgp_question2_size,
      'pgp_question2_type': pgp_question2_type,
-     'pgp_questions': pgp_question,
+     'pgp_questions': pgp_questions,
      'questions': questions,
      'form': form,
      'step': 3,
