@@ -9,38 +9,39 @@ from scalereg.speaker_survey import forms
 from scalereg.speaker_survey import models
 from scalereg.speaker_survey import validators
 
-def Survey(request, hash=None, id=None):
+def Survey(request, hashval=None, id=None):
   try:
-    validators.isValid7XHash(hash, None)
+    validators.isValid7XHash(hashval, None)
   except ScaleValidationError:
+    raise
     return render_to_response('speaker_survey/error.html',
       {'title': 'Survey Error',
       'error_message': 'Invalid Survey URL',
       })
 
   if not id:
-    return SurveyIndex(hash)
+    return SurveyIndex(hashval)
 
   speaker = None
   try:
     speaker = models.Speaker.objects.get(id=id)
 
     if request.method == 'POST':
-      return SurveyFill(hash, speaker, request.POST)
+      return SurveyFill(hashval, speaker, request.POST)
   except models.Speaker.DoesNotExist:
     return render_to_response('speaker_survey/error.html',
       {'title': 'Survey Error',
        'error_message': 'Cannot find speaker',
       })
   try:
-    s = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
+    s = models.Survey7X.objects.filter(hash=hashval).get(speaker=speaker)
     return SurveyView(s)
   except models.Survey7X.DoesNotExist:
-    return SurveyFill(hash, speaker)
+    return SurveyFill(hashval, speaker)
 
 
-def SurveyIndex(hash):
-  surveys = models.Survey7X.objects.filter(hash=hash)
+def SurveyIndex(hashval):
+  surveys = models.Survey7X.objects.filter(hash=hashval)
   new_speakers = models.Speaker.objects.all().order_by('name')
   old_speakers = []
   for s in surveys:
@@ -54,13 +55,14 @@ def SurveyIndex(hash):
     })
 
 
-def SurveyFill(hash, speaker, post_data=None):
+def SurveyFill(hashval, speaker, post_data=None):
   if not post_data:
     form = forms.Survey7XForm()
   else:
     try:
       # work around DB integrity error for duplicates
-      survey = models.Survey7X.objects.filter(hash=hash).get(speaker=speaker)
+      survey = models.Survey7X.objects.filter(hash=hashval)
+      survey = survey.get(speaker=speaker)
       return SurveyView(survey)
     except models.Survey7X.DoesNotExist:
       pass
@@ -68,7 +70,7 @@ def SurveyFill(hash, speaker, post_data=None):
     form = forms.Survey7XForm(post_data)
     if form.is_valid():
       new_survey = form.save(commit=False)
-      new_survey.hash = hash
+      new_survey.hashval = hashval
       new_survey.speaker = speaker
       new_survey.save()
       form.save_m2m()
@@ -105,7 +107,7 @@ def SurveyLookup(request):
       })
   else:
     error = False
-    hash = None
+    hashval = None
     id = -1
     if 'name' not in request.POST or 'id' not in request.POST:
       error = True
@@ -119,15 +121,14 @@ def SurveyLookup(request):
       try:
         attendee = reg6models.Attendee.objects.get(id=id)
         if attendee.first_name == request.POST['name']:
-          hash = validators.hash(attendee.first_name + attendee.last_name)[:6]
-          hash += '%04d' % id
+          hashval = validators.hashAttendee(attendee) + '%04d' % id
       except reg6models.Attendee.DoesNotExist:
         error = True
 
-    if hash:
+    if hashval:
       return render_to_response('speaker_survey/survey_lookup.html',
         {'title': 'Speaker Surveys',
-         'hash': hash,
+         'hash': hashval,
         })
     else:
       return render_to_response('speaker_survey/survey_lookup.html',
@@ -188,11 +189,11 @@ def UrlDump(request):
   attendees = reg6models.Attendee.objects.filter(checked_in=True)
   response = HttpResponse(mimetype='text/plain')
   for f in attendees:
-    hash = validators.hash(f.first_name + f.last_name)[:6]
-    hash += '%04d' % f.id
+    hashval = validators.hashval(f.first_name + f.last_name)[:6]
+    hashval += '%04d' % f.id
     response.write('%s %s\n' % (f.first_name, f.last_name))
     response.write('%s\n' % f.email)
-    response.write('%s\n' % hash)
+    response.write('%s\n' % hashval)
   return response
 
 
