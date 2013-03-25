@@ -33,7 +33,7 @@ def ScaleDebug(msg):
   handle.close()
 
 
-def PrintAttendee(attendee):
+def PrintAttendee(attendee, reprint_ids):
   badge = []
   badge.append(attendee.salutation)
   badge.append(attendee.first_name)
@@ -44,10 +44,10 @@ def PrintAttendee(attendee):
   badge.append(attendee.phone)
   badge.append(attendee.zip)
   badge.append(str(attendee.id))
-  try:
+  if attendee.id in reprint_ids:
     reprint = models.Reprint.objects.get(attendee=attendee)
     badge.append(str(reprint.count))
-  except:
+  else:
     badge.append('0')
   badge.append(attendee.badge_type.type)
   if not attendee.order:
@@ -1444,7 +1444,11 @@ def CheckedIn(request):
     if 'idsonly' in request.GET:
       return HttpResponse('\n'.join([str(f.id) for f in attendees]),
                           mimetype='text/plain')
-  return HttpResponse('\n'.join([PrintAttendee(f) for f in attendees]),
+
+  reprint_ids = [reprint.attendee.id
+                 for reprint in models.Reprint.objects.all()]
+  return HttpResponse(
+      '\n'.join([PrintAttendee(f, reprint_ids) for f in attendees]),
           mimetype='text/plain')
 
 
