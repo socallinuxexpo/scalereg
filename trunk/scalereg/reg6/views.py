@@ -105,10 +105,18 @@ def ApplyPromoToPostedItems(ticket, promo, post):
   return selected_items
 
 
-def FindRelevantQuestions(type, ticket, selected_items):
+def FindRelevantQuestions(model_type, ticket, selected_items):
+  if model_type == models.ListQuestion:
+    type_value = 'list'
+  elif model_type == models.TextQuestion:
+    type_value = 'text'
+  else:
+    raise ValueError
+
   questions = []
-  all_active_questions = type.objects.filter(active=True)
+  all_active_questions = model_type.objects.filter(active=True)
   for q in all_active_questions:
+    q.type_value = type_value
     if q.applies_to_all or ticket in q.applies_to_tickets.all():
       questions.append(q)
     else:
@@ -117,6 +125,24 @@ def FindRelevantQuestions(type, ticket, selected_items):
         if item in relevant_items:
           questions.append(q)
           break
+  return questions
+
+
+def IdCompare(x, y):
+  if x.id == y.id:
+    return 0
+  if x.id < y.id:
+    return -1
+  return 1
+
+
+def FindAllRelevantQuestions(ticket, selected_items):
+  list_questions = FindRelevantQuestions(models.ListQuestion, ticket,
+                                         selected_items)
+  text_questions = FindRelevantQuestions(models.TextQuestion, ticket,
+                                         selected_items)
+  questions = [list_questions + text_questions]
+  questions.sort(cmp=IdCompare)
   return questions
 
 
@@ -444,10 +470,7 @@ def AddAttendee(request):
   selected_items = ApplyPromoToPostedItems(ticket, promo_in_use, request.POST)
   (total, offset_item) = CalculateTicketCost(ticket, selected_items)
 
-  list_questions = FindRelevantQuestions(models.ListQuestion, ticket,
-      selected_items)
-  text_questions = FindRelevantQuestions(models.TextQuestion, ticket,
-      selected_items)
+  questions = FindAllRelevantQuestions(ticket, selected_items)
 
   if action == 'add':
     request.session['attendee'] = ''
@@ -482,22 +505,23 @@ def AddAttendee(request):
       for s in selected_items:
         new_attendee.ordered_items.add(s)
       # add survey answers
-      for i in xrange(len(list_questions)):
-        i = 'lq%d' % i
-        if i in request.POST and request.POST[i]:
-          try:
-            ans = models.Answer.objects.get(id=request.POST[i])
-            new_attendee.answers.add(ans)
-          except models.Answer.DoesNotExist:
-            continue
-      for q in text_questions:
-        i = 'tq%d' % q.id
-        if i in request.POST and request.POST[i]:
-          answer = models.TextAnswer()
-          answer.question = q
-          answer.text = request.POST[i][:q.max_length]
-          answer.save()
-          new_attendee.answers.add(answer)
+      for q in questions:
+        if q.type_value == 'list':
+          key = 'lq%d' % q.id
+          if key in request.POST and request.POST[key]:
+            try:
+              ans = models.Answer.objects.get(id=request.POST[key])
+              new_attendee.answers.add(ans)
+            except models.Answer.DoesNotExist:
+              continue
+        else:
+          key = 'tq%d' % q.id
+          if key in request.POST and request.POST[key]:
+            answer = models.TextAnswer()
+            answer.question = q
+            answer.text = request.POST[key][:q.max_length]
+            answer.save()
+            new_attendee.answers.add(answer)
 
       request.session['attendee'] = new_attendee.id
 
@@ -516,8 +540,7 @@ def AddAttendee(request):
      'items': selected_items,
      'offset_item': offset_item,
      'total': total,
-     'list_questions': list_questions,
-     'text_questions': text_questions,
+     'questions': questions,
      'form': form,
      'step': 3,
      'steps_total': STEPS_TOTAL,
