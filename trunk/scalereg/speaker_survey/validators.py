@@ -3,7 +3,7 @@ from scalereg.reg6 import models
 import hashlib
 
 def hashfunc(data):
-  return hashlib.sha1.new('SECRET' + data).hexdigest()
+  return hashlib.sha1('SECRET' + data).hexdigest()
 
 def hashAttendee(attendee):
   return hashfunc(attendee.first_name + attendee.last_name)[:6]
