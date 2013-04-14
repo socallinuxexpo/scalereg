@@ -9,64 +9,37 @@
 Survey Results for {{ speaker }}
 </h2>
 
-<table>
-<tr>
-  <td>
-    <table border="1">
-    <tr>
-      <th>Question</th>
-    </tr>
-    {% for s in survey.help_text %}
-    <tr>
-      <td>{{ s }}</td>
-    </tr>
-    {% ifequal forloop.counter0 6 %}
-    <tr>
-      <td>Speaker score</td>
-    </tr>
-    {% endifequal %}
-    {% ifequal forloop.counter0 14 %}
-    <tr>
-      <td>Presentation score</td>
-    </tr>
-    {% endifequal %}
+<table border="1">
+  <tr>
+    <th>Question</th>
+    {% for c in choices %}
+    <th>
+    {{ c }}
+    </th>
     {% endfor %}
-    </table>
-  </td>
-  <td>
-    <table border="1">
-    <tr>
-      {% for c in choices %}
-      <td>
-      {{ c }}
-      </td>
-      {% endfor %}
-      <td>Avg Score</td>
-    </tr>
-    {% for s in scores %}
-    <tr>
-      {% for ss in s %}
-      <td>{{ ss }}</td>
-      {% endfor %}
-    </tr>
-    {% ifequal forloop.counter0 6 %}
-    <tr>
-      <td colspan="5">&nbsp;</td>
-      <td>{{ sc1 }}</td>
-    </tr>
-    {% endifequal %}
-    {% ifequal forloop.counter0 14 %}
-    <tr>
-      <td colspan="5">&nbsp;</td>
-      <td>{{ sc2 }}</td>
-    </tr>
-    {% endifequal %}
+    <th>Avg Score</th>
+  </tr>
+  {% for s in scores %}
+  <tr>
+    {% for ss in s %}
+    <td>{{ ss }}</td>
     {% endfor %}
-    </table>
-  </td>
-  <td>
-  </td>
-</tr>
+  </tr>
+  {% ifequal forloop.counter0 6 %}
+  <tr>
+    <td>Speaker score</td>
+    <td colspan="5">&nbsp;</td>
+    <td>{{ sc1 }}</td>
+  </tr>
+  {% endifequal %}
+  {% ifequal forloop.counter0 14 %}
+  <tr>
+    <td>Presentation score</td>
+    <td colspan="5">&nbsp;</td>
+    <td>{{ sc2 }}</td>
+  </tr>
+  {% endifequal %}
+  {% endfor %}
 </table>
 
 <p>

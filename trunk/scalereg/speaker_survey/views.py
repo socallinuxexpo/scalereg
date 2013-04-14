@@ -259,6 +259,10 @@ def ScoreSurveys(surveys):
     total = sum([GetScore(models.VALUE_CHOICES[j][0]) * scores[i][j]
                  for j in xrange(0,5)])
     scores[i][5] = round(float(total) / num, 1)
+  help_text = surveys[0].help_text()
+  for i in xrange(0, 15):
+    scores[i].insert(0, help_text[i])
+
   sc1 = round(float(sc1) / num, 1)
   sc2 = round(float(sc2) / num, 1)
   return (scores, sc1, sc2, num, comments)
@@ -295,7 +299,6 @@ def Scores(request, id=None):
   return render_to_response('speaker_survey/scores_speaker.html',
     {'title': 'Speaker Scores',
      'speaker': speaker,
-     'survey': surveys[0],
      'scores': scores,
      'sc1': sc1,
      'sc2': sc2,
