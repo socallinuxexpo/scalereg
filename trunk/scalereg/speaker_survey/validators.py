@@ -1,9 +1,11 @@
+from django.conf import settings
 from scalereg.common.validators import ScaleValidationError
 from scalereg.reg6 import models
 import hashlib
 
 def hashfunc(data):
-  return hashlib.sha1('SECRET' + data).hexdigest()
+  data = settings.SCALEREG_SPEAKERSURVEY_SECRET + data.encode('utf-8')
+  return hashlib.sha1(data).hexdigest()
 
 def hashAttendee(attendee):
   return hashfunc(attendee.first_name + attendee.last_name)[:6]
