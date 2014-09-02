@@ -257,8 +257,8 @@ class Answer(models.Model):
     permissions = (('view_answer', 'Can view answer'),)
 
   def __str_text__(self):
-    if len(self.text) > 37:
-      return '%s...' % self.text[:37]
+    if len(self.text) > 50:
+      return '%s...' % self.text[:50]
     return '%s' % self.text
 
   def __unicode__(self):
