@@ -189,8 +189,7 @@ def UrlDump(request):
   attendees = reg6models.Attendee.objects.filter(checked_in=True)
   response = HttpResponse(mimetype='text/plain')
   for f in attendees:
-    hashval = validators.hashval(f.first_name + f.last_name)[:6]
-    hashval += '%04d' % f.id
+    hashval = validators.hashAttendee(f) + '%04d' % f.id
     response.write('%s %s\n' % (f.first_name, f.last_name))
     response.write('%s\n' % f.email)
     response.write('%s\n' % hashval)
