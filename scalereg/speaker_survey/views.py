@@ -105,38 +105,38 @@ def SurveyLookup(request):
       {'title': 'Speaker Surveys',
        'unknown': False,
       })
-  else:
-    error = False
-    hashval = None
-    id = -1
-    if 'name' not in request.POST or 'id' not in request.POST:
+
+  error = False
+  hashval = None
+  id = -1
+  if 'name' not in request.POST or 'id' not in request.POST:
+    error = True
+  if not error:
+    try:
+      id = int(request.POST['id'])
+    except ValueError:
       error = True
-    if not error:
-      try:
-        id = int(request.POST['id'])
-      except ValueError:
-        error = True
 
-    if not error:
-      try:
-        attendee = reg6models.Attendee.objects.get(id=id)
-        if attendee.checked_in and attendee.first_name == request.POST['name']:
-          hashval = validators.hashAttendee(attendee) + '%04d' % id
-      except reg6models.Attendee.DoesNotExist:
-        error = True
+  if not error:
+    try:
+      attendee = reg6models.Attendee.objects.get(id=id)
+      if attendee.checked_in and attendee.first_name == request.POST['name']:
+        hashval = validators.hashAttendee(attendee) + '%04d' % id
+    except reg6models.Attendee.DoesNotExist:
+      error = True
 
-    if hashval:
-      return render_to_response('speaker_survey/survey_lookup.html',
-        {'title': 'Speaker Surveys',
-         'hash': hashval,
-        })
-    else:
-      return render_to_response('speaker_survey/survey_lookup.html',
-        {'title': 'Speaker Surveys',
-         'id': request.POST['id'],
-         'name': request.POST['name'],
-         'unknown': True,
-        })
+  if hashval:
+    return render_to_response('speaker_survey/survey_lookup.html',
+      {'title': 'Speaker Surveys',
+       'hash': hashval,
+      })
+  else:
+    return render_to_response('speaker_survey/survey_lookup.html',
+      {'title': 'Speaker Surveys',
+       'id': request.POST['id'],
+       'name': request.POST['name'],
+       'unknown': True,
+      })
 
 
 @login_required
@@ -146,6 +146,7 @@ def MassAdd(request):
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
+    response.write('<p>name<br />title<br />url</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -158,13 +159,11 @@ def MassAdd(request):
   response.write('<html><head></head><body>')
 
   data = request.POST['data'].split('\n')
-  print data
   while data:
     name = data.pop(0).strip()
     title = data.pop(0).strip()
     url = data.pop(0).strip()
     if not name or not title:
-      print 'blah'
       continue
 
     speaker = models.Speaker()
