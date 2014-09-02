@@ -184,7 +184,7 @@ def FindAllRelevantQuestions(ticket, selected_items):
                                          selected_items)
   text_questions = FindRelevantQuestions(models.TextQuestion, ticket,
                                          selected_items)
-  questions = [list_questions + text_questions]
+  questions = list_questions + text_questions
   questions.sort(cmp=IdCompare)
   return questions
 
