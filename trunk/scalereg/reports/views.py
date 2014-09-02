@@ -587,7 +587,7 @@ def putpgp(request):
                        (attendee.email, akeytype, keytype))
     else:
       afingerprint = models.TextAnswer()
-      afingerprint.question = models.Question.objects.get(id=qfingerprint)
+      afingerprint.question = models.Question.objects.get(id=qfingerprint.id)
       afingerprint.text = fingerprint
       try:
         afingerprint.save()
@@ -598,7 +598,7 @@ def putpgp(request):
                        (attendee.email, afingerprint, fingerprint))
         continue
       asize = models.TextAnswer()
-      asize.question = models.Question.objects.get(id=qsize)
+      asize.question = models.Question.objects.get(id=qsize.id)
       asize.text = size
       try:
         asize.save()
@@ -609,7 +609,7 @@ def putpgp(request):
                        (attendee.email, asize, size))
         continue
       akeytype = models.TextAnswer()
-      akeytype.question = models.Question.objects.get(id=qkeytype)
+      akeytype.question = models.Question.objects.get(id=qkeytype.id)
       akeytype.text = keytype
       try:
         akeytype.save()
