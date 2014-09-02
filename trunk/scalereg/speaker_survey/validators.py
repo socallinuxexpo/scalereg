@@ -10,8 +10,10 @@ def hashfunc(data):
   data = settings.SCALEREG_SPEAKERSURVEY_SECRET + data.encode('utf-8')
   return hashlib.sha1(data).hexdigest().upper()
 
+
 def hashAttendee(attendee):
   return hashfunc(attendee.first_name + attendee.last_name)[:HASH_LENGTH]
+
 
 def isValid7XHash(field_data, all_data):
   if not field_data:
