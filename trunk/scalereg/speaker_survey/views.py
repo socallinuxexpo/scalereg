@@ -70,7 +70,7 @@ def SurveyFill(hashval, speaker, post_data=None):
     form = forms.Survey7XForm(post_data)
     if form.is_valid():
       new_survey = form.save(commit=False)
-      new_survey.hashval = hashval
+      new_survey.hash = hashval
       new_survey.speaker = speaker
       new_survey.save()
       form.save_m2m()
