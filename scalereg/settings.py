@@ -122,6 +122,9 @@ SCALEREG_SIMPLECFP_EMAIL = ''
 # MEDIA_ROOT and MEDIA_URL need to be set for uploads to work.
 SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
 
+# Secret used for speaker surveys to make survey URLs harder to guess.
+SCALEREG_SPEAKERSURVEY_SECRET = 'CHANGE_THIS_IF_NEEDED'
+
 # Optional questions about PGP keys for a PGP Key Signing Party.
 #
 # Integer value corresponding to the first PGP question. Set to -1 to disable.
