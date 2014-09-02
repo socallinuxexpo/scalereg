@@ -1548,7 +1548,9 @@ def CheckedIn(request):
 
   if request.method == 'POST':
     # Only get requested attendees instead of all checked in attendees.
-    attendee_ids = [int(x) for x in request.POST['attendees'].split(',')]
+    attendee_ids = []
+    if 'attendees' in request.POST and request.POST['attendees']:
+      attendee_ids = [int(x) for x in request.POST['attendees'].split(',')]
     attendee_ids = set(attendee_ids + reprint_ids)
     checked_in_attendees = []
     for attendee_id in attendee_ids:
