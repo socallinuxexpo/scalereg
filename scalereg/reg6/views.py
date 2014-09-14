@@ -142,7 +142,12 @@ def ApplyPromoToPostedItems(ticket, promo, post):
         item = models.Item.objects.get(name=post[item_number])
       except:
         continue
-      if item in avail_items:
+      is_item_available = item in avail_items;
+      if (IsPGPEnabled() and
+          item.name == settings.SCALEREG_PGP_KSP_ITEM_NAME and
+          'no_pgp' in post):
+        is_item_available = False
+      if is_item_available:
         selected_items.append(item)
   ApplyPromoToItems(promo, selected_items)
   return selected_items
