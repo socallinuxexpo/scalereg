@@ -96,6 +96,11 @@ b { font-weight: bold }
     }
 
     function pgpcheck() {
+      var no_want_pgp = document.getElementById('no_pgp');
+      if (no_want_pgp.checked) {
+        return true;
+      }
+
       var q1 = document.getElementsByName('tq{{ pgp_question}}');
       var q1_size = document.getElementsByName('tq{{ pgp_question_size}}');
       var q1_type = document.getElementsByName('lq{{ pgp_question_type}}');
@@ -111,6 +116,14 @@ b { font-weight: bold }
       var r2 = pgpcheck_impl(q2[0].value, q2_size[0].value, q2_type[0].value, true);
       return (r1 && r2);
     }
+
+    function toggle_pgp() {
+      var no_want_pgp = document.getElementById('no_pgp');
+      var display = no_want_pgp.checked ? "none" : "inline";
+      document.getElementById('pgp_section').style.display = display;
+      return true; 
+    }
+      
     </script>
     <form method="post" action="." onsubmit="return pgpcheck()">
     {% else %}
@@ -250,14 +263,15 @@ b { font-weight: bold }
     </p>
 
     <p>
+    <label>
+        Wait - I don't know what PGP is! Nevermind! Ignore the PGP stuff!
+        <input type="checkbox" name="no_pgp" id="no_pgp" onclick="toggle_pgp()" value="true" />
+    </label>
+
+    <div id='pgp_section'>
+    <p>
     <b>All keys must be on either pgp.mit.edu or pool.sks-keyservers.net.</b>
     </p>
-
-<!--
-    <p>
-    Don't know what this is? Please go back and remove the "Key Signing Party" item.
-    </p>
-//-->
 
     <p>
     <table>
@@ -288,6 +302,7 @@ b { font-weight: bold }
     {% endfor %}
     </table>
     </p>
+    </div>
     {% endif %}
 
     <p>
