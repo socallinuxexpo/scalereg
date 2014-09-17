@@ -61,7 +61,7 @@ b { font-weight: bold }
       }
       if (blank_ok && str.length == 0 && size.length == 0 && !type)
         return true;
-      if (str.length == 40 || str.length == 32) {
+      if (str.length == 40) {
         for (var i = 0; i < str.length; ++i) {
           var c = str[i];
           if ((c >= '0' && c <= '9') ||
@@ -73,8 +73,9 @@ b { font-weight: bold }
           return false;
         }
       } else {
-        alert('PGP fingerprint should be 32 or 40 characters long. Input is ' +
-              str.length + ' characters.');
+        alert('PGP fingerprint should be 40 characters long. Input is ' +
+              str.length + ' characters. (If yours is 32, your key is ' +
+              'ancient and unsafe, please generate a new one.)');
         return false;
       }
 
