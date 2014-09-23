@@ -36,19 +36,24 @@ def ScaleDebug(msg):
 
 
 def IsPGPEnabled():
-  return settings.SCALEREG_PGP_QUESTION_ID_START >= 0
+  return (settings.SCALEREG_PGP_QUESTION_ID_START >= 0 and
+          settings.SCALEREG_PGP_MAX_KEYS > 0)
 
 
-def GetPGPKey1QuestionIndex():
+def GetPGPTotalQuestions():
+  return settings.SCALEREG_PGP_MAX_KEYS * PGP_KEY_QUESTION_INDEX_OFFSET
+
+
+def GetPGPKeyQuestionIndex(question_number):
   assert IsPGPEnabled()
-  return settings.SCALEREG_PGP_QUESTION_ID_START
+  assert question_number > 0
+  assert question_number <= settings.SCALEREG_PGP_MAX_KEYS
+  offset = (question_number - 1) * PGP_KEY_QUESTION_INDEX_OFFSET
+  return settings.SCALEREG_PGP_QUESTION_ID_START + offset
 
-def GetPGPKey2QuestionIndex():
-  assert IsPGPEnabled()
-  return settings.SCALEREG_PGP_QUESTION_ID_START + PGP_KEY_QUESTION_INDEX_OFFSET
 
-
-def GetPGPText(attendee, qpgp, q_index):
+def GetPGPText(attendee, qpgp, question_number):
+  q_index = GetPGPKeyQuestionIndex(question_number)
   pgp_keys = attendee.answers.filter(question=qpgp[q_index])
   if not pgp_keys:
     return ''
@@ -86,19 +91,17 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
   if IsPGPEnabled():
     ksp = attendee.id in ksp_ids
     has_pgp_text = 'NO PGP'
-    pgp_key1_text = 'NO PGP KEY 1'
-    pgp_key2_text = 'NO PGP KEY 2'
+    all_pgp_text = []
+    for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
+      all_pgp_text.push_back('NO PGP KEY %d' % i + 1)
     if ksp:
       has_pgp_text = 'PGP'
-      pgp_text = GetPGPText(attendee, qpgp, 0)
-      if pgp_text:
-        pgp_key1_text = pgp_text
-      pgp_text = GetPGPText(attendee, qpgp, PGP_KEY_QUESTION_INDEX_OFFSET)
-      if pgp_text:
-        pgp_key2_text = pgp_text
+      for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
+        pgp_text = GetPGPText(attendee, qpgp, i + 1)
+        if pgp_text:
+          all_pgp_text[i] = pgp_text
     badge.append(has_pgp_text)
-    badge.append(pgp_key1_text)
-    badge.append(pgp_key2_text)
+    badge.extend([all_pgp_text])
 
   tshirt_size = '???'
   try:
@@ -581,23 +584,20 @@ def AddAttendee(request):
 
       return HttpResponseRedirect('/reg6/registered_attendee/')
 
-  pgp_question = pgp_question_size = pgp_question_type = -1
-  pgp_question2 = pgp_question2_size = pgp_question2_type = -1
   pgp_questions = []
+  pgp_question1_index = -1
+  pgp_question2_index = -1
   if IsPGPEnabled():
-    pgp_question = GetPGPKey1QuestionIndex()
-    pgp_question_size = GetPGPKey1QuestionIndex() + 1
-    pgp_question_type = GetPGPKey1QuestionIndex() + 2
-    pgp_question2 = GetPGPKey2QuestionIndex()
-    pgp_question2_size = GetPGPKey2QuestionIndex() + 1
-    pgp_question2_type = GetPGPKey2QuestionIndex() + 2
+    pgp_question1_index = GetPGPKeyQuestionIndex(1)
+    pgp_question2_index = pgp_question1_index + PGP_KEY_QUESTION_INDEX_OFFSET
 
     q_range = range(len(questions))
     q_range.reverse()
+    pgp_question_start = pgp_question1_index
+    pgp_question_end = pgp_question_start + GetPGPTotalQuestions()
     for i in q_range:
       q_id = questions[i].id
-      if (q_id >= GetPGPKey1QuestionIndex() and
-          q_id < GetPGPKey2QuestionIndex() + PGP_KEY_QUESTION_INDEX_OFFSET):
+      if q_id >= pgp_question_start and q_id < pgp_question_end:
         pgp_questions.append(questions.pop(i))
     pgp_questions.reverse()
 
@@ -608,12 +608,9 @@ def AddAttendee(request):
      'items': selected_items,
      'offset_item': offset_item,
      'total': total,
-     'pgp_question': pgp_question,
-     'pgp_question_size': pgp_question_size,
-     'pgp_question_type': pgp_question_type,
-     'pgp_question2': pgp_question2,
-     'pgp_question2_size': pgp_question2_size,
-     'pgp_question2_type': pgp_question2_type,
+     'pgp_num_keys': settings.SCALEREG_PGP_MAX_KEYS,
+     'pgp_question1_index': pgp_question1_index,
+     'pgp_question2_index': pgp_question2_index,
      'pgp_questions': pgp_questions,
      'questions': questions,
      'form': form,
@@ -1548,8 +1545,10 @@ def CheckedIn(request):
     ksp_attendees = models.Item.objects.get(
         name=settings.SCALEREG_PGP_KSP_ITEM_NAME).attendee_set.all()
     ksp_ids = [attendee.id for attendee in ksp_attendees]
-    for i in range(2 * PGP_KEY_QUESTION_INDEX_OFFSET):
-      qpgp.append(models.Question.objects.get(id=GetPGPKey1QuestionIndex() + i))
+    num_questions = GetPGPTotalQuestions()
+    base_question_id = GetPGPKeyQuestionIndex(1)
+    for i in xrange(base_question_id, base_question_id + num_questions):
+      qpgp.append(models.Question.objects.get(id=i))
 
   if request.method == 'POST':
     # Only get requested attendees instead of all checked in attendees.

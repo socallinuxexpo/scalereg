@@ -128,14 +128,18 @@ SCALEREG_SPEAKERSURVEY_SECRET = 'CHANGE_THIS_IF_NEEDED'
 # Optional questions about PGP keys for a PGP Key Signing Party.
 #
 # Integer value corresponding to the first PGP question. Set to -1 to disable.
-# The 6 questions must have consecutive IDs:
+# The questions must have consecutive IDs:
 # Text: What is your PGP fingerprint?
 # Text: What is your PGP fingerprint size? (number of bits)
 # List: What is your PGP fingerprint type? / [DSA, RSA]
 # Text: What is your second PGP fingerprint?
 # Text: What is your second PGP fingerprint size? (number of bits)
 # List: What is your second PGP fingerprint type? / [DSA, RSA]
+# ...
 SCALEREG_PGP_QUESTION_ID_START = -1
+
+# Positive integer value indicating max number of PGP keys allowed.
+SCALEREG_PGP_MAX_KEYS = 0
 
 # The PGP Key Signing Party addon item name.
 SCALEREG_PGP_KSP_ITEM_NAME = 'KSP'
