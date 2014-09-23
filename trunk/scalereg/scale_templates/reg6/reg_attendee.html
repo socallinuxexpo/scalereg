@@ -54,6 +54,9 @@ b { font-weight: bold }
 
     {% if pgp_questions %}
     <script language="JavaScript">
+    var max_num_keys = {{ pgp_num_keys }};
+    var num_keys = 1;
+
     function pgpcheck_impl(fingerprint, size, type, blank_ok) {
       var str = fingerprint;
       while (str.indexOf(' ') >= 0) {
@@ -102,30 +105,47 @@ b { font-weight: bold }
         return true;
       }
 
-      var q1 = document.getElementsByName('tq{{ pgp_question}}');
-      var q1_size = document.getElementsByName('tq{{ pgp_question_size}}');
-      var q1_type = document.getElementsByName('lq{{ pgp_question_type}}');
-      var q2 = document.getElementsByName('tq{{ pgp_question2}}');
-      var q2_size = document.getElementsByName('tq{{ pgp_question2_size}}');
-      var q2_type = document.getElementsByName('lq{{ pgp_question2_type}}');
-      if (q1.length == 0 || q1_size.length == 0 || q1_type.length == 0 ||
-          q2.length == 0 || q2_size.length == 0 || q2_type.length == 0) {
-        alert('Something is wrong with the PGP check, please report.')
-        return true;
+      for (i = 0; i < num_keys; ++i) {
+        var q_key_idx = {{ pgp_question1_index }} + i * 3;
+        var q_size_idx = q_key_idx + 1;
+        var q_type_idx = q_key_idx + 2;
+        var q_key = document.getElementsByName('tq' + q_key_idx);
+        var q_size = document.getElementsByName('tq' + q_size_idx);
+        var q_type = document.getElementsByName('lq' + q_type_idx);
+        if (q_key.length == 0 || q_size.length == 0 || q_type.length == 0) {
+          alert('Something is wrong with the PGP check, please report.');
+          return true;
+        }
+        var blank_ok = i > 0;
+        if (!pgpcheck_impl(q_key[0].value, q_size[0].value, q_type[0].value, blank_ok)) {
+          return false;
+        }
       }
-      var r1 = pgpcheck_impl(q1[0].value, q1_size[0].value, q1_type[0].value, false);
-      var r2 = pgpcheck_impl(q2[0].value, q2_size[0].value, q2_type[0].value, true);
-      return (r1 && r2);
+      return true;
     }
 
     function toggle_pgp() {
       var no_want_pgp = document.getElementById('no_pgp');
       var display = no_want_pgp.checked ? "none" : "inline";
       document.getElementById('pgp_section').style.display = display;
-      return true; 
+      return true;
     }
-      
+
+    function pgp_add_key() {
+      if (num_keys >= max_num_keys) {
+        alert(max_num_keys + " is the max allowed keys");
+        return;
+      }
+      var q1_key_index = {{ pgp_question1_index }};
+      var start_index = q1_key_index + (num_keys * 3);
+      var end_index = start_index + 3;
+      for (i = start_index; i< end_index; ++i) {
+        document.getElementById("pgp_row" + i).style.display = 'block';
+      }
+      num_keys++;
+    }
     </script>
+
     <form method="post" action="." onsubmit="return pgpcheck()">
     {% else %}
     <form method="post" action=".">
@@ -274,35 +294,40 @@ b { font-weight: bold }
     <b>All keys must be on either pgp.mit.edu or pool.sks-keyservers.net.</b>
     </p>
 
-    <p>
-    <table>
+    <div>
     {% for q in pgp_questions %}
-    <tr>
-        <td colspan="2">
-        {% if q.id < pgp_question2%}
-        <b>{{ q.text }}</b>
+        {% if q.id < pgp_question2_index %}
+        <div id="pgp_row{{ q.id }}">
         {% else %}
-        {{ q.text }}
+        <div id="pgp_row{{ q.id }}" style="display: none;">
         {% endif %}
-        </td>
-    </tr>
-    <tr>
-    <td>
-    {% ifequal q.type_value 'list' %}
-    <select name="lq{{ q.id }}" size="1">
-        <option value="" selected="selected"></option>
-        {% for ans in q.get_answers %}
-        <option value="{{ ans.id }}">{{ ans.text }}</option>
-        {% endfor %}
-    </select>
-    {% else %}
-    <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
-    {% endifequal %}
-    </td>
-    </tr>
+            <div>
+            {% if q.id < pgp_question2_index %}
+                <b>{{ q.text }}</b>
+            {% else %}
+                {{ q.text }}
+            {% endif %}
+            </div>
+            <div>
+            {% ifequal q.type_value 'list' %}
+                <select name="lq{{ q.id }}" size="1">
+                    <option value="" selected="selected"></option>
+                    {% for ans in q.get_answers %}
+                    <option value="{{ ans.id }}">{{ ans.text }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
+            {% endifequal %}
+            </div>
+        </div>
     {% endfor %}
-    </table>
+    </div>
+
+    <p>
+    <button type="button" onclick="pgp_add_key()">I want to add more keys</button>
     </p>
+
     </div>
     {% endif %}
 
