@@ -64,6 +64,12 @@ def GetPGPText(attendee, qpgp, question_number):
   return '%s,%s%s' % (pgp_keys[0].text, pgp_sizes[0].text, pgp_types[0].text[0])
 
 
+def ShouldIgnoreKSPItem(item, post_data):
+  return (IsPGPEnabled() and
+          item.name == settings.SCALEREG_PGP_KSP_ITEM_NAME and
+          'no_pgp' in post_data)
+
+
 def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
   badge = []
   badge.append(attendee.salutation)
@@ -146,9 +152,7 @@ def ApplyPromoToPostedItems(ticket, promo, post):
       except:
         continue
       is_item_available = item in avail_items;
-      if (IsPGPEnabled() and
-          item.name == settings.SCALEREG_PGP_KSP_ITEM_NAME and
-          'no_pgp' in post):
+      if ShouldIgnoreKSPItem(item, post):
         is_item_available = False
       if is_item_available:
         selected_items.append(item)
@@ -554,6 +558,8 @@ def AddAttendee(request):
 
       # add ordered items
       for s in selected_items:
+        if ShouldIgnoreKSPItem(s, request.POST):
+          continue
         new_attendee.ordered_items.add(s)
       # add survey answers
       for q in questions:
