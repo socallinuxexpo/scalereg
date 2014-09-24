@@ -31,16 +31,23 @@
     </thead>
     <tbody>
     {% for item in items %}
-        <tr>
-        <td><input type="checkbox" name="item{{ forloop.counter0 }}" value="{{ item.name }}" /></td>
-        <td>{{ item.description }}</td>
+    <tr>
         <td>
+            <input type="checkbox" name="item{{ forloop.counter0 }}"
+                   id="item_{{ item.name }}" value="{{ item.name }}" />
+        </td>
+        <td>
+            <label for="item_{{ item.name }}">{{ item.description }}</label>
+        </td>
+        <td>
+            <label for="item_{{ item.name }}">
             {{ item.price|money }}
             {% if item.ticket_offset %}
             (Waives ticket price of {{ ticket.price|money }})
             {% endif %}
+            </label>
         </td>
-        </tr>
+    </tr>
     {% endfor %}
     </tbody>
     </table>

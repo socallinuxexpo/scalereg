@@ -253,27 +253,26 @@ b { font-weight: bold }
     {% endif %}
 
     <p>
-    <table>
+    <div>
     {% for q in questions %}
-    <tr>
-        <td colspan="2">{{ q.text }}</td>
-    </tr>
-    <tr>
-    <td>
-    {% ifequal q.type_value 'list' %}
-    <select name="lq{{ q.id }}" size="1">
-        <option value="" selected="selected"></option>
-        {% for ans in q.get_answers %}
-        <option value="{{ ans.id }}">{{ ans.text }}</option>
-        {% endfor %}
-    </select>
-    {% else %}
-    <input type="text" name="tq{{ q.id }}" maxlength="{{ q.max_length }}" />
-    {% endifequal %}
-    </td>
-    </tr>
+        <label>
+        <div>{{ q.text }}</div>
+        <div>
+        {% ifequal q.type_value 'list' %}
+            <select name="lq{{ q.id }}" size="1">
+                <option value="" selected="selected"></option>
+                {% for ans in q.get_answers %}
+                <option value="{{ ans.id }}">{{ ans.text }}</option>
+                {% endfor %}
+            </select>
+        {% else %}
+            <input type="text" name="tq{{ q.id }}"
+                   maxlength="{{ q.max_length }}" />
+        {% endifequal %}
+        </div>
+        </label>
     {% endfor %}
-    </table>
+    </div>
     </p>
     {% endif %}
 
@@ -296,6 +295,7 @@ b { font-weight: bold }
 
     <div>
     {% for q in pgp_questions %}
+        <label>
         {% if q.id < pgp_question2_index %}
         <div id="pgp_row{{ q.id }}">
         {% else %}
@@ -321,6 +321,7 @@ b { font-weight: bold }
             {% endifequal %}
             </div>
         </div>
+        </label>
     {% endfor %}
     </div>
 

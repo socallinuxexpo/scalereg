@@ -45,9 +45,10 @@
     <tbody>
     {% for t in tickets %}
         <tr>
-        <td><input type="radio" name="ticket" value="{{ t.name }}" /></td>
-        <td>{{ t.description }}</td>
-        <td>{{ t.price|money }}</td>
+        <td><input type="radio" name="ticket"
+             id="ticket_{{ t.name }}" value="{{ t.name }}" /></td>
+        <td><label for="ticket_{{ t.name }}">{{ t.description }}</label></td>
+        <td><label for="ticket_{{ t.name }}">{{ t.price|money }}</label></td>
         </tr>
     {% endfor %}
     </tbody>
