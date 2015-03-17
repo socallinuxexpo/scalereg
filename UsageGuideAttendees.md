@@ -1,0 +1,1 @@
+This is [issue 6](https://code.google.com/p/scalereg/issues/detail?id=6).
