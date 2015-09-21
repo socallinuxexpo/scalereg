@@ -1,0 +1,78 @@
+{% extends "sponsorship/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if sponsor %}
+    <h2>
+    You are paying for the following sponsorship:
+    </h2>
+
+    <p>
+    <table border="0">
+    <tr>
+        <td>Name:</td>
+        <td>{{ sponsor.first_name }} {{ sponsor.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Organization:</td>
+        <td>{{ sponsor.org }}</td>
+    </tr>
+    <tr>
+        <td>Email:</td>
+        <td>{{ sponsor.email }}</td>
+    </tr>
+    <tr>
+        <td>Package:</td>
+        <td>{{ sponsor.package.description }}</td>
+    </tr>
+    <tr>
+        <td>Amount:</td>
+        <td>{{ sponsor.package_cost|money }}</td>
+    </tr>
+    </table>
+
+    <thead>
+    <tr>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    </tr>
+    </tbody>
+    </table>
+    </p>
+
+    <h2>Credit Card Payments:</h2>
+
+    <p>
+    You will now be redirected to our payment gateway.
+    We accept VISA, Mastercard, American Express, and Discover.
+    </p>
+
+    <form method="post" action="{{ payflow_url }}">
+    <p>
+    <input type="hidden" name="AMOUNT" value="{{ sponsor.package_cost }}">
+    <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
+    <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order }}">
+    <input type="hidden" name="USER2" value="N">
+    <input type="hidden" name="USER3" value="SPONSORSHIP">
+    <input type="submit" value="Continue With Credit Card Payment" />
+    </p>
+    </form>
+{% else %}
+    <h2>Cannot complete this transaction</h2>
+{% endif %}
+
+    <h2>Other Options:</h2>
+
+    <form method="post" action="../">
+    <p>
+    <input type="submit" value="Start Over" />
+    </p>
+    </form>
+</div>
+{% endblock %}
