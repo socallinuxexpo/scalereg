@@ -99,6 +99,7 @@ INSTALLED_APPS = (
     'scalereg.reports',
     'scalereg.simple_cfp',
     'scalereg.speaker_survey',
+    'scalereg.sponsorship',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -144,11 +145,17 @@ SCALEREG_PGP_MAX_KEYS = 0
 # The PGP Key Signing Party addon item name.
 SCALEREG_PGP_KSP_ITEM_NAME = 'KSP'
 
-#PayFlow Account Settings must be set to use PayFlow
-#Manager User Login
+# PayFlow Account Settings must be set to use PayFlow
+#
+# PayFlow URL
+SCALEREG_PAYFLOW_URL = 'https://payflowlink.paypal.com/'
+# Manager User Login
 SCALEREG_PAYFLOW_LOGIN = ''
 # Partner (either Paypal or Verisign)
 SCALEREG_PAYFLOW_PARTNER = ''
+
+# URL for the sponsorship agreement document.
+SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
 
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
 #FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
