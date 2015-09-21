@@ -1,0 +1,52 @@
+{% extends "reg6/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+<table>
+<tr>
+    <td>Name:</td>
+    <td>{{ name }}</td>
+</tr>
+<tr>
+    <td>Email:</td>
+    <td>{{ email }}</td>
+</tr>
+<tr>
+    <td>Order Number:</td>
+    <td>{{ order }}</td>
+</tr>
+<tr>
+    <td>Amount:</td>
+    <td>{{ total|money }}</td>
+</tr>
+<tr>
+    <td>Package:</td>
+    <td>{{ sponsor.package.description }}</td>
+</tr>
+<tr>
+    <td>Items:</td>
+    <td>
+        {% for item in sponsor.ordered_items.all %}
+        * {{ item.description }} <br />
+        {% endfor %}
+    </td>
+</tr>
+</table>
+</p>
+
+{% if already_paid_sponsor %}
+<p>
+<b>Please note:</b>
+The sponsorship package has already been paid before this order.
+</p>
+{% endif %}
+
+<p>
+<button type="button" onclick="window.print()">Print receipt</button>
+</p>
+
+</div>
+{% endblock %}
