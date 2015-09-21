@@ -73,7 +73,7 @@
     We accepts VISA, Mastercard, American Express, and Discover.
     </p>
 
-    <form method="post" action="https://payflowlink.paypal.com/">
+    <form method="post" action="{{ payflow_url }}">
     <p>
     <input type="hidden" name="AMOUNT" value="{{ upgrade.upgrade_cost|floatformat:2 }}">
     <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
