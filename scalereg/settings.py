@@ -1,6 +1,6 @@
 # Django settings for scalereg project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 # Additional debug logging for sales transactions
