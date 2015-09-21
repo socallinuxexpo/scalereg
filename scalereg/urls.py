@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'^reports/', include('scalereg.reports.urls')),
     (r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
     (r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
+    (r'^sponsorship/', include('scalereg.sponsorship.urls')),
 
     # dummy index page
     (r'^$', 'scalereg.auth_helper.views.index'),
