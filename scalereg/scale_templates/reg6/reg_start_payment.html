@@ -74,12 +74,10 @@
 
 {% if attendees and total %}
     <h2>
-    <br />
     You are paying for the following attendee(s):
-    <br />
-    <br />
     </h2>
 
+    <p>
     <table border="1">
     <thead>
     <tr>
@@ -107,6 +105,7 @@
     {% endfor %}
     </tbody>
     </table>
+    </p>
 
     <p>
     Total: {{ total|money }}
