@@ -276,18 +276,20 @@ def dashboard(request):
   questions = models.Question.objects.all()
 
   all_answers = {}
+  for q in questions:
+    all_answers[q.text] = {}
   for ans in models.Answer.objects.all():
-    all_answers[ans.text] = Count(ans.text)
+    all_answers[ans.question.text][ans.text] = Count(ans.text)
 
   for att in attendees:
     for ans in att.answers.all():
-      all_answers[ans.text].count += 1
+      all_answers[ans.question.text][ans.text].count += 1
 
   for q in questions:
     possible_answers = q.answer_set.all()
     q_data = SurveyQuestion(q.text)
     for ans in possible_answers:
-      a_data = all_answers[ans.text]
+      a_data = all_answers[q.text][ans.text]
       a_data.CalcPercentage(num_attendees)
       q_data.answers.append(a_data)
     a_data = Count('No Answer')
