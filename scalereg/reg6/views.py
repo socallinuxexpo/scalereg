@@ -49,16 +49,20 @@ def GetPGPTotalQuestions():
   return settings.SCALEREG_PGP_MAX_KEYS * PGP_KEY_QUESTION_INDEX_OFFSET
 
 
-def GetPGPKeyQuestionIndex(question_number):
+def GetPGPKeyQuestionOffset(question_number):
   assert IsPGPEnabled()
   assert question_number > 0
   assert question_number <= settings.SCALEREG_PGP_MAX_KEYS
-  offset = (question_number - 1) * PGP_KEY_QUESTION_INDEX_OFFSET
+  return (question_number - 1) * PGP_KEY_QUESTION_INDEX_OFFSET
+
+
+def GetPGPKeyQuestionIndex(question_number):
+  offset = GetPGPKeyQuestionOffset(question_number)
   return settings.SCALEREG_PGP_QUESTION_ID_START + offset
 
 
 def GetPGPText(attendee, qpgp, question_number):
-  q_index = GetPGPKeyQuestionIndex(question_number)
+  q_index = GetPGPKeyQuestionOffset(question_number)
   pgp_keys = attendee.answers.filter(question=qpgp[q_index])
   if not pgp_keys:
     return ''
@@ -104,7 +108,7 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
     has_pgp_text = 'NO PGP'
     all_pgp_text = []
     for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
-      all_pgp_text.push_back('NO PGP KEY %d' % i + 1)
+      all_pgp_text.append('NO PGP KEY %d' % i + 1)
     if ksp:
       has_pgp_text = 'PGP'
       for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
@@ -112,7 +116,7 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
         if pgp_text:
           all_pgp_text[i] = pgp_text
     badge.append(has_pgp_text)
-    badge.extend([all_pgp_text])
+    badge.extend(all_pgp_text)
 
   tshirt_size = '???'
   try:

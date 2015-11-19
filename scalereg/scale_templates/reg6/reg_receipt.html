@@ -13,6 +13,7 @@ Coupon code: {{ coupon_code|upper }}
 Please note coupon codes does not pay for non-free addon items.
 </p>
 {% else %}
+<p>
 <table>
 <tr>
 <td>Name:</td>
@@ -31,8 +32,10 @@ Please note coupon codes does not pay for non-free addon items.
 <td>{{ total|money }}</td>
 </tr>
 </table>
+</p>
 {% endif %}
 
+<p>
 <table border="1">
     <thead>
     <tr>
@@ -65,12 +68,14 @@ Please note coupon codes does not pay for non-free addon items.
     {% endfor %}
     </tbody>
 </table>
+</p>
 
 {% if already_paid_attendees %}
 <p>
 Already paid attendees charged on this order:
 </p>
 
+<p>
 <table border="1">
     <thead>
     <tr>
@@ -99,6 +104,7 @@ Already paid attendees charged on this order:
     {% endfor %}
     </tbody>
 </table>
+</p>
 {% endif %}
 
 {% if kiosk %}
