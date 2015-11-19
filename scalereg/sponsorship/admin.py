@@ -40,11 +40,11 @@ class SponsorOptions(admin.ModelAdmin):
     ('Sponsor Info', {'fields': ('salutation', 'first_name', 'last_name',
                                  'title', 'org')}),
     ('Contact Info', {'fields': ('email', 'zip_code', 'phone')}),
-    ('Misc', {'fields': ('promo', 'valid', 'ordered_items')}),
+    ('Misc', {'fields': ('package', 'promo', 'valid', 'ordered_items')}),
   )
   list_display = ('id', 'first_name', 'last_name', 'email', 'zip_code', 'valid',
-                  'order', 'promo')
-  list_filter = ('valid', 'promo', 'ordered_items')
+                  'order', 'package', 'promo')
+  list_filter = ('valid', 'package', 'promo', 'ordered_items')
   save_on_top = True
 
 
