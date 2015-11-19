@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
+from scalereg.sponsorship import views as sponsorship_views
 import datetime
 import re
 import sys
@@ -33,6 +34,10 @@ def ScaleDebug(msg):
   handle = open(settings.SCALEREG_DEBUG_LOGGING_PATH, 'a')
   handle.write('%s: %s\n' % (datetime.datetime.now(), line))
   handle.close()
+
+
+def ShouldRedirectPostToSponsorship(post):
+  return 'USER3' in post and post['USER3'] == 'SPONSORSHIP'
 
 
 def IsPGPEnabled():
@@ -811,6 +816,7 @@ def Payment(request):
     {'title': 'Registration Payment',
      'attendees': all_attendees_data,
      'order': order_num,
+     'payflow_url': settings.SCALEREG_PAYFLOW_URL,
      'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
      'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
      'step': PAYMENT_STEP,
@@ -828,6 +834,9 @@ def Sale(request):
 #  if 'HTTP_REFERER' not in request.META  or \
 #    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
 #    return HttpResponseRedirect('/reg6/')
+
+  if ShouldRedirectPostToSponsorship(request.POST):
+    return sponsorship_views.FinishPayment(request)
 
   ScaleDebug(request.META)
   ScaleDebug(request.POST)
@@ -971,6 +980,9 @@ def FinishPayment(request):
 #  if 'HTTP_REFERER' not in request.META  or \
 #    '/reg6/start_payment/' not in request.META['HTTP_REFERER']:
 #    return HttpResponseRedirect('/reg6/')
+
+  if ShouldRedirectPostToSponsorship(request.POST):
+    return sponsorship_views.FinishPayment(request)
 
   required_vars = [
     'NAME',
@@ -1176,6 +1188,7 @@ def NonFreeUpgrade(request):
     {'title': 'Registration Upgrade',
      'attendee': attendee,
      'order': order_num,
+     'payflow_url': settings.SCALEREG_PAYFLOW_URL,
      'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
      'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
      'upgrade': upgrade,

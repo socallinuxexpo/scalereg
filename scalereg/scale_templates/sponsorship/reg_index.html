@@ -1,0 +1,91 @@
+{% extends "sponsorship/reg.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if packages %}
+    <h4>
+    Sponsorship package is a two part process:
+    </h4>
+
+    <p>
+    1. <b>Registration</b>: Select a sponsorship package, add optional items,
+    provide contact info.<br />
+
+    2. <b>Payment</b>: After you register, continue to Paypal Payflow to pay
+    for the sponsorship package.
+    </p>
+
+    <p>
+    We accepts VISA, Mastercard, American Express, and Discover.
+    </p>
+
+    <p>
+    To start the registration process, start by selecting a sponsorship package.
+    </p>
+
+    <form method="post" action="add_items/">
+    <p>
+    <table border="1">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>Package</th>
+        <th>Price</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for t in packages %}
+        <tr>
+        <td><input type="radio" name="package"
+             id="package_{{ t.name }}" value="{{ t.name }}" /></td>
+        <td><label for="package_{{ t.name }}">{{ t.description }}</label></td>
+        <td><label for="package_{{ t.name }}">{{ t.price|money }}</label></td>
+        <td><label for="package_{{ t.name }}">
+            {{ t.long_description }}</label></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </p>
+
+    {% if promo %}
+    <p>
+    Using promo code:
+    <b>{{ promo }}</b>.
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    </p>
+    {% else %}
+    <p>
+    If you have a 1-5 digit promo code, enter it here:
+    </p>
+
+    <p>
+    <input type="text" name="promo" maxlength="5" size="5" />
+    </p>
+    {% endif %}
+
+    <p>
+    <input type="submit" value="Start Registration" />
+    </p>
+    </form>
+
+    <h2>
+    Other Options:
+    </h2>
+
+    {% if promo %}
+    <h4>Change Promo Code</h4>
+
+    <form method="post" action=".">
+    <input type="submit" value="Change promo code" />
+    </form>
+    {% endif %}
+{% else %}
+No sponsorship packages currently available.
+{% endif %}
+</div>
+{% endblock %}
+

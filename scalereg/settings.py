@@ -6,7 +6,7 @@ TEMPLATE_DEBUG = DEBUG
 # Additional debug logging for sales transactions
 # Set to True to enable.
 SCALEREG_DEBUG_LOGGING_ENABLED = False
-SCALEREG_DEBUG_LOGGING_PATH = "/tmp/scale_reg.log"
+SCALEREG_DEBUG_LOGGING_PATH = '/tmp/scale_reg.log'
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -43,17 +43,17 @@ SITE_ID = 1
 USE_I18N = False
 
 # Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
+# Example: '/home/media/media.lawrence.com/'
 MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
+# Examples: 'http://media.lawrence.com', 'http://example.com/media/'
 MEDIA_URL = ''
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
+# Examples: 'http://foo.com/media/', '/media/'.
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
@@ -76,15 +76,16 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'scalereg.urls'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like '/home/html/django_templates' or
+    # 'C:/www/django/templates'.
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/CHANGE_THIS!!!!!__path_to/scalereg/scale_templates",
+    '/CHANGE_THIS!!!!!__path_to/scalereg/scale_templates',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.messages.context_processors.messages",
-    "django.contrib.auth.context_processors.auth",
+    'django.contrib.messages.context_processors.messages',
+    'django.contrib.auth.context_processors.auth',
 )
 
 INSTALLED_APPS = (
@@ -99,6 +100,7 @@ INSTALLED_APPS = (
     'scalereg.reports',
     'scalereg.simple_cfp',
     'scalereg.speaker_survey',
+    'scalereg.sponsorship',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -144,11 +146,17 @@ SCALEREG_PGP_MAX_KEYS = 0
 # The PGP Key Signing Party addon item name.
 SCALEREG_PGP_KSP_ITEM_NAME = 'KSP'
 
-#PayFlow Account Settings must be set to use PayFlow
-#Manager User Login
+# PayFlow Account Settings must be set to use PayFlow.
+#
+# PayFlow URL:
+SCALEREG_PAYFLOW_URL = 'https://payflowlink.paypal.com/'
+# Manager User Login:
 SCALEREG_PAYFLOW_LOGIN = ''
-# Partner (either Paypal or Verisign)
+# Partner (either Paypal or Verisign):
 SCALEREG_PAYFLOW_PARTNER = ''
+
+# URL for the sponsorship agreement document.
+SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
 
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
 #FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
