@@ -1,14 +1,24 @@
 <html>
 <head>
     <title></title>
+    <style>
+    p {
+      font-size:150%;
+      font-family: Arial, Helvetica, Sans;
+    }
+    </style>
 </head>
 <body>
     <table border="0" width="100%">
     <tr>
     <td align="left">
-    <input type="submit" value="Back" onclick="history.go(-1)" />
+    <p>Registration</p>
     </td>
     <td align="right">
+    <input type="submit" value="Back" onclick="history.go(-1)" />
+    <!--
+    <input type="submit" value="Close Window" onclick="window.open('/reg6/kiosk/?clear=1'); window.close()" />
+    //-->
     <input type="submit" value="Close Window" onclick="window.close()" />
     </td>
     </tr>
