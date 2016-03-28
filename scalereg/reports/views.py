@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import loader
-from django.views.generic.list_detail import object_list as django_object_list
+from django.views.generic.list import ListView as django_object_list
 from scalereg.common.utils import services_perm_checker
 from scalereg.reg6 import models
 import datetime
