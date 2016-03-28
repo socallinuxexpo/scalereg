@@ -1,0 +1,5 @@
+print/attendees.txt
+print/cookies.txt
+print/valid-attendees.txt
+.vagrant
+*.pyc
