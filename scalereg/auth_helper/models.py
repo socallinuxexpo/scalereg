@@ -7,7 +7,8 @@ class Service(models.Model):
   # basic info
   # FIXME don't use this as the primary key
   name = models.CharField(max_length=60, primary_key=True)
-  url = models.CharField(max_length=120, help_text='absolute url, no trailing /')
+  url = models.CharField(max_length=120,
+      help_text='absolute url, no trailing /')
   active = models.BooleanField(default=False)
   users = models.ManyToManyField(User, blank=True)
   groups = models.ManyToManyField(Group, blank=True)
