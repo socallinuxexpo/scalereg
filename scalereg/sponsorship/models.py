@@ -153,7 +153,7 @@ class PromoCode(models.Model):
       help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
       help_text='Not Usable on this day')
-  applies_to = models.ManyToManyField(Package, blank=True, null=True)
+  applies_to = models.ManyToManyField(Package, blank=True)
   applies_to_all = models.BooleanField(help_text='Applies to all packages')
 
   objects = models.Manager()
@@ -195,7 +195,7 @@ class Item(models.Model):
   active = models.BooleanField()
   promo = models.BooleanField(help_text='Price affected by promo code?')
   package_offset = models.BooleanField(help_text='Item offsets package price?')
-  applies_to = models.ManyToManyField(Package, blank=True, null=True)
+  applies_to = models.ManyToManyField(Package, blank=True)
   applies_to_all = models.BooleanField(help_text='Applies to all packages')
 
   def __unicode__(self):
@@ -241,7 +241,7 @@ class Sponsor(models.Model):
   # etc
   promo = models.ForeignKey(PromoCode, blank=True, null=True)
   agreed = models.BooleanField()
-  ordered_items = models.ManyToManyField(Item, blank=True, null=True)
+  ordered_items = models.ManyToManyField(Item, blank=True)
 
   def package_cost(self):
     return Package.package_cost(self.package, self.ordered_items.all(),
