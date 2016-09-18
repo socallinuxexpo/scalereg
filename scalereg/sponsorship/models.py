@@ -13,7 +13,7 @@ class Order(models.Model):
   # basic info
   order_num = models.CharField(max_length=10, primary_key=True,
       help_text='Unique 10 upper-case letters + numbers code')
-  valid = models.BooleanField()
+  valid = models.BooleanField(default=False)
   date = models.DateTimeField(auto_now_add=True)
 
   # name and address
@@ -37,7 +37,7 @@ class Order(models.Model):
 
   # sponsor data
   sponsor = models.OneToOneField('Sponsor')
-  already_paid_sponsor = models.BooleanField()
+  already_paid_sponsor = models.BooleanField(default=False)
 
   def __unicode__(self):
     return u'%s' % self.order_num
@@ -72,7 +72,8 @@ class Package(models.Model):
   description = models.CharField(max_length=60)
   long_description = models.CharField(max_length=120)
   price = models.DecimalField(max_digits=7, decimal_places=2)
-  public = models.BooleanField(help_text='Publicly available on the order page')
+  public = models.BooleanField(default=False,
+    help_text='Publicly available on the order page')
   start_date = models.DateField(null=True, blank=True,
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
@@ -148,13 +149,14 @@ class PromoCode(models.Model):
 
   price_modifier = models.DecimalField(max_digits=3, decimal_places=2,
       help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
-  active = models.BooleanField()
+  active = models.BooleanField(default=False)
   start_date = models.DateField(null=True, blank=True,
       help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
       help_text='Not Usable on this day')
   applies_to = models.ManyToManyField(Package, blank=True)
-  applies_to_all = models.BooleanField(help_text='Applies to all packages')
+  applies_to_all = models.BooleanField(default=False,
+      help_text='Applies to all packages')
 
   objects = models.Manager()
   active_objects = PromoCodeManager()
@@ -192,11 +194,14 @@ class Item(models.Model):
 
   price = models.DecimalField(max_digits=7, decimal_places=2)
 
-  active = models.BooleanField()
-  promo = models.BooleanField(help_text='Price affected by promo code?')
-  package_offset = models.BooleanField(help_text='Item offsets package price?')
+  active = models.BooleanField(default=False)
+  promo = models.BooleanField(default=False,
+      help_text='Price affected by promo code?')
+  package_offset = models.BooleanField(default=False,
+      help_text='Item offsets package price?')
   applies_to = models.ManyToManyField(Package, blank=True)
-  applies_to_all = models.BooleanField(help_text='Applies to all packages')
+  applies_to_all = models.BooleanField(default=False,
+      help_text='Applies to all packages')
 
   def __unicode__(self):
     return u'%s (%s)' % (self.description, self.name)
@@ -224,7 +229,7 @@ class TempOrder(models.Model):
 class Sponsor(models.Model):
   # meta
   package = models.ForeignKey(Package)
-  valid = models.BooleanField()
+  valid = models.BooleanField(default=False)
 
   # name
   salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
@@ -240,7 +245,7 @@ class Sponsor(models.Model):
 
   # etc
   promo = models.ForeignKey(PromoCode, blank=True, null=True)
-  agreed = models.BooleanField()
+  agreed = models.BooleanField(default=False)
   ordered_items = models.ManyToManyField(Item, blank=True)
 
   def package_cost(self):
