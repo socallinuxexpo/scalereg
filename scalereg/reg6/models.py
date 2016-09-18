@@ -34,7 +34,7 @@ class Order(models.Model):
   # basic info
   order_num = models.CharField(max_length=10, primary_key=True,
     help_text='Unique 10 upper-case letters + numbers code')
-  valid = models.BooleanField()
+  valid = models.BooleanField(default=False)
   date = models.DateTimeField(auto_now_add=True)
 
   # name and address
@@ -101,9 +101,12 @@ class Ticket(models.Model):
   description = models.CharField(max_length=60)
   type = models.CharField(max_length=10, choices=TICKET_CHOICES)
   price = models.DecimalField(max_digits=5, decimal_places=2)
-  public = models.BooleanField(help_text='Publicly available on the order page')
-  cash = models.BooleanField(help_text='Available for cash purchase')
-  upgradable = models.BooleanField(help_text='Eligible for upgrades')
+  public = models.BooleanField(default=False,
+    help_text='Publicly available on the order page')
+  cash = models.BooleanField(default=False,
+    help_text='Available for cash purchase')
+  upgradable = models.BooleanField(default=False,
+    help_text='Eligible for upgrades')
   limit = models.PositiveIntegerField(
     help_text='Maximum number of tickets, 0 for unlimited')
   start_date = models.DateField(null=True, blank=True,
@@ -183,13 +186,14 @@ class PromoCode(models.Model):
 
   price_modifier = models.DecimalField(max_digits=3, decimal_places=2,
     help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.')
-  active = models.BooleanField()
+  active = models.BooleanField(default=False)
   start_date = models.DateField(null=True, blank=True,
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
   applies_to = models.ManyToManyField(Ticket, blank=True)
-  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
+  applies_to_all = models.BooleanField(default=False,
+    help_text='Applies to all tickets')
 
   objects = models.Manager()
   active_objects = PromoCodeManager()
@@ -229,12 +233,16 @@ class Item(models.Model):
 
   price = models.DecimalField(max_digits=5, decimal_places=2)
 
-  active = models.BooleanField()
-  pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
-  promo = models.BooleanField(help_text='Price affected by promo code?')
-  ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
+  active = models.BooleanField(default=False)
+  pickup = models.BooleanField(default=False,
+    help_text='Can we track if this item gets picked up?')
+  promo = models.BooleanField(default=False,
+    help_text='Price affected by promo code?')
+  ticket_offset = models.BooleanField(default=False,
+    help_text='Item offsets ticket price?')
   applies_to = models.ManyToManyField(Ticket, blank=True)
-  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
+  applies_to_all = models.BooleanField(default=False,
+    help_text='Applies to all tickets')
 
   class Meta:
     permissions = (('view_item', 'Can view item'),)
@@ -276,10 +284,11 @@ class TextAnswer(Answer):
 # base class
 class Question(models.Model):
   text = models.CharField(max_length=200)
-  active = models.BooleanField()
+  active = models.BooleanField(default=False)
   applies_to_tickets = models.ManyToManyField(Ticket, blank=True)
   applies_to_items = models.ManyToManyField(Item, blank=True)
-  applies_to_all = models.BooleanField(help_text='Applies to all tickets')
+  applies_to_all = models.BooleanField(default=False,
+    help_text='Applies to all tickets')
 
   class Meta:
     permissions = (('view_question', 'Can view question'),)
@@ -305,8 +314,9 @@ class Attendee(models.Model):
   # badge info
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order, blank=True, null=True)
-  valid = models.BooleanField()
-  checked_in = models.BooleanField(help_text='Only for valid attendees')
+  valid = models.BooleanField(default=False)
+  checked_in = models.BooleanField(default=False,
+    help_text='Only for valid attendees')
 
   # attendee name
   salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
@@ -325,7 +335,7 @@ class Attendee(models.Model):
   ordered_items = models.ManyToManyField(Item, blank=True)
   obtained_items = models.CharField(max_length=60, blank=True,
     help_text='comma separated list of items')
-  can_email = models.BooleanField()
+  can_email = models.BooleanField(default=False)
   answers = models.ManyToManyField(Answer, blank=True)
 
   def ticket_cost(self):
@@ -372,7 +382,7 @@ class Coupon(models.Model):
     help_text='Unique 10 upper-case letters + numbers code')
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order)
-  used = models.BooleanField()
+  used = models.BooleanField(default=False)
   max_attendees = models.PositiveSmallIntegerField()
   expiration = models.DateField(null=True, blank=True,
     help_text='Not usable on this day')
@@ -405,7 +415,7 @@ class Reprint(models.Model):
 
 class Upgrade(models.Model):
   attendee = models.ForeignKey(Attendee)
-  valid = models.BooleanField()
+  valid = models.BooleanField(default=False)
 
   old_badge_type = models.ForeignKey(Ticket, related_name='old_badge_type')
   old_ordered_items = models.ManyToManyField(Item, blank=True,
