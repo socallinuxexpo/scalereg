@@ -62,7 +62,7 @@ class Order(models.Model):
   result = models.CharField(max_length=60, blank=True,
     help_text='Only used by Verisign')
   already_paid_attendees = models.ManyToManyField('Attendee', blank=True,
-    null=True, related_name='already_paid',
+    related_name='already_paid',
     help_text='Attendees charged multiple times on this order')
 
   class Meta:
@@ -188,7 +188,7 @@ class PromoCode(models.Model):
     help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
     help_text='Not Usable on this day')
-  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
+  applies_to = models.ManyToManyField(Ticket, blank=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   objects = models.Manager()
@@ -233,7 +233,7 @@ class Item(models.Model):
   pickup = models.BooleanField(help_text='Can we track if this item gets picked up?')
   promo = models.BooleanField(help_text='Price affected by promo code?')
   ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
-  applies_to = models.ManyToManyField(Ticket, blank=True, null=True)
+  applies_to = models.ManyToManyField(Ticket, blank=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   class Meta:
@@ -277,8 +277,8 @@ class TextAnswer(Answer):
 class Question(models.Model):
   text = models.CharField(max_length=200)
   active = models.BooleanField()
-  applies_to_tickets = models.ManyToManyField(Ticket, blank=True, null=True)
-  applies_to_items = models.ManyToManyField(Item, blank=True, null=True)
+  applies_to_tickets = models.ManyToManyField(Ticket, blank=True)
+  applies_to_items = models.ManyToManyField(Item, blank=True)
   applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
   class Meta:
@@ -322,11 +322,11 @@ class Attendee(models.Model):
 
   # etc
   promo = models.ForeignKey(PromoCode, blank=True, null=True)
-  ordered_items = models.ManyToManyField(Item, blank=True, null=True)
+  ordered_items = models.ManyToManyField(Item, blank=True)
   obtained_items = models.CharField(max_length=60, blank=True,
     help_text='comma separated list of items')
   can_email = models.BooleanField()
-  answers = models.ManyToManyField(Answer, blank=True, null=True)
+  answers = models.ManyToManyField(Answer, blank=True)
 
   def ticket_cost(self):
     return Ticket.ticket_cost(self.badge_type, self.ordered_items.all(),
@@ -373,7 +373,7 @@ class Coupon(models.Model):
   badge_type = models.ForeignKey(Ticket)
   order = models.ForeignKey(Order)
   used = models.BooleanField()
-  max_attendees = models.PositiveIntegerField(max_length=3)
+  max_attendees = models.PositiveSmallIntegerField()
   expiration = models.DateField(null=True, blank=True,
     help_text='Not usable on this day')
 
@@ -408,12 +408,12 @@ class Upgrade(models.Model):
   valid = models.BooleanField()
 
   old_badge_type = models.ForeignKey(Ticket, related_name='old_badge_type')
-  old_ordered_items = models.ManyToManyField(Item, blank=True, null=True,
+  old_ordered_items = models.ManyToManyField(Item, blank=True,
     related_name='old_ordered_items')
   old_order = models.ForeignKey(Order, related_name='old_order')
 
   new_badge_type = models.ForeignKey(Ticket)
-  new_ordered_items = models.ManyToManyField(Item, blank=True, null=True)
+  new_ordered_items = models.ManyToManyField(Item, blank=True)
   new_order = models.ForeignKey(Order, blank=True, null=True)
 
   def upgrade_cost(self):
