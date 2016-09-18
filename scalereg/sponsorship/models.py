@@ -68,16 +68,16 @@ class PackageManager(models.Manager):
 
 class Package(models.Model):
   name = models.CharField(max_length=5, primary_key=True,
-    help_text='Up to 5 letters, upper-case letters + numbers')
+      help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
   long_description = models.CharField(max_length=120)
   price = models.DecimalField(max_digits=7, decimal_places=2)
   public = models.BooleanField(default=False,
-    help_text='Publicly available on the order page')
+      help_text='Publicly available on the order page')
   start_date = models.DateField(null=True, blank=True,
-    help_text='Available on this day')
+      help_text='Available on this day')
   end_date = models.DateField(null=True, blank=True,
-    help_text='Not Usable on this day')
+      help_text='Not Usable on this day')
 
   objects = models.Manager()
   public_objects = PackageManager()
@@ -214,7 +214,7 @@ class Item(models.Model):
 
 class TempOrder(models.Model):
   order_num = models.CharField(max_length=10, primary_key=True,
-    help_text='Unique 10 upper-case letters + numbers code')
+      help_text='Unique 10 upper-case letters + numbers code')
   sponsor = models.OneToOneField('Sponsor')
   date = models.DateTimeField(auto_now_add=True)
 
@@ -232,7 +232,8 @@ class Sponsor(models.Model):
   valid = models.BooleanField(default=False)
 
   # name
-  salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, blank=True)
+  salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES,
+                                blank=True)
   first_name = models.CharField(max_length=60)
   last_name = models.CharField(max_length=60)
   title = models.CharField(max_length=60, blank=True)
