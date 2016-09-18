@@ -836,7 +836,7 @@ def Sale(request):
 #    return HttpResponseRedirect('/reg6/')
 
   if ShouldRedirectPostToSponsorship(request.POST):
-    return sponsorship_views.FinishPayment(request)
+    return sponsorship_views.Sale(request)
 
   ScaleDebug(request.META)
   ScaleDebug(request.POST)
