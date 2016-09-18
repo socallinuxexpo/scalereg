@@ -78,9 +78,9 @@ class Order(models.Model):
 
 
 class TicketManager(models.Manager):
-  def get_query_set(self):
+  def get_queryset(self):
     exclude = []
-    set = super(TicketManager, self).get_query_set()
+    set = super(TicketManager, self).get_queryset()
     for item in set:
       if not item.is_public():
         exclude.append(item)
@@ -90,7 +90,7 @@ class TicketManager(models.Manager):
 
   def names(self):
     name_list = []
-    for f in self.get_query_set():
+    for f in self.get_queryset():
       name_list.append(f.name)
     return name_list
 
@@ -163,9 +163,9 @@ class Ticket(models.Model):
 
 
 class PromoCodeManager(models.Manager):
-  def get_query_set(self):
+  def get_queryset(self):
     exclude = []
-    set = super(PromoCodeManager, self).get_query_set()
+    set = super(PromoCodeManager, self).get_queryset()
     for item in set:
       if not item.is_active():
         exclude.append(item)
@@ -175,7 +175,7 @@ class PromoCodeManager(models.Manager):
 
   def names(self):
     name_list = []
-    for f in self.get_query_set():
+    for f in self.get_queryset():
       name_list.append(f.name)
     return name_list
 
