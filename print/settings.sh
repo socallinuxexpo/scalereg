@@ -1,5 +1,5 @@
 #URL to your SCALEReg instance
-REG_HOST="http://example.com/"
+REG_HOST="https://example.com/"
 
 # Set to 1 if you want to disable printing and only generate PDFs.
 DISABLE_PRINTING=1
