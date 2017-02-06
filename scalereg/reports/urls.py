@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from scalereg.reg6 import models
 
 answer_dict = {
