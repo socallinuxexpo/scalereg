@@ -464,8 +464,8 @@ def FinishPayment(request):
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
     order = models.Order.objects.get(order_num=request.POST['USER1'])
   except models.Order.DoesNotExist:
-    ScaleDebug('Your order cannot be found')
-    return HttpResponseServerError('Your order cannot be found')
+    ScaleDebug('Your sponsorship order cannot be found')
+    return HttpResponseServerError('Your sponsorship order cannot be found')
 
   return render_to_response('sponsorship/reg_receipt.html',
     {'title': 'Sponsorship - Payment Receipt',
