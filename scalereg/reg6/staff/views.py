@@ -32,7 +32,13 @@ def CheckIn(request):
       })
 
   attendees = []
-  if request.POST['express']:
+  if request.POST['verisign']:
+    orders = models.Order.objects.filter(payment_type='verisign',
+        pnref=request.POST['verisign'])
+    if orders.count() == 1:
+      attendees = models.Attendee.objects.filter(valid=True, order=orders[0])
+
+  if not attendees and request.POST['express']:
     # TODO: Duplicated from CheckIn().
     code = request.POST['express']
     success = len(code) == 10
@@ -70,6 +76,7 @@ def CheckIn(request):
      'attendees': attendees,
      'express': request.POST['express'],
      'last_name': request.POST['last_name'],
+     'verisign': request.POST['verisign'],
      'zip': request.POST['zip'],
      'search': 1,
     })
