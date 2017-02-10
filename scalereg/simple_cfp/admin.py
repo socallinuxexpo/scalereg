@@ -7,7 +7,7 @@ from models import Speaker
 from models import SpeakerPhoto
 
 
-class SpeakerOptions(admin.ModelAdmin):
+class SpeakerAdmin(admin.ModelAdmin):
   fieldsets = (
     ('Contact Info', {'fields': ('contact_name', 'contact_email')}),
     ('Speaker Info', {'fields': ('salutation', 'first_name', 'last_name',
@@ -22,7 +22,7 @@ class SpeakerOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class PresentationOptions(admin.ModelAdmin):
+class PresentationAdmin(admin.ModelAdmin):
   fieldsets = (
     (None, {'fields': ('speaker', 'valid', 'submission_code')}),
     ('Categories', {'fields': ('categories', 'audiences')}),
@@ -39,6 +39,6 @@ class PresentationOptions(admin.ModelAdmin):
 admin.site.register(AdditionalSpeaker)
 admin.site.register(Audience)
 admin.site.register(Category)
-admin.site.register(Presentation, PresentationOptions)
-admin.site.register(Speaker, SpeakerOptions)
+admin.site.register(Presentation, PresentationAdmin)
+admin.site.register(Speaker, SpeakerAdmin)
 admin.site.register(SpeakerPhoto)
