@@ -155,8 +155,8 @@ SCALEREG_PAYFLOW_LOGIN = ''
 # Partner (either Paypal or Verisign):
 SCALEREG_PAYFLOW_PARTNER = ''
 
-# Secret used for scanned badges.
-SCALEREG_SCANNED_BADGE_SECRET = ''
+# Secret used for express check-in and scanned badges.
+SCALEREG_EXPRESS_CHECKIN_SECRET = ''
 
 # URL for the sponsorship agreement document.
 SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
