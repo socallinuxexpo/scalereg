@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
@@ -338,6 +339,36 @@ def UpgradeAttendee(upgrade, new_order):
   person.ordered_items.clear()
   for s in upgrade.new_ordered_items.all():
     person.ordered_items.add(s)
+  NotifyAttendee(person)
+
+
+def NotifyAttendee(person):
+  if not settings.SCALEREG_SEND_MAIL:
+    return
+
+  try:
+    send_mail('SCALE 15X Registration',
+              '''Thank you for registering for SCALE 15X.
+The details of your registration are included below.
+
+Please note the Express Check-In Code below, which will allow you to
+speed up your check in and badge pick up on site.
+
+First Name: %s
+Last Name: %s
+Email: %s
+Zip Code: %s
+
+Badge Type: %s
+Express Check-In Code: %04d%s
+''' % \
+              (person.first_name, person.last_name, person.email, person.zip,
+               person.badge_type.description, person.id,
+               validators.hashAttendee(person)),
+              settings.SCALEREG_EMAIL,
+              [person.email])
+  except:
+    pass
 
 
 def CheckPaymentAmount(request, expected_cost):
@@ -981,6 +1012,7 @@ def Sale(request):
       if request.POST['USER2'] == 'Y':
         person.checked_in = True
       person.save()
+      NotifyAttendee(person)
 
   return HttpResponse('success')
 
@@ -1480,6 +1512,7 @@ def RedeemCoupon(request):
     person.badge_type = coupon.badge_type
     person.promo = None
     person.save()
+    NotifyAttendee(person)
 
   coupon.max_attendees = coupon.max_attendees - num_attendees
   if coupon.max_attendees == 0:
