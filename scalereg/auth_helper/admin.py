@@ -2,8 +2,8 @@ from django.contrib import admin
 from models import Service
 
 
-class ServiceOptions(admin.ModelAdmin):
+class ServiceAdmin(admin.ModelAdmin):
   list_display = ('name', 'active', 'url')
 
 
-admin.site.register(Service, ServiceOptions)
+admin.site.register(Service, ServiceAdmin)

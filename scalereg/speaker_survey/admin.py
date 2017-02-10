@@ -3,13 +3,13 @@ from models import Speaker
 from models import Survey7X
 
 
-class Survey7XOptions(admin.ModelAdmin):
+class Survey7XAdmin(admin.ModelAdmin):
   save_on_top = True
 
 
-class SpeakerOptions(admin.ModelAdmin):
+class SpeakerAdmin(admin.ModelAdmin):
   save_on_top = True
 
 
-admin.site.register(Survey7X, Survey7XOptions)
-admin.site.register(Speaker, SpeakerOptions)
+admin.site.register(Survey7X, Survey7XAdmin)
+admin.site.register(Speaker, SpeakerAdmin)

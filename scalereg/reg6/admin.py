@@ -14,7 +14,7 @@ from models import Ticket
 from models import Upgrade
 
 
-class ReprintOptions(admin.ModelAdmin):
+class ReprintAdmin(admin.ModelAdmin):
   save_on_top = True
 
 
@@ -23,41 +23,41 @@ class ListAnswerInline(admin.TabularInline):
   extra = 3
 
 
-class PromoCodeOptions(admin.ModelAdmin):
+class PromoCodeAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'price_modifier', 'active',
                   'start_date', 'end_date')
   list_filter = ('active', 'start_date', 'end_date')
   save_on_top = True
 
 
-class ListQuestionOptions(admin.ModelAdmin):
+class ListQuestionAdmin(admin.ModelAdmin):
   save_on_top = True
   model = ListQuestion
   inlines = [ListAnswerInline]
 
 
-class TextQuestionOptions(admin.ModelAdmin):
+class TextQuestionAdmin(admin.ModelAdmin):
   save_on_top = True
 
 
-class ItemOptions(admin.ModelAdmin):
+class ItemAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'price', 'active', 'pickup', 'promo',
                   'ticket_offset')
   list_filter = ('active', 'pickup', 'promo', 'ticket_offset')
   save_on_top = True
 
 
-class ListAnswerOptions(admin.ModelAdmin):
+class ListAnswerAdmin(admin.ModelAdmin):
   list_display = ('question', '__str_text__')
   save_on_top = True
 
 
-class TextAnswerOptions(admin.ModelAdmin):
+class TextAnswerAdmin(admin.ModelAdmin):
   list_display = ('question', '__str_text__')
   save_on_top = True
 
 
-class OrderOptions(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
   fieldsets = (
     ('Billing Info', {'fields': ('name', 'address', 'city', 'state', 'zip',
                                  'country')}),
@@ -74,7 +74,7 @@ class OrderOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class AttendeeOptions(admin.ModelAdmin):
+class AttendeeAdmin(admin.ModelAdmin):
   fieldsets = (
     ('Attendee Info', {'fields': ('salutation', 'first_name', 'last_name',
                                   'title', 'org')}),
@@ -89,36 +89,36 @@ class AttendeeOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class CouponOptions(admin.ModelAdmin):
+class CouponAdmin(admin.ModelAdmin):
   list_display = ('code', 'badge_type', 'order', 'used', 'max_attendees',
                   'expiration')
   list_filter = ('code', 'used', 'badge_type')
   save_on_top = True
 
 
-class TicketOptions(admin.ModelAdmin):
+class TicketAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'type', 'price', 'public', 'cash',
                   'upgradable', 'limit', 'start_date', 'end_date')
   list_filter = ('type', 'public', 'start_date', 'end_date')
   save_on_top = True
 
 
-class UpgradeOptions(admin.ModelAdmin):
+class UpgradeAdmin(admin.ModelAdmin):
   list_display = ('valid', 'attendee', 'old_badge_type', 'new_badge_type',
                   'old_order', 'new_order')
   list_filter = ['valid']
   save_on_top = True
 
 
-admin.site.register(Attendee, AttendeeOptions)
-admin.site.register(Coupon, CouponOptions)
-admin.site.register(Item, ItemOptions)
-admin.site.register(ListAnswer, ListAnswerOptions)
-admin.site.register(ListQuestion, ListQuestionOptions)
-admin.site.register(Order, OrderOptions)
-admin.site.register(PromoCode, PromoCodeOptions)
-admin.site.register(Reprint, ReprintOptions)
-admin.site.register(TextAnswer, TextAnswerOptions)
-admin.site.register(TextQuestion, TextQuestionOptions)
-admin.site.register(Ticket, TicketOptions)
-admin.site.register(Upgrade, UpgradeOptions)
+admin.site.register(Attendee, AttendeeAdmin)
+admin.site.register(Coupon, CouponAdmin)
+admin.site.register(Item, ItemAdmin)
+admin.site.register(ListAnswer, ListAnswerAdmin)
+admin.site.register(ListQuestion, ListQuestionAdmin)
+admin.site.register(Order, OrderAdmin)
+admin.site.register(PromoCode, PromoCodeAdmin)
+admin.site.register(Reprint, ReprintAdmin)
+admin.site.register(TextAnswer, TextAnswerAdmin)
+admin.site.register(TextQuestion, TextQuestionAdmin)
+admin.site.register(Ticket, TicketAdmin)
+admin.site.register(Upgrade, UpgradeAdmin)

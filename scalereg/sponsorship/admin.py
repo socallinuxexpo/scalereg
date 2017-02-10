@@ -6,21 +6,21 @@ from models import PromoCode
 from models import Sponsor
 
 
-class PromoCodeOptions(admin.ModelAdmin):
+class PromoCodeAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'price_modifier', 'active',
                   'start_date', 'end_date')
   list_filter = ('active', 'start_date', 'end_date')
   save_on_top = True
 
 
-class ItemOptions(admin.ModelAdmin):
+class ItemAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'long_description', 'price', 'active',
                   'promo', 'package_offset')
   list_filter = ('active', 'promo', 'package_offset')
   save_on_top = True
 
 
-class OrderOptions(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
   fieldsets = (
     ('Billing Info', {'fields': ('name', 'address', 'city', 'state', 'zip_code',
                                  'country')}),
@@ -35,7 +35,7 @@ class OrderOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class SponsorOptions(admin.ModelAdmin):
+class SponsorAdmin(admin.ModelAdmin):
   fieldsets = (
     ('Sponsor Info', {'fields': ('salutation', 'first_name', 'last_name',
                                  'title', 'org')}),
@@ -48,15 +48,15 @@ class SponsorOptions(admin.ModelAdmin):
   save_on_top = True
 
 
-class PackageOptions(admin.ModelAdmin):
+class PackageAdmin(admin.ModelAdmin):
   list_display = ('name', 'description', 'long_description', 'price', 'public',
                   'start_date', 'end_date')
   list_filter = ('public', 'start_date', 'end_date')
   save_on_top = True
 
 
-admin.site.register(Item, ItemOptions)
-admin.site.register(Order, OrderOptions)
-admin.site.register(Package, PackageOptions)
-admin.site.register(PromoCode, PromoCodeOptions)
-admin.site.register(Sponsor, SponsorOptions)
+admin.site.register(Item, ItemAdmin)
+admin.site.register(Order, OrderAdmin)
+admin.site.register(Package, PackageAdmin)
+admin.site.register(PromoCode, PromoCodeAdmin)
+admin.site.register(Sponsor, SponsorAdmin)
