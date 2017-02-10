@@ -1718,7 +1718,7 @@ def MassAddAttendee(request):
     attendee = form.save(commit=False)
     attendee.valid = True
     attendee.checked_in = False
-    attendee.can_email = True
+    attendee.can_email = False
     attendee.order = order
     attendee.badge_type = ticket
     attendee.save()
