@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
+from scalereg.reg6 import validators
 from scalereg.sponsorship import views as sponsorship_views
 import datetime
 import re
@@ -90,6 +91,10 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
   badge.append(attendee.phone)
   badge.append(attendee.zip)
   badge.append(str(attendee.id))
+  parity = 0
+  for f in validators.hashAttendee(attendee):
+    parity += int(f, 16)
+  badge.append(str(parity % 10))
   if attendee.id in reprint_ids:
     reprint = models.Reprint.objects.get(attendee=attendee)
     badge.append(str(reprint.count))
@@ -1730,3 +1735,54 @@ def ClearBadOrder(request):
     return HttpResponse('Not Found')
 
   return HttpResponse('Done')
+
+
+@login_required
+def ScannedBadge(request):
+  if request.method != 'GET':
+    return HttpResponse('Post?')
+
+  response = ''
+  color = 'red'
+  if 'CODE' in request.GET and 'SIZE' in request.GET:
+    code = request.GET['CODE']
+    size = request.GET['SIZE']
+    code_split = urllib.unquote(code).split('~')
+    try:
+      attendee_id = int(code_split[0][:-1])
+      validators.isValidScannedBadge(code_split[0], None)
+    except:
+      response = 'Invalid barcode'
+
+    if not response:
+      try:
+        attendee = models.Attendee.objects.get(id=attendee_id)
+        if not attendee.checked_in:
+          response = 'Attendee not checked in'
+      except:
+        response = 'Invalid attendee'
+
+    if not response:
+      badges = models.ScannedBadge.objects.filter(number=attendee_id)
+      if badges:
+        response = 'Badge already scanned: %d' % attendee_id
+        color = 'orange'
+
+    if not response:
+      try:
+        badge = models.ScannedBadge()
+        badge.number = attendee_id
+        badge.size = size
+        badge.save()
+        response = 'Scanned %d' % attendee_id
+        color = 'green'
+      except:
+        response = 'Database error'
+
+  returl = 'https://%s/reg6/scanned_badge/?CODE={CODE}' % request.get_host()
+  url = 'zxing://scan/?ret=%s' % urllib.quote_plus(returl)
+  return render_to_response('reg6/scanned_badge.html',
+    {'color': color,
+     'response': response,
+     'url': url,
+    })

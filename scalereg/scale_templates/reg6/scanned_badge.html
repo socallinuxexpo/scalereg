@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>SCALE Badge Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+      .banner {
+        font-size: 32px;
+      }
+      .message {
+        color: {{ color }};
+        font-size: 20px;
+      }
+      .scan_button {
+        border-radius: 3px;
+        font-size: 36px;
+        padding : 10px 20px;
+      }
+      .size_box {
+        border-radius: 3px;
+        font-size: 32px;
+      }
+      .size_button {
+        border-radius: 3px;
+        font-size: 20px;
+        padding : 10px 10px;
+      }
+    </style>
+    <script>
+      function setsize(size) {
+        document.getElementById("size").innerHTML = size;
+        document.getElementById("scan").disabled = false;
+      }
+      function scan() {
+        var size = document.getElementById("size").innerHTML;
+        window.location.href = '{{ url }}' + '%26SIZE%3D' + size;
+      }
+      function disablescan() {
+        document.getElementById("scan").disabled = true;
+      }
+    </script>
+  </head>
+  <body onload="disablescan()">
+    <div>
+      <p>
+        <span class="banner">SCALE Badge Scanner</span>
+      </p>
+      <p>
+        <table border="0" width="300px" height="300px">
+          <tr>
+            <td><input type="button" class="size_button" value="MS" onclick="setsize('MS')"></td>
+            <td><input type="button" class="size_button" value="M2XL" onclick="setsize('M2XL')"></td>
+            <td><input type="button" class="size_button" value="WS" onclick="setsize('WS')"></td>
+            <td><input type="button" class="size_button" value="KS" onclick="setsize('KS')"></td>
+          </tr>
+          <tr>
+            <td><input type="button" class="size_button" value="MM" onclick="setsize('MM')"></td>
+            <td><input type="button" class="size_button" value="M3XL" onclick="setsize('M3XL')"></td>
+            <td><input type="button" class="size_button" value="WM" onclick="setsize('WM')"></td>
+            <td><input type="button" class="size_button" value="KM" onclick="setsize('KM')"></td>
+          </tr>
+          <tr>
+            <td><input type="button" class="size_button" value="ML" onclick="setsize('ML')"></td>
+            <td><input type="button" class="size_button" value="M4XL" onclick="setsize('M4XL')"></td>
+            <td><input type="button" class="size_button" value="WL" onclick="setsize('WL')"></td>
+            <td><input type="button" class="size_button" value="KL" onclick="setsize('KL')"></td>
+          </tr>
+          <tr>
+            <td><input type="button" class="size_button" value="MXL" onclick="setsize('MXL')"></td>
+            <td></td>
+            <td><input type="button" class="size_button" value="WXL" onclick="setsize('WXL')"></td>
+            <td></td>
+          </tr>
+        </table>
+      </p>
+      <p>
+        <input id="scan" type="button" class="scan_button" onclick="scan()" value="Scan">
+        <span class="size_box">Size:</span>
+        <span class="size_box" id="size">No size</span>
+      </p>
+    </div>
+    <p class="message">{{ response }}</p>
+  </body>
+</html>

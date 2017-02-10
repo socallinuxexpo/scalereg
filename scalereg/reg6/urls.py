@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     (r'^checkin/$', 'scalereg.reg6.views.CheckIn'),
     (r'^finish_checkin/$', 'scalereg.reg6.views.FinishCheckIn'),
     (r'^redeem_coupon/$', 'scalereg.reg6.views.RedeemCoupon'),
+    (r'^scanned_badge/$', 'scalereg.reg6.views.ScannedBadge'),
 
     # Admin
     (r'^add_coupon/$', 'scalereg.reg6.views.AddCoupon'),
