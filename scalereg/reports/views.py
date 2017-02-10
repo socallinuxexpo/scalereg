@@ -333,7 +333,7 @@ def reg6log(request):
   if not request.user.is_superuser:
     return HttpResponseRedirect('/accounts/profile/')
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   try:
     f = open('/tmp/scale_reg.log')
     response.write(f.read())
@@ -348,7 +348,7 @@ def badorder(request):
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   response.write('Bad orders:\n')
   order_invitees = models.Order.objects.filter(payment_type='invitee')
   order_exhibitors = models.Order.objects.filter(payment_type='exhibitor')
@@ -398,7 +398,7 @@ def getleads(request):
   if 'data' not in request.POST:
     return HttpResponse('No Data')
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   response.write('Salutation,First Name,Last Name,Title,Company,Phone,Email\n')
 
   data = request.POST['data'].split('\n')
@@ -457,7 +457,7 @@ def getpgp(request):
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
 
   item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
   for attendee in item.attendee_set.all():
@@ -503,7 +503,7 @@ def putpgp(request):
   item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
   attendees = item.attendee_set.filter(valid=True)
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   data = request.POST['data'].split('\n')
 
   qpgp = []
@@ -655,7 +655,7 @@ def checkpgp(request):
   item = models.Item.objects.get(name=settings.SCALEREG_PGP_KSP_ITEM_NAME)
   attendees = item.attendee_set
 
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   data = request.POST['data'].split('\n')
 
   qpgp = []

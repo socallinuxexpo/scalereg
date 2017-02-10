@@ -186,7 +186,7 @@ def UrlDump(request):
   if not request.user.is_superuser:
     return HttpResponse('')
   attendees = reg6models.Attendee.objects.filter(checked_in=True)
-  response = HttpResponse(mimetype='text/plain')
+  response = HttpResponse(content_type='text/plain')
   for f in attendees:
     hashval = validators.hashAttendee(f) + '%04d' % f.id
     response.write('%s %s\n' % (f.first_name, f.last_name))

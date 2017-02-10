@@ -1558,7 +1558,7 @@ def CheckedIn(request):
   attendees = attendees.filter(checked_in=True)
   if request.method == 'GET' and 'idsonly' in request.GET:
     return HttpResponse('\n'.join([str(f.id) for f in attendees]),
-                        mimetype='text/plain')
+                        content_type='text/plain')
 
   reprint_ids = [reprint.attendee.id
                  for reprint in models.Reprint.objects.all()]
@@ -1591,7 +1591,7 @@ def CheckedIn(request):
   return HttpResponse(
       '\n'.join([PrintAttendee(f, reprint_ids, ksp_ids, qpgp)
                  for f in attendees]),
-      mimetype='text/plain')
+      content_type='text/plain')
 
 
 @login_required

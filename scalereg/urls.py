@@ -1,29 +1,40 @@
-from django.conf.urls import *
+"""scalereg URL Configuration
 
-# Uncomment the next two lines to enable the admin:
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.8/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import include
+from django.conf.urls import url
 from django.contrib import admin
-admin.autodiscover()
 
-urlpatterns = patterns('',
-    (r'^accounts/$', 'scalereg.auth_helper.views.index'),
-    (r'^accounts/profile/$', 'scalereg.auth_helper.views.profile'),
-    (r'^accounts/login/$', 'django.contrib.auth.views.login',
-     {'template_name': 'admin/login.html'}),
-    (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
-    (r'^accounts/password_change/$',
-     'django.contrib.auth.views.password_change'),
-    (r'^accounts/password_change/done/$',
-     'django.contrib.auth.views.password_change_done'),
-    (r'^admin/', include(admin.site.urls)),
-    (r'^reg6/', include('scalereg.reg6.urls')),
-    (r'^reports/', include('scalereg.reports.urls')),
-    (r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
-    (r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
-    (r'^sponsorship/', include('scalereg.sponsorship.urls')),
+urlpatterns = [
+    url(r'^accounts/$', 'scalereg.auth_helper.views.index'),
+    url(r'^accounts/profile/$', 'scalereg.auth_helper.views.profile'),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login',
+       {'template_name': 'admin/login.html'}),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+    url(r'^accounts/password_change/$',
+       'django.contrib.auth.views.password_change'),
+    url(r'^accounts/password_change/done/$',
+       'django.contrib.auth.views.password_change_done'),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^reg6/', include('scalereg.reg6.urls')),
+    url(r'^reports/', include('scalereg.reports.urls')),
+    url(r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
+    url(r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
+    url(r'^sponsorship/', include('scalereg.sponsorship.urls')),
 
     # dummy index page
-    (r'^$', 'scalereg.auth_helper.views.index'),
-
-)
+    url(r'^$', 'scalereg.auth_helper.views.index'),
+]
 
 handler500 = 'scalereg.common.views.handler500'
