@@ -1,5 +1,6 @@
 from django import http
-from django.template import Context, loader
+from django.template import Context
+from django.template import loader
 from sys import exc_info
 
 def handler500(request, template_name='500.html', msg=''):

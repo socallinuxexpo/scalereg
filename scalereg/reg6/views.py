@@ -114,7 +114,7 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
     has_pgp_text = 'NO PGP'
     all_pgp_text = []
     for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
-      all_pgp_text.append('NO PGP KEY %d' % i + 1)
+      all_pgp_text.append('NO PGP KEY %d' % (i + 1))
     if ksp:
       has_pgp_text = 'PGP'
       for i in xrange(0, settings.SCALEREG_PGP_MAX_KEYS):
@@ -1583,7 +1583,8 @@ def AddCoupon(request):
     return HttpResponseServerError('parts of the form is not filled out, please try again')
 
   order = form.save(commit=False)
-  bad_order_nums = [ x.order_num for x in models.Order.objects.all() ]
+  bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+  bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
   order.order_num = GenerateOrderID(bad_order_nums)
   order.valid = False
   order.amount = '0'
@@ -1718,7 +1719,7 @@ def MassAddAttendee(request):
     attendee = form.save(commit=False)
     attendee.valid = True
     attendee.checked_in = False
-    attendee.can_email = True
+    attendee.can_email = False
     attendee.order = order
     attendee.badge_type = ticket
     attendee.save()

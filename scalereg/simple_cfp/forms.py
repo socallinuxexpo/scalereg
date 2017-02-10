@@ -1,5 +1,5 @@
-from django.forms import forms
 from django.forms import ModelForm
+from django.forms import forms
 from scalereg.simple_cfp.models import Presentation
 from scalereg.simple_cfp.models import Speaker
 
