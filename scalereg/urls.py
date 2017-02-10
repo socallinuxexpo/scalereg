@@ -15,6 +15,7 @@ Including another URLconf
 from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
+from django.views.generic import RedirectView
 
 urlpatterns = [
     url(r'^accounts/$', 'scalereg.auth_helper.views.index'),
@@ -33,8 +34,10 @@ urlpatterns = [
     url(r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
     url(r'^sponsorship/', include('scalereg.sponsorship.urls')),
 
-    # dummy index page
-    url(r'^$', 'scalereg.auth_helper.views.index'),
+    # redirect index page to reg6, since that is likely what the user wants.
+    url(r'^$',
+        RedirectView.as_view(url='https://register.socallinuxexpo.org/reg6/',
+                             permanent=False)),
 ]
 
 handler500 = 'scalereg.common.views.handler500'
