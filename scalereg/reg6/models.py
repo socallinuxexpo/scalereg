@@ -179,6 +179,7 @@ class PromoCodeManager(models.Manager):
       name_list.append(f.name)
     return name_list
 
+
 class PromoCode(models.Model):
   name = models.CharField(max_length=5, primary_key=True,
       help_text='Up to 5 letters, upper-case letters + numbers')
@@ -242,7 +243,7 @@ class Item(models.Model):
       help_text='Item offsets ticket price?')
   applies_to = models.ManyToManyField(Ticket, blank=True)
   applies_to_all = models.BooleanField(default=False,
-    help_text='Applies to all tickets')
+      help_text='Applies to all tickets')
 
   class Meta:
     permissions = (('view_item', 'Can view item'),)
@@ -288,7 +289,7 @@ class Question(models.Model):
   applies_to_tickets = models.ManyToManyField(Ticket, blank=True)
   applies_to_items = models.ManyToManyField(Item, blank=True)
   applies_to_all = models.BooleanField(default=False,
-    help_text='Applies to all tickets')
+      help_text='Applies to all tickets')
 
   class Meta:
     permissions = (('view_question', 'Can view question'),)

@@ -778,7 +778,7 @@ def Payment(request):
     else:
       attendees_by_ticket[person.badge_type] = 1
   tickets_soldout = []
-  for ticket,num_to_buy in attendees_by_ticket.iteritems():
+  for ticket, num_to_buy in attendees_by_ticket.iteritems():
     if not IsTicketAvailable(ticket, num_to_buy):
       tickets_soldout.append(ticket.description)
   if tickets_soldout:
