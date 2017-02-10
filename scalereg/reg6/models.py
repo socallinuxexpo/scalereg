@@ -101,6 +101,8 @@ class Ticket(models.Model):
   description = models.CharField(max_length=60)
   type = models.CharField(max_length=10, choices=TICKET_CHOICES)
   price = models.DecimalField(max_digits=5, decimal_places=2)
+  priority = models.IntegerField(
+      help_text='Ordering priority, lower numbers first')
   public = models.BooleanField(default=False,
       help_text='Publicly available on the order page')
   cash = models.BooleanField(default=False,
