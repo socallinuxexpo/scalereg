@@ -379,6 +379,19 @@ def GenerateOrderID(bad_nums):
   return utils.GenerateUniqueID(10, bad_nums)
 
 
+def DoCheckIn(request, attendee):
+  try:
+    attendee.checked_in = True
+    attendee.save()
+  except:
+    return HttpResponseServerError('We encountered a problem with your checkin')
+
+  return scale_render_to_response(request, 'reg6/reg_finish_checkin.html',
+    {'title': 'Checked In',
+     'attendee': attendee,
+    })
+
+
 def scale_render_to_response(request, template, vars):
   if 'kiosk' in request.session:
     vars['kiosk'] = True
@@ -1326,6 +1339,28 @@ def CheckIn(request):
       {'title': 'Check In',
       })
 
+  if 'express' in request.POST:
+    code = request.POST['express']
+    success = len(code) == 10
+    if success:
+      id_str = code[:4]
+      try:
+        attendee_id = int(id_str)
+        attendee = models.Attendee.objects.get(id=attendee_id)
+      except:
+        success = False
+
+    if success:
+      success = validators.hashAttendee(attendee) == code[4:]
+
+    if success:
+      return DoCheckIn(request, attendee)
+    return scale_render_to_response(request, 'reg6/reg_checkin.html',
+      {'title': 'Check In',
+       'express_code': code,
+       'express_fail': 1,
+      })
+
   attendees = []
   attendees_email = []
   attendees_zip = []
@@ -1376,16 +1411,8 @@ def FinishCheckIn(request):
   except models.Attendee.DoesNotExist:
     return HttpResponseServerError('We could not find your registration')
 
-  try:
-    attendee.checked_in = True
-    attendee.save()
-  except:
-    return HttpResponseServerError('We encountered a problem with your checkin')
+  return DoCheckIn(request, attendee)
 
-  return scale_render_to_response(request, 'reg6/reg_finish_checkin.html',
-    {'title': 'Checked In',
-     'attendee': attendee,
-    })
 
 def RedeemCoupon(request):
   PAYMENT_STEP = 7
