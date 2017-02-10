@@ -7,7 +7,7 @@ import string
 HASH_LENGTH = 6
 
 def hashfunc(data):
-  data = settings.SCALEREG_SCANNED_BADGE_SECRET + data.encode('utf-8')
+  data = settings.SCALEREG_EXPRESS_CHECKIN_SECRET + data.encode('utf-8')
   return hashlib.sha1(data).hexdigest()
 
 
