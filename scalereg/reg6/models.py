@@ -417,6 +417,14 @@ class Reprint(models.Model):
     return '%s %d' % (self.attendee, self.count)
 
 
+class ScannedBadge(models.Model):
+  number = models.PositiveIntegerField(primary_key=True)
+  size = models.CharField(max_length=4)
+
+  def __unicode__(self):
+    return '%d' % self.number
+
+
 class Upgrade(models.Model):
   attendee = models.ForeignKey(Attendee)
   valid = models.BooleanField(default=False)

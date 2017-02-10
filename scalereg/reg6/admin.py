@@ -8,6 +8,7 @@ from models import ListQuestion
 from models import Order
 from models import PromoCode
 from models import Reprint
+from models import ScannedBadge
 from models import TextAnswer
 from models import TextQuestion
 from models import Ticket
@@ -103,6 +104,12 @@ class TicketAdmin(admin.ModelAdmin):
   save_on_top = True
 
 
+class ScannedBadgeAdmin(admin.ModelAdmin):
+  list_display = ['number', 'size']
+  list_filter = ['size']
+  save_on_top = True
+
+
 class UpgradeAdmin(admin.ModelAdmin):
   list_display = ('valid', 'attendee', 'old_badge_type', 'new_badge_type',
                   'old_order', 'new_order')
@@ -118,6 +125,7 @@ admin.site.register(ListQuestion, ListQuestionAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PromoCode, PromoCodeAdmin)
 admin.site.register(Reprint, ReprintAdmin)
+admin.site.register(ScannedBadge, ScannedBadgeAdmin)
 admin.site.register(TextAnswer, TextAnswerAdmin)
 admin.site.register(TextQuestion, TextQuestionAdmin)
 admin.site.register(Ticket, TicketAdmin)
