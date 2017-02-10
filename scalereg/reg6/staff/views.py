@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from scalereg.common.utils import services_perm_checker
 from scalereg.common.views import handler500
 from scalereg.reg6 import models
+from scalereg.reg6 import validators
 from scalereg.reg6.views import GenerateOrderID
 
 @login_required
@@ -16,6 +17,7 @@ def index(request):
   return render_to_response('reg6/staff/index.html',
     {'title': 'Staff Page',
     })
+
 
 @login_required
 def CheckIn(request):
@@ -29,12 +31,30 @@ def CheckIn(request):
       })
 
   attendees = []
-  if request.POST['last_name']:
+  if request.POST['express']:
+    # TODO: Duplicated from CheckIn().
+    code = request.POST['express']
+    success = len(code) == 10
+    if success:
+      id_str = code[:4]
+      try:
+        attendee_id = int(id_str)
+        attendee = models.Attendee.objects.get(id=attendee_id)
+      except:
+        success = False
+
+    if success:
+      success = validators.hashAttendee(attendee) == code[4:]
+
+    if success:
+      attendees = [attendee]
+
+  if not attendees and request.POST['last_name']:
     attendees = models.Attendee.objects.filter(valid=True,
-      last_name__icontains=request.POST['last_name'])
+        last_name__icontains=request.POST['last_name'])
   if not attendees:
     attendees = models.Attendee.objects.filter(valid=True,
-      zip=request.POST['zip'])
+        zip=request.POST['zip'])
   for att in attendees:
     if att.checked_in:
       try:
@@ -47,10 +67,12 @@ def CheckIn(request):
   return render_to_response('reg6/staff/checkin.html',
     {'title': 'Attendee Check In',
      'attendees': attendees,
-     'last': request.POST['last_name'],
+     'express': request.POST['express'],
+     'last_name': request.POST['last_name'],
      'zip': request.POST['zip'],
      'search': 1,
     })
+
 
 @login_required
 def FinishCheckIn(request):
@@ -79,6 +101,7 @@ def FinishCheckIn(request):
     {'title': 'Attendee Check In',
      'attendee': attendee,
     })
+
 
 @login_required
 def CashPayment(request):
@@ -140,6 +163,7 @@ def CashPayment(request):
      'success': True,
      'tickets': tickets,
     })
+
 
 @login_required
 def Reprint(request):
