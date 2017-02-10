@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
@@ -9,6 +10,7 @@ from django.shortcuts import render_to_response
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
+from scalereg.reg6 import validators
 from scalereg.sponsorship import views as sponsorship_views
 import datetime
 import re
@@ -90,6 +92,10 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
   badge.append(attendee.phone)
   badge.append(attendee.zip)
   badge.append(str(attendee.id))
+  parity = 0
+  for f in validators.hashAttendee(attendee):
+    parity += int(f, 16)
+  badge.append(str(parity % 10))
   if attendee.id in reprint_ids:
     reprint = models.Reprint.objects.get(attendee=attendee)
     badge.append(str(reprint.count))
@@ -333,6 +339,36 @@ def UpgradeAttendee(upgrade, new_order):
   person.ordered_items.clear()
   for s in upgrade.new_ordered_items.all():
     person.ordered_items.add(s)
+  NotifyAttendee(person)
+
+
+def NotifyAttendee(person):
+  if not settings.SCALEREG_SEND_MAIL:
+    return
+
+  try:
+    send_mail('SCALE 15X Registration',
+              '''Thank you for registering for SCALE 15X.
+The details of your registration are included below.
+
+Please note the Express Check-In Code below, which will allow you to
+speed up your check in and badge pick up on site.
+
+First Name: %s
+Last Name: %s
+Email: %s
+Zip Code: %s
+
+Badge Type: %s
+Express Check-In Code: %04d%s
+''' % \
+              (person.first_name, person.last_name, person.email, person.zip,
+               person.badge_type.description, person.id,
+               validators.hashAttendee(person)),
+              settings.SCALEREG_EMAIL,
+              [person.email])
+  except:
+    pass
 
 
 def CheckPaymentAmount(request, expected_cost):
@@ -372,6 +408,19 @@ def CheckReferrer(meta, path):
 
 def GenerateOrderID(bad_nums):
   return utils.GenerateUniqueID(10, bad_nums)
+
+
+def DoCheckIn(request, attendee):
+  try:
+    attendee.checked_in = True
+    attendee.save()
+  except:
+    return HttpResponseServerError('We encountered a problem with your checkin')
+
+  return scale_render_to_response(request, 'reg6/reg_finish_checkin.html',
+    {'title': 'Checked In',
+     'attendee': attendee,
+    })
 
 
 def scale_render_to_response(request, template, vars):
@@ -963,6 +1012,7 @@ def Sale(request):
       if request.POST['USER2'] == 'Y':
         person.checked_in = True
       person.save()
+      NotifyAttendee(person)
 
   return HttpResponse('success')
 
@@ -1321,6 +1371,28 @@ def CheckIn(request):
       {'title': 'Check In',
       })
 
+  if 'express' in request.POST:
+    code = request.POST['express']
+    success = len(code) == 10
+    if success:
+      id_str = code[:4]
+      try:
+        attendee_id = int(id_str)
+        attendee = models.Attendee.objects.get(id=attendee_id)
+      except:
+        success = False
+
+    if success:
+      success = validators.hashAttendee(attendee) == code[4:]
+
+    if success:
+      return DoCheckIn(request, attendee)
+    return scale_render_to_response(request, 'reg6/reg_checkin.html',
+      {'title': 'Check In',
+       'express_code': code,
+       'express_fail': 1,
+      })
+
   attendees = []
   attendees_email = []
   attendees_zip = []
@@ -1371,16 +1443,8 @@ def FinishCheckIn(request):
   except models.Attendee.DoesNotExist:
     return HttpResponseServerError('We could not find your registration')
 
-  try:
-    attendee.checked_in = True
-    attendee.save()
-  except:
-    return HttpResponseServerError('We encountered a problem with your checkin')
+  return DoCheckIn(request, attendee)
 
-  return scale_render_to_response(request, 'reg6/reg_finish_checkin.html',
-    {'title': 'Checked In',
-     'attendee': attendee,
-    })
 
 def RedeemCoupon(request):
   PAYMENT_STEP = 7
@@ -1448,6 +1512,7 @@ def RedeemCoupon(request):
     person.badge_type = coupon.badge_type
     person.promo = None
     person.save()
+    NotifyAttendee(person)
 
   coupon.max_attendees = coupon.max_attendees - num_attendees
   if coupon.max_attendees == 0:
@@ -1730,3 +1795,54 @@ def ClearBadOrder(request):
     return HttpResponse('Not Found')
 
   return HttpResponse('Done')
+
+
+@login_required
+def ScannedBadge(request):
+  if request.method != 'GET':
+    return HttpResponse('Post?')
+
+  response = ''
+  color = 'red'
+  if 'CODE' in request.GET and 'SIZE' in request.GET:
+    code = request.GET['CODE']
+    size = request.GET['SIZE']
+    code_split = urllib.unquote(code).split('~')
+    try:
+      attendee_id = int(code_split[0][:-1])
+      validators.isValidScannedBadge(code_split[0], None)
+    except:
+      response = 'Invalid barcode'
+
+    if not response:
+      try:
+        attendee = models.Attendee.objects.get(id=attendee_id)
+        if not attendee.checked_in:
+          response = 'Attendee not checked in'
+      except:
+        response = 'Invalid attendee'
+
+    if not response:
+      badges = models.ScannedBadge.objects.filter(number=attendee_id)
+      if badges:
+        response = 'Badge already scanned: %d' % attendee_id
+        color = 'orange'
+
+    if not response:
+      try:
+        badge = models.ScannedBadge()
+        badge.number = attendee_id
+        badge.size = size
+        badge.save()
+        response = 'Scanned %d' % attendee_id
+        color = 'green'
+      except:
+        response = 'Database error'
+
+  returl = 'https://%s/reg6/scanned_badge/?CODE={CODE}' % request.get_host()
+  url = 'zxing://scan/?ret=%s' % urllib.quote_plus(returl)
+  return render_to_response('reg6/scanned_badge.html',
+    {'color': color,
+     'response': response,
+     'url': url,
+    })

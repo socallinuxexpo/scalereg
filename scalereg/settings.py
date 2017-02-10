@@ -155,8 +155,18 @@ SCALEREG_PAYFLOW_LOGIN = ''
 # Partner (either Paypal or Verisign):
 SCALEREG_PAYFLOW_PARTNER = ''
 
+# Secret used for express check-in and scanned badges.
+SCALEREG_EXPRESS_CHECKIN_SECRET = ''
+
 # URL for the sponsorship agreement document.
 SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
+
+# Set to True if you want scalereg to be able to email attendees.
+# You need to set EMAIL_HOST, EMAIL_PORT, and other EMAIL_ settings
+# appropriately.
+SCALEREG_SEND_MAIL = False
+# You also need to set the from address below:
+SCALEREG_EMAIL = ''
 
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
 #FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB

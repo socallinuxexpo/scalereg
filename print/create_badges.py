@@ -21,7 +21,7 @@ class Badge:
     }
 
     badge_data = data.split('~')[1:-1]
-    if len(badge_data) < 13:
+    if len(badge_data) < 14:
       raise ValueError
     self.salutation = badge_data[0]
     self.first_name = badge_data[1]
@@ -33,14 +33,15 @@ class Badge:
     self.phone = badge_data[6]
     self.zip = badge_data[7]
     self.id = int(badge_data[8])
-    self.reprint = int(badge_data[9])
-    self.type = tickets[badge_data[10]]
-    self.amount = badge_data[11]
-    self.shirt = badge_data[12]
-    self.addons = badge_data[13:]
+    self.hash = badge_data[9]
+    self.reprint = int(badge_data[10])
+    self.type = tickets[badge_data[11]]
+    self.amount = badge_data[12]
+    self.shirt = badge_data[13]
+    self.addons = badge_data[14:]
     self.data = '%s' % '~'.join(
-      [str(self.id), self.first_name, self.last_name, self.title, self.company,
-       self.phone, self.zip, self.email])
+        [str(self.id) + self.hash, self.first_name, self.last_name, self.title,
+         self.company, self.phone, self.zip, self.email])
 
   def printBadge(self):
     badge_file = os.path.join(self.datadir,

@@ -12,44 +12,61 @@
     Email: {{ email }}<br />
     Zip/postal code: {{ zip }}<br />
     </p>
-{% endif %}
 
-{% if attendees %}
-    <table border="1">
-    <thead>
-    <tr>
-        <th>Registration Number</th>
-        <th>Name</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for person in attendees %}
+    {% if attendees %}
+        <table border="1">
+        <thead>
         <tr>
-        <td>{{ person.id }}</td>
-        <td>{{ person.first_name }} {{ person.last_name }}</td>
-        <td>
-        <form method="post" action="../finish_checkin/">
-        <input type="hidden" name="id" value="{{ person.id }}">
-        <input type="submit" value="Check Me In">
-        </form>
-        </td>
+            <th>Registration Number</th>
+            <th>Name</th>
+            <th></th>
         </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-{% else %}
-    <p>
-    <b>No registration results found. Please check your information below and try again.</b>
-    </p>
+        </thead>
+        <tbody>
+        {% for person in attendees %}
+            <tr>
+            <td>{{ person.id }}</td>
+            <td>{{ person.first_name }} {{ person.last_name }}</td>
+            <td>
+            <form method="post" action="../finish_checkin/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Check Me In">
+            </form>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% else %}
+        <p>
+        <b>No registration results found. Please check your information below and try again.</b>
+        </p>
+    {% endif %}
+
+    <hr />
 {% endif %}
 
-{% if search %}
+{% if express_fail %}
+    <p>
+      Error: "{{ express_code }}" is not a valid express check-in code.
+    </p>
     <hr />
 {% endif %}
 
 <p>
-Please type in your registration information:
+If you have an Express Check-In Code, please type it in below:<br />
+(Express Check-In Codes are 10 digits, all lower cases.)
+</p>
+
+<p>
+<form method="post" action=".">
+<input type="text" name="express" maxlength="10" size="10" /><br />
+<input type="submit" value="Check In" />
+</form>
+</p>
+
+<p>
+Otherwise, please fill in all your registration information:
 </p>
 
 <p>

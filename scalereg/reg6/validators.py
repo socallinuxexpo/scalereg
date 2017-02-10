@@ -1,6 +1,40 @@
+from django.conf import settings
 from scalereg.common.validators import ScaleValidationError
+import hashlib
 import models
 import string
+
+HASH_LENGTH = 6
+
+def hashfunc(data):
+  data = settings.SCALEREG_EXPRESS_CHECKIN_SECRET + data.encode('utf-8')
+  return hashlib.sha1(data).hexdigest()
+
+
+def hashAttendee(attendee):
+  return hashfunc(attendee.first_name + attendee.last_name)[:HASH_LENGTH]
+
+
+def isValidScannedBadge(field_data, all_data):
+  if not field_data:
+    raise ScaleValidationError('Invalid hash object')
+  attendee_hash = field_data[-1]
+  try:
+    attendee_id = int(field_data[:-1])
+    attendee = models.Attendee.objects.get(id=attendee_id)
+    if not attendee.valid:
+      raise ScaleValidationError('Invalid attendee')
+
+    parity = 0
+    for f in hashAttendee(attendee):
+      parity += int(f, 16)
+    if attendee_hash != str(parity % 10):
+      raise ScaleValidationError('Incorrect hash')
+  except ValueError:
+    raise ScaleValidationError('Not a number')
+  except models.Attendee.DoesNotExist:
+    raise ScaleValidationError('Attendee does not exist')
+
 
 def isValidStartStopDates(field_data, all_data):
   if all_data.start_date and all_data.end_date:

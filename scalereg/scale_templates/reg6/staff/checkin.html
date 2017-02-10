@@ -6,8 +6,9 @@
 {% if search %}
     <p>
     Search results for:<br />
-    Last name: {{ last }}<br />
+    Last name: {{ last_name }}<br />
     Zip: {{ zip }}<br />
+    Express Check-In Code: {{ express }}<br />
     </p>
 {% endif %}
 
@@ -55,7 +56,7 @@
 {% endif %}
 
 <p>
-Please type in the following information:
+Please type in the last name and/or zip code, or the express check-in code:
 </p>
 
 <p>
@@ -64,12 +65,17 @@ Please type in the following information:
 <tr>
     <td>Last Name</td>
     <td><input type="text" name="last_name" maxlength="60" size="40"
-      value="{{ last }}" /></td>
+      value="{{ last_name }}" /></td>
 </tr>
 <tr>
     <td>Zip Code</td>
     <td><input type="text" name="zip" maxlength="10" size="10"
       value="{{ zip }}" /></td>
+</tr>
+<tr>
+    <td>Express Check-In Code</td>
+    <td><input type="text" name="express" maxlength="10" size="10"
+      value="{{ express }}" /></td>
 </tr>
 </table>
 <input type="submit"
