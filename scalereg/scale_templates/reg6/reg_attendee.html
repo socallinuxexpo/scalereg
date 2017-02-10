@@ -157,6 +157,7 @@ b { font-weight: bold }
         <input type="hidden" name="item{{ forloop.counter0 }}" value="{{ item.name }}" />
     {% endfor %}
 
+    <p>
     <table>
     {% if form.salutation.errors %}
     <tr>
@@ -240,6 +241,7 @@ b { font-weight: bold }
         <td>{{ form.can_email }}</td>
     </tr>
     </table>
+    </p>
 
     {% if questions %}
     <p>
