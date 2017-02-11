@@ -1,5 +1,10 @@
 # Django settings for scalereg project.
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
@@ -7,6 +12,8 @@ TEMPLATE_DEBUG = DEBUG
 # Set to True to enable.
 SCALEREG_DEBUG_LOGGING_ENABLED = False
 SCALEREG_DEBUG_LOGGING_PATH = '/tmp/scale_reg.log'
+
+ALLOWED_HOSTS = ['register.socallinuxexpo.org']
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -55,6 +62,8 @@ MEDIA_URL = ''
 # trailing slash.
 # Examples: 'http://foo.com/media/', '/media/'.
 ADMIN_MEDIA_PREFIX = '/media/'
+
+STATIC_URL = 'https://register.socallinuxexpo.org/media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'CHANGE_THIS!!!!!__ANY_VALID_PYTHON_STRING_WORKS'
