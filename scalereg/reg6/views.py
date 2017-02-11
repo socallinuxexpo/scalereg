@@ -281,7 +281,7 @@ def FindUpgradeAttendee(attendee_id, attendee_email):
   except (ValueError, models.Attendee.DoesNotExist):
     attendee = None
 
-  if attendee and attendee.email != attendee_email:
+  if attendee and attendee.email != attendee_email.strip():
     attendee = None
 
   if not attendee:
@@ -606,6 +606,15 @@ def AddAttendee(request):
       # create attendee
       new_attendee = form.save(commit=False)
 
+      # sanitize input
+      new_attendee.first_name = new_attendee.first_name.strip();
+      new_attendee.last_name = new_attendee.last_name.strip();
+      new_attendee.title = new_attendee.title.strip();
+      new_attendee.org = new_attendee.org.strip();
+      new_attendee.email = new_attendee.email.strip();
+      new_attendee.zip = new_attendee.zip.strip();
+      new_attendee.phone = new_attendee.phone.strip();
+
       # add badge type
       new_attendee.badge_type = ticket
       # add promo
@@ -742,9 +751,10 @@ def StartPayment(request):
       except (ValueError, models.Attendee.DoesNotExist):
         attendee_id = None
 
+      search_email = request.POST['email'].strip()
       if attendee_id in all_attendees:
         new_attendee = None
-      elif new_attendee and new_attendee.email == request.POST['email']:
+      elif new_attendee and new_attendee.email == search_email:
         if not new_attendee.valid:
           if new_attendee not in all_attendees:
             all_attendees.append(attendee_id)
@@ -752,7 +762,7 @@ def StartPayment(request):
           paid_attendee = new_attendee
           new_attendee = None
       else:
-        bad_attendee = [request.POST['id'], request.POST['email']]
+        bad_attendee = [request.POST['id'], search_email]
         new_attendee = None
 
   # sanity check
@@ -1347,9 +1357,9 @@ def RegLookup(request):
     return r
 
   attendees = []
-  if request.POST['zip'] and request.POST['email']:
-    attendees = models.Attendee.objects.filter(zip=request.POST['zip'],
-      email=request.POST['email'])
+  if request.POST['zip'].strip() and request.POST['email'].strip():
+    attendees = models.Attendee.objects.filter(zip=request.POST['zip'].strip(),
+        email=request.POST['email'].strip())
 
   return scale_render_to_response(request, 'reg6/reg_lookup.html',
     {'title': 'Registration Lookup',
@@ -1396,24 +1406,29 @@ def CheckIn(request):
   attendees = []
   attendees_email = []
   attendees_zip = []
-  if request.POST['zip'] and request.POST['email']:
+  if request.POST['zip'].strip() and request.POST['email'].strip():
     attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
-      zip=request.POST['zip'],
-      email=request.POST['email'])
+        zip=request.POST['zip'].strip(),
+        email=request.POST['email'].strip())
   if not attendees:
-    if request.POST['first'] and request.POST['last']:
+    if request.POST['first'].strip() and request.POST['last'].strip():
       attendees = models.Attendee.objects.filter(valid=True, checked_in=False,
-        first_name=request.POST['first'],
-        last_name=request.POST['last'])
+          first_name=request.POST['first'].strip(),
+          last_name=request.POST['last'].strip())
     if attendees:
-      if request.POST['email']:
-        attendees_email = attendees.filter(email=request.POST['email'])
-      if request.POST['zip']:
-        attendees_zip = attendees.filter(zip=request.POST['zip'])
+      has_email_or_zip = False
+      if request.POST['email'].strip():
+        has_email_or_zip = True
+        attendees_email = attendees.filter(email=request.POST['email'].strip())
+      if request.POST['zip'].strip():
+        has_email_or_zip = True
+        attendees_zip = attendees.filter(zip=request.POST['zip'].strip())
       if attendees_email:
         attendees = attendees_email
       elif attendees_zip:
         attendees = attendees_zip
+      if not has_email_or_zip:
+        attendees = []
 
   return scale_render_to_response(request, 'reg6/reg_checkin.html',
     {'title': 'Check In',
@@ -1717,6 +1732,16 @@ def MassAddAttendee(request):
       response.write('bad entry: %s, reason: %s<br />\n' % (entry, form.errors))
       continue
     attendee = form.save(commit=False)
+
+    # sanitize input
+    attendee.first_name = attendee.first_name.strip();
+    attendee.last_name = attendee.last_name.strip();
+    attendee.title = attendee.title.strip();
+    attendee.org = attendee.org.strip();
+    attendee.email = attendee.email.strip();
+    attendee.zip = attendee.zip.strip();
+    attendee.phone = attendee.phone.strip();
+
     attendee.valid = True
     attendee.checked_in = False
     attendee.can_email = False
