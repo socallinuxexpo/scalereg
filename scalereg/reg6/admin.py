@@ -29,6 +29,16 @@ class PromoCodeAdmin(admin.ModelAdmin):
                   'start_date', 'end_date')
   list_filter = ('active', 'start_date', 'end_date')
   save_on_top = True
+  actions = ['associate_tickets']
+
+  def associate_tickets(self, request, queryset):
+    tickets = [Ticket.objects.get(name=ticket) for ticket in
+               settings.SCALEREG_ADMIN_TICKETS_FOR_PROMO]
+    for promo_code in queryset:
+      promo_code.applies_to.add(*tickets)
+      promo_code.save()
+    self.message_user(request, '%d tickets updated' % len(queryset))
+  associate_tickets.short_description = 'Associate tickets'
 
 
 class ListQuestionAdmin(admin.ModelAdmin):
