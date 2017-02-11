@@ -59,9 +59,17 @@ def CheckIn(request):
   if not attendees and request.POST['last_name']:
     attendees = models.Attendee.objects.filter(valid=True,
         last_name__icontains=request.POST['last_name'])
-  if not attendees:
+
+  if not attendees and request.POST['zip']:
     attendees = models.Attendee.objects.filter(valid=True,
         zip=request.POST['zip'])
+
+  attendees = [att for att in attendees]
+  if request.POST['last_name']:
+    bad_attendees = models.Attendee.objects.filter(valid=False,
+        last_name__icontains=request.POST['last_name'])
+    attendees += bad_attendees
+
   for att in attendees:
     if att.checked_in:
       try:

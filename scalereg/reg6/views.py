@@ -1060,8 +1060,8 @@ def FinishPayment(request):
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
     order = models.Order.objects.get(order_num=request.POST['USER1'])
   except models.Order.DoesNotExist:
-    ScaleDebug('Your order cannot be found')
-    return HttpResponseServerError('Your order cannot be found')
+    ScaleDebug('Your registration order cannot be found')
+    return HttpResponseServerError('Your registration order cannot be found')
 
   if temp_order.upgrade:
     return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
@@ -1683,7 +1683,7 @@ def MassAddAttendee(request):
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
-    response.write('<p>first_name,last_name,title,org,zip,email,phone,order_number,ticket_code</p>')
+    response.write('<p>first_name,last_name,title,org,email,zip,phone,order_number,ticket_code</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -1722,8 +1722,8 @@ def MassAddAttendee(request):
       'last_name': entry_split[1],
       'title': entry_split[2],
       'org': entry_split[3],
-      'zip': entry_split[4],
-      'email': entry_split[5],
+      'email': entry_split[4],
+      'zip': entry_split[5],
       'phone': entry_split[6],
       'badge_type': ticket,
     }
@@ -1750,6 +1750,114 @@ def MassAddAttendee(request):
     attendee.save()
     form.save_m2m()
     response.write('Added %s<br />\n' % entry)
+
+  response.write('</body></html>')
+  return response
+
+
+@login_required
+def MassAddCoupon(request):
+  if not request.user.is_superuser:
+    return HttpResponse('')
+  if request.method == 'GET':
+    response = HttpResponse()
+    response.write('<html><head></head><body><form method="post">')
+    response.write('<p>name addr city state zip email type max_att</p>')
+    response.write('<textarea name="data" rows="25" cols="80"></textarea>')
+    response.write('<br /><input type="submit" /></form>')
+    response.write('</body></html>')
+    return response
+
+  if 'data' not in request.POST:
+    return HttpResponse('No Data')
+
+  # FIXME Add this to the Ticket model?
+  ticket_types = {
+    'expo': 'invitee',
+    'full': 'invitee',
+    'press': 'press',
+    'speaker': 'speaker',
+    'exhibitor': 'exhibitor',
+    'friday': 'invitee',
+  }
+
+  response = HttpResponse()
+  response.write('<html><head></head><body>')
+
+  data = request.POST['data'].split('\n')
+  entries = []
+  for entry in data:
+    entry = entry.strip()
+    if not entry:
+      return HttpResponse('Bad data: blank line found')
+    entries.append(entry)
+
+  if len(entries) % 8 != 0:
+    return HttpResponse('Bad data: wrong number of lines')
+  
+  index = 0
+  while index < len(entries):
+    name = entries[index]
+    addr = entries[index + 1]
+    city = entries[index + 2]
+    state = entries[index + 3]
+    zip_code = entries[index + 4]
+    email = entries[index + 5]
+    badge_type = entries[index + 6]
+    max_attendees = entries[index + 7]
+    index += 8
+
+    try:
+      ticket = models.Ticket.objects.get(name=badge_type)
+    except models.Ticket.DoesNotExist:
+      response.write('bad entry: no such ticket: ')
+      response.write('%s - %s<br />\n' % (name, badge_type))
+      continue
+
+    bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+    bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
+    order_num = GenerateOrderID(bad_order_nums)
+    order = models.Order(order_num=order_num,
+        valid=False,
+        name=name,
+        address=addr,
+        city=city,
+        state=state,
+        zip=zip_code,
+        email=email,
+        amount=0,
+        payment_type=ticket_types[ticket.type],
+    )
+    try:
+      order.save()
+    except: # FIXME catch the specific db exceptions
+      order.delete()
+      response.write('error while saving order for: %s' % name)
+      break
+
+    coupon = models.Coupon(code=order.order_num,
+        badge_type = ticket,
+        order = order,
+        used = False,
+        max_attendees = max_attendees,
+    )
+    try:
+      coupon.save()
+    except: # FIXME catch the specific db exceptions
+      order.delete()
+      response.write('error while saving coupon for: %s' % name)
+      break
+
+    try:
+      order.valid = True
+      order.save()
+    except: # FIXME catch the specific db exceptions
+      order.delete()
+      coupon.delete()
+      response.write('error while modifying order for: %s' % name)
+      break
+
+    response.write('Added %s - %s<br />\n' % (name, order.order_num))
 
   response.write('</body></html>')
   return response

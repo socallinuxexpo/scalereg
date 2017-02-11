@@ -20,33 +20,35 @@
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
-        {% if person.checked_in %}
         <th>Reprint</th>
-        {% endif %}
     </tr>
     {% for person in attendees %}
         <tr>
-        <td>{{ person.id }}</td>
+        <td><a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a></td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.badge_type.description }}</td>
         <td>
-        {% if person.checked_in %}
-        Already Checked In
+        {% if person.valid %}
+            {% if person.checked_in %}
+                Already Checked In
+            {% else %}
+                <form method="post" action="../finish_checkin/">
+                <input type="hidden" name="id" value="{{ person.id }}">
+                <input type="submit" value="Check In">
+                </form>
+            {% endif %}
         {% else %}
-        <form method="post" action="../finish_checkin/">
-        <input type="hidden" name="id" value="{{ person.id }}">
-        <input type="submit" value="Check In">
-        </form>
+            Invalid
         {% endif %}
         </td>
-        {% if person.checked_in %}
         <td>
-        <form method="post" action="../reprint/">
-        <input type="hidden" name="id" value="{{ person.id }}">
-        <input type="submit" value="Reprint {{ person.rp_count }}">
-        </form>
-        </td>
+        {% if person.checked_in %}
+            <form method="post" action="../reprint/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Reprint {{ person.rp_count }}">
+            </form>
         {% endif %}
+        </td>
         </tr>
     {% endfor %}
     </table>
