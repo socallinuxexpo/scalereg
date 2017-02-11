@@ -2,6 +2,7 @@
 
 from __future__ import division
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.db.models import BooleanField
 from django.db.models.base import ModelBase
@@ -72,7 +73,7 @@ def paranoid_strip(value):
 def get_model_list(user):
   perms = user.get_all_permissions()
   tables = [m[0] for m in inspect.getmembers(models, inspect.isclass)
-             if type(m[1]) == ModelBase and m[1]._meta.admin]
+            if type(m[1]) == ModelBase and admin.site.is_registered(m[1])]
   model_list = []
   for t in tables:
     if user.is_superuser or 'reg6.view_%s' % t.lower() in perms:
