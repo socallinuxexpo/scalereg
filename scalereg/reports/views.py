@@ -94,6 +94,8 @@ def index(request):
 
   model_list = get_model_list(request.user)
   model_list.insert(0, {'name': 'Dashboard', 'url': 'dashboard/'})
+  model_list.insert(1, {'name': 'Scale-announce Subscribers',
+                        'url': 'announce_subscribers/'})
 
   return render_to_response('reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
@@ -717,4 +719,17 @@ def checkpgp(request):
     except:
       response.write('no type 2\n')
 
+  return response
+
+
+@login_required
+def AnnounceSubscribers(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+ 
+  response = HttpResponse(content_type='text/plain')
+  attendees = models.Attendee.objects.filter(valid=True).filter(can_email=True)
+  for attendee in attendees:
+    response.write('%d,%s\n' % (attendee.id, attendee.email))
   return response
