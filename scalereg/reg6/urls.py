@@ -5,6 +5,7 @@ urlpatterns = patterns('',
     (r'^$', 'scalereg.reg6.views.index'),
     (r'^add_items/$', 'scalereg.reg6.views.AddItems'),
     (r'^add_attendee/$', 'scalereg.reg6.views.AddAttendee'),
+    (r'^mass_add_coupon/$', 'scalereg.reg6.views.MassAddCoupon'),
     (r'^registered_attendee/$', 'scalereg.reg6.views.RegisteredAttendee'),
 
     # Payment
