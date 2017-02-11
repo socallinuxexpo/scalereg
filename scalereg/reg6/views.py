@@ -1683,7 +1683,7 @@ def MassAddAttendee(request):
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
-    response.write('<p>first_name,last_name,title,org,zip,email,phone,order_number,ticket_code</p>')
+    response.write('<p>first_name,last_name,title,org,email,zip,phone,order_number,ticket_code</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -1722,8 +1722,8 @@ def MassAddAttendee(request):
       'last_name': entry_split[1],
       'title': entry_split[2],
       'org': entry_split[3],
-      'zip': entry_split[4],
-      'email': entry_split[5],
+      'email': entry_split[4],
+      'zip': entry_split[5],
       'phone': entry_split[6],
       'badge_type': ticket,
     }
