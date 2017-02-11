@@ -1060,8 +1060,8 @@ def FinishPayment(request):
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
     order = models.Order.objects.get(order_num=request.POST['USER1'])
   except models.Order.DoesNotExist:
-    ScaleDebug('Your order cannot be found')
-    return HttpResponseServerError('Your order cannot be found')
+    ScaleDebug('Your registration order cannot be found')
+    return HttpResponseServerError('Your registration order cannot be found')
 
   if temp_order.upgrade:
     return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
