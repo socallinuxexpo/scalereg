@@ -177,5 +177,8 @@ SCALEREG_SEND_MAIL = False
 # You also need to set the from address below:
 SCALEREG_EMAIL = ''
 
+# List of tickets to apply promo codes to in the admin interface.
+SCALEREG_ADMIN_TICKETS_FOR_PROMO = []
+
 # Increasing limit to work around Django bug with TemporaryFileUploadHandler.
 #FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
