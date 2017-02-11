@@ -26,7 +26,7 @@
     </tr>
     {% for person in attendees %}
         <tr>
-        <td>{{ person.id }}</td>
+        <td><a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a></td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.badge_type.description }}</td>
         <td>
