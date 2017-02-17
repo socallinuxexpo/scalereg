@@ -1796,7 +1796,7 @@ def MassAddCoupon(request):
 
   if len(entries) % 8 != 0:
     return HttpResponse('Bad data: wrong number of lines')
-  
+
   index = 0
   while index < len(entries):
     name = entries[index]
