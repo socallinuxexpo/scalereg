@@ -911,7 +911,6 @@ def Sale(request):
     'PHONE',
     'EMAIL',
     'AMOUNT',
-    'AUTHCODE',
     'PNREF',
     'RESULT',
     'RESPMSG',
@@ -929,6 +928,9 @@ def Sale(request):
   if request.POST['RESPMSG'] != 'Approved':
     ScaleDebug('transaction declined')
     return HttpResponse('transaction declined')
+  if 'AUTHCODE' not in request.POST:
+    ScaleDebug('missing authcode')
+    return HttpResponse('missing authcode')
 
   try:
     temp_order = models.TempOrder.objects.get(order_num=request.POST['USER1'])
@@ -1794,7 +1796,7 @@ def MassAddCoupon(request):
 
   if len(entries) % 8 != 0:
     return HttpResponse('Bad data: wrong number of lines')
-  
+
   index = 0
   while index < len(entries):
     name = entries[index]
