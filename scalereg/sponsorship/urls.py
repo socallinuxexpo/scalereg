@@ -1,14 +1,15 @@
 from django.conf.urls import *
+from scalereg.sponsorship import views as sponsorship_view
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Registration
-    (r'^$', 'scalereg.sponsorship.views.index'),
-    (r'^add_items/$', 'scalereg.sponsorship.views.AddItems'),
-    (r'^add_sponsor/$', 'scalereg.sponsorship.views.AddSponsor'),
+    url(r'^$', sponsorship_view.index),
+    url(r'^add_items/$', sponsorship_view.AddItems),
+    url(r'^add_sponsor/$', sponsorship_view.AddSponsor),
 
     # Payment
-    (r'^payment/$', 'scalereg.sponsorship.views.Payment'),
-    (r'^sale/$', 'scalereg.sponsorship.views.Sale'),
-    (r'^failed_payment/$', 'scalereg.sponsorship.views.FailedPayment'),
-    (r'^finish_payment/$', 'scalereg.sponsorship.views.FinishPayment'),
-)
+    url(r'^payment/$', sponsorship_view.Payment),
+    url(r'^sale/$', sponsorship_view.Sale),
+    url(r'^failed_payment/$', sponsorship_view.FailedPayment),
+    url(r'^finish_payment/$', sponsorship_view.FinishPayment),
+]

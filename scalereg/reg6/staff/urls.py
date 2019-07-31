@@ -1,13 +1,13 @@
 from django.conf.urls import *
+from scalereg.reg6.staff import views as staff_views
 
-urlpatterns = patterns('',
-    (r'^$', 'scalereg.reg6.staff.views.index'),
-    (r'^checkin/$', 'scalereg.reg6.staff.views.CheckIn'),
-    (r'^finish_checkin/$', 'scalereg.reg6.staff.views.FinishCheckIn'),
-    (r'^cash_payment/$', 'scalereg.reg6.staff.views.CashPayment'),
-    (r'^cash_payment_registered/$',
-     'scalereg.reg6.staff.views.CashPaymentRegistered'),
-    (r'^email/$', 'scalereg.reg6.staff.views.Email'),
-    (r'^reprint/$', 'scalereg.reg6.staff.views.Reprint'),
-    (r'^update_attendee/$', 'scalereg.reg6.staff.views.UpdateAttendee'),
-)
+urlpatterns = [
+    url(r'^$', staff_views.index),
+    url(r'^checkin/$', staff_views.CheckIn),
+    url(r'^finish_checkin/$', staff_views.FinishCheckIn),
+    url(r'^cash_payment/$', staff_views.CashPayment),
+    url(r'^cash_payment_registered/$', staff_views.CashPaymentRegistered),
+    url(r'^email/$', staff_views.Email),
+    url(r'^reprint/$', staff_views.Reprint),
+    url(r'^update_attendee/$', staff_views.UpdateAttendee),
+]
