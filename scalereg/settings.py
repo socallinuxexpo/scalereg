@@ -6,7 +6,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 # Additional debug logging for sales transactions
 # Set to True to enable.
@@ -68,12 +67,6 @@ STATIC_URL = 'https://register.socallinuxexpo.org/media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'CHANGE_THIS!!!!!__ANY_VALID_PYTHON_STRING_WORKS'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -84,18 +77,21 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'scalereg.urls'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like '/home/html/django_templates' or
-    # 'C:/www/django/templates'.
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    '/CHANGE_THIS!!!!!__path_to/scalereg/scale_templates',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.messages.context_processors.messages',
-    'django.contrib.auth.context_processors.auth',
-)
+TEMPLATES = [
+  {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+      '/CHANGE_THIS!!!!!__/path/to/your/templates/',
+      '/CHANGE_THIS!!!!!__/paht/to/django/contrib/admin/templates/'
+    ],
+    'OPTIONS': {
+      'context_processors': [
+        'django.contrib.messages.context_processors.messages',
+        'django.contrib.auth.context_processors.auth',
+      ]
+    },
+  },
+]
 
 INSTALLED_APPS = (
     'django.contrib.admin',
