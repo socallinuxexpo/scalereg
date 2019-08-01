@@ -10,4 +10,4 @@ def handler500(request, template_name='500.html', msg=''):
                     'url': request.path,
                    }
     t = loader.get_template(template_name)
-    return http.HttpResponseServerError(t.render(Context(context_dict)))
+    return http.HttpResponseServerError(t.render(context_dict))
