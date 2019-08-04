@@ -403,8 +403,36 @@ def GenerateOrderID(bad_nums):
   return utils.GenerateUniqueID(10, bad_nums)
 
 
+def GetUserAgentFromRequest(request):
+  if 'HTTP_USER_AGENT' not in request.META:
+    return ''
+  return request.META['HTTP_USER_AGENT']
+
+
+def RecordAttendeeAgent(attendee, user_agent):
+  if settings.SCALEREG_KIOSK_AGENT_SECRET not in user_agent:
+    return
+
+  try:
+    kiosk_idx = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET) + \
+        len(settings.SCALEREG_KIOSK_AGENT_SECRET)
+    truncated_user_agent = user_agent[kiosk_idx:]
+    kiosk_agents = models.KioskAgent.objects.filter(attendee=attendee)
+    if kiosk_agents:
+      kiosk_agents[0].agent = truncated_user_agent
+      kiosk_agents[0].save()
+    else:
+      agent = models.KioskAgent()
+      agent.attendee = attendee
+      agent.agent = truncated_user_agent
+      agent.save()
+  except: # FIXME catch the specific db exceptions
+    pass
+
+
 def DoCheckIn(request, attendee):
   try:
+    RecordAttendeeAgent(attendee, GetUserAgentFromRequest(request))
     attendee.checked_in = True
     attendee.save()
   except:
@@ -797,11 +825,13 @@ def Payment(request):
   request.session[REGISTRATION_PAYMENT_COOKIE] = all_attendees
 
   attendees_by_ticket = {}
+  user_agent = GetUserAgentFromRequest(request)
   for person in all_attendees_data:
     if person.badge_type in attendees_by_ticket:
       attendees_by_ticket[person.badge_type] += 1
     else:
       attendees_by_ticket[person.badge_type] = 1
+    RecordAttendeeAgent(person, user_agent)
   tickets_soldout = []
   for ticket, num_to_buy in attendees_by_ticket.iteritems():
     if not IsTicketAvailable(ticket, num_to_buy):
@@ -1212,6 +1242,7 @@ def NonFreeUpgrade(request):
            'error_message': 'We cannot generate an order ID for you.',
           })
 
+  RecordAttendeeAgent(attendee, GetUserAgentFromRequest(request))
   return scale_render_to_response(request, 'reg6/reg_non_free_upgrade.html',
     {'title': 'Registration Upgrade',
      'attendee': attendee,

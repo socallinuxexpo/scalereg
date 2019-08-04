@@ -143,6 +143,9 @@ SCALEREG_PAYFLOW_PARTNER = ''
 # Secret used for express check-in and scanned badges.
 SCALEREG_EXPRESS_CHECKIN_SECRET = ''
 
+# Secret used in browser user agent for identifying kiosks.
+SCALEREG_KIOSK_AGENT_SECRET = 'CHANGE_ME:'
+
 # URL for the sponsorship agreement document.
 SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
 
