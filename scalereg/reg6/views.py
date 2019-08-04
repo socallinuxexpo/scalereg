@@ -317,7 +317,7 @@ def CreateUpgrade(attendee, new_ticket, new_items):
   return upgrade
 
 
-def UpgradeAttendee(upgrade, new_order):
+def UpgradeAttendee(upgrade, new_order, at_kiosk):
   upgrade.new_order = new_order
   upgrade.valid = True
   upgrade.save()
@@ -325,11 +325,23 @@ def UpgradeAttendee(upgrade, new_order):
   person = upgrade.attendee
   person.badge_type = upgrade.new_badge_type
   person.order = new_order
+  if at_kiosk:
+    person.checked_in = True
   person.save()
   person.ordered_items.clear()
   for s in upgrade.new_ordered_items.all():
     person.ordered_items.add(s)
-  NotifyAttendee(person)
+  if at_kiosk:
+    try:
+      reprint = models.Reprint.objects.get(attendee=person)
+    except:
+      reprint = models.Reprint()
+      reprint.attendee = person
+      reprint.count = 0
+    reprint.count += 1
+    reprint.save()
+  else:
+    NotifyAttendee(person)
 
 
 def NotifyAttendee(person):
@@ -1033,16 +1045,18 @@ def Sale(request):
     ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
 
+  at_kiosk = request.POST['USER2'] == 'Y'
   if upgrade:
-    UpgradeAttendee(upgrade, order)
+    UpgradeAttendee(upgrade, order, at_kiosk)
   else:
     for person in all_attendees_data:
       person.valid = True
       person.order = order
-      if request.POST['USER2'] == 'Y':
+      if at_kiosk:
         person.checked_in = True
       person.save()
-      NotifyAttendee(person)
+      if not at_kiosk:
+        NotifyAttendee(person)
 
   return HttpResponse('success')
 
@@ -1351,7 +1365,8 @@ def FreeUpgrade(request):
            'error_message': 'We cannot generate an order ID for you.',
           })
 
-  UpgradeAttendee(upgrade, order)
+  at_kiosk = 'USER2' in request.POST and request.POST['USER2'] == 'Y'
+  UpgradeAttendee(upgrade, order, at_kiosk)
   return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
     {'title': 'Registration Payment Receipt',
      'name': attendee.full_name(),
@@ -1498,6 +1513,7 @@ def RedeemCoupon(request):
 
   required_vars = [
     'code',
+    'is_kiosk',
     'order',
   ]
 
@@ -1543,6 +1559,7 @@ def RedeemCoupon(request):
     except models.Attendee.DoesNotExist:
       return HttpResponseServerError('cannot find an attendee')
 
+  at_kiosk = 'USER2' in request.POST and request.POST['USER2'] == 'Y'
   for person in all_attendees_data:
     # remove non-free addon items
     for item in person.ordered_items.all():
@@ -1552,8 +1569,11 @@ def RedeemCoupon(request):
     person.order = coupon.order
     person.badge_type = coupon.badge_type
     person.promo = None
+    if request.POST['is_kiosk'] == 'Y':
+      person.checked_in = True
     person.save()
-    NotifyAttendee(person)
+    if not at_kiosk:
+      NotifyAttendee(person)
 
   coupon.max_attendees = coupon.max_attendees - num_attendees
   if coupon.max_attendees == 0:
