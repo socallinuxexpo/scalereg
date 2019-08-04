@@ -195,6 +195,62 @@ def CashPayment(request):
 
 
 @login_required
+def CashPaymentRegistered(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    return handler500(request, msg='POST only.')
+
+  if not 'id' in request.POST or not request.POST['id']:
+    return handler500(request, msg='missing data: no %s field' % var)
+
+  try:
+    attendee = models.Attendee.objects.get(id=request.POST['id'])
+  except:
+    return handler500(request, msg='cannot find attendee')
+
+  if not 'action' in request.POST or request.POST['action'] != 'pay':
+    return render_to_response('reg6/staff/cash_registered.html',
+      {'title': 'Cash Payment For Registered Attendee',
+       'attendee': attendee,
+      })
+
+  order = models.Order()
+  bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
+  bad_order_nums += [ x.order_num for x in models.Order.objects.all() ]
+  order.order_num = GenerateOrderID(bad_order_nums)
+  assert order.order_num
+  order.valid = True
+  order.name = '%s %s' % (attendee.first_name, attendee.last_name)
+  order.address = 'Cash'
+  order.city = 'Cash'
+  order.state = 'Cash'
+  order.zip = attendee.zip
+  order.email = attendee.email
+  order.payment_type = 'cash'
+  order.amount = attendee.ticket_cost()
+
+  attendee.valid = True
+  attendee.checked_in = True
+  attendee.order = order
+  try:
+    attendee.save()
+    order.save()
+  except: # FIXME catch the specific db exceptions
+    attendee.delete()
+    order.delete()
+    return handler500(request, msg='cannot save order, bad data?')
+
+  return render_to_response('reg6/staff/cash_registered.html',
+    {'title': 'Cash Payment For Registered Attendee',
+     'attendee': attendee,
+     'success': True,
+    })
+
+
+@login_required
 def Email(request):
   can_access = services_perm_checker(request.user, request.path)
   if not can_access:

@@ -66,6 +66,11 @@
             <input type="hidden" name="id" value="{{ person.id }}">
             <input type="submit" value="Email {{ person.email }}">
             </form>
+        {% else %}
+            <form method="post" action="../cash_payment_registered/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Cash Payment">
+            </form>
         {% endif %}
         </td>
         </tr>
