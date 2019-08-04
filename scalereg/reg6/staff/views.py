@@ -133,13 +133,21 @@ def CashPayment(request):
       })
 
   for var in ['FIRST', 'LAST', 'EMAIL', 'ZIP', 'TICKET']:
-    if var not in request.POST:
-      return handler500(request, msg='missing data: no %s field' % var)
+    if var not in request.POST or not request.POST[var]:
+      return render_to_response('reg6/staff/cash.html',
+        {'title': 'Cash Payment',
+         'tickets': tickets,
+         'failure': 'missing data: no %s field' % var,
+        })
 
   try:
     ticket = models.Ticket.objects.get(name=request.POST['TICKET'])
   except:
-    return handler500(request, msg='cannot find ticket type')
+    return render_to_response('reg6/staff/cash.html',
+      {'title': 'Cash Payment',
+       'tickets': tickets,
+       'failure': 'cannot find ticket type',
+      })
 
   order = models.Order()
   bad_order_nums = [ x.order_num for x in models.TempOrder.objects.all() ]
@@ -172,7 +180,11 @@ def CashPayment(request):
   except: # FIXME catch the specific db exceptions
     attendee.delete()
     order.delete()
-    return handler500(request, msg='cannot save order, bad data?')
+    return render_to_response('reg6/staff/cash.html',
+      {'title': 'Cash Payment',
+       'tickets': tickets,
+       'failure': 'cannot save order, bad data?',
+      })
 
   return render_to_response('reg6/staff/cash.html',
     {'title': 'Cash Payment',
