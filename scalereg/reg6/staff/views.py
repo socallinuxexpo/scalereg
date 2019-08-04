@@ -51,7 +51,7 @@ def CheckIn(request):
         success = False
 
     if success:
-      success = validators.hashAttendee(attendee) == code[4:]
+      success = attendee.checkin_code() == code
 
     if success:
       attendees = [attendee]

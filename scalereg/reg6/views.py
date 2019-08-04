@@ -354,11 +354,10 @@ Email: %s
 Zip Code: %s
 
 Badge Type: %s
-Express Check-In Code: %04d%s
+Express Check-In Code: %s
 ''' % \
               (person.first_name, person.last_name, person.email, person.zip,
-               person.badge_type.description, person.id,
-               validators.hashAttendee(person)),
+               person.badge_type.description, person.checkin_code()),
               settings.SCALEREG_EMAIL,
               [person.email])
   except:
