@@ -349,6 +349,9 @@ class Attendee(models.Model):
   def full_name(self):
     return '%s %s' % (self.first_name, self.last_name)
 
+  def checkin_code(self):
+    return '%04d%s' % (self.id, validators.hashAttendee(self))
+
   class Meta:
     permissions = (('view_attendee', 'Can view attendee'),)
 
@@ -407,7 +410,7 @@ class Coupon(models.Model):
 
 
 class Reprint(models.Model):
-  attendee =  models.ForeignKey(Attendee)
+  attendee = models.ForeignKey(Attendee)
   count = models.IntegerField()
 
   class Meta:

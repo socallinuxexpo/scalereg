@@ -39,8 +39,8 @@ def CheckIn(request):
       attendees = models.Attendee.objects.filter(valid=True, order=orders[0])
 
   if not attendees and request.POST['express']:
-    # TODO: Duplicated from CheckIn().
-    code = request.POST['express']
+    # TODO: Duplicated from CheckIn() in reg6/views.py.
+    code = request.POST['express'].lower()
     success = len(code) == 10
     if success:
       id_str = code[:4]
@@ -51,7 +51,7 @@ def CheckIn(request):
         success = False
 
     if success:
-      success = validators.hashAttendee(attendee) == code[4:]
+      success = attendee.checkin_code() == code
 
     if success:
       attendees = [attendee]
