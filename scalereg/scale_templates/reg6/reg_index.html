@@ -83,7 +83,7 @@
     {% endif %}
 
     <p>
-    <input type="submit" value="Start Registration" />
+    <input type="submit" class="scale_kiosk_bordered" value="Start Registration" />
     </p>
     </form>
 
@@ -101,7 +101,7 @@
 
     <form method="get" action="start_payment/">
     <p>
-    <input type="submit" value="Pay For Previous Registration" />
+    <input type="submit" class="scale_kiosk_bordered" value="Pay For Previous Registration" />
     </p>
     </form>
 
@@ -114,14 +114,14 @@
     </p>
 
     <form method="get" action="start_upgrade/">
-    <input type="submit" value="Upgrade Registration" />
+    <input type="submit" class="scale_kiosk_bordered" value="Upgrade Registration" />
     </form>
 
     {% if promo %}
     <h4>Change Promo Code</h4>
 
     <form method="post" action=".">
-    <input type="submit" value="Change promo code" />
+    <input type="submit" class="scale_kiosk_bordered" value="Change promo code" />
     </form>
     {% endif %}
 {% else %}

@@ -459,45 +459,17 @@ def index(request):
 
 
 def kiosk_index(request):
-  response = HttpResponse()
-  response.write("""<html><head></head>
-  <body>
-  <div align="center">
-  <h1>Welcome to SCALE 6X</h1>
-  <h1>February 8 - 10, 2008</h1>
+  if request.method == 'POST':
+    return render_to_response('reg6/reg_kiosk_clear.html', {})
 
-  <hr noshade width="60%">
-
-  <h1>Please make a selection below:</h1>
-
-  <table border="0" cellpadding="4">
-  <tr>
-  <td valign="top">
-  <form method="get" action="../checkin/">
-  <input type="submit" value="&nbsp;&nbsp;Check In&nbsp;&nbsp;">
-  <input type="hidden" name="kiosk" value="1">
-  </form>
-  </td>
-  <td valign="top">
-  If you already registered with SCALE<br />
-  and would like to pick up your badge.
-  </td>
-  </tr>
-  <tr>
-  <td valign="top">
-  <form method="get" action="../">
-  <input type="submit" value="Registration">
-  <input type="hidden" name="kiosk" value="1">
-  </form>
-  </td>
-  <td valign="top">If you have not registered with SCALE.</td>
-  </tr>
-  </table>
-
-  <p>If you are a speaker, exhibitor, or a member of the press, please go to
-  the registration desk.</p>
-  </div></body></html>""")
-  return response
+  if 'clear' in request.GET:
+    if 'attendee' in request.session:
+      request.session.pop('attendee')
+    if REGISTRATION_PAYMENT_COOKIE in request.session:
+      request.session.pop(REGISTRATION_PAYMENT_COOKIE)
+    request.session['kiosk'] = True
+    return render_to_response('reg6/reg_kiosk.html')
+  return render_to_response('reg6/reg_kiosk_clear.html', {})
 
 
 def AddItems(request):

@@ -6,6 +6,23 @@
       font-size: 150%;
       font-family: Arial, Helvetica, Sans;
     }
+    .scale_kiosk_bordered {
+      background-color: #bbd9ea;
+      border: none;
+      color: #000000;
+      padding: 4px 8px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 4px;
+      -webkit-transition-duration: 0.4s;
+      transition-duration: 0.4s;
+      font-size: 100%;
+      font-family: Arial, Helvetica, Sans;
+    }
+    .scale_kiosk_bordered:hover {
+      background-color: #8cadcb;
+    }
     </style>
 </head>
 <body>
@@ -15,8 +32,8 @@
     <p>Registration</p>
     </td>
     <td align="right">
-    <input type="submit" value="Back" onclick="history.go(-1)" />
-    <input type="submit" value="Close Window" onclick="window.close()" />
+    <input type="submit" class="scale_kiosk_bordered" value="Back" onclick="history.go(-1)" />
+    <input type="submit" class="scale_kiosk_bordered" value="Close Window" onclick="window.close()" />
     </td>
     </tr>
     </table>
