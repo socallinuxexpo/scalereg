@@ -107,34 +107,10 @@ INSTALLED_APPS = (
     'scalereg.auth_helper',
     'scalereg.reg6',
     'scalereg.reports',
-    'scalereg.simple_cfp',
-    'scalereg.speaker_survey',
     'scalereg.sponsorship',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
-# It is highly recommended that you use reCAPTCHA to prevent spamming/attacks.
-# It is turned off by default. To use reCAPTCHA, first get a reCAPTCHA account,
-# then set SCALEREG_SIMPLECFP_USE_RECAPTCHA to True, and fill in the
-# public/private keys.
-# You will also need to install the Python reCAPTCHA client.
-SCALEREG_SIMPLECFP_USE_RECAPTCHA = False
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
-
-# Set to True if you want simple_cfp to be able to email speakers.
-# You need to set EMAIL_HOST, EMAIL_PORT, and other EMAIL_ settings
-# appropriately.
-SCALEREG_SIMPLECFP_SEND_MAIL = False
-# You also need to set the from address below:
-SCALEREG_SIMPLECFP_EMAIL = ''
-
-# MEDIA_ROOT and MEDIA_URL need to be set for uploads to work.
-SCALEREG_SIMPLECFP_ALLOW_UPLOAD = False
-
-# Secret used for speaker surveys to make survey URLs harder to guess.
-SCALEREG_SPEAKERSURVEY_SECRET = 'CHANGE_THIS_IF_NEEDED'
 
 # Optional questions about PGP keys for a PGP Key Signing Party.
 #
