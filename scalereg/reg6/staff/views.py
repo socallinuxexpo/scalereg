@@ -163,7 +163,7 @@ def CashPayment(request):
   attendee.email = request.POST['EMAIL']
   attendee.valid = True
   attendee.checked_in = True
-  attendee.can_email = True
+  attendee.can_email = False
   attendee.order = order
   attendee.badge_type = ticket
   try:
