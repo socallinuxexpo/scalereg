@@ -15,6 +15,7 @@ from scalereg.sponsorship import views as sponsorship_views
 import datetime
 import re
 import sys
+import urllib
 
 STEPS_TOTAL = 7
 
