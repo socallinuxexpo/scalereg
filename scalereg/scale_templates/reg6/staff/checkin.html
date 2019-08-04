@@ -16,7 +16,7 @@
 {% if attendees %}
     <table border="1">
     <tr>
-        <th>Registration Number</th>
+        <th>Registration Number<br />Express Check-In Code</th>
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
@@ -24,7 +24,10 @@
     </tr>
     {% for person in attendees %}
         <tr>
-        <td><a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a></td>
+        <td>
+        <a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a><br />
+        {{ person.checkin_code }}
+        </td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.badge_type.description }}</td>
         <td>
