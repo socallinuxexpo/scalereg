@@ -15,6 +15,7 @@ from scalereg.sponsorship import views as sponsorship_views
 import datetime
 import re
 import sys
+import urllib
 
 STEPS_TOTAL = 7
 
@@ -123,17 +124,6 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
           all_pgp_text[i] = pgp_text
     badge.append(has_pgp_text)
     badge.extend(all_pgp_text)
-
-  tshirt_size = '???'
-  try:
-    tshirt = attendee.answers.filter(question='What is your shirt size?')
-    tshirt_size = tshirt[0].text
-  except:
-    pass
-  badge.append(tshirt_size)
-
-  for i in attendee.ordered_items.all():
-    badge.append(i.name)
 
   return '~' + '~'.join([x.replace('~', '') for x in badge]) + '~'
 
@@ -346,9 +336,13 @@ def NotifyAttendee(person):
   if not settings.SCALEREG_SEND_MAIL:
     return
 
+  if (not person.email or person.email.endswith('@example.com') or
+      person.email.endswith('@none.com') or '@' not in person.email):
+    return
+
   try:
-    send_mail('SCALE 15X Registration',
-              '''Thank you for registering for SCALE 15X.
+    send_mail('SCALE Registration',
+              '''Thank you for registering for SCALE.
 The details of your registration are included below.
 
 Please note the Express Check-In Code below, which will allow you to
@@ -1402,7 +1396,7 @@ def CheckIn(request):
     return scale_render_to_response(request, 'reg6/reg_checkin.html',
       {'title': 'Check In',
        'express_code': code,
-       'express_fail': 1,
+       'express_fail': True,
       })
 
   attendees = []
@@ -1751,6 +1745,7 @@ def MassAddAttendee(request):
     attendee.badge_type = ticket
     attendee.save()
     form.save_m2m()
+    NotifyAttendee(attendee)
     response.write('Added %s<br />\n' % entry)
 
   response.write('</body></html>')
