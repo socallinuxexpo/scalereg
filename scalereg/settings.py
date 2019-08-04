@@ -107,14 +107,10 @@ INSTALLED_APPS = (
     'scalereg.auth_helper',
     'scalereg.reg6',
     'scalereg.reports',
-    'scalereg.speaker_survey',
     'scalereg.sponsorship',
 )
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
-# Secret used for speaker surveys to make survey URLs harder to guess.
-SCALEREG_SPEAKERSURVEY_SECRET = 'CHANGE_THIS_IF_NEEDED'
 
 # Optional questions about PGP keys for a PGP Key Signing Party.
 #
