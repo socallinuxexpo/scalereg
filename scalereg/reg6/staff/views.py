@@ -9,6 +9,7 @@ from scalereg.common.views import handler500
 from scalereg.reg6 import models
 from scalereg.reg6 import validators
 from scalereg.reg6.views import GenerateOrderID
+from scalereg.reg6.views import NotifyAttendee
 
 @login_required
 def index(request):
@@ -191,6 +192,34 @@ def CashPayment(request):
      'success': True,
      'tickets': tickets,
     })
+
+
+@login_required
+def Email(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    return HttpResponseRedirect('/reg6/staff/checkin/')
+
+  EMAIL_TEMPLATE = 'reg6/staff/email.html'
+  if not 'id' in request.POST or not request.POST['id']:
+    return render_to_response(EMAIL_TEMPLATE,
+      {'title': 'Attendee Email Invalid',
+       'attendee': None,
+      })
+
+  try:
+    attendee = models.Attendee.objects.get(id=int(request.POST['id']))
+    NotifyAttendee(attendee)
+  except:
+    attendee = None
+
+  return render_to_response(EMAIL_TEMPLATE,
+      {'title': 'Attendee Email',
+       'attendee': attendee,
+      })
 
 
 @login_required

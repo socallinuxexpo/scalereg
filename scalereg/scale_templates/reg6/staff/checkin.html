@@ -22,6 +22,7 @@
         <th>Status</th>
         <th>Reprint</th>
         <th>Update Info<br />AKA. Transfer</th>
+        <th>Options</th>
     </tr>
     {% for person in attendees %}
         <tr>
@@ -58,6 +59,14 @@
         <input type="hidden" name="id" value="{{ person.id }}">
         <input type="submit" value="Update Info">
         </form>
+        </td>
+        <td>
+        {% if person.valid %}
+            <form method="post" action="../email/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Email {{ person.email }}">
+            </form>
+        {% endif %}
         </td>
         </tr>
     {% endfor %}
