@@ -70,7 +70,7 @@ class Package(models.Model):
   name = models.CharField(max_length=5, primary_key=True,
       help_text='Up to 5 letters, upper-case letters + numbers')
   description = models.CharField(max_length=60)
-  long_description = models.CharField(max_length=120)
+  long_description = models.CharField(max_length=600)
   price = models.DecimalField(max_digits=7, decimal_places=2)
   public = models.BooleanField(default=False,
       help_text='Publicly available on the order page')
@@ -190,7 +190,7 @@ class Item(models.Model):
   name = models.CharField(max_length=4,
       help_text='Unique, up to 4 upper-case letters / numbers')
   description = models.CharField(max_length=60)
-  long_description = models.CharField(max_length=120)
+  long_description = models.CharField(max_length=600)
 
   price = models.DecimalField(max_digits=7, decimal_places=2)
 
