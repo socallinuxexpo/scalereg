@@ -129,6 +129,7 @@
 
             <form method="post" action=".">
             {% if items %}
+                <p>
                 <table border="1">
                 <thead>
                 <tr>
@@ -156,6 +157,7 @@
                 {% endfor %}
                 </tbody>
                 </table>
+                </p>
             {% else %}
                 <p>No addon items available. </p>
             {% endif %}
