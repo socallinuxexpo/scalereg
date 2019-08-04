@@ -30,7 +30,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^reg6/', include('scalereg.reg6.urls')),
     url(r'^reports/', include('scalereg.reports.urls')),
-    url(r'^simple_cfp/', include('scalereg.simple_cfp.urls')),
     url(r'^speaker_survey/', include('scalereg.speaker_survey.urls')),
     url(r'^sponsorship/', include('scalereg.sponsorship.urls')),
 
