@@ -341,8 +341,8 @@ def NotifyAttendee(person):
     return
 
   try:
-    send_mail('SCALE 15X Registration',
-              '''Thank you for registering for SCALE 15X.
+    send_mail('SCALE Registration',
+              '''Thank you for registering for SCALE.
 The details of your registration are included below.
 
 Please note the Express Check-In Code below, which will allow you to
