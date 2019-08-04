@@ -229,3 +229,88 @@ def Reprint(request):
       {'title': 'Attendee Reprint Invalid',
        'reprint': None,
       })
+
+
+@login_required
+def UpdateAttendee(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  if request.method == 'GET':
+    return handler500(request, msg='POST only.')
+
+  if not 'id' in request.POST or not request.POST['id']:
+    return handler500(request, msg='missing data: no %s field' % var)
+
+  try:
+    attendee = models.Attendee.objects.get(id=request.POST['id'])
+  except:
+    return handler500(request, msg='cannot find attendee')
+
+  if not 'action' in request.POST or request.POST['action'] != 'update':
+    return render_to_response('reg6/staff/update_attendee.html',
+      {'title': 'Update Attendee',
+       'attendee': attendee,
+       'orig_salutation': attendee.salutation,
+       'orig_first_name': attendee.first_name,
+       'orig_last_name': attendee.last_name,
+       'orig_title': attendee.title,
+       'orig_org': attendee.org,
+       'orig_email': attendee.email,
+       'orig_zip': attendee.zip,
+       'orig_phone': attendee.phone,
+       'salutations': models.SALUTATION_CHOICES,
+      })
+
+  for var in ['SALUTATION', 'FIRST', 'LAST', 'TITLE', 'ORG', 'EMAIL', 'ZIP',
+              'PHONE', 'ORIG_SALUTATION', 'ORIG_FIRST', 'ORIG_LAST',
+              'ORIG_TITLE', 'ORIG_ORG', 'ORIG_EMAIL', 'ORIG_ZIP', 'ORIG_PHONE']:
+    if var not in request.POST:
+      return handler500(request, msg='missing data: no %s field' % var)
+
+  attendee.salutation = request.POST['SALUTATION']
+  attendee.first_name = request.POST['FIRST']
+  attendee.last_name = request.POST['LAST']
+  attendee.title = request.POST['TITLE']
+  attendee.org = request.POST['ORG']
+  attendee.email = request.POST['EMAIL']
+  attendee.zip = request.POST['ZIP']
+  attendee.phone = request.POST['PHONE']
+  try:
+    attendee.full_clean()
+  except:
+    return render_to_response('reg6/staff/update_attendee.html',
+      {'title': 'Update Attendee',
+       'attendee': attendee,
+       'orig_salutation': request.POST['ORIG_SALUTATION'],
+       'orig_first_name': request.POST['ORIG_FIRST'],
+       'orig_last_name': request.POST['ORIG_LAST'],
+       'orig_title': request.POST['ORIG_TITLE'],
+       'orig_org': request.POST['ORIG_ORG'],
+       'orig_email': request.POST['ORIG_EMAIL'],
+       'orig_zip': request.POST['ORIG_ZIP'],
+       'orig_phone': request.POST['ORIG_PHONE'],
+       'salutations': models.SALUTATION_CHOICES,
+       'error': True,
+      })
+
+  try:
+    attendee.save()
+  except: # FIXME catch the specific db exceptions
+    return handler500(request, msg='cannot save attendee update, bad data?')
+
+  return render_to_response('reg6/staff/update_attendee.html',
+    {'title': 'Cash Payment For Registered Attendee',
+     'attendee': attendee,
+     'orig_salutation': request.POST['ORIG_SALUTATION'],
+     'orig_first_name': request.POST['ORIG_FIRST'],
+     'orig_last_name': request.POST['ORIG_LAST'],
+     'orig_title': request.POST['ORIG_TITLE'],
+     'orig_org': request.POST['ORIG_ORG'],
+     'orig_email': request.POST['ORIG_EMAIL'],
+     'orig_zip': request.POST['ORIG_ZIP'],
+     'orig_phone': request.POST['ORIG_PHONE'],
+     'salutations': models.SALUTATION_CHOICES,
+     'success': True,
+    })

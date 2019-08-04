@@ -1,0 +1,139 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load reg6_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if success %}
+<p>
+Attendee successfully updated!
+</p>
+<hr />
+{% elif error %}
+<style type="text/css">
+.reg6_form_error { color: #FF0000; font-weight: bold }
+b { font-weight: bold }
+</style>
+<p class="reg6_form_error">
+Update error!
+</p>
+<hr />
+{% endif %}
+
+<p>
+Attendee to update:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <th><b>Field</b></th>
+    <th><b>Current Value</b></th>
+    <th><b>New Value</b></th>
+</tr>
+<tr>
+    <td><b>Salutation</b></td>
+    <td><select disabled>
+    <option value=""
+        {% ifequal orig_salutation "" %}
+        selected
+        {% endifequal %}
+    ></option>
+    {% for s in salutations %}
+        <option value="{{ s.0 }}"
+            {% ifequal orig_salutation s.0 %}
+            selected
+            {% endifequal %}
+        >{{ s.1 }}</option>
+    {% endfor %}
+    </select>
+    </td>
+    <td><select name="SALUTATION">
+    <option value=""
+        {% ifequal attendee.salutation "" %}
+        selected
+        {% endifequal %}
+    ></option>
+    {% for s in salutations %}
+        <option value="{{ s.0 }}"
+            {% ifequal attendee.salutation s.0 %}
+            selected
+            {% endifequal %}
+        >{{ s.1 }}</option>
+    {% endfor %}
+    </select>
+    </td>
+</tr>
+<tr>
+    <td><b>First Name</b></td>
+    <td><input type="text" maxlength="60" size="50"
+         disabled value="{{ orig_first_name }}" /></td>
+    <td><input type="text" name="FIRST" maxlength="60" size="50"
+         value="{{ attendee.first_name }}" /></td>
+</tr>
+<tr>
+    <td><b>Last Name</b></td>
+    <td><input type="text" maxlength="60" size="50"
+         disabled value="{{ orig_last_name }}" /></td>
+    <td><input type="text" name="LAST" maxlength="60" size="50"
+         value="{{ attendee.last_name }}" /></td>
+</tr>
+<tr>
+    <td><b>Title</b></td>
+    <td><input type="text" maxlength="60" size="50"
+         disabled value="{{ orig_title }}" /></td>
+    <td><input type="text" name="TITLE" maxlength="60" size="50"
+         value="{{ attendee.title }}" /></td>
+</tr>
+<tr>
+    <td><b>Organization</b></td>
+    <td><input type="text" maxlength="60" size="50"
+         disabled value="{{ orig_org }}" /></td>
+    <td><input type="text" name="ORG" maxlength="60" size="50"
+         value="{{ attendee.org }}" /></td>
+</tr>
+<tr>
+    <td><b>Email</b></td>
+    <td><input type="text" maxlength="60" size="50"
+         disabled value="{{ orig_email }}" /></td>
+    <td><input type="text" name="EMAIL" maxlength="60" size="50"
+         value="{{ attendee.email }}" /></td>
+</tr>
+<tr>
+    <td><b>Zip</b></td>
+    <td><input type="text" maxlength="20" size="10"
+         disabled value="{{ orig_zip }}" /><br />
+    <td><input type="text" name="ZIP" maxlength="20" size="10"
+         value="{{ attendee.zip }}" /><br />
+    </td>
+</tr>
+<tr>
+    <td><b>Phone</b></td>
+    <td><input type="text" maxlength="20" size="10"
+         disabled value="{{ orig_phone }}" /><br />
+    <td><input type="text" name="PHONE" maxlength="20" size="10"
+         value="{{ attendee.phone }}" /><br />
+    </td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{{ attendee.id }}">
+<input type="hidden" name="ORIG_SALUTATION" value="{{ orig_salutation }}">
+<input type="hidden" name="ORIG_FIRST" value="{{ orig_first_name }}">
+<input type="hidden" name="ORIG_LAST" value="{{ orig_last_name }}">
+<input type="hidden" name="ORIG_TITLE" value="{{ orig_title }}">
+<input type="hidden" name="ORIG_ORG" value="{{ orig_org }}">
+<input type="hidden" name="ORIG_EMAIL" value="{{ orig_email }}">
+<input type="hidden" name="ORIG_ZIP" value="{{ orig_zip }}">
+<input type="hidden" name="ORIG_PHONE" value="{{ orig_phone }}">
+<input type="hidden" name="action" value="update" />
+<input type="submit" value="Update Attendee" />
+</form>
+</p>
+
+<p>
+<a href="/reg6/staff/">Back to staff page</a>
+</p>
+
+</div>
+{% endblock %}
