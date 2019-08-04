@@ -1745,6 +1745,7 @@ def MassAddAttendee(request):
     attendee.badge_type = ticket
     attendee.save()
     form.save_m2m()
+    NotifyAttendee(attendee)
     response.write('Added %s<br />\n' % entry)
 
   response.write('</body></html>')
