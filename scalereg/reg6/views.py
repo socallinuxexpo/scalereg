@@ -336,6 +336,10 @@ def NotifyAttendee(person):
   if not settings.SCALEREG_SEND_MAIL:
     return
 
+  if (not person.email or person.email.endswith('@example.com') or
+      person.email.endswith('@none.com') or '@' not in person.email):
+    return
+
   try:
     send_mail('SCALE 15X Registration',
               '''Thank you for registering for SCALE 15X.
