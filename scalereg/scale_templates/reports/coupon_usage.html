@@ -1,0 +1,35 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="/media/scale/js/sorttable.js"></script>
+{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block content %}
+<div id="content-main">
+
+<div id="orders">
+<table border="1" class="sortable">
+<tr>
+  <th>Coupon</th>
+  <th>Attendees</th>
+  <th>Uses left</th>
+  <th>Order</th>
+  <th>Badge Type</th>
+  <th>Name</th>
+  <th>Email</th>
+</tr>
+{% for coupon in coupons %}
+<tr>
+  <td><a href="/admin/reg6/coupon/{{ coupon.coupon.code }}">{{ coupon.coupon.code }}</a></td>
+  <td>{{ coupon.use_count }}</td>
+  <td>{{ coupon.coupon.max_attendees }}</td>
+  <td><a href="/admin/reg6/order/{{ coupon.coupon.code }}">Link</a></td>
+  <td>{{ coupon.coupon.badge_type }}</td>
+  <td>{{ coupon.coupon.order.name }}</td>
+  <td>{{ coupon.coupon.order.email }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

@@ -86,4 +86,5 @@ urlpatterns = patterns('',
     (r'^putpgp/$', 'scalereg.reports.views.putpgp'),
     (r'^checkpgp/$', 'scalereg.reports.views.checkpgp'),
     (r'^announce_subscribers/$', 'scalereg.reports.views.AnnounceSubscribers'),
+    (r'^coupon_usage/$', 'scalereg.reports.views.CouponUsage'),
 )

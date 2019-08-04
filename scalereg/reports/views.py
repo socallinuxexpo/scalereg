@@ -96,6 +96,7 @@ def index(request):
   model_list.insert(0, {'name': 'Dashboard', 'url': 'dashboard/'})
   model_list.insert(1, {'name': 'Scale-announce Subscribers',
                         'url': 'announce_subscribers/'})
+  model_list.insert(2, {'name': 'Coupon Usage', 'url': 'coupon_usage/'})
 
   return render_to_response('reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
@@ -727,9 +728,29 @@ def AnnounceSubscribers(request):
   can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
- 
+
   response = HttpResponse(content_type='text/plain')
   attendees = models.Attendee.objects.filter(valid=True).filter(can_email=True)
   for attendee in attendees:
     response.write('%d,%s\n' % (attendee.id, attendee.email))
   return response
+
+
+@login_required
+def CouponUsage(request):
+  can_access = services_perm_checker(request.user, request.path)
+  if not can_access:
+    return HttpResponseRedirect('/accounts/profile/')
+
+  coupon_data = []
+  for coupon in models.Coupon.objects.all():
+    datum = {}
+    datum['coupon'] = coupon
+    datum['use_count'] = models.Attendee.objects.filter(
+        order=coupon.order).filter(valid=True).count()
+    coupon_data.append(datum)
+
+  return render_to_response('reports/coupon_usage.html',
+    {'title': 'Coupon Usage',
+     'coupons': coupon_data,
+    })
