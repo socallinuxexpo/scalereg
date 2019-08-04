@@ -407,7 +407,7 @@ class Coupon(models.Model):
 
 
 class Reprint(models.Model):
-  attendee =  models.ForeignKey(Attendee)
+  attendee = models.ForeignKey(Attendee)
   count = models.IntegerField()
 
   class Meta:
