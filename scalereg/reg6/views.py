@@ -1482,7 +1482,7 @@ def RedeemCoupon(request):
     return r
 
   try:
-    coupon = models.Coupon.objects.get(code=request.POST['code'])
+    coupon = models.Coupon.objects.get(code=request.POST['code'].strip())
   except models.Coupon.DoesNotExist:
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
