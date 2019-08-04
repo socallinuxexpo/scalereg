@@ -1378,7 +1378,7 @@ def CheckIn(request):
       })
 
   if 'express' in request.POST:
-    code = request.POST['express']
+    code = request.POST['express'].lower()
     success = len(code) == 10
     if success:
       id_str = code[:4]
