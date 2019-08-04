@@ -4,6 +4,7 @@ from models import Answer
 from models import Attendee
 from models import Coupon
 from models import Item
+from models import KioskAgent
 from models import ListAnswer
 from models import ListQuestion
 from models import Order
@@ -14,6 +15,10 @@ from models import TextAnswer
 from models import TextQuestion
 from models import Ticket
 from models import Upgrade
+
+
+class KioskAgentAdmin(admin.ModelAdmin):
+  save_on_top = True
 
 
 class ReprintAdmin(admin.ModelAdmin):
@@ -131,6 +136,7 @@ class UpgradeAdmin(admin.ModelAdmin):
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Item, ItemAdmin)
+admin.site.register(KioskAgent, KioskAgentAdmin)
 admin.site.register(ListAnswer, ListAnswerAdmin)
 admin.site.register(ListQuestion, ListQuestionAdmin)
 admin.site.register(Order, OrderAdmin)

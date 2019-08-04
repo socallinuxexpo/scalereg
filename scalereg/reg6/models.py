@@ -455,3 +455,14 @@ class Upgrade(models.Model):
 
   def __unicode__(self):
     return '%s' % self.attendee
+
+
+class KioskAgent(models.Model):
+  attendee = models.ForeignKey(Attendee)
+  agent = models.CharField(max_length=20)
+
+  class Meta:
+    permissions = (('view_kiosk_agent', 'Can view kiosk agent'),)
+
+  def __unicode__(self):
+    return '%s %s' % (self.attendee, self.agent)
