@@ -444,6 +444,18 @@ def DoCheckIn(request, attendee):
     })
 
 
+def IsRequestFromKiosk(request):
+  return ('kiosk' in request.session and
+          settings.SCALEREG_KIOSK_AGENT_SECRET in
+          GetUserAgentFromRequest(request))
+
+
+def IsRequestFromKioskOrOutside(request):
+  if 'kiosk' not in request.session:
+    return True
+  return IsRequestFromKiosk(request)
+
+
 def scale_render_to_response(request, template, vars):
   if 'kiosk' in request.session:
     vars['kiosk'] = True
@@ -451,6 +463,9 @@ def scale_render_to_response(request, template, vars):
 
 
 def index(request):
+  if not IsRequestFromKioskOrOutside(request):
+    return HttpResponse()
+
   avail_tickets = [
       ticket for ticket in
       models.Ticket.public_objects.order_by('priority', 'description')
@@ -1369,7 +1384,9 @@ def RegLookup(request):
 
 
 def CheckIn(request):
-  kiosk_mode = False
+  if not IsRequestFromKiosk(request):
+    return HttpResponse()
+
   if request.method == 'GET':
     if 'kiosk' in request.GET:
       request.session['kiosk'] = True
@@ -1440,6 +1457,9 @@ def CheckIn(request):
 
 
 def FinishCheckIn(request):
+  if not IsRequestFromKiosk(request):
+    return HttpResponse()
+
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
 
