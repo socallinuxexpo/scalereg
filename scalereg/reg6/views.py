@@ -490,7 +490,15 @@ def index(request):
 
   if kiosk_mode:
     request.session['kiosk'] = True
-    return render_to_response('reg6/reg_kiosk.html')
+
+    user_agent = GetUserAgentFromRequest(request)
+    if settings.SCALEREG_KIOSK_AGENT_SECRET not in user_agent:
+      return render_to_response('reg6/reg_kiosk.html')
+
+    kiosk_idx = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET) + \
+        len(settings.SCALEREG_KIOSK_AGENT_SECRET)
+    truncated_user_agent = user_agent[kiosk_idx:]
+    return render_to_response('reg6/reg_kiosk.html', {'agent': truncated_user_agent})
 
   return scale_render_to_response(request, 'reg6/reg_index.html',
     {'title': 'Registration',
