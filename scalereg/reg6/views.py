@@ -1396,7 +1396,7 @@ def CheckIn(request):
     return scale_render_to_response(request, 'reg6/reg_checkin.html',
       {'title': 'Check In',
        'express_code': code,
-       'express_fail': 1,
+       'express_fail': True,
       })
 
   attendees = []
