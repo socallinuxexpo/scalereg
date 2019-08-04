@@ -85,7 +85,7 @@
     {% else %}
     <input type="hidden" name="USER2" value="N">
     {% endif %}
-    <input type="submit" value="Pay For Upgrade" />
+    <input type="submit" class="scale_kiosk_bordered" value="Pay For Upgrade" />
     </p>
     </form>
 
@@ -94,7 +94,7 @@
     {% if attendee.promo %}
     <input type="hidden" name="promo" value="{{ attendee.promo }}" />
     {% endif %}
-    <input type="submit" value="Start Over" />
+    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
     </form>
     </p>
 {% else %}

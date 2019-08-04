@@ -30,7 +30,7 @@
             <td>
             <form method="post" action="../finish_checkin/">
             <input type="hidden" name="id" value="{{ person.id }}">
-            <input type="submit" value="Check Me In">
+            <input type="submit" class="scale_kiosk_bordered" value="Check Me In">
             </form>
             </td>
             </tr>
@@ -61,7 +61,7 @@ If you have an Express Check-In Code, please type it in below:<br />
 <p>
 <form method="post" action=".">
 <input type="text" name="express" maxlength="10" size="10" /><br />
-<input type="submit" value="Check In" />
+<input type="submit" class="scale_kiosk_bordered" value="Check In" />
 </form>
 </p>
 
@@ -95,7 +95,7 @@ Otherwise, please fill in all your registration information:
 </table>
 
 <p>
-<input type="submit"
+<input type="submit" class="scale_kiosk_bordered"
 {% if search %}
 value="Find My Registration Again"
 {% else %}
