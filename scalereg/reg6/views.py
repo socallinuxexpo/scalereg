@@ -125,17 +125,6 @@ def PrintAttendee(attendee, reprint_ids, ksp_ids, qpgp):
     badge.append(has_pgp_text)
     badge.extend(all_pgp_text)
 
-  tshirt_size = '???'
-  try:
-    tshirt = attendee.answers.filter(question='What is your shirt size?')
-    tshirt_size = tshirt[0].text
-  except:
-    pass
-  badge.append(tshirt_size)
-
-  for i in attendee.ordered_items.all():
-    badge.append(i.name)
-
   return '~' + '~'.join([x.replace('~', '') for x in badge]) + '~'
 
 
