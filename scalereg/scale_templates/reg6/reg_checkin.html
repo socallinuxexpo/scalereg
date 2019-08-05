@@ -47,6 +47,12 @@
     <hr />
 {% endif %}
 
+{% if reprint %}
+    <p><b>Error: Attendee already checked in.</b></p>
+    <p>If you need to reprint a badge, please go to the help desk.</p>
+    <hr />
+{% endif %}
+
 {% if express_fail %}
     <p>
     <b>Error: "{{ express_code }}" is not a valid express check-in code.</b>
