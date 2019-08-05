@@ -317,7 +317,7 @@ def CreateUpgrade(attendee, new_ticket, new_items):
   return upgrade
 
 
-def UpgradeAttendee(upgrade, new_order):
+def UpgradeAttendee(upgrade, new_order, at_kiosk):
   upgrade.new_order = new_order
   upgrade.valid = True
   upgrade.save()
@@ -325,11 +325,23 @@ def UpgradeAttendee(upgrade, new_order):
   person = upgrade.attendee
   person.badge_type = upgrade.new_badge_type
   person.order = new_order
+  if at_kiosk:
+    person.checked_in = True
   person.save()
   person.ordered_items.clear()
   for s in upgrade.new_ordered_items.all():
     person.ordered_items.add(s)
-  NotifyAttendee(person)
+  if at_kiosk:
+    try:
+      reprint = models.Reprint.objects.get(attendee=person)
+    except:
+      reprint = models.Reprint()
+      reprint.attendee = person
+      reprint.count = 0
+    reprint.count += 1
+    reprint.save()
+  else:
+    NotifyAttendee(person)
 
 
 def NotifyAttendee(person):
@@ -403,8 +415,36 @@ def GenerateOrderID(bad_nums):
   return utils.GenerateUniqueID(10, bad_nums)
 
 
+def GetUserAgentFromRequest(request):
+  if 'HTTP_USER_AGENT' not in request.META:
+    return ''
+  return request.META['HTTP_USER_AGENT']
+
+
+def RecordAttendeeAgent(attendee, user_agent):
+  if settings.SCALEREG_KIOSK_AGENT_SECRET not in user_agent:
+    return
+
+  try:
+    kiosk_idx = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET) + \
+        len(settings.SCALEREG_KIOSK_AGENT_SECRET)
+    truncated_user_agent = user_agent[kiosk_idx:]
+    kiosk_agents = models.KioskAgent.objects.filter(attendee=attendee)
+    if kiosk_agents:
+      kiosk_agents[0].agent = truncated_user_agent
+      kiosk_agents[0].save()
+    else:
+      agent = models.KioskAgent()
+      agent.attendee = attendee
+      agent.agent = truncated_user_agent
+      agent.save()
+  except: # FIXME catch the specific db exceptions
+    pass
+
+
 def DoCheckIn(request, attendee):
   try:
+    RecordAttendeeAgent(attendee, GetUserAgentFromRequest(request))
     attendee.checked_in = True
     attendee.save()
   except:
@@ -416,6 +456,18 @@ def DoCheckIn(request, attendee):
     })
 
 
+def IsRequestFromKiosk(request):
+  return ('kiosk' in request.session and
+          settings.SCALEREG_KIOSK_AGENT_SECRET in
+          GetUserAgentFromRequest(request))
+
+
+def IsRequestFromKioskOrOutside(request):
+  if 'kiosk' not in request.session:
+    return True
+  return IsRequestFromKiosk(request)
+
+
 def scale_render_to_response(request, template, vars):
   if 'kiosk' in request.session:
     vars['kiosk'] = True
@@ -423,6 +475,9 @@ def scale_render_to_response(request, template, vars):
 
 
 def index(request):
+  if not IsRequestFromKioskOrOutside(request):
+    return HttpResponse()
+
   avail_tickets = [
       ticket for ticket in
       models.Ticket.public_objects.order_by('priority', 'description')
@@ -447,7 +502,15 @@ def index(request):
 
   if kiosk_mode:
     request.session['kiosk'] = True
-    return render_to_response('reg6/reg_kiosk.html')
+
+    user_agent = GetUserAgentFromRequest(request)
+    if settings.SCALEREG_KIOSK_AGENT_SECRET not in user_agent:
+      return render_to_response('reg6/reg_kiosk.html')
+
+    kiosk_idx = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET) + \
+        len(settings.SCALEREG_KIOSK_AGENT_SECRET)
+    truncated_user_agent = user_agent[kiosk_idx:]
+    return render_to_response('reg6/reg_kiosk.html', {'agent': truncated_user_agent})
 
   return scale_render_to_response(request, 'reg6/reg_index.html',
     {'title': 'Registration',
@@ -797,11 +860,13 @@ def Payment(request):
   request.session[REGISTRATION_PAYMENT_COOKIE] = all_attendees
 
   attendees_by_ticket = {}
+  user_agent = GetUserAgentFromRequest(request)
   for person in all_attendees_data:
     if person.badge_type in attendees_by_ticket:
       attendees_by_ticket[person.badge_type] += 1
     else:
       attendees_by_ticket[person.badge_type] = 1
+    RecordAttendeeAgent(person, user_agent)
   tickets_soldout = []
   for ticket, num_to_buy in attendees_by_ticket.iteritems():
     if not IsTicketAvailable(ticket, num_to_buy):
@@ -980,16 +1045,18 @@ def Sale(request):
     ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
 
+  at_kiosk = request.POST['USER2'] == 'Y'
   if upgrade:
-    UpgradeAttendee(upgrade, order)
+    UpgradeAttendee(upgrade, order, at_kiosk)
   else:
     for person in all_attendees_data:
       person.valid = True
       person.order = order
-      if request.POST['USER2'] == 'Y':
+      if at_kiosk:
         person.checked_in = True
       person.save()
-      NotifyAttendee(person)
+      if not at_kiosk:
+        NotifyAttendee(person)
 
   return HttpResponse('success')
 
@@ -1212,6 +1279,7 @@ def NonFreeUpgrade(request):
            'error_message': 'We cannot generate an order ID for you.',
           })
 
+  RecordAttendeeAgent(attendee, GetUserAgentFromRequest(request))
   return scale_render_to_response(request, 'reg6/reg_non_free_upgrade.html',
     {'title': 'Registration Upgrade',
      'attendee': attendee,
@@ -1297,7 +1365,8 @@ def FreeUpgrade(request):
            'error_message': 'We cannot generate an order ID for you.',
           })
 
-  UpgradeAttendee(upgrade, order)
+  at_kiosk = 'USER2' in request.POST and request.POST['USER2'] == 'Y'
+  UpgradeAttendee(upgrade, order, at_kiosk)
   return scale_render_to_response(request, 'reg6/reg_receipt_upgrade.html',
     {'title': 'Registration Payment Receipt',
      'name': attendee.full_name(),
@@ -1338,7 +1407,9 @@ def RegLookup(request):
 
 
 def CheckIn(request):
-  kiosk_mode = False
+  if not IsRequestFromKiosk(request):
+    return HttpResponse()
+
   if request.method == 'GET':
     if 'kiosk' in request.GET:
       request.session['kiosk'] = True
@@ -1409,6 +1480,9 @@ def CheckIn(request):
 
 
 def FinishCheckIn(request):
+  if not IsRequestFromKiosk(request):
+    return HttpResponse()
+
   if request.method != 'POST':
     return HttpResponseRedirect('/reg6/')
 
@@ -1439,6 +1513,7 @@ def RedeemCoupon(request):
 
   required_vars = [
     'code',
+    'is_kiosk',
     'order',
   ]
 
@@ -1484,6 +1559,7 @@ def RedeemCoupon(request):
     except models.Attendee.DoesNotExist:
       return HttpResponseServerError('cannot find an attendee')
 
+  at_kiosk = 'USER2' in request.POST and request.POST['USER2'] == 'Y'
   for person in all_attendees_data:
     # remove non-free addon items
     for item in person.ordered_items.all():
@@ -1493,8 +1569,11 @@ def RedeemCoupon(request):
     person.order = coupon.order
     person.badge_type = coupon.badge_type
     person.promo = None
+    if request.POST['is_kiosk'] == 'Y':
+      person.checked_in = True
     person.save()
-    NotifyAttendee(person)
+    if not at_kiosk:
+      NotifyAttendee(person)
 
   coupon.max_attendees = coupon.max_attendees - num_attendees
   if coupon.max_attendees == 0:
