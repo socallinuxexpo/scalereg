@@ -495,7 +495,8 @@ def putpgp(request):
   if request.method == 'GET':
     response = HttpResponse()
     response.write('<html><head></head><body><form method="post">')
-    response.write('<p>email, nth (1 or 2), fingerprint, size, type (RSA or DSA)</p>')
+    response.write('<p>email, nth (1 or 2), ')
+    response.write('fingerprint, size, type (RSA, DSA, or NISTP)</p>')
     response.write('<textarea name="data" rows="25" cols="80"></textarea>')
     response.write('<br /><input type="submit" /></form>')
     response.write('</body></html>')
@@ -549,7 +550,7 @@ def putpgp(request):
       response.write('bad size: %s\n' % size)
       continue
 
-    if keytype not in ('RSA', 'DSA'):
+    if keytype not in ('RSA', 'DSA', 'NISTP'):
       response.write('bad fingerprint type: %s' % keytype)
       continue
 
