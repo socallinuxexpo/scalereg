@@ -280,20 +280,20 @@ def dashboard(request):
   questions = models.Question.objects.all()
 
   all_answers = {}
-  for q in questions:
-    all_answers[q.text] = {}
   for ans in models.Answer.objects.all():
-    all_answers[ans.question.text][ans.text] = Count(ans.text)
+    all_answers[ans.question.text + ans.text] = Count(ans.text)
 
   for att in attendees:
     for ans in att.answers.all():
-      all_answers[ans.question.text][ans.text].count += 1
+      all_answers[ans.question.text + ans.text].count += 1
 
   for q in questions:
     possible_answers = q.answer_set.all()
     q_data = SurveyQuestion(q.text)
     for ans in possible_answers:
-      a_data = all_answers[q.text][ans.text]
+      a_data = all_answers[ans.question.text + ans.text]
+      if a_data in q_data.answers:
+        continue
       a_data.CalcPercentage(num_attendees)
       q_data.answers.append(a_data)
     a_data = Count('No Answer')
@@ -305,8 +305,9 @@ def dashboard(request):
   addon_attendees_data = {}
   unique_addon_attendees_data = Count('Unique')
   for att in attendees:
-    if len(att.ordered_items.all()) > 0:
-      unique_addon_attendees_data.count += 1
+    if not att.ordered_items.count():
+      continue
+    unique_addon_attendees_data.count += 1
     for add in att.ordered_items.all():
       if add.name not in addon_attendees_data:
         addon_attendees_data[add.name] = Count(add.name)
@@ -380,12 +381,18 @@ def badorder(request):
   for f in paid_orders.filter(amount__lte=0):
     response.write('Paid Order with $0 cost: %s %s\n' % (f.order_num, f.name))
 
-  attendees = models.Attendee.objects.filter(valid=True)
-  no_order = attendees.filter(order__isnull=True)
+  valid_attendees = models.Attendee.objects.filter(valid=True)
+  no_order = valid_attendees.filter(order__isnull=True)
   for f in no_order:
     response.write('No order: %d %s %s\n' % (f.id, f.first_name, f.last_name))
 
+  invalid_attendees = models.Attendee.objects.filter(valid=False)
+  checked_in_but_invalid = invalid_attendees.filter(checked_in=True)
+  for f in checked_in_but_invalid:
+    response.write('Check in/Invalid: %d %s %s\n' % (f.id, f.first_name, f.last_name))
+
   return response
+
 
 @login_required
 def getleads(request):
