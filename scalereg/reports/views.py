@@ -380,12 +380,18 @@ def badorder(request):
   for f in paid_orders.filter(amount__lte=0):
     response.write('Paid Order with $0 cost: %s %s\n' % (f.order_num, f.name))
 
-  attendees = models.Attendee.objects.filter(valid=True)
-  no_order = attendees.filter(order__isnull=True)
+  valid_attendees = models.Attendee.objects.filter(valid=True)
+  no_order = valid_attendees.filter(order__isnull=True)
   for f in no_order:
     response.write('No order: %d %s %s\n' % (f.id, f.first_name, f.last_name))
 
+  invalid_attendees = models.Attendee.objects.filter(valid=False)
+  checked_in_but_invalid = invalid_attendees.filter(checked_in=True)
+  for f in checked_in_but_invalid:
+    response.write('Check in/Invalid: %d %s %s\n' % (f.id, f.first_name, f.last_name))
+
   return response
+
 
 @login_required
 def getleads(request):
