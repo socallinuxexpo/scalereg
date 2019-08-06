@@ -1431,9 +1431,14 @@ def CheckIn(request):
         success = False
 
     if success:
-      success = validators.hashAttendee(attendee) == code[4:]
+      success = attendee.checkin_code() == code
 
     if success:
+      if attendee.checked_in:
+        return scale_render_to_response(request, 'reg6/reg_checkin.html',
+          {'title': 'Check In',
+           'reprint': True,
+          })
       return DoCheckIn(request, attendee)
     return scale_render_to_response(request, 'reg6/reg_checkin.html',
       {'title': 'Check In',
