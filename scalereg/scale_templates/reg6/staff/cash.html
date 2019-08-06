@@ -3,15 +3,22 @@
 {% load reg6_filters %}
 {% block content %}
 <div id="content-main">
+<style type="text/css">
+.form_error { color: #FF0000; font-weight: bold }
+b { font-weight: bold }
+</style>
 
 {% if success %}
     <p>
     Attendee successfully registered!
     </p>
+    <hr />
 {% endif %}
 
-
-{% if success %}
+{% if failure %}
+    <p class="form_error">
+    {{ failure }}
+    </p>
     <hr />
 {% endif %}
 
@@ -24,20 +31,19 @@ Please type in the following information:
 <table>
 <tr>
     <td><b>First Name</b></td>
-    <td><input type="text" name="FIRST" maxlength="75" size="50" /></td>
+    <td><input type="text" name="FIRST" maxlength="60" size="50" /></td>
 </tr>
 <tr>
     <td><b>Last Name</b></td>
-    <td><input type="text" name="LAST" maxlength="75" size="50" /></td>
+    <td><input type="text" name="LAST" maxlength="60" size="50" /></td>
 </tr>
 <tr>
     <td><b>Email</b></td>
-    <td><input type="text" name="EMAIL" maxlength="75" size="50" /></td>
+    <td><input type="text" name="EMAIL" maxlength="60" size="50" /></td>
 </tr>
 <tr>
     <td><b>Zip</b></td>
-    <td><input type="text" name="ZIP" maxlength="10" size="10" /><br />
-    Need to be numeric
+    <td><input type="text" name="ZIP" maxlength="20" size="10" /><br />
     </td>
 </tr>
 <tr>
@@ -48,14 +54,22 @@ Please type in the following information:
     {% endfor %}
     </select>
     <br />
-    The attendees registered with this coupon will have this badge type. It
-    does not matter what badge type they selected.
+    No promo codes can be applied here.
     </td>
 </tr>
 </table>
 <input type="submit" value="Register" />
 </form>
 </p>
+
+<hr />
+
+<p>
+If the attendee already registered but wants to pay in cash,
+<a href="../checkin/">look up their invalid registration</a>
+and click the <i>Cash Payment</i> button.
+</p>
+
 </div>
 {% endblock %}
 

@@ -16,15 +16,20 @@
 {% if attendees %}
     <table border="1">
     <tr>
-        <th>Registration Number</th>
+        <th>Registration Number<br />Express Check-In Code</th>
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
         <th>Reprint</th>
+        <th>Update Info<br />AKA. Transfer</th>
+        <th>Options</th>
     </tr>
     {% for person in attendees %}
         <tr>
-        <td><a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a></td>
+        <td>
+        <a href="https://register.socallinuxexpo.org/admin/reg6/attendee/{{ person.id }}/">{{ person.id }}</a><br />
+        {{ person.checkin_code }}
+        </td>
         <td>{{ person.first_name }} {{ person.last_name }}</td>
         <td>{{ person.badge_type.description }}</td>
         <td>
@@ -46,6 +51,25 @@
             <form method="post" action="../reprint/">
             <input type="hidden" name="id" value="{{ person.id }}">
             <input type="submit" value="Reprint {{ person.rp_count }}">
+            </form>
+        {% endif %}
+        </td>
+        <td>
+        <form method="post" action="../update_attendee/">
+        <input type="hidden" name="id" value="{{ person.id }}">
+        <input type="submit" value="Update Info">
+        </form>
+        </td>
+        <td>
+        {% if person.valid %}
+            <form method="post" action="../email/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Email {{ person.email }}">
+            </form>
+        {% else %}
+            <form method="post" action="../cash_payment_registered/">
+            <input type="hidden" name="id" value="{{ person.id }}">
+            <input type="submit" value="Cash Payment">
             </form>
         {% endif %}
         </td>
