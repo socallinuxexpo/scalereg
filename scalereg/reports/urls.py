@@ -1,5 +1,6 @@
 from django.conf.urls import *
 from scalereg.reg6 import models
+from scalereg.reports import views as reports_views
 
 answer_dict = {
     'queryset': models.Answer.objects.all(),
@@ -68,23 +69,23 @@ ticket_dict = {
     'allow_empty': True,
 }
 
-urlpatterns = patterns('',
-    (r'^$', 'scalereg.reports.views.index'),
-    (r'^answer/$', 'scalereg.reports.views.object_list', answer_dict),
-    (r'^attendee/$', 'scalereg.reports.views.object_list', attendee_dict),
-    (r'^coupon/$', 'scalereg.reports.views.object_list', coupon_dict),
-    (r'^item/$', 'scalereg.reports.views.object_list', item_dict),
-    (r'^order/$', 'scalereg.reports.views.object_list', order_dict),
-    (r'^promocode/$', 'scalereg.reports.views.object_list', promocode_dict),
-    (r'^question/$', 'scalereg.reports.views.object_list', question_dict),
-    (r'^ticket/$', 'scalereg.reports.views.object_list', ticket_dict),
-    (r'^reg6log/$', 'scalereg.reports.views.reg6log'),
-    (r'^dashboard/$', 'scalereg.reports.views.dashboard'),
-    (r'^badorder/$', 'scalereg.reports.views.badorder'),
-    (r'^getleads/$', 'scalereg.reports.views.getleads'),
-    (r'^getpgp/$', 'scalereg.reports.views.getpgp'),
-    (r'^putpgp/$', 'scalereg.reports.views.putpgp'),
-    (r'^checkpgp/$', 'scalereg.reports.views.checkpgp'),
-    (r'^announce_subscribers/$', 'scalereg.reports.views.AnnounceSubscribers'),
-    (r'^coupon_usage/$', 'scalereg.reports.views.CouponUsage'),
-)
+urlpatterns = [
+    url(r'^$', 'reports_views.index'),
+    url(r'^answer/$', 'reports_views.object_list', answer_dict),
+    url(r'^attendee/$', 'reports_views.object_list', attendee_dict),
+    url(r'^coupon/$', 'reports_views.object_list', coupon_dict),
+    url(r'^item/$', 'reports_views.object_list', item_dict),
+    url(r'^order/$', 'reports_views.object_list', order_dict),
+    url(r'^promocode/$', 'reports_views.object_list', promocode_dict),
+    url(r'^question/$', 'reports_views.object_list', question_dict),
+    url(r'^ticket/$', 'reports_views.object_list', ticket_dict),
+    url(r'^reg6log/$', 'reports_views.reg6log'),
+    url(r'^dashboard/$', 'reports_views.dashboard'),
+    url(r'^badorder/$', 'reports_views.badorder'),
+    url(r'^getleads/$', 'reports_views.getleads'),
+    url(r'^getpgp/$', 'reports_views.getpgp'),
+    url(r'^putpgp/$', 'reports_views.putpgp'),
+    url(r'^checkpgp/$', 'reports_views.checkpgp'),
+    url(r'^announce_subscribers/$', 'reports_views.AnnounceSubscribers'),
+    url(r'^coupon_usage/$', reports_views.CouponUsage),
+]

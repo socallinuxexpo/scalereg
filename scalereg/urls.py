@@ -15,18 +15,21 @@ Including another URLconf
 from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.auth import views as django_auth_views
 from django.views.generic import RedirectView
+from scalereg.auth_helper import views as auth_helper_views
+
 
 urlpatterns = [
-    url(r'^accounts/$', 'scalereg.auth_helper.views.index'),
-    url(r'^accounts/profile/$', 'scalereg.auth_helper.views.profile'),
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login',
+    url(r'^accounts/$', auth_helper_views.index),
+    url(r'^accounts/profile/$', auth_helper_views.profile),
+    url(r'^accounts/login/$', django_auth_views.login,
        {'template_name': 'admin/login.html'}),
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+    url(r'^accounts/logout/$', django_auth_views.logout),
     url(r'^accounts/password_change/$',
-       'django.contrib.auth.views.password_change'),
+       django_auth_views.password_change),
     url(r'^accounts/password_change/done/$',
-       'django.contrib.auth.views.password_change_done'),
+       django_auth_views.password_change_done),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^reg6/', include('scalereg.reg6.urls')),
     url(r'^reports/', include('scalereg.reports.urls')),
