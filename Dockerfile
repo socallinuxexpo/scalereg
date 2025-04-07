@@ -29,9 +29,6 @@ RUN rm -rf /run/httpd/httpd.pid && \
 # Set working directory
 WORKDIR /var/www/django
 
-# Expose port 80
-EXPOSE 80
-
 # Copy Apache configuration
 COPY httpd.conf /etc/httpd/conf/httpd.conf
 
