@@ -8,7 +8,7 @@ from django.db.models import BooleanField
 from django.db.models.base import ModelBase
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import loader
 from django.views.generic.list import ListView as django_object_list
 from scalereg.common.utils import services_perm_checker
@@ -98,7 +98,7 @@ def index(request):
                         'url': 'announce_subscribers/'})
   model_list.insert(2, {'name': 'Coupon Usage', 'url': 'coupon_usage/'})
 
-  return render_to_response('reports/index.html',
+  return render(request, 'reports/index.html',
     {'user': request.user, 'title': 'Reports', 'model_list': model_list})
 
 @login_required
@@ -134,8 +134,15 @@ def object_list(request, queryset, paginate_by=None, page=None,
   if 'field_list' not in extra_context:
     extra_context['field_list'] = all_fields
 
+  # Process dynamic context items
+  if extra_context:
+    for key, value in list(extra_context.items()): # Iterate over a copy
+      if callable(value):
+        dynamic_data = extra_context.pop(key)()
+        extra_context.update(dynamic_data)
+
   filter_select = {}
-  for i in xrange(len(all_fields)):
+  for i in range(len(all_fields)):
     name = all_fields[i]
     filter = Filter(name)
     field_type = type(queryset.model._meta.fields[i])
@@ -319,7 +326,7 @@ def dashboard(request):
     zip.CalcPercentage(num_attendees)
   unique_addon_attendees_data.CalcPercentage(num_attendees)
 
-  return render_to_response('reports/dashboard.html',
+  return render(request, 'reports/dashboard.html',
     {'title': 'Dashboard',
      'addon_attendees': addon_attendees_data,
      'attendees': attendees_data,
@@ -757,7 +764,7 @@ def CouponUsage(request):
         order=coupon.order).filter(valid=True).count()
     coupon_data.append(datum)
 
-  return render_to_response('reports/coupon_usage.html',
+  return render(request, 'reports/coupon_usage.html',
     {'title': 'Coupon Usage',
      'coupons': coupon_data,
     })

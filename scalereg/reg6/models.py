@@ -66,7 +66,7 @@ class Order(models.Model):
       help_text='Attendees charged multiple times on this order')
 
   class Meta:
-    permissions = (('view_order', 'Can view order'),)
+    permissions = (('custom_view_order', 'Can view order'),)
 
   def __unicode__(self):
     return u'%s' % self.order_num
@@ -152,7 +152,7 @@ class Ticket(models.Model):
     return True
 
   class Meta:
-    permissions = (('view_ticket', 'Can view ticket'),)
+    permissions = (('custom_view_ticket', 'Can view ticket'),)
 
   def __unicode__(self):
     return u'%s' % self.name
@@ -217,7 +217,7 @@ class PromoCode(models.Model):
     return ticket in self.applies_to.all()
 
   class Meta:
-    permissions = (('view_promocode', 'Can view promo code'),)
+    permissions = (('custom_view_promocode', 'Can view promo code'),)
 
   def __unicode__(self):
     return self.name
@@ -248,7 +248,7 @@ class Item(models.Model):
       help_text='Applies to all tickets')
 
   class Meta:
-    permissions = (('view_item', 'Can view item'),)
+    permissions = (('custom_view_item', 'Can view item'),)
 
   def __unicode__(self):
     return u'%s (%s)' % (self.description, self.name)
@@ -261,11 +261,11 @@ class Item(models.Model):
 
 # base class
 class Answer(models.Model):
-  question = models.ForeignKey('Question')
+  question = models.ForeignKey('Question', on_delete=models.CASCADE)
   text = models.CharField(max_length=200)
 
   class Meta:
-    permissions = (('view_answer', 'Can view answer'),)
+    permissions = (('custom_view_answer', 'Can view answer'),)
 
   def __str_text__(self):
     if len(self.text) > 50:
@@ -294,7 +294,7 @@ class Question(models.Model):
       help_text='Applies to all tickets')
 
   class Meta:
-    permissions = (('view_question', 'Can view question'),)
+    permissions = (('custom_view_question', 'Can view question'),)
 
   def get_answers(self):
     return Answer.objects.filter(question=self.id)
@@ -315,8 +315,8 @@ class TextQuestion(Question):
 
 class Attendee(models.Model):
   # badge info
-  badge_type = models.ForeignKey(Ticket)
-  order = models.ForeignKey(Order, blank=True, null=True)
+  badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+  order = models.ForeignKey(Order, blank=True, null=True, on_delete=models.CASCADE)
   valid = models.BooleanField(default=False)
   checked_in = models.BooleanField(default=False,
       help_text='Only for valid attendees')
@@ -335,7 +335,7 @@ class Attendee(models.Model):
   phone = models.CharField(max_length=20, blank=True)
 
   # etc
-  promo = models.ForeignKey(PromoCode, blank=True, null=True)
+  promo = models.ForeignKey(PromoCode, blank=True, null=True, on_delete=models.CASCADE)
   ordered_items = models.ManyToManyField(Item, blank=True)
   obtained_items = models.CharField(max_length=60, blank=True,
       help_text='comma separated list of items')
@@ -353,7 +353,7 @@ class Attendee(models.Model):
     return '%04d%s' % (self.id, validators.hashAttendee(self))
 
   class Meta:
-    permissions = (('view_attendee', 'Can view attendee'),)
+    permissions = (('custom_view_attendee', 'Can view attendee'),)
 
   def __unicode__(self):
     return u'%s (%s) ' % (self.id, self.email)
@@ -367,7 +367,7 @@ class TempOrder(models.Model):
   order_num = models.CharField(max_length=10, primary_key=True,
       help_text='Unique 10 upper-case letters + numbers code')
   attendees = models.TextField(blank=True)
-  upgrade = models.ForeignKey('Upgrade', blank=True, null=True)
+  upgrade = models.ForeignKey('Upgrade', blank=True, null=True, on_delete=models.CASCADE)
   date = models.DateTimeField(auto_now_add=True)
 
   def attendees_list(self):
@@ -387,8 +387,8 @@ class TempOrder(models.Model):
 class Coupon(models.Model):
   code = models.CharField(max_length=10, primary_key=True,
       help_text='Unique 10 upper-case letters + numbers code')
-  badge_type = models.ForeignKey(Ticket)
-  order = models.ForeignKey(Order)
+  badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+  order = models.ForeignKey(Order, on_delete=models.CASCADE)
   used = models.BooleanField(default=False)
   max_attendees = models.PositiveSmallIntegerField()
   expiration = models.DateField(null=True, blank=True,
@@ -402,7 +402,7 @@ class Coupon(models.Model):
     return True
 
   class Meta:
-    permissions = (('view_coupon', 'Can view coupon'),)
+    permissions = (('custom_view_coupon', 'Can view coupon'),)
 
   def save(self, *args, **kwargs):
     validators.isValidOrderNumber(self.code, self)
@@ -410,11 +410,11 @@ class Coupon(models.Model):
 
 
 class Reprint(models.Model):
-  attendee = models.ForeignKey(Attendee)
+  attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
   count = models.IntegerField()
 
   class Meta:
-    permissions = (('view_reprint', 'Can view reprint'),)
+    permissions = (('custom_view_reprint', 'Can view reprint'),)
 
   def __unicode__(self):
     return '%s %d' % (self.attendee, self.count)
@@ -429,17 +429,17 @@ class ScannedBadge(models.Model):
 
 
 class Upgrade(models.Model):
-  attendee = models.ForeignKey(Attendee)
+  attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
   valid = models.BooleanField(default=False)
 
-  old_badge_type = models.ForeignKey(Ticket, related_name='old_badge_type')
+  old_badge_type = models.ForeignKey(Ticket, related_name='old_badge_type', on_delete=models.CASCADE)
   old_ordered_items = models.ManyToManyField(Item, blank=True,
       related_name='old_ordered_items')
-  old_order = models.ForeignKey(Order, related_name='old_order')
+  old_order = models.ForeignKey(Order, related_name='old_order', on_delete=models.CASCADE)
 
-  new_badge_type = models.ForeignKey(Ticket)
+  new_badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
   new_ordered_items = models.ManyToManyField(Item, blank=True)
-  new_order = models.ForeignKey(Order, blank=True, null=True)
+  new_order = models.ForeignKey(Order, blank=True, null=True, on_delete=models.CASCADE)
 
   def upgrade_cost(self):
     old_total = Ticket.ticket_cost(self.old_badge_type,
@@ -451,18 +451,18 @@ class Upgrade(models.Model):
     return new_total - old_total
 
   class Meta:
-    permissions = (('view_upgrade', 'Can view upgrade'),)
+    permissions = (('custom_view_upgrade', 'Can view upgrade'),)
 
   def __unicode__(self):
     return '%s' % self.attendee
 
 
 class KioskAgent(models.Model):
-  attendee = models.ForeignKey(Attendee)
+  attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
   agent = models.CharField(max_length=20)
 
   class Meta:
-    permissions = (('view_kiosk_agent', 'Can view kiosk agent'),)
+    permissions = (('custom_view_kiosk_agent', 'Can view kiosk agent'),)
 
   def __unicode__(self):
     return '%s %s' % (self.attendee, self.agent)

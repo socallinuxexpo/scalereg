@@ -12,8 +12,7 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include, re_path
 from django.contrib import admin
 from django.contrib.auth import views as django_auth_views
 from django.views.generic import RedirectView
@@ -21,22 +20,21 @@ from scalereg.auth_helper import views as auth_helper_views
 
 
 urlpatterns = [
-    url(r'^accounts/$', auth_helper_views.index),
-    url(r'^accounts/profile/$', auth_helper_views.profile),
-    url(r'^accounts/login/$', django_auth_views.login,
-       {'template_name': 'admin/login.html'}),
-    url(r'^accounts/logout/$', django_auth_views.logout),
-    url(r'^accounts/password_change/$',
-       django_auth_views.password_change),
-    url(r'^accounts/password_change/done/$',
-       django_auth_views.password_change_done),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^reg6/', include('scalereg.reg6.urls')),
-    url(r'^reports/', include('scalereg.reports.urls')),
-    url(r'^sponsorship/', include('scalereg.sponsorship.urls')),
+    re_path(r'^accounts/$', auth_helper_views.index),
+    re_path(r'^accounts/profile/$', auth_helper_views.profile),
+    re_path(r'^accounts/login/$', django_auth_views.LoginView.as_view(template_name='admin/login.html'), name='login'),
+    re_path(r'^accounts/logout/$', django_auth_views.LogoutView.as_view(), name='logout'),
+    re_path(r'^accounts/password_change/$',
+       django_auth_views.PasswordChangeView.as_view(), name='password_change'),
+    re_path(r'^accounts/password_change/done/$',
+       django_auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^reg6/', include('scalereg.reg6.urls')),
+    re_path(r'^reports/', include('scalereg.reports.urls')),
+    re_path(r'^sponsorship/', include('scalereg.sponsorship.urls')),
 
     # redirect index page to reg6, since that is likely what the user wants.
-    url(r'^$',
+    re_path(r'^$',
         RedirectView.as_view(url='https://register.socallinuxexpo.org/reg6/',
                              permanent=False)),
 ]

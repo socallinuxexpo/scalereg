@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from scalereg.common import utils
 from scalereg.reg6 import forms
 from scalereg.reg6 import models
@@ -438,7 +438,7 @@ def RecordAttendeeAgent(attendee, user_agent):
       agent.attendee = attendee
       agent.agent = truncated_user_agent
       agent.save()
-  except: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     pass
 
 
@@ -471,7 +471,7 @@ def IsRequestFromKioskOrOutside(request):
 def scale_render_to_response(request, template, vars):
   if 'kiosk' in request.session:
     vars['kiosk'] = True
-  return render_to_response(template, vars)
+  return render(request, template, vars)
 
 
 def index(request):
@@ -505,12 +505,12 @@ def index(request):
 
     user_agent = GetUserAgentFromRequest(request)
     if settings.SCALEREG_KIOSK_AGENT_SECRET not in user_agent:
-      return render_to_response('reg6/reg_kiosk.html')
+      return render(request, 'reg6/reg_kiosk.html')
 
     kiosk_idx = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET) + \
         len(settings.SCALEREG_KIOSK_AGENT_SECRET)
     truncated_user_agent = user_agent[kiosk_idx:]
-    return render_to_response('reg6/reg_kiosk.html', {'agent': truncated_user_agent})
+    return render(request, 'reg6/reg_kiosk.html', {'agent': truncated_user_agent})
 
   return scale_render_to_response(request, 'reg6/reg_index.html',
     {'title': 'Registration',
@@ -523,7 +523,7 @@ def index(request):
 
 def kiosk_index(request):
   if request.method == 'POST':
-    return render_to_response('reg6/reg_kiosk_clear.html', {})
+    return render(request, 'reg6/reg_kiosk_clear.html', {})
 
   if 'clear' in request.GET:
     if 'attendee' in request.session:
@@ -531,8 +531,8 @@ def kiosk_index(request):
     if REGISTRATION_PAYMENT_COOKIE in request.session:
       request.session.pop(REGISTRATION_PAYMENT_COOKIE)
     request.session['kiosk'] = True
-    return render_to_response('reg6/reg_kiosk.html')
-  return render_to_response('reg6/reg_kiosk_clear.html', {})
+    return render(request, 'reg6/reg_kiosk.html')
+  return render(request, 'reg6/reg_kiosk_clear.html', {})
 
 
 def AddItems(request):
@@ -868,7 +868,7 @@ def Payment(request):
       attendees_by_ticket[person.badge_type] = 1
     RecordAttendeeAgent(person, user_agent)
   tickets_soldout = []
-  for ticket, num_to_buy in attendees_by_ticket.iteritems():
+  for ticket, num_to_buy in attendees_by_ticket.items():
     if not IsTicketAvailable(ticket, num_to_buy):
       tickets_soldout.append(ticket.description)
   if tickets_soldout:
@@ -894,7 +894,7 @@ def Payment(request):
       temp_order = models.TempOrder(order_num=order_num, attendees=csv)
       temp_order.save()
       order_saved = True
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order_tries += 1
       if order_tries > 10:
         return scale_render_to_response(request, 'reg6/reg_error.html',
@@ -1038,9 +1038,9 @@ def Sale(request):
     order.save()
     for attendee in already_paid_attendees_data:
       order.already_paid_attendees.add(attendee)
-  except Exception, inst: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     ScaleDebug('cannot save order')
-    print inst
+    print(inst)
     ScaleDebug(inst.args)
     ScaleDebug(inst)
     return HttpResponseServerError('cannot save order')
@@ -1255,7 +1255,7 @@ def NonFreeUpgrade(request):
 
   try:
     upgrade = CreateUpgrade(attendee, selected_ticket, selected_items)
-  except: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
        'error_message': 'Cannot save upgrade',
@@ -1271,7 +1271,7 @@ def NonFreeUpgrade(request):
       temp_order = models.TempOrder(order_num=order_num, upgrade=upgrade)
       temp_order.save()
       order_saved = True
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order_tries += 1
       if order_tries > 10:
         return scale_render_to_response(request, 'reg6/reg_error.html',
@@ -1331,7 +1331,7 @@ def FreeUpgrade(request):
 
   try:
     upgrade = CreateUpgrade(attendee, selected_ticket, selected_items)
-  except: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     return scale_render_to_response(request, 'reg6/reg_error.html',
       {'title': 'Registration Problem',
        'error_message': 'Cannot save upgrade',
@@ -1357,7 +1357,7 @@ def FreeUpgrade(request):
       )
       order.save()
       order_saved = True
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order_tries += 1
       if order_tries > 10:
         return scale_render_to_response(request, 'reg6/reg_error.html',
@@ -1413,7 +1413,7 @@ def CheckIn(request):
   if request.method == 'GET':
     if 'kiosk' in request.GET:
       request.session['kiosk'] = True
-      return render_to_response('reg6/reg_kiosk.html')
+      return render(request, 'reg6/reg_kiosk.html')
 
     return scale_render_to_response(request, 'reg6/reg_checkin.html',
       {'title': 'Check In',
@@ -1667,14 +1667,14 @@ def AddCoupon(request):
   )
   try:
     coupon.save()
-  except: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     order.delete()
     return HttpResponseServerError('error saving the coupon')
 
   try:
     order.valid = True
     order.save()
-  except: # FIXME catch the specific db exceptions
+  except Exception as inst: # FIXME catch the specific db exceptions
     order.delete()
     coupon.delete()
     return HttpResponseServerError('error saving the order')
@@ -1882,7 +1882,7 @@ def MassAddCoupon(request):
     )
     try:
       order.save()
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order.delete()
       response.write('error while saving order for: %s' % name)
       break
@@ -1895,7 +1895,7 @@ def MassAddCoupon(request):
     )
     try:
       coupon.save()
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order.delete()
       response.write('error while saving coupon for: %s' % name)
       break
@@ -1903,7 +1903,7 @@ def MassAddCoupon(request):
     try:
       order.valid = True
       order.save()
-    except: # FIXME catch the specific db exceptions
+    except Exception as inst: # FIXME catch the specific db exceptions
       order.delete()
       coupon.delete()
       response.write('error while modifying order for: %s' % name)
@@ -2027,7 +2027,7 @@ def ScannedBadge(request):
 
   returl = 'https://%s/reg6/scanned_badge/?CODE={CODE}' % request.get_host()
   url = 'zxing://scan/?ret=%s' % urllib.quote_plus(returl)
-  return render_to_response('reg6/scanned_badge.html',
+  return render(request, 'reg6/scanned_badge.html',
     {'color': color,
      'response': response,
      'url': url,

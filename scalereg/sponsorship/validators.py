@@ -1,5 +1,5 @@
 from scalereg.common.validators import ScaleValidationError
-import models
+from . import models
 import string
 
 def CheckValidStartStopDates(field_data, all_data):

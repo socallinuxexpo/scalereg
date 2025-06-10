@@ -1,20 +1,20 @@
 from django.conf import settings
 from django.contrib import admin
-from models import Answer
-from models import Attendee
-from models import Coupon
-from models import Item
-from models import KioskAgent
-from models import ListAnswer
-from models import ListQuestion
-from models import Order
-from models import PromoCode
-from models import Reprint
-from models import ScannedBadge
-from models import TextAnswer
-from models import TextQuestion
-from models import Ticket
-from models import Upgrade
+from .models import Answer
+from .models import Attendee
+from .models import Coupon
+from .models import Item
+from .models import KioskAgent
+from .models import ListAnswer
+from .models import ListQuestion
+from .models import Order
+from .models import PromoCode
+from .models import Reprint
+from .models import ScannedBadge
+from .models import TextAnswer
+from .models import TextQuestion
+from .models import Ticket
+from .models import Upgrade
 
 
 class KioskAgentAdmin(admin.ModelAdmin):

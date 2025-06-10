@@ -12,7 +12,7 @@ DEBUG = False
 SCALEREG_DEBUG_LOGGING_ENABLED = False
 SCALEREG_DEBUG_LOGGING_PATH = '/tmp/scale_reg.log'
 
-ALLOWED_HOSTS = ['register.socallinuxexpo.org']
+ALLOWED_HOSTS = ['*']
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -23,7 +23,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # 'django.db.backends.mysql', 'django.db.backends.postgresql', 'django.db.backends.sqlite3', or 'django.db.backends.oracle'
-        'NAME': '/CHANGE_THIS!!!!!__path_to/sqlite.db',  # Or path to database file if using sqlite3.
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # Or path to database file if using sqlite3.
         'USER': '', # Not used with sqlite3.
         'PASSWORD': '',  # Not used with sqlite3.
         'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
@@ -60,14 +60,15 @@ MEDIA_URL = ''
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: 'http://foo.com/media/', '/media/'.
-ADMIN_MEDIA_PREFIX = '/media/'
 
 STATIC_URL = 'https://register.socallinuxexpo.org/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'scalereg/media')]
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'CHANGE_THIS!!!!!__ANY_VALID_PYTHON_STRING_WORKS'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -80,10 +81,8 @@ ROOT_URLCONF = 'scalereg.urls'
 TEMPLATES = [
   {
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [
-      '/CHANGE_THIS!!!!!__/path/to/your/templates/',
-      '/CHANGE_THIS!!!!!__/paht/to/django/contrib/admin/templates/'
-    ],
+    'DIRS': [os.path.join(BASE_DIR, 'scalereg/scale_templates')],
+    'APP_DIRS': True,
     'OPTIONS': {
       'context_processors': [
         'django.contrib.messages.context_processors.messages',

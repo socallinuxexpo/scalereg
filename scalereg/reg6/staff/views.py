@@ -3,7 +3,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from scalereg.common.utils import services_perm_checker
 from scalereg.common.views import handler500
 from scalereg.reg6 import models
@@ -16,7 +16,7 @@ def index(request):
   can_access = services_perm_checker(request.user, request.path)
   if not can_access:
     return HttpResponseRedirect('/accounts/profile/')
-  return render_to_response('reg6/staff/index.html',
+  return render(request, 'reg6/staff/index.html',
     {'title': 'Staff Page',
     })
 
@@ -28,7 +28,7 @@ def CheckIn(request):
     return HttpResponseRedirect('/accounts/profile/')
 
   if request.method == 'GET':
-    return render_to_response('reg6/staff/checkin.html',
+    return render(request, 'reg6/staff/checkin.html',
       {'title': 'Attendee Check In',
       })
 
@@ -80,7 +80,7 @@ def CheckIn(request):
         count = 0
       att.rp_count = count + 1
 
-  return render_to_response('reg6/staff/checkin.html',
+  return render(request, 'reg6/staff/checkin.html',
     {'title': 'Attendee Check In',
      'attendees': attendees,
      'express': request.POST['express'],
@@ -114,7 +114,7 @@ def FinishCheckIn(request):
   except:
     return handler500(request, msg='We encountered a problem with your checkin')
 
-  return render_to_response('reg6/staff/finish_checkin.html',
+  return render(request, 'reg6/staff/finish_checkin.html',
     {'title': 'Attendee Check In',
      'attendee': attendee,
     })
@@ -128,14 +128,14 @@ def CashPayment(request):
 
   tickets = models.Ticket.objects.filter(cash=True)
   if request.method == 'GET':
-    return render_to_response('reg6/staff/cash.html',
+    return render(request, 'reg6/staff/cash.html',
       {'title': 'Cash Payment',
        'tickets': tickets,
       })
 
   for var in ['FIRST', 'LAST', 'EMAIL', 'ZIP', 'TICKET']:
     if var not in request.POST or not request.POST[var]:
-      return render_to_response('reg6/staff/cash.html',
+      return render(request, 'reg6/staff/cash.html',
         {'title': 'Cash Payment',
          'tickets': tickets,
          'failure': 'missing data: no %s field' % var,
@@ -144,7 +144,7 @@ def CashPayment(request):
   try:
     ticket = models.Ticket.objects.get(name=request.POST['TICKET'])
   except:
-    return render_to_response('reg6/staff/cash.html',
+    return render(request, 'reg6/staff/cash.html',
       {'title': 'Cash Payment',
        'tickets': tickets,
        'failure': 'cannot find ticket type',
@@ -181,13 +181,13 @@ def CashPayment(request):
   except: # FIXME catch the specific db exceptions
     attendee.delete()
     order.delete()
-    return render_to_response('reg6/staff/cash.html',
+    return render(request, 'reg6/staff/cash.html',
       {'title': 'Cash Payment',
        'tickets': tickets,
        'failure': 'cannot save order, bad data?',
       })
 
-  return render_to_response('reg6/staff/cash.html',
+  return render(request, 'reg6/staff/cash.html',
     {'title': 'Cash Payment',
      'success': True,
      'tickets': tickets,
@@ -212,7 +212,7 @@ def CashPaymentRegistered(request):
     return handler500(request, msg='cannot find attendee')
 
   if not 'action' in request.POST or request.POST['action'] != 'pay':
-    return render_to_response('reg6/staff/cash_registered.html',
+    return render(request, 'reg6/staff/cash_registered.html',
       {'title': 'Cash Payment For Registered Attendee',
        'attendee': attendee,
       })
@@ -243,7 +243,7 @@ def CashPaymentRegistered(request):
     order.delete()
     return handler500(request, msg='cannot save order, bad data?')
 
-  return render_to_response('reg6/staff/cash_registered.html',
+  return render(request, 'reg6/staff/cash_registered.html',
     {'title': 'Cash Payment For Registered Attendee',
      'attendee': attendee,
      'success': True,
@@ -261,7 +261,7 @@ def Email(request):
 
   EMAIL_TEMPLATE = 'reg6/staff/email.html'
   if not 'id' in request.POST or not request.POST['id']:
-    return render_to_response(EMAIL_TEMPLATE,
+    return render(request, EMAIL_TEMPLATE,
       {'title': 'Attendee Email Invalid',
        'attendee': None,
       })
@@ -272,7 +272,7 @@ def Email(request):
   except:
     attendee = None
 
-  return render_to_response(EMAIL_TEMPLATE,
+  return render(request, EMAIL_TEMPLATE,
       {'title': 'Attendee Email',
        'attendee': attendee,
       })
@@ -300,17 +300,17 @@ def Reprint(request):
         reprint.count = 0
       reprint.count += 1
       reprint.save()
-      return render_to_response(REPRINT_TEMPLATE,
+      return render(request, REPRINT_TEMPLATE,
         {'title': 'Attendee Reprint',
          'reprint': reprint,
         })
     except:
-      return render_to_response(REPRINT_TEMPLATE,
+      return render(request, REPRINT_TEMPLATE,
         {'title': 'Attendee Reprint Error',
          'reprint': None,
         })
   else:
-    return render_to_response(REPRINT_TEMPLATE,
+    return render(request, REPRINT_TEMPLATE,
       {'title': 'Attendee Reprint Invalid',
        'reprint': None,
       })
@@ -334,7 +334,7 @@ def UpdateAttendee(request):
     return handler500(request, msg='cannot find attendee')
 
   if not 'action' in request.POST or request.POST['action'] != 'update':
-    return render_to_response('reg6/staff/update_attendee.html',
+    return render(request, 'reg6/staff/update_attendee.html',
       {'title': 'Update Attendee',
        'attendee': attendee,
        'orig_salutation': attendee.salutation,
@@ -365,7 +365,7 @@ def UpdateAttendee(request):
   try:
     attendee.full_clean()
   except:
-    return render_to_response('reg6/staff/update_attendee.html',
+    return render(request, 'reg6/staff/update_attendee.html',
       {'title': 'Update Attendee',
        'attendee': attendee,
        'orig_salutation': request.POST['ORIG_SALUTATION'],
@@ -385,7 +385,7 @@ def UpdateAttendee(request):
   except: # FIXME catch the specific db exceptions
     return handler500(request, msg='cannot save attendee update, bad data?')
 
-  return render_to_response('reg6/staff/update_attendee.html',
+  return render(request, 'reg6/staff/update_attendee.html',
     {'title': 'Cash Payment For Registered Attendee',
      'attendee': attendee,
      'orig_salutation': request.POST['ORIG_SALUTATION'],
