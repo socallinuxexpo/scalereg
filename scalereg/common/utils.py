@@ -5,7 +5,7 @@ import string
 
 def GenerateID(length):
   valid_chars = string.ascii_uppercase + string.digits
-  return ''.join([random.choice(valid_chars) for x in xrange(length)])
+  return ''.join([random.choice(valid_chars) for x in range(length)])
 
 def GenerateUniqueID(length, existing_ids):
   id = GenerateID(length)
