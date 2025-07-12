@@ -53,7 +53,7 @@ ROOT_URLCONF = 'scalereg3.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['common/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
