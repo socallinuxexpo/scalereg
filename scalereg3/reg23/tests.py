@@ -3,6 +3,7 @@ import datetime
 from django.test import TestCase
 
 from .models import Item
+from .models import PromoCode
 from .models import Ticket
 
 
@@ -126,6 +127,146 @@ class IndexTest(TestCase):
         self.assertNotContains(response,
                                '<td><label for="ticket_T5">$6.00</label></td>',
                                html=True)
+
+
+class IndexTestWithPromo(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        today = datetime.date.today()
+        day = datetime.timedelta(days=1)
+        Ticket.objects.create(name='T1',
+                              description='T1 full',
+                              ticket_type='full',
+                              price=10,
+                              public=True,
+                              cash=False,
+                              upgradable=False,
+                              start_date=today - day,
+                              end_date=today + day)
+        ticket2_expo = Ticket.objects.create(name='T2',
+                                             description='T2 expo',
+                                             ticket_type='expo',
+                                             price=5.25,
+                                             public=True,
+                                             cash=False,
+                                             upgradable=False)
+        PromoCode.objects.create(name='P1',
+                                 description='P1 all',
+                                 price_modifier=0.5,
+                                 active=True,
+                                 applies_to_all=True)
+        PromoCode.objects.create(name='P2',
+                                 description='P2 inactive',
+                                 price_modifier=0.5,
+                                 active=False,
+                                 applies_to_all=True)
+        PromoCode.objects.create(name='P3',
+                                 description='P3 past',
+                                 price_modifier=0.5,
+                                 active=True,
+                                 end_date=today,
+                                 applies_to_all=True)
+        PromoCode.objects.create(name='P4',
+                                 description='P4 future',
+                                 price_modifier=0.5,
+                                 active=True,
+                                 start_date=today + day,
+                                 applies_to_all=True)
+        promo5_expo_only = PromoCode.objects.create(name='P5',
+                                                    description='P5 expo only',
+                                                    price_modifier=0.7,
+                                                    active=True,
+                                                    applies_to_all=False)
+        promo5_expo_only.applies_to.add(ticket2_expo)
+
+    def test_ticket_prices_with_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'P1'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$5.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$2.62</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_inactive_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'P2'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$5.25</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_past_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'P3'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$5.25</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_future_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'P4'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$5.25</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_expo_only_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'P5'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$3.67</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_no_such_promo(self):
+        response = self.client.post('/reg23/', {'promo': 'NOSUCH'})
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$5.25</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_preset_promo(self):
+        response = self.client.get('/reg23/?promo=P1')
+        self.assertContains(response,
+                            '<label for="ticket_T1">$5.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$2.62</label>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_prices_with_preset_no_such_promo(self):
+        response = self.client.get('/reg23/?promo=NOSUCH')
+        self.assertContains(response,
+                            '<label for="ticket_T1">$10.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="ticket_T2">$5.25</label>',
+                            count=1,
+                            html=True)
 
 
 class ItemsTest(TestCase):
