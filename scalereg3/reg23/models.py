@@ -59,6 +59,68 @@ class Ticket(models.Model):
         items = Item.objects.filter(applies_to_all=True).filter(active=True)
         return items.union(self.item_set.filter(active=True)).order_by('name')
 
+    def apply_promo(self, promo):
+        if promo and promo.is_applicable_to(self):
+            self.price *= promo.price_modifier
+
+
+class PromoCodeManager(models.Manager):
+
+    def get_queryset(self):
+        promo_codes = super().get_queryset()
+        exclude = [item for item in promo_codes if not item.is_active()]
+        for item in exclude:
+            promo_codes = promo_codes.exclude(name=item.name)
+        return promo_codes
+
+    def names(self):
+        name_list = []
+        for f in self.get_queryset():
+            name_list.append(f.name)
+        return name_list
+
+
+class PromoCode(models.Model):
+    name = models.CharField(
+        max_length=5,
+        primary_key=True,
+        help_text='Up to 5 letters, upper-case letters + numbers')
+    description = models.CharField(max_length=60)
+
+    price_modifier = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        help_text='This is the price multiplier, i.e. for 0.4, $10 becomes $4.'
+    )
+    active = models.BooleanField(default=False)
+    start_date = models.DateField(null=True,
+                                  blank=True,
+                                  help_text='Available on this day')
+    end_date = models.DateField(null=True,
+                                blank=True,
+                                help_text='Not Usable on this day')
+    applies_to = models.ManyToManyField(Ticket, blank=True)
+    applies_to_all = models.BooleanField(default=False,
+                                         help_text='Applies to all tickets')
+
+    objects = models.Manager()
+    active_objects = PromoCodeManager()
+
+    def is_active(self):
+        if not self.active:
+            return False
+        today = datetime.date.today()
+        if self.start_date and self.start_date > today:
+            return False
+        if self.end_date and self.end_date <= today:
+            return False
+        return True
+
+    def is_applicable_to(self, ticket):
+        if self.applies_to_all:
+            return True
+        return ticket in self.applies_to.all()
+
 
 class Item(models.Model):
     name = models.CharField(
