@@ -6,17 +6,20 @@ from . import models
 STEPS_TOTAL = 7
 
 
+def render_error(request, error_message):
+    return render(request, 'reg23/reg_error.html', {
+        'title': 'Registration Problem',
+        'error_message': error_message,
+    })
+
+
 def check_vars(request, post):
     if request.method != 'POST':
         return redirect('/reg23/')
 
     for var in post:
         if var not in request.POST:
-            return render(
-                request, 'reg23/reg_error.html', {
-                    'title': 'Registration Problem',
-                    'error_message': f'No {var} information.',
-                })
+            return render_error(request, f'No {var} information.')
     return None
 
 
