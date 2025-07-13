@@ -64,7 +64,7 @@ def index(request):
 
 
 def add_items(request):
-    required_vars = ['ticket']
+    required_vars = ['ticket', 'promo']
     r = check_vars(request, required_vars)
     if r:
         return r
