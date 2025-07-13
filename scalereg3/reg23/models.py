@@ -55,6 +55,10 @@ class Ticket(models.Model):
             return False
         return True
 
+    def get_items(self):
+        items = Item.objects.filter(applies_to_all=True).filter(active=True)
+        return items.union(self.item_set.filter(active=True)).order_by('name')
+
 
 class Item(models.Model):
     name = models.CharField(
