@@ -54,3 +54,17 @@ class Ticket(models.Model):
         if self.end_date and self.end_date <= date:
             return False
         return True
+
+
+class Item(models.Model):
+    name = models.CharField(
+        max_length=4,
+        primary_key=True,
+        help_text='Unique, up to 4 upper-case letters / numbers')
+    description = models.CharField(max_length=60)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    active = models.BooleanField()
+    promo = models.BooleanField(help_text='Price affected by promo code?')
+    ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
+    applies_to = models.ManyToManyField(Ticket, blank=True)
+    applies_to_all = models.BooleanField(help_text='Applies to all tickets')
