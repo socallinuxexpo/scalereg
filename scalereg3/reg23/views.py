@@ -21,9 +21,10 @@ def check_vars(request, post):
 
 
 def get_promo_from_request(request_data, avail_promocodes):
-    if 'promo' in request_data and request_data['promo'] in avail_promocodes:
-        return request_data['promo']
-    return None
+    if 'promo' not in request_data:
+        return None
+    promo = request_data['promo'].upper()
+    return promo if promo in avail_promocodes else None
 
 
 def get_promo_in_use(request_data):
