@@ -11,8 +11,7 @@ def index_redirect(request):
 
 
 def index(request):
-    avail_tickets = models.Ticket.objects.filter(
-        public=True).order_by('description')
+    avail_tickets = models.Ticket.public_objects.order_by('description')
 
     request.session.set_test_cookie()
 

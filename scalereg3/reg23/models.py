@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 TICKET_CHOICES = (
@@ -9,6 +11,17 @@ TICKET_CHOICES = (
     ('speaker', 'Speaker'),
     ('staff', 'Staff'),
 )
+
+
+class TicketManager(models.Manager):
+
+    def get_queryset(self):
+        tickets = super().get_queryset()
+        today = datetime.date.today()
+        exclude = [item for item in tickets if not item.is_public(today)]
+        for item in exclude:
+            tickets = tickets.exclude(name=item.name)
+        return tickets
 
 
 class Ticket(models.Model):
@@ -29,3 +42,15 @@ class Ticket(models.Model):
     end_date = models.DateField(null=True,
                                 blank=True,
                                 help_text='Not Usable on this day')
+
+    objects = models.Manager()
+    public_objects = TicketManager()
+
+    def is_public(self, date):
+        if not self.public:
+            return False
+        if self.start_date and self.start_date > date:
+            return False
+        if self.end_date and self.end_date <= date:
+            return False
+        return True
