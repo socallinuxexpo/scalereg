@@ -2,6 +2,7 @@ import datetime
 
 from django.test import TestCase
 
+from .models import Item
 from .models import Ticket
 
 
@@ -124,4 +125,165 @@ class IndexTest(TestCase):
                                html=True)
         self.assertNotContains(response,
                                '<td><label for="ticket_T5">$6.00</label></td>',
+                               html=True)
+
+
+class ItemsTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        ticket1_full = Ticket.objects.create(name='T1',
+                                             description='T1 full',
+                                             ticket_type='full',
+                                             price=10,
+                                             public=True,
+                                             cash=False,
+                                             upgradable=False)
+        Ticket.objects.create(name='T2',
+                              description='T2 expo',
+                              ticket_type='expo',
+                              price=5.25,
+                              public=True,
+                              cash=False,
+                              upgradable=False)
+        Item.objects.create(name='I1',
+                            description='For all item',
+                            price=17,
+                            active=True,
+                            promo=False,
+                            ticket_offset=False,
+                            applies_to_all=True)
+        item2_full_only = Item.objects.create(name='I2',
+                                              description='Full only item',
+                                              price=16,
+                                              active=True,
+                                              promo=False,
+                                              ticket_offset=False,
+                                              applies_to_all=False)
+        item2_full_only.applies_to.add(ticket1_full)
+        Item.objects.create(name='I3',
+                            description='Inactive item',
+                            price=15,
+                            active=False,
+                            promo=False,
+                            ticket_offset=False,
+                            applies_to_all=True)
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/add_items/')
+        self.assertRedirects(response, '/reg23/')
+
+    def test_no_ticket(self):
+        response = self.client.post('/reg23/add_items/')
+        self.assertContains(response,
+                            '<p>No ticket information.</p>',
+                            count=1,
+                            html=True)
+
+    def test_bad_ticket(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'bad'})
+        self.assertContains(response,
+                            '<p>Ticket bad not found.</p>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_cost_full(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T1'})
+        self.assertContains(response,
+                            '<p>Your T1 full costs $10.00.</p>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_cost_expo(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T2'})
+        self.assertContains(response,
+                            '<p>Your T2 expo costs $5.25.</p>',
+                            count=1,
+                            html=True)
+
+    def test_ticket_names_full(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T1'})
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertNotContains(
+            response,
+            '<input type="checkbox" name="item2" id="item_I3" value="I3" />',
+            html=True)
+
+    def test_ticket_names_expo(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T2'})
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertNotContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            html=True)
+        self.assertNotContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I3" value="I3" />',
+            html=True)
+
+    def test_ticket_descriptions_full(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T1'})
+        self.assertContains(response,
+                            '<label for="item_I1">For all item</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">Full only item</label>',
+                            count=1,
+                            html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I3">Inactive item</label>',
+                               html=True)
+
+    def test_ticket_descriptions_expo(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T2'})
+        self.assertContains(response,
+                            '<label for="item_I1">For all item</label>',
+                            count=1,
+                            html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I2">Full only item</label>',
+                               html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I3">Inactive item</label>',
+                               html=True)
+
+    def test_ticket_prices_full(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T1'})
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.00</label>',
+                            count=1,
+                            html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I3">$15.00</label>',
+                               html=True)
+
+    def test_ticket_prices_expo(self):
+        response = self.client.post('/reg23/add_items/', {'ticket': 'T2'})
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I2">$16.00</label>',
+                               html=True)
+        self.assertNotContains(response,
+                               '<label for="item_I3">$15.00</label>',
                                html=True)

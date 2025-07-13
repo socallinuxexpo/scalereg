@@ -1,0 +1,76 @@
+{% extends "reg23/reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if promo %}
+<p>
+You are using promo code <b>{{ promo }}</b>.
+</p>
+{% endif %}
+
+<p>
+Your {{ ticket.description }} costs {{ ticket.price|money }}.
+</p>
+
+<form method="post" action="../add_attendee/">
+{% if items %}
+<p>
+Would you like to add any additional items?
+</p>
+
+<table border="1">
+<thead>
+<tr>
+    <th>&nbsp;</th>
+    <th>Item</th>
+    <th>Price</th>
+</tr>
+</thead>
+<tbody>
+{% for item in items %}
+<tr>
+    <td>
+        <input type="checkbox" name="item{{ forloop.counter0 }}"
+               id="item_{{ item.name }}" value="{{ item.name }}" />
+    </td>
+    <td>
+        <label for="item_{{ item.name }}">{{ item.description }}</label>
+    </td>
+    <td>
+        <label for="item_{{ item.name }}">
+        {{ item.price|money }}
+        {% if item.ticket_offset %}
+        (Waives ticket price of {{ ticket.price|money }})
+        {% endif %}
+        </label>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p>
+No addon items available.
+</p>
+{% endif %}
+
+<input type="hidden" name="promo" value="{{ promo }}" />
+<input type="hidden" name="ticket" value="{{ ticket.name }}" />
+
+<p>
+<input type="submit" value="Continue" />
+</p>
+{% csrf_token %}
+</form>
+
+<form method="post" action="../">
+<p>
+<input type="hidden" name="promo" value="{{ promo }}" />
+<input type="submit" value="Start Over" />
+</p>
+{% csrf_token %}
+</form>
+</div>
+{% endblock %}
