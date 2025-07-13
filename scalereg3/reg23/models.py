@@ -134,3 +134,7 @@ class Item(models.Model):
     ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
     applies_to = models.ManyToManyField(Ticket, blank=True)
     applies_to_all = models.BooleanField(help_text='Applies to all tickets')
+
+    def apply_promo(self, promo):
+        if promo and self.promo:
+            self.price *= promo.price_modifier

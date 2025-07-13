@@ -78,11 +78,18 @@ def add_items(request):
                 'error_message': f'Ticket {ticket_name} not found.',
             })
 
+    (promo_name, promo_in_use) = get_promo_in_use(request.POST)
+    ticket.apply_promo(promo_in_use)
+    items = ticket.get_items()
+    for item in items:
+        item.apply_promo(promo_in_use)
+
     return render(
         request, 'reg23/reg_items.html', {
             'title': 'Registration - Add Items',
             'ticket': ticket,
-            'items': ticket.get_items(),
+            'items': items,
+            'promo': promo_name,
             'step': 2,
             'steps_total': STEPS_TOTAL,
         })

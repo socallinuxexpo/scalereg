@@ -428,3 +428,211 @@ class ItemsTest(TestCase):
         self.assertNotContains(response,
                                '<label for="item_I3">$15.00</label>',
                                html=True)
+
+
+class ItemsTestWithPromo(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Ticket.objects.create(name='T1',
+                              description='T1 full',
+                              ticket_type='full',
+                              price=10,
+                              public=True,
+                              cash=False,
+                              upgradable=False)
+        ticket2_expo = Ticket.objects.create(name='T2',
+                                             description='T2 expo',
+                                             ticket_type='expo',
+                                             price=5.25,
+                                             public=True,
+                                             cash=False,
+                                             upgradable=False)
+        Item.objects.create(name='I1',
+                            description='Applies to promo',
+                            price=17,
+                            active=True,
+                            promo=True,
+                            ticket_offset=False,
+                            applies_to_all=True)
+        Item.objects.create(name='I2',
+                            description='Does not apply to promo',
+                            price=16.11,
+                            active=True,
+                            promo=False,
+                            ticket_offset=False,
+                            applies_to_all=True)
+        promo1_expo_only = PromoCode.objects.create(name='P1',
+                                                    description='P1 expo only',
+                                                    price_modifier=0.5,
+                                                    active=True,
+                                                    applies_to_all=False)
+        promo1_expo_only.applies_to.add(ticket2_expo)
+
+    def test_full_ticket_with_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T1',
+            'promo': 'P1'
+        })
+        self.assertContains(response,
+                            '<p>Your T1 full costs $10.00.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$8.50</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
+
+    def test_full_ticket_with_empty_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T1',
+            'promo': ''
+        })
+        self.assertContains(response,
+                            '<p>Your T1 full costs $10.00.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
+
+    def test_full_ticket_with_no_such_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T1',
+            'promo': 'BAD'
+        })
+        self.assertContains(response,
+                            '<p>Your T1 full costs $10.00.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
+
+    def test_expo_ticket_with_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T2',
+            'promo': 'P1'
+        })
+        self.assertContains(response,
+                            '<p>Your T2 expo costs $2.62.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$8.50</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
+
+    def test_expo_ticket_with_empty_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T2',
+            'promo': ''
+        })
+        self.assertContains(response,
+                            '<p>Your T2 expo costs $5.25.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
+
+    def test_expo_ticket_with_no_such_promo(self):
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T2',
+            'promo': 'BAD'
+        })
+        self.assertContains(response,
+                            '<p>Your T2 expo costs $5.25.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item0" id="item_I1" value="I1" />',
+            count=1,
+            html=True)
+        self.assertContains(
+            response,
+            '<input type="checkbox" name="item1" id="item_I2" value="I2" />',
+            count=1,
+            html=True)
+        self.assertContains(response,
+                            '<label for="item_I1">$17.00</label>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<label for="item_I2">$16.11</label>',
+                            count=1,
+                            html=True)
