@@ -1,6 +1,14 @@
 from django.contrib import admin
 
+from .models import Item
 from .models import Ticket
+
+
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'price', 'active', 'promo',
+                    'ticket_offset')
+    list_filter = ('active', 'promo', 'ticket_offset')
+    save_on_top = True
 
 
 class TicketAdmin(admin.ModelAdmin):
@@ -10,4 +18,5 @@ class TicketAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+admin.site.register(Item, ItemAdmin)
 admin.site.register(Ticket, TicketAdmin)
