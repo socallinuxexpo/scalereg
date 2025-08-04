@@ -46,6 +46,15 @@ class Ticket(models.Model):
     objects = models.Manager()
     public_objects = TicketManager()
 
+    def ticket_cost(self, items):
+        ticket_price = self.price
+        items_price = 0
+        for item in items:
+            items_price += item.price
+            if item.ticket_offset:
+                ticket_price = 0
+        return ticket_price + items_price
+
     def is_public(self, date):
         if not self.public:
             return False
