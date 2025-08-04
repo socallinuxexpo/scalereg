@@ -1,0 +1,8 @@
+[MASTER]
+ignore=scalereg3.wsgi
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116,R0801
+
+[FORMAT]
+expected-line-ending-format=LF
