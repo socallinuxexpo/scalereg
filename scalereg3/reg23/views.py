@@ -23,6 +23,21 @@ def check_vars(request, required_post_vars):
     return None
 
 
+def get_posted_items(post, avail_items):
+    selected_items = set()
+    for i in range(len(avail_items)):
+        key = f'item{i}'
+        if key in post:
+            try:
+                item = models.Item.objects.get(name=post[key])
+            except models.Item.DoesNotExist:
+                continue
+
+            if item in avail_items:
+                selected_items.add(item)
+    return selected_items
+
+
 def get_promo_from_request(request_data, avail_promocodes):
     if 'promo' not in request_data:
         return None
