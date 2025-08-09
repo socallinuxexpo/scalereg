@@ -13,11 +13,11 @@ def render_error(request, error_message):
     })
 
 
-def check_vars(request, post):
+def check_vars(request, required_post_vars):
     if request.method != 'POST':
         return redirect('/reg23/')
 
-    for var in post:
+    for var in required_post_vars:
         if var not in request.POST:
             return render_error(request, f'No {var} information.')
     return None
