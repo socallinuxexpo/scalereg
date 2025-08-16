@@ -1,0 +1,73 @@
+{% extends "reg23/reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee %}
+    <h3>
+    <b>Please note:</b> You're not done yet! This registration
+    <b>IS NOT VALID</b> until it has been <b>PAID</b> for.
+    </h3>
+    <p>
+    You have registered the following attendee:
+    </p>
+
+    <p>
+    <table>
+    <tr>
+    <td>Name:</td>
+    <td>{{ attendee.first_name }} {{ attendee.last_name }}</td>
+    </tr>
+    <tr>
+    <td>Email:</td>
+    <td>{{ attendee.email }}</td>
+    </tr>
+    <tr>
+    <td>Registration Number:</td>
+    <td>{{ attendee.id }}</td>
+    </tr>
+    <tr>
+    <td>Ticket Type:</td>
+    <td>{{ attendee.badge_type.description }}</td>
+    </tr>
+    <tr>
+    <td>Registration Status:</td>
+    <td><b>Unpaid</b></td>
+    </tr>
+    </table>
+    </p>
+
+    <p>
+    To pay for your registration, click "Pay For Registration" below. You can then pay via credit card, or redeem a coupon if you have one.
+    </p>
+
+    <p>
+    If you would like someone else to pay for your ticket, give them your
+    email address and registration number. For instance, three coworkers can
+    all register themselves separately, give their registration numbers to
+    their manager, and have their manager pay for all the tickets at once.
+    </p>
+
+    <p>
+    <form method="get" action="../start_payment/">
+    <input type="submit" class="scale_kiosk_bordered" value="Pay For Registration" />
+    </form>
+    <br />
+    </p>
+
+    <p>
+    <form method="post" action="../">
+    {% if attendee.promo %}
+    <input type="hidden" name="promo" value="{{ attendee.promo }}" />
+    {% endif %}
+    <input type="submit" class="scale_kiosk_bordered" value="Register Another Attendee" />
+    {% csrf_token %}
+    </form>
+    </p>
+{% else %}
+<b>We cannot pull up your registration data. Please contact us with your full name and this error message.</b>
+{% endif %}
+</div>
+{% endblock %}
+

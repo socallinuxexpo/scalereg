@@ -213,5 +213,22 @@ def add_attendee(request):
 
 
 def registered_attendee(request):
-    # TODO: Implement.
-    return index(request)
+    if request.method != 'GET':
+        return redirect('/reg23/')
+
+    attendee_id = request.session.get(ATTENDEE_COOKIE, None)
+    if not isinstance(attendee_id, int):
+        return redirect('/reg23/')
+
+    try:
+        attendee = models.Attendee.objects.get(id=attendee_id)
+    except models.Attendee.DoesNotExist:
+        attendee = None
+
+    return render(
+        request, 'reg23/reg_finish.html', {
+            'title': 'Attendee Registered (Payment still required)',
+            'attendee': attendee,
+            'step': 4,
+            'steps_total': STEPS_TOTAL,
+        })
