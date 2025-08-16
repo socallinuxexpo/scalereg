@@ -28,6 +28,13 @@ def check_vars(request, required_post_vars):
     return None
 
 
+def get_attendee_for_id(attendee_id):
+    try:
+        return models.Attendee.objects.get(id=attendee_id)
+    except (models.Attendee.DoesNotExist, ValueError):
+        return None
+
+
 def get_posted_items(post, avail_items):
     selected_items = set()
     for i in range(len(avail_items)):
@@ -220,11 +227,7 @@ def registered_attendee(request):
     if not isinstance(attendee_id, int):
         return redirect('/reg23/')
 
-    try:
-        attendee = models.Attendee.objects.get(id=attendee_id)
-    except models.Attendee.DoesNotExist:
-        attendee = None
-
+    attendee = get_attendee_for_id(attendee_id)
     return render(
         request, 'reg23/reg_finish.html', {
             'title': 'Attendee Registered (Payment still required)',
