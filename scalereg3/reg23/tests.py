@@ -1231,3 +1231,176 @@ class RegisteredAttendeeTest(TestCase):
         session.save()
         response = self.client.post('/reg23/registered_attendee/')
         self.assertRedirects(response, '/reg23/')
+
+
+class StartPaymentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+        Attendee.objects.create(first_name='Second',
+                                last_name='Last',
+                                email='b@a.com',
+                                zip_code='54321',
+                                badge_type=t,
+                                valid=True)
+
+    def test_get_request_no_attendee_data(self):
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_get_request_empty_attendee_data(self):
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_get_request_with_unpaid_attendee(self):
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Total: $10.00')
+
+    def test_get_request_with_paid_attendee(self):
+        session = self.client.session
+        session['payment'] = [2]
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_get_request_with_no_such_attendee(self):
+        session = self.client.session
+        session['payment'] = [3]
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_get_request_with_invalid_attendee(self):
+        session = self.client.session
+        session['payment'] = ['bad']
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_get_request_with_invalid_attendees_data_type(self):
+        session = self.client.session
+        session['payment'] = 123
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertRedirects(response, '/reg23/')
+
+    def test_add_attendee(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 1,
+            'email': 'a@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, '$10.00')
+        self.assertContains(response, 'First Last')
+
+    def test_add_paid_attendee(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 2,
+            'email': 'b@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Already Paid For')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_add_no_such_attendee(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 999,
+            'email': 'a@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Not Found')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_add_attendee_with_invalid_id(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 'bad',
+            'email': 'a@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Not Found')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_add_attendee_with_wrong_email(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 1,
+            'email': 'bad@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Not Found')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_remove_attendee(self):
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/start_payment/', {'remove': 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Removed')
+        self.assertContains(response, 'Registration Number: 1')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Total: $')
+
+    def test_remove_paid_attendee(self):
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/start_payment/', {'remove': 2})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Attendee Removed')
+        self.assertNotContains(response, 'Registration Number: 1')
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Total: $10.00')
+
+    def test_remove_no_such_attendee(self):
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/start_payment/', {'remove': 3})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Attendee Removed')
+        self.assertNotContains(response, 'Registration Number: 1')
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Total: $10.00')
+
+    def test_remove_invalid_attendee(self):
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/start_payment/', {'remove': 'bad'})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Attendee Removed')
+        self.assertNotContains(response, 'Registration Number: 1')
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Total: $10.00')
