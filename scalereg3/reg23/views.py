@@ -65,6 +65,31 @@ def get_promo_in_use(request_data):
     return (promo_name, active_promo_set.get(name=promo_name))
 
 
+def get_unpaid_attendees_from_payment_cookie(cookie_data):
+    unpaid_attendees = []
+    for attendee_id in cookie_data:
+        attendee = get_attendee_for_id(attendee_id)
+        if not attendee:
+            continue
+        if attendee.valid:
+            continue  # Ignore paid attendees
+        unpaid_attendees.append(attendee)
+    return unpaid_attendees
+
+
+def start_payment_search_for_attendee(id_str, email_str):
+    try:
+        attendee_id = int(id_str)
+    except ValueError:
+        return None
+
+    attendee = get_attendee_for_id(attendee_id)
+    if not attendee or attendee.email != email_str:
+        return None
+
+    return attendee
+
+
 def validate_save_attendee(request, ticket, items, promo_in_use):
     if ATTENDEE_COOKIE in request.session and request.session[ATTENDEE_COOKIE]:
         return render_error(request, 'Already added attendee.')
@@ -234,4 +259,59 @@ def registered_attendee(request):
             'attendee': attendee,
             'step': 4,
             'steps_total': STEPS_TOTAL,
+        })
+
+
+def start_payment(request):
+    if PAYMENT_COOKIE not in request.session:
+        request.session[PAYMENT_COOKIE] = []
+
+    try:
+        unpaid_attendees = get_unpaid_attendees_from_payment_cookie(
+            request.session[PAYMENT_COOKIE])
+    except TypeError:
+        return redirect('/reg23/')
+
+    new_attendee = None
+    bad_attendee_id_email = None
+    paid_attendee = None
+    removed_attendee = None
+
+    if request.method == 'POST':
+        if 'remove' in request.POST:
+            removed_attendee = get_attendee_for_id(request.POST['remove'])
+            if removed_attendee in unpaid_attendees:
+                unpaid_attendees.remove(removed_attendee)
+            else:
+                removed_attendee = None
+        elif 'id' in request.POST and 'email' in request.POST:
+            id_str = request.POST['id']
+            email_str = request.POST['email'].strip()
+            searched_attendee = start_payment_search_for_attendee(
+                id_str, email_str)
+            if not searched_attendee:
+                bad_attendee_id_email = [id_str, email_str]
+            elif searched_attendee.valid:
+                paid_attendee = searched_attendee
+            elif searched_attendee not in unpaid_attendees:
+                new_attendee = searched_attendee
+                unpaid_attendees.append(searched_attendee)
+
+    request.session[PAYMENT_COOKIE] = [
+        attendee.id for attendee in unpaid_attendees
+    ]
+
+    total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
+
+    return render(
+        request, 'reg23/reg_start_payment.html', {
+            'title': 'Place Your Order',
+            'bad_attendee_id_email': bad_attendee_id_email,
+            'new_attendee': new_attendee,
+            'paid_attendee': paid_attendee,
+            'removed_attendee': removed_attendee,
+            'attendees': unpaid_attendees,
+            'step': 5,
+            'steps_total': STEPS_TOTAL,
+            'total': total,
         })

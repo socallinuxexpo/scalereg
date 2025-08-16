@@ -1,0 +1,166 @@
+{% extends "reg23/reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if bad_attendee_id_email %}
+    <h2>Attendee Not Found</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ bad_attendee_id_email.0 }},
+    Email: {{ bad_attendee_id_email.1 }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if new_attendee %}
+    <h2>Added Attendee</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ new_attendee.id }},
+    Email: {{ new_attendee.email }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if paid_attendee %}
+    <h2>Attendee Already Paid For</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ paid_attendee.id }},
+    Email: {{ paid_attendee.email }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if removed_attendee %}
+    <h2>Attendee Removed</h2>
+    <p>
+    <table border="1">
+    <tbody>
+    <tr>
+    <td>
+    Registration Number: {{ removed_attendee.id }},
+    Email: {{ removed_attendee.email }}.
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <br />
+    </p>
+{% endif %}
+
+{% if attendees and total %}
+    <h2>
+    You are paying for the following attendee(s):
+    </h2>
+
+    <p>
+    <table border="1">
+    <thead>
+    <tr>
+    <th>Registration Number</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    <th>Remove</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in attendees %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
+        <td>
+        <form method="post" action=".">
+        <input type="hidden" name="remove" value="{{ person.id }}" />
+        <input type="submit" class="scale_kiosk_bordered" value="Remove" />
+        {% csrf_token %}
+        </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </p>
+
+    <p>
+    Total: {{ total|money }}
+    </p>
+
+    <p>
+    If you are ready to pay for the above attendee(s), click "Pay For This Order" to continue.
+    </p>
+
+    <p>
+    <form method="post" action="../payment/">
+    <input type="submit" class="scale_kiosk_bordered" value="Pay For This Order" />
+    {% csrf_token %}
+    </form>
+    <br />
+    </p>
+    <h2>Pay for additional attendees:</h2>
+
+    <p>
+    If you want to pay for more attendees at once, use the 'add attendee' form here.
+    </p>
+{% else %}
+    <h2>Add an attendee:</h2>
+
+{% endif %}
+
+    <p>
+    <form method="post" action=".">
+    <table>
+    <tr>
+    <td><b>Registration Number:</b></td>
+    <td><input type="text" name="id" maxlength="10" size="10" /></td>
+    <td><a href="../reg_lookup/">Registration Number Lookup</a></td>
+    </tr>
+    <tr>
+    <td><b>Email:</b></td>
+    <td colspan="2"><input type="text" name="email" maxlength="75" size="50" /></td>
+    </tr>
+    </table>
+
+    <br />
+    <input type="submit" class="scale_kiosk_bordered" value="Add Attendee" />
+    {% csrf_token %}
+    </form>
+    <br />
+    </p>
+
+    <h2>Other Options:</h2>
+    <p>
+    <form method="post" action="..">
+    <input type="submit" class="scale_kiosk_bordered" value="Register Another Attendee" />
+    {% csrf_token %}
+    </form>
+    </p>
+
+</div>
+{% endblock %}
