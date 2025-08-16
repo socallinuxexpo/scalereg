@@ -1179,3 +1179,55 @@ class AttendeeTestWithPromo(TestCase):
         self.assertRedirects(response, '/reg23/registered_attendee/')
         self.assertIn('payment', self.client.session.keys())
         self.assertEqual(self.client.session.get('payment'), [1])
+
+
+class RegisteredAttendeeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+
+    def test_get_request_with_session(self):
+        session = self.client.session
+        session['attendee'] = 1
+        session.save()
+        response = self.client.get('/reg23/registered_attendee/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'First Last')
+
+    def test_get_request_no_session(self):
+        response = self.client.get('/reg23/registered_attendee/')
+        self.assertRedirects(response, '/reg23/')
+
+    def test_get_request_invalid_attendee_type(self):
+        session = self.client.session
+        session['attendee'] = 'invalid'
+        session.save()
+        response = self.client.get('/reg23/registered_attendee/')
+        self.assertRedirects(response, '/reg23/')
+
+    def test_get_request_invalid_attendee_id(self):
+        session = self.client.session
+        session['attendee'] = 999
+        session.save()
+        response = self.client.get('/reg23/registered_attendee/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'cannot pull up')
+
+    def test_post_fails(self):
+        session = self.client.session
+        session['attendee'] = 1
+        session.save()
+        response = self.client.post('/reg23/registered_attendee/')
+        self.assertRedirects(response, '/reg23/')
