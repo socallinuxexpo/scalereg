@@ -538,3 +538,36 @@ def failed_payment(request):
     return render(request, 'reg23/reg_failed.html', {
         'title': 'Registration Payment Failed',
     })
+
+
+def finish_payment(request):
+    required_vars = (
+        'NAME',
+        'EMAIL',
+        'AMOUNT',
+        'USER1',
+    )
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    try:
+        order = models.Order.objects.get(order_num=request.POST['USER1'])
+    except models.Order.DoesNotExist:
+        return render_error(request, 'Your registration order cannot be found')
+
+    all_attendees = models.Attendee.objects.filter(order=order.order_num)
+    already_paid_attendees = order.already_paid_attendees
+
+    return render(
+        request, 'reg23/reg_receipt.html', {
+            'title': 'Registration Payment Receipt',
+            'name': request.POST['NAME'],
+            'email': request.POST['EMAIL'],
+            'attendees': all_attendees,
+            'already_paid_attendees': already_paid_attendees.all(),
+            'order': request.POST['USER1'],
+            'step': 7,
+            'steps_total': STEPS_TOTAL,
+            'total': request.POST['AMOUNT'],
+        })
