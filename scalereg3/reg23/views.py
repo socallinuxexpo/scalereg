@@ -1,6 +1,10 @@
+from django.conf import settings
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+
+from common import utils
 
 from . import forms
 from . import models
@@ -33,6 +37,10 @@ def get_attendee_for_id(attendee_id):
         return models.Attendee.objects.get(id=attendee_id)
     except (models.Attendee.DoesNotExist, ValueError):
         return None
+
+
+def generate_order_id(existing_ids):
+    return utils.generate_unique_id(10, existing_ids)
 
 
 def get_posted_items(post, avail_items):
@@ -312,6 +320,61 @@ def start_payment(request):
             'removed_attendee': removed_attendee,
             'attendees': unpaid_attendees,
             'step': 5,
+            'steps_total': STEPS_TOTAL,
+            'total': total,
+        })
+
+
+def payment(request):
+    if request.method != 'POST':
+        return redirect('/reg23/')
+
+    if PAYMENT_COOKIE not in request.session:
+        return redirect('/reg23/')
+
+    try:
+        unpaid_attendees = get_unpaid_attendees_from_payment_cookie(
+            request.session[PAYMENT_COOKIE])
+    except TypeError:
+        return redirect('/reg23/')
+
+    request.session[PAYMENT_COOKIE] = [
+        attendee.id for attendee in unpaid_attendees
+    ]
+
+    order_num = None
+    if unpaid_attendees:
+        csv = ','.join([str(x) for x in request.session[PAYMENT_COOKIE]])
+        order_tries = 0
+        while True:
+            existing_order_ids = [
+                x.order_num for x in models.PendingOrder.objects.all()
+            ]
+            existing_order_ids += [
+                x.order_num for x in models.Order.objects.all()
+            ]
+            order_num = generate_order_id(existing_order_ids)
+            pending_order = models.PendingOrder(order_num=order_num,
+                                                attendees=csv)
+            try:
+                pending_order.save()
+                break
+            except IntegrityError:
+                order_tries += 1
+                if order_tries > 10:
+                    return render_error(request, 'cannot generate order ID')
+
+    total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
+
+    return render(
+        request, 'reg23/reg_payment.html', {
+            'title': 'Registration Payment',
+            'attendees': unpaid_attendees,
+            'order': order_num,
+            'payflow_url': settings.SCALEREG_PAYFLOW_URL,
+            'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
+            'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
+            'step': 6,
             'steps_total': STEPS_TOTAL,
             'total': total,
         })
