@@ -249,3 +249,17 @@ class Attendee(models.Model):
 
     def ticket_cost(self):
         return self.badge_type.ticket_cost(self.ordered_items.all())
+
+
+class PendingOrder(models.Model):
+    order_num = models.CharField(
+        max_length=10,
+        primary_key=True,
+        help_text='Unique 10 upper-case letters + numbers code')
+    attendees = models.TextField(blank=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def attendees_list(self):
+        if not self.attendees:
+            return []
+        return [int(x) for x in self.attendees.split(',')]
