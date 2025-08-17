@@ -1751,3 +1751,67 @@ class FinishPaymentTest(TestCase):
             del post_data[key]
             response = self.client.post('/reg23/finish_payment/', post_data)
             self.assertContains(response, f'No {key} information')
+
+
+class RegLookupTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(id=1,
+                                first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/reg_lookup/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'look up existing registrations')
+
+    def test_post_request_no_data(self):
+        response = self.client.post('/reg23/reg_lookup/', {})
+        self.assertContains(response, 'No email information.')
+
+    def test_post_request_no_zip(self):
+        response = self.client.post('/reg23/reg_lookup/', {'email': 'a@a.com'})
+        self.assertContains(response, 'No zip information.')
+
+    def test_post_request_attendee_not_found(self):
+        response = self.client.post('/reg23/reg_lookup/', {
+            'email': 'no@no.com',
+            'zip': '54321'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'First Last')
+
+    def test_post_request_attendee_found(self):
+        response = self.client.post('/reg23/reg_lookup/', {
+            'email': 'a@a.com',
+            'zip': '12345'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'First Last')
+
+    def test_post_request_wrong_email(self):
+        response = self.client.post('/reg23/reg_lookup/', {
+            'email': 'wrong@email.com',
+            'zip': '12345'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'First Last')
+
+    def test_post_request_wrong_zip(self):
+        response = self.client.post('/reg23/reg_lookup/', {
+            'email': 'a@a.com',
+            'zip': 'wrong'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'First Last')
