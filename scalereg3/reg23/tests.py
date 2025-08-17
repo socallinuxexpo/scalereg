@@ -1680,3 +1680,74 @@ class FailedPaymentTest(TestCase):
     def test_post_request(self):
         response = self.client.post('/reg23/failed_payment/')
         self.assertContains(response, 'Your transaction has been aborted')
+
+
+class FinishPaymentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+        Attendee.objects.create(first_name='Second',
+                                last_name='Last',
+                                email='b@a.com',
+                                zip_code='54321',
+                                badge_type=t,
+                                valid=True)
+        cls.post_data = {
+            'NAME': 'First Last',
+            'EMAIL': 'a@a.com',
+            'AMOUNT': '10.00',
+            'USER1': '1234567890',
+        }
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/finish_payment/')
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_success(self):
+        order = Order.objects.create(order_num='1234567890', amount=10)
+        attendee = Attendee.objects.get(id=1)
+        attendee.valid = True
+        attendee.order = order
+        response = self.client.post('/reg23/finish_payment/', self.post_data)
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$10.00')
+
+    def test_post_request_already_paid(self):
+        order = Order.objects.create(order_num='1234567890', amount=10)
+        attendee = Attendee.objects.get(id=2)
+        attendee.order = order
+        order.already_paid_attendees.add(attendee)
+        response = self.client.post('/reg23/finish_payment/', self.post_data)
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$10.00')
+        self.assertContains(response,
+                            'Already paid attendees charged on this order')
+
+    def test_post_missing_order(self):
+        response = self.client.post('/reg23/finish_payment/', self.post_data)
+        self.assertContains(response,
+                            'Your registration order cannot be found')
+
+    def test_post_request_missing_data(self):
+        response = self.client.post('/reg23/finish_payment/')
+        self.assertContains(response, 'No NAME information')
+
+        for key in self.post_data:
+            post_data = self.post_data.copy()
+            del post_data[key]
+            response = self.client.post('/reg23/finish_payment/', post_data)
+            self.assertContains(response, f'No {key} information')
