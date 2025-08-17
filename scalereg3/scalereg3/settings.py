@@ -128,3 +128,10 @@ SCALEREG_PAYFLOW_URL = 'https://payflowlink.paypal.com/'
 SCALEREG_PAYFLOW_LOGIN = ''
 # Partner (either Paypal or Verisign):
 SCALEREG_PAYFLOW_PARTNER = ''
+
+# Set to True if you want scalereg to be able to email attendees.
+# You need to set EMAIL_HOST, EMAIL_PORT, and other EMAIL_ settings
+# appropriately.
+SCALEREG_SEND_MAIL = False
+# You also need to set the from address below:
+SCALEREG_EMAIL = ''

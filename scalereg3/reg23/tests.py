@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from .models import Attendee
 from .models import Item
+from .models import Order
 from .models import PendingOrder
 from .models import PromoCode
 from .models import Ticket
@@ -1514,3 +1515,168 @@ class PaymentTest(TestCase):
         self.assertNotContains(response, 'paying for the following')
         self.assertNotContains(response, 'First Last')
         self.assertEqual(PendingOrder.objects.count(), 0)
+
+
+class SaleTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+        Attendee.objects.create(first_name='Second',
+                                last_name='Last',
+                                email='b@a.com',
+                                zip_code='54321',
+                                badge_type=t,
+                                valid=True)
+        PendingOrder.objects.create(order_num='1234567890', attendees='1')
+        cls.post_data = {
+            'NAME': 'First Last',
+            'ADDRESS': '123 Main St',
+            'CITY': 'Anytown',
+            'STATE': 'CA',
+            'ZIP': '12345',
+            'COUNTRY': 'USA',
+            'PHONE': '555-555-5555',
+            'EMAIL': 'a@a.com',
+            'AMOUNT': '10.00',
+            'AUTHCODE': '123456',
+            'PNREF': 'A1B2C3D4E5F6',
+            'RESULT': '0',
+            'RESPMSG': 'Approved',
+            'USER1': '1234567890',
+        }
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/sale/')
+        self.assertEqual(response.status_code, 405)
+
+    def test_post_request_success(self):
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(Order.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.assertTrue(attendee.valid)
+        self.assertTrue(attendee.order)
+
+    def test_post_request_missing_data(self):
+        response = self.client.post('/reg23/sale/')
+        self.assertContains(response, 'required vars missing', status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+        for key in self.post_data:
+            post_data = self.post_data.copy()
+            del post_data[key]
+            response = self.client.post('/reg23/sale/')
+            self.assertContains(response,
+                                'required vars missing',
+                                status_code=500)
+            self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_bad_result(self):
+        post_data = self.post_data.copy()
+        post_data['RESULT'] = '1'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'transaction did not succeed',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_bad_response_message(self):
+        post_data = self.post_data.copy()
+        post_data['RESPMSG'] = 'BAD'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'transaction declined', status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_order_already_exists(self):
+        Order.objects.create(order_num='1234567890', amount=100)
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'order already exists', status_code=500)
+        self.assertEqual(Order.objects.count(), 1)
+
+    def test_post_request_missing_pending_order(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'BAD'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'cannot get pending order',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_missing_attendee(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'MISSING'
+        PendingOrder.objects.create(order_num='MISSING', attendees='5')
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'cannot find an attendee',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_no_attendee(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'MISSING'
+        PendingOrder.objects.create(order_num='MISSING', attendees='')
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount: should not expect 0',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_no_amount(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '0.00'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount: got 0',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_wrong_amount(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '150.00'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount: expected 10, got 150',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_already_paid_attendee(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '20.00'
+        post_data['USER1'] = 'CUSTOM'
+        PendingOrder.objects.create(order_num='CUSTOM', attendees='1,2')
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(Order.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.assertTrue(attendee.valid)
+        self.assertTrue(attendee.order)
+        attendee = Attendee.objects.get(id=2)
+        self.assertTrue(attendee.valid)
+        self.assertFalse(attendee.order)
+        order = Order.objects.all()[0]
+        self.assertEqual(order.already_paid_attendees.count(), 1)
+        self.assertEqual(order.already_paid_attendees.all()[0], attendee)
+
+
+class FailedPaymentTest(TestCase):
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/failed_payment/')
+        self.assertContains(response, 'Your transaction has been aborted')
+
+    def test_post_request(self):
+        response = self.client.post('/reg23/failed_payment/')
+        self.assertContains(response, 'Your transaction has been aborted')
