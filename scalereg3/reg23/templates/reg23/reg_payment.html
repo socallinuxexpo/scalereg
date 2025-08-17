@@ -1,0 +1,70 @@
+{% extends "reg23/reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendees and total %}
+    <h2>
+    You are paying for the following attendee(s):
+    </h2>
+
+    <p>
+    <table border="1">
+    <thead>
+    <tr>
+    <th>Registration Number</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in attendees %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.first_name }} {{ person.last_name }}</td>
+        <td>{{ person.email }}</td>
+        <td>{{ person.ticket_cost|money }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </p>
+
+    <p>
+    Total: {{ total|money }}
+    </p>
+
+    <h2>Credit Card Payments:</h2>
+
+    <p>
+    You will now be redirected to our payment gateway. We accept VISA, Mastercard, American Express, and Discover.
+    </p>
+
+    <form method="post" action="{{ payflow_url }}">
+    <p>
+    <input type="hidden" name="AMOUNT" value="{{ total }}">
+    <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
+    <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order }}">
+    <input type="submit" class="scale_kiosk_bordered" value="Continue With Credit Card Payment" />
+    </p>
+    {% csrf_token %}
+    </form>
+{% else %}
+    <h2>Cannot complete this transaction</h2>
+{% endif %}
+
+    <h2>Other Options:</h2>
+
+    <form method="post" action="../">
+    <p>
+    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
+    </p>
+    {% csrf_token %}
+    </form>
+</div>
+{% endblock %}
+

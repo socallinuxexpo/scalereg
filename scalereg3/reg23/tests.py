@@ -1,9 +1,11 @@
 import datetime
+import random
 
 from django.test import TestCase
 
 from .models import Attendee
 from .models import Item
+from .models import PendingOrder
 from .models import PromoCode
 from .models import Ticket
 
@@ -1404,3 +1406,111 @@ class StartPaymentTest(TestCase):
         self.assertNotContains(response, 'Registration Number: 1')
         self.assertContains(response, 'paying for the following')
         self.assertContains(response, 'Total: $10.00')
+
+
+class PaymentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        t = Ticket.objects.create(name='T1',
+                                  description='T1 full',
+                                  ticket_type='full',
+                                  price=10,
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        Attendee.objects.create(first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=t)
+        Attendee.objects.create(first_name='Second',
+                                last_name='Last',
+                                email='b@a.com',
+                                zip_code='54321',
+                                badge_type=t,
+                                valid=True)
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/payment/')
+        self.assertRedirects(response, '/reg23/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_post_request_no_session(self):
+        response = self.client.post('/reg23/payment/')
+        self.assertRedirects(response, '/reg23/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_post_request_with_invalid_attendees_data_type(self):
+        session = self.client.session
+        session['payment'] = 123
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertRedirects(response, '/reg23/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_post_request_with_unpaid_attendee(self):
+        random.seed(0)
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Total: $10.00')
+        self.assertNotContains(response, 'Cannot complete this transaction')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [1])
+
+    def test_post_request_with_unpaid_attendee_and_existing_order(self):
+        random.seed(0)
+        PendingOrder.objects.create(order_num='Y0CQ65ZT4W')
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Total: $10.00')
+        self.assertNotContains(response, 'Cannot complete this transaction')
+        self.assertEqual(PendingOrder.objects.count(), 2)
+        pending_order = PendingOrder.objects.all()[1]
+        self.assertEqual(pending_order.order_num, 'N6ISIGQ8JT')
+        self.assertEqual(pending_order.attendees_list(), [1])
+
+    def test_post_request_with_paid_attendee(self):
+        session = self.client.session
+        session['payment'] = [2]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Cannot complete this transaction')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'Second Last')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_post_request_with_no_such_attendee(self):
+        session = self.client.session
+        session['payment'] = [3]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Cannot complete this transaction')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'First Last')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_post_request_with_invalid_attendee(self):
+        session = self.client.session
+        session['payment'] = ['bad']
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Cannot complete this transaction')
+        self.assertNotContains(response, 'paying for the following')
+        self.assertNotContains(response, 'First Last')
+        self.assertEqual(PendingOrder.objects.count(), 0)

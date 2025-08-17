@@ -119,3 +119,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# PayFlow Account Settings must be set to use PayFlow.
+#
+# PayFlow URL:
+SCALEREG_PAYFLOW_URL = 'https://payflowlink.paypal.com/'
+# Manager User Login:
+SCALEREG_PAYFLOW_LOGIN = ''
+# Partner (either Paypal or Verisign):
+SCALEREG_PAYFLOW_PARTNER = ''
