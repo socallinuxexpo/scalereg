@@ -15,4 +15,7 @@ urlpatterns = [
     path('sale/', views.sale),
     path('failed_payment/', views.failed_payment),
     path('finish_payment/', views.finish_payment),
+
+    # Misc
+    path('reg_lookup/', views.reg_lookup),
 ]
