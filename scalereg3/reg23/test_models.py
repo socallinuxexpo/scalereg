@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from .models import Attendee
 from .models import Item
+from .models import PendingOrder
 from .models import Ticket
 
 
@@ -114,3 +115,14 @@ class AttendeeTicketCostTest(TestCase):
     def test_item_no_promo(self):
         self.attendee.ordered_items.add(self.item1)
         self.assertEqual(self.attendee.ticket_cost(), 27)
+
+
+class PendingOrderTest(TestCase):
+
+    def test_attendees_list(self):
+        pending_order = PendingOrder.objects.create(order_num='1234567890',
+                                                    attendees='1,2,34,567')
+        empty_pending_order = PendingOrder.objects.create(
+            order_num='EEEEEEEEEE', attendees='')
+        self.assertEqual(pending_order.attendees_list(), [1, 2, 34, 567])
+        self.assertEqual(empty_pending_order.attendees_list(), [])
