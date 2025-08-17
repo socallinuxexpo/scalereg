@@ -1,6 +1,8 @@
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.http import HttpResponse
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.shortcuts import render
 
@@ -22,6 +24,36 @@ def render_error(request, error_message):
     })
 
 
+def check_payment_amount(amount_str, expected_cost):
+    actual = int(float(amount_str))
+    expected = int(float(expected_cost))
+    if actual == 0:
+        return HttpResponseServerError(
+            f'incorrect payment amount: got {actual}')
+    if expected == 0:
+        return HttpResponseServerError(
+            'incorrect payment amount: should not expect 0')
+    if actual == expected:
+        return None
+    return HttpResponseServerError(
+        f'incorrect payment amount: expected {expected}, got {actual}')
+
+
+def check_sales_request(request, required_vars):
+    if request.method != 'POST':
+        return HttpResponse(f'Method not allowed: {request.method}',
+                            status=405)
+
+    for var in required_vars:
+        if var not in request.POST:
+            return HttpResponseServerError('required vars missing')
+    if request.POST['RESULT'] != '0':
+        return HttpResponseServerError('transaction did not succeed')
+    if request.POST['RESPMSG'] != 'Approved':
+        return HttpResponseServerError('transaction declined')
+    return None
+
+
 def check_vars(request, required_post_vars):
     if request.method != 'POST':
         return redirect('/reg23/')
@@ -41,6 +73,31 @@ def get_attendee_for_id(attendee_id):
 
 def generate_order_id(existing_ids):
     return utils.generate_unique_id(10, existing_ids)
+
+
+def get_pending_order_attendees(pending_order):
+    all_attendees = []
+    already_paid_attendees = []
+    for attendee_id in pending_order.attendees_list():
+        attendee = get_attendee_for_id(attendee_id)
+        if not attendee:
+            return HttpResponseServerError('cannot find an attendee')
+
+        if attendee.valid:
+            already_paid_attendees.append(attendee)
+        else:
+            all_attendees.append(attendee)
+    return (all_attendees, already_paid_attendees)
+
+
+def get_pending_order(order_num):
+    if models.Order.objects.filter(order_num=order_num):
+        return HttpResponseServerError('order already exists')
+
+    try:
+        return models.PendingOrder.objects.get(order_num=order_num)
+    except models.PendingOrder.DoesNotExist:
+        return HttpResponseServerError('cannot get pending order')
 
 
 def get_posted_items(post, avail_items):
@@ -96,6 +153,33 @@ def start_payment_search_for_attendee(id_str, email_str):
         return None
 
     return attendee
+
+
+def notify_attendee(attendee):
+    if not settings.SCALEREG_SEND_MAIL:
+        return
+
+    if (not attendee.email or attendee.email.endswith('@example.com')
+            or attendee.email.endswith('@none.com')
+            or '@' not in attendee.email):
+        return
+
+    subject = 'SCALE Registration'
+    body = f'''Thank you for registering for SCALE.
+The details of your registration are included below.
+
+First Name: {attendee.first_name}
+Last Name: {attendee.last_name}
+Email: {attendee.email}
+Zip Code: {attendee.zip_code}
+
+Badge Type: {attendee.badge_type.description}
+'''
+
+    send_mail(subject,
+              body,
+              settings.SCALEREG_EMAIL, [attendee.email],
+              fail_silently=True)
 
 
 def validate_save_attendee(request, ticket, items, promo_in_use):
@@ -378,3 +462,79 @@ def payment(request):
             'steps_total': STEPS_TOTAL,
             'total': total,
         })
+
+
+def sale(request):
+    required_vars = (
+        'NAME',
+        'ADDRESS',
+        'CITY',
+        'STATE',
+        'ZIP',
+        'COUNTRY',
+        'PHONE',
+        'EMAIL',
+        'AMOUNT',
+        'AUTHCODE',
+        'PNREF',
+        'RESULT',
+        'RESPMSG',
+        'USER1',
+    )
+    r = check_sales_request(request, required_vars)
+    if r:
+        return r
+
+    maybe_pending_order = get_pending_order(request.POST['USER1'])
+    if isinstance(maybe_pending_order, HttpResponseServerError):
+        return maybe_pending_order
+
+    maybe_attendee_data = get_pending_order_attendees(maybe_pending_order)
+    if isinstance(maybe_attendee_data, HttpResponseServerError):
+        return maybe_attendee_data
+
+    all_attendees, already_paid_attendees = maybe_attendee_data
+    total = sum(attendee.ticket_cost() for attendee in all_attendees)
+    total += sum(attendee.ticket_cost() for attendee in already_paid_attendees)
+    r = check_payment_amount(request.POST['AMOUNT'], total)
+    if r:
+        return r
+
+    try:
+        order = models.Order(
+            order_num=request.POST['USER1'],
+            valid=True,
+            name=request.POST['NAME'],
+            address=request.POST['ADDRESS'],
+            city=request.POST['CITY'],
+            state=request.POST['STATE'],
+            zip_code=request.POST['ZIP'],
+            country=request.POST['COUNTRY'],
+            email=request.POST['EMAIL'],
+            phone=request.POST['PHONE'],
+            amount=request.POST['AMOUNT'],
+            payment_type='payflow',
+            payflow_auth_code=request.POST['AUTHCODE'],
+            payflow_pnref=request.POST['PNREF'],
+            payflow_resp_msg=request.POST['RESPMSG'],
+            payflow_result=request.POST['RESULT'],
+        )
+        order.save()
+        for attendee in already_paid_attendees:
+            order.already_paid_attendees.add(attendee)
+    except IntegrityError:
+        return HttpResponseServerError('cannot save order')
+
+    for attendee in all_attendees:
+        attendee.valid = True
+        attendee.order = order
+        attendee.save()
+        notify_attendee(attendee)
+
+    return HttpResponse('success')
+
+
+def failed_payment(request):
+    return render(request, 'reg23/reg_failed.html', {
+        'title': 'Registration Payment Failed',
+    })

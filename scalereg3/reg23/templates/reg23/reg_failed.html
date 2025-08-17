@@ -1,0 +1,22 @@
+{% extends "reg23/reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+Your transaction has been aborted. Please try again later.
+</p>
+
+<p>
+If you believe this is an error, please contact us.
+</p>
+
+<form method="post" action="/reg23/">
+<input type="submit" value="Return To Registration Page" />
+{% csrf_token %}
+</form>
+
+</div>
+{% endblock %}
+
