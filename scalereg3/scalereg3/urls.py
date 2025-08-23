@@ -23,6 +23,7 @@ from reg23 import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('reg23/', include('reg23.urls')),
+    path('reports/', include('reports.urls')),
 
     # Placeholder index page.
     path('', views.index_redirect),
