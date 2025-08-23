@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-
 from common import utils
 
 from . import forms
@@ -582,28 +581,20 @@ def reg_lookup(request):
     if request.method != 'POST':
         return render(request, 'reg23/reg_lookup.html', {
             'title': 'Registration Lookup',
+            'form': forms.AttendeeLookupForm()
         })
 
-    required_vars = (
-        'email',
-        'zip',
-    )
-    r = check_vars(request, required_vars)
-    if r:
-        return r
-
     attendees = []
-    email_str = request.POST['email'].strip()
-    zip_str = request.POST['zip'].strip()
-    if email_str and zip_str:
-        attendees = models.Attendee.objects.filter(email=email_str,
-                                                   zip_code=zip_str)
+    form = forms.AttendeeLookupForm(request.POST)
+    if form.is_valid():
+        attendees = models.Attendee.objects.filter(
+            email=form.cleaned_data['email'],
+            zip_code=form.cleaned_data['zip_code'])
 
     return render(
         request, 'reg23/reg_lookup.html', {
             'title': 'Registration Lookup',
             'attendees': attendees,
-            'email': request.POST['email'],
-            'zip': request.POST['zip'],
+            'form': form,
             'search': 1,
         })

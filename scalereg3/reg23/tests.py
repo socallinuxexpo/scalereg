@@ -1778,16 +1778,17 @@ class RegLookupTest(TestCase):
 
     def test_post_request_no_data(self):
         response = self.client.post('/reg23/reg_lookup/', {})
-        self.assertContains(response, 'No email information.')
+        self.assertContains(response, 'Email: This field is required.')
 
     def test_post_request_no_zip(self):
         response = self.client.post('/reg23/reg_lookup/', {'email': 'a@a.com'})
-        self.assertContains(response, 'No zip information.')
+        self.assertContains(response,
+                            'Zip/Postal Code: This field is required.')
 
     def test_post_request_attendee_not_found(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'no@no.com',
-            'zip': '54321'
+            'zip_code': '54321'
         })
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'First Last')
@@ -1795,7 +1796,7 @@ class RegLookupTest(TestCase):
     def test_post_request_attendee_found(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'a@a.com',
-            'zip': '12345'
+            'zip_code': '12345'
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'First Last')
@@ -1803,7 +1804,7 @@ class RegLookupTest(TestCase):
     def test_post_request_attendee_found_with_spaces(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'a@a.com ',
-            'zip': '  12345    '
+            'zip_code': '  12345    '
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'First Last')
@@ -1811,7 +1812,7 @@ class RegLookupTest(TestCase):
     def test_post_request_wrong_email(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'wrong@email.com',
-            'zip': '12345'
+            'zip_code': '12345'
         })
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'First Last')
@@ -1819,7 +1820,7 @@ class RegLookupTest(TestCase):
     def test_post_request_wrong_zip(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'a@a.com',
-            'zip': 'wrong'
+            'zip_code': 'wrong'
         })
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'First Last')
