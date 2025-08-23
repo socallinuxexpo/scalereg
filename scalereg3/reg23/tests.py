@@ -1800,6 +1800,14 @@ class RegLookupTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'First Last')
 
+    def test_post_request_attendee_found_with_spaces(self):
+        response = self.client.post('/reg23/reg_lookup/', {
+            'email': 'a@a.com ',
+            'zip': '  12345    '
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'First Last')
+
     def test_post_request_wrong_email(self):
         response = self.client.post('/reg23/reg_lookup/', {
             'email': 'wrong@email.com',
