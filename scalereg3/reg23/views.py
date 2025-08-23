@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+
 
 from common import utils
 
@@ -464,6 +466,7 @@ def payment(request):
         })
 
 
+@csrf_exempt
 def sale(request):
     required_vars = (
         'NAME',
@@ -534,12 +537,14 @@ def sale(request):
     return HttpResponse('success')
 
 
+@csrf_exempt
 def failed_payment(request):
     return render(request, 'reg23/reg_failed.html', {
         'title': 'Registration Payment Failed',
     })
 
 
+@csrf_exempt
 def finish_payment(request):
     required_vars = (
         'NAME',
