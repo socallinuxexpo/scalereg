@@ -18,3 +18,13 @@ class AttendeeForm(ModelForm):
             'phone',
             'can_email',
         )
+
+
+class AttendeeLookupForm(ModelForm):
+
+    class Meta:
+        model = models.Attendee
+        fields = (
+            'email',
+            'zip_code',
+        )

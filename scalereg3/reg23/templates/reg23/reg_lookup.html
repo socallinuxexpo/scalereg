@@ -8,10 +8,20 @@
     <hr />
 
     <p>
-    {% if email and zip %}
-        Search results for: {{ email }} and {{ zip }}.
+    {% if form.is_valid %}
+        Search results for: {{ form.data.email }} and {{ form.data.zip_code }}.
     {% else %}
         Please fill out all required fields to search.
+        {% if form.email.errors %}
+        <p class="reg23_form_error">
+            Email: {{ form.email.errors|join:", " }}
+        </p>
+        {% endif %}
+        {% if form.zip_code.errors %}
+        <p class="reg23_form_error">
+            Zip/Postal Code: {{ form.zip_code.errors|join:", " }}
+        </p>
+        {% endif %}
     {% endif %}
     </p>
 
@@ -54,11 +64,11 @@ Use this form to look up existing registrations. All fields are required.
 <table>
 <tr>
     <td>Email</td>
-    <td><input type="text" name="email" maxlength="75" size="50" /></td>
+    <td>{{ form.email }}</td>
 </tr>
 <tr>
     <td>Zip/Postal Code</td>
-    <td><input type="text" name="zip" maxlength="10" size="10" /></td>
+    <td>{{ form.zip_code }}</td>
 </tr>
 </table>
 <input type="submit" class="scale_kiosk_bordered" value="Search" />
