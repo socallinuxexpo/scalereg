@@ -238,7 +238,7 @@ def index(request):
     request.session.set_test_cookie()
 
     return render(
-        request, 'index.html', {
+        request, 'reg_index.html', {
             'title': 'Registration',
             'tickets': avail_tickets,
             'promo': promo_name,
