@@ -19,7 +19,7 @@ PAYMENT_COOKIE = 'payment'
 
 
 def render_error(request, error_message):
-    return render(request, 'reg23/reg_error.html', {
+    return render(request, 'reg_error.html', {
         'title': 'Registration Problem',
         'error_message': error_message,
     })
@@ -238,7 +238,7 @@ def index(request):
     request.session.set_test_cookie()
 
     return render(
-        request, 'reg23/index.html', {
+        request, 'index.html', {
             'title': 'Registration',
             'tickets': avail_tickets,
             'promo': promo_name,
@@ -258,7 +258,7 @@ def add_items(request):
         ticket = models.Ticket.public_objects.get(name=ticket_name)
     except models.Ticket.DoesNotExist:
         return render(
-            request, 'reg23/reg_error.html', {
+            request, 'reg_error.html', {
                 'title': 'Registration Problem',
                 'error_message': f'Ticket {ticket_name} not found.',
             })
@@ -270,7 +270,7 @@ def add_items(request):
         item.apply_promo(promo_in_use)
 
     return render(
-        request, 'reg23/reg_items.html', {
+        request, 'reg_items.html', {
             'title': 'Registration - Add Items',
             'ticket': ticket,
             'items': items,
@@ -324,7 +324,7 @@ def add_attendee(request):
         form = result
 
     return render(
-        request, 'reg23/reg_attendee.html', {
+        request, 'reg_attendee.html', {
             'title': 'Register Attendee',
             'ticket': ticket,
             'promo': promo_name,
@@ -347,7 +347,7 @@ def registered_attendee(request):
 
     attendee = get_attendee_for_id(attendee_id)
     return render(
-        request, 'reg23/reg_finish.html', {
+        request, 'reg_finish.html', {
             'title': 'Attendee Registered (Payment still required)',
             'attendee': attendee,
             'step': 4,
@@ -397,7 +397,7 @@ def start_payment(request):
     total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
 
     return render(
-        request, 'reg23/reg_start_payment.html', {
+        request, 'reg_start_payment.html', {
             'title': 'Place Your Order',
             'bad_attendee_id_email': bad_attendee_id_email,
             'new_attendee': new_attendee,
@@ -452,7 +452,7 @@ def payment(request):
     total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
 
     return render(
-        request, 'reg23/reg_payment.html', {
+        request, 'reg_payment.html', {
             'title': 'Registration Payment',
             'attendees': unpaid_attendees,
             'order': order_num,
@@ -538,7 +538,7 @@ def sale(request):
 
 @csrf_exempt
 def failed_payment(request):
-    return render(request, 'reg23/reg_failed.html', {
+    return render(request, 'reg_failed.html', {
         'title': 'Registration Payment Failed',
     })
 
@@ -564,7 +564,7 @@ def finish_payment(request):
     already_paid_attendees = order.already_paid_attendees
 
     return render(
-        request, 'reg23/reg_receipt.html', {
+        request, 'reg_receipt.html', {
             'title': 'Registration Payment Receipt',
             'name': request.POST['NAME'],
             'email': request.POST['EMAIL'],
@@ -579,7 +579,7 @@ def finish_payment(request):
 
 def reg_lookup(request):
     if request.method != 'POST':
-        return render(request, 'reg23/reg_lookup.html', {
+        return render(request, 'reg_lookup.html', {
             'title': 'Registration Lookup',
             'form': forms.AttendeeLookupForm()
         })
@@ -592,7 +592,7 @@ def reg_lookup(request):
             zip_code=form.cleaned_data['zip_code'])
 
     return render(
-        request, 'reg23/reg_lookup.html', {
+        request, 'reg_lookup.html', {
             'title': 'Registration Lookup',
             'attendees': attendees,
             'form': form,
