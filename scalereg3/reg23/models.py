@@ -211,6 +211,44 @@ class Item(models.Model):
             self.price *= promo.price_modifier
 
 
+class Answer(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.PROTECT)
+    text = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'({self.question.id}) {self.text}'
+
+
+class Question(models.Model):
+    text = models.CharField(max_length=200)
+    active = models.BooleanField(default=False)
+    applies_to_tickets = models.ManyToManyField(Ticket, blank=True)
+    applies_to_items = models.ManyToManyField(Item, blank=True)
+    applies_to_all = models.BooleanField(default=False,
+                                         help_text='Applies to all tickets')
+    is_text_question = models.BooleanField(default=False,
+                                           help_text='False for list question')
+    max_length = models.IntegerField(null=True,
+                                     blank=True,
+                                     help_text='Only for text questions')
+
+    def get_list_answers(self):
+        assert not self.is_text_question
+        return Answer.objects.filter(question=self.id).order_by('id')
+
+    def is_applicable_to_ticket(self, ticket):
+        if self.applies_to_all:
+            return True
+        return ticket in self.applies_to_tickets.all()
+
+    def is_applicable_to_item(self, item):
+        return item in self.applies_to_items.all()
+
+    def __str__(self):
+        type_text = 'Text' if self.is_text_question else 'List'
+        return f'{type_text} Question: {self.text}'
+
+
 class Attendee(models.Model):
     # badge info
     badge_type = models.ForeignKey(Ticket, on_delete=models.PROTECT)
@@ -243,6 +281,7 @@ class Attendee(models.Model):
                               null=True)
     ordered_items = models.ManyToManyField(Item, blank=True)
     can_email = models.BooleanField(default=False)
+    answers = models.ManyToManyField(Answer, blank=True)
 
     def full_name(self):
         return f'{self.first_name} {self.last_name}'

@@ -1,10 +1,23 @@
 from django.contrib import admin
 
+from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
 from .models import PromoCode
+from .models import Question
 from .models import Ticket
+
+
+class ListAnswerInline(admin.TabularInline):
+    extra = 3
+    model = Answer
+    verbose_name = 'List Answer'
+
+
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ('question', 'text')
+    save_on_top = True
 
 
 class AttendeeAdmin(admin.ModelAdmin):
@@ -70,6 +83,17 @@ class PromoCodeAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = []
+    model = Question
+    save_on_top = True
+
+    def get_inlines(self, request, obj):
+        if obj and obj.is_text_question:
+            return []
+        return [ListAnswerInline]
+
+
 class TicketAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'ticket_type', 'price', 'public',
                     'cash', 'upgradable', 'start_date', 'end_date')
@@ -77,8 +101,10 @@ class TicketAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PromoCode, PromoCodeAdmin)
+admin.site.register(Question, QuestionAdmin)
 admin.site.register(Ticket, TicketAdmin)
