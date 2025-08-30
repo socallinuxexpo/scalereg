@@ -1,8 +1,10 @@
 from django.test import TestCase
 
+from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import PendingOrder
+from .models import Question
 from .models import Ticket
 
 
@@ -126,3 +128,73 @@ class PendingOrderTest(TestCase):
             order_num='EEEEEEEEEE', attendees='')
         self.assertEqual(pending_order.attendees_list(), [1, 2, 34, 567])
         self.assertEqual(empty_pending_order.attendees_list(), [])
+
+
+class QuestionTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1',
+                                            ticket_type='full',
+                                            price=10,
+                                            public=True,
+                                            cash=False,
+                                            upgradable=False)
+        cls.item1 = Item.objects.create(name='I1',
+                                        description='Item 1',
+                                        price=17,
+                                        active=True,
+                                        promo=False,
+                                        ticket_offset=False,
+                                        applies_to_all=True)
+
+        cls.list_question = Question.objects.create(text='Color?',
+                                                    applies_to_all=True)
+        cls.answer1 = Answer.objects.create(question=cls.list_question,
+                                            text='Red')
+        cls.answer2 = Answer.objects.create(question=cls.list_question,
+                                            text='Blue')
+        cls.text_question = Question.objects.create(text='Name?',
+                                                    applies_to_all=False,
+                                                    is_text_question=True)
+        cls.text_question.applies_to_tickets.add(cls.ticket1)
+        cls.text_question.applies_to_items.add(cls.item1)
+
+    def test_str(self):
+        self.assertEqual(str(self.list_question), 'List Question: Color?')
+        self.assertEqual(str(self.answer1), '(1) Red')
+        self.assertEqual(str(self.answer2), '(1) Blue')
+        self.assertEqual(str(self.text_question), 'Text Question: Name?')
+
+    def test_get_list_answers(self):
+        self.assertQuerySetEqual(self.list_question.get_list_answers(),
+                                 (self.answer1, self.answer2))
+
+    def test_is_applicable_to_ticket(self):
+        ticket2 = Ticket.objects.create(name='T2',
+                                        description='T2',
+                                        ticket_type='expo',
+                                        price=5,
+                                        public=True,
+                                        cash=False,
+                                        upgradable=False)
+        self.assertTrue(
+            self.list_question.is_applicable_to_ticket(self.ticket1))
+        self.assertTrue(self.list_question.is_applicable_to_ticket(ticket2))
+        self.assertTrue(
+            self.text_question.is_applicable_to_ticket(self.ticket1))
+        self.assertFalse(self.text_question.is_applicable_to_ticket(ticket2))
+
+    def test_is_applicable_to_item(self):
+        item2 = Item.objects.create(name='I2',
+                                    description='Item 2',
+                                    price=6,
+                                    active=True,
+                                    promo=False,
+                                    ticket_offset=False,
+                                    applies_to_all=True)
+        self.assertFalse(self.list_question.is_applicable_to_item(self.item1))
+        self.assertFalse(self.list_question.is_applicable_to_item(item2))
+        self.assertTrue(self.text_question.is_applicable_to_item(self.item1))
+        self.assertFalse(self.text_question.is_applicable_to_item(item2))
