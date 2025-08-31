@@ -183,6 +183,44 @@ b { font-weight: bold }
     </table>
     </p>
 
+    {% if questions %}
+    <p>
+    Survey Questions:
+    </p>
+
+    {% if form.answers.errors %}
+    <p>
+    <span class="reg6_form_error">{{ form.answers.errors|join:", " }}</span>
+    </p>
+    {% endif %}
+
+    <p>
+    <div>
+    {% for question in questions %}
+        <label>
+        <div>{{ question.text }}</div>
+        <div>
+        {% if question.is_text_question %}
+            <input type="text" name="question{{ question.id }}"
+            {% if question.max_length %}
+                   maxlength="{{ question.max_length }}"
+            {% endif %}
+            />
+        {% else %}
+            <select name="question{{ question.id }}" size="1">
+                <option value="" selected="selected"></option>
+                {% for answer in question.get_list_answers %}
+                <option value="{{ answer.id }}">{{ answer.text }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+        </div>
+        </label>
+    {% endfor %}
+    </div>
+    </p>
+    {% endif %}
+
     <p>
     <input type="submit" value="Continue" />
     </p>

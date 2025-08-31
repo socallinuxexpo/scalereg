@@ -131,6 +131,15 @@ def get_promo_in_use(request_data):
     return (promo_name, active_promo_set.get(name=promo_name))
 
 
+def get_relevant_questions(ticket, items):
+    results = []
+    for question in models.Question.objects.filter(active=True):
+        if question.is_applicable_to_ticket(ticket) or any(
+                question.is_applicable_to_item(item) for item in items):
+            results.append(question)
+    return results
+
+
 def get_unpaid_attendees_from_payment_cookie(cookie_data):
     unpaid_attendees = []
     for attendee_id in cookie_data:
@@ -209,6 +218,24 @@ def validate_save_attendee(request, ticket, items, promo_in_use):
     # add ordered items
     for item in items:
         new_attendee.ordered_items.add(item)
+
+    # add survey answers
+    for question in get_relevant_questions(ticket, items):
+        key = f'question{question.id}'
+        value = request.POST.get(key, None)
+        if not value:
+            continue
+        if question.is_text_question:
+            answer = models.Answer()
+            answer.question = question
+            answer.text = value[:question.max_length]
+            answer.save()
+            new_attendee.answers.add(answer)
+        else:
+            try:
+                new_attendee.answers.add(models.Answer.objects.get(id=value))
+            except (models.Answer.DoesNotExist, ValueError):
+                pass
 
     request.session[ATTENDEE_COOKIE] = new_attendee.id
 
@@ -330,6 +357,7 @@ def add_attendee(request):
             'promo': promo_name,
             'items': items,
             'offset_item': offset_item,
+            'questions': get_relevant_questions(ticket, items),
             'total': total,
             'form': form,
             'step': 3,
