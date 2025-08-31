@@ -3,11 +3,13 @@ import random
 
 from django.test import TestCase
 
+from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
 from .models import PendingOrder
 from .models import PromoCode
+from .models import Question
 from .models import Ticket
 
 
@@ -870,6 +872,58 @@ class AttendeeTest(TestCase):
         self.assertNotContains(response, 'You are using promo code')
         self.assertNotContains(response, 'additional items')
 
+    def test_with_questions(self):
+        list_question = Question.objects.create(text='Color?',
+                                                active=True,
+                                                applies_to_all=True)
+        Answer.objects.create(question=list_question, text='Red')
+        Answer.objects.create(question=list_question, text='Blue')
+        Question.objects.create(text='Name?',
+                                active=True,
+                                applies_to_all=True,
+                                is_text_question=True)
+        Question.objects.create(text='City?',
+                                active=True,
+                                applies_to_all=True,
+                                is_text_question=True,
+                                max_length=47)
+        Question.objects.create(text='Country?',
+                                applies_to_all=False,
+                                is_text_question=True)
+        response = self.client.post(
+            '/reg23/add_attendee/', {
+                'ticket': 'T1',
+                'promo': ''
+            },
+            HTTP_REFERER='https://example.com/reg23/add_items/')
+        self.assertContains(response,
+                            '<p>Your T1 full costs $10.00.</p>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<select name="question1" size="1">',
+                            count=1)
+        self.assertContains(response,
+                            '<option value="1">Red</option>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<option value="2">Blue</option>',
+                            count=1,
+                            html=True)
+        self.assertContains(response,
+                            '<input type="text" name="question2" />',
+                            count=1,
+                            html=True)
+        self.assertContains(
+            response,
+            '<input type="text" name="question3" maxlength="47" />',
+            count=1,
+            html=True)
+        self.assertNotContains(response,
+                               '<input type="text" name="question4" />',
+                               html=True)
+
     def test_validate_missing_form_data(self):
         self.client.get('/reg23/')
         response = self.client.post(
@@ -1014,6 +1068,81 @@ class AttendeeTest(TestCase):
         self.assertEqual(Attendee.objects.count(), 2)
         self.check_first_attendee(Attendee.objects.get(id=1))
         self.check_second_attendee(Attendee.objects.get(id=2))
+
+    def test_validate_form_data_with_questions(self):
+        list_question = Question.objects.create(text='Color?',
+                                                active=True,
+                                                applies_to_all=True)
+        answer1 = Answer.objects.create(question=list_question, text='Red')
+        Answer.objects.create(question=list_question, text='Blue')
+        Question.objects.create(text='Name?',
+                                active=True,
+                                applies_to_all=True,
+                                is_text_question=True)
+        Question.objects.create(text='Country?',
+                                applies_to_all=False,
+                                is_text_question=True)
+
+        self.client.get('/reg23/')
+        response = self.client.post(
+            '/reg23/add_attendee/', {
+                'ticket': 'T1',
+                'promo': '',
+                'first_name': 'First',
+                'last_name': 'Last',
+                'email': 'a@a.com',
+                'question1': answer1.id,
+                'question2': 'Text Answer 1',
+                'question3': 'Not relevant',
+                'zip_code': '12345 '
+            },
+            HTTP_REFERER='https://example.com/reg23/add_attendee/')
+        self.assertRedirects(response, '/reg23/registered_attendee/')
+        self.assertIn('payment', self.client.session.keys())
+        self.assertEqual(self.client.session.get('payment'), [1])
+        self.assertEqual(Attendee.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.check_first_attendee(attendee)
+        answers = attendee.answers.all()
+        self.assertEqual(answers.count(), 2)
+        self.assertEqual(answers[0], answer1)
+        self.assertEqual(answers[1].text, 'Text Answer 1')
+
+    def test_validate_form_data_with_bad_answers(self):
+        Question.objects.create(text='Color?',
+                                active=True,
+                                applies_to_all=True)
+        Question.objects.create(text='Shape?',
+                                active=True,
+                                applies_to_all=True)
+        Question.objects.create(text='Type?', active=True, applies_to_all=True)
+        Question.objects.create(text='Name?',
+                                active=True,
+                                applies_to_all=True,
+                                is_text_question=True)
+
+        self.client.get('/reg23/')
+        response = self.client.post(
+            '/reg23/add_attendee/', {
+                'ticket': 'T1',
+                'promo': '',
+                'first_name': 'First',
+                'last_name': 'Last',
+                'email': 'a@a.com',
+                'question1': 'Bad',
+                'question2': '99',
+                'question3': '',
+                'question4': '',
+                'zip_code': '12345 '
+            },
+            HTTP_REFERER='https://example.com/reg23/add_attendee/')
+        self.assertRedirects(response, '/reg23/registered_attendee/')
+        self.assertIn('payment', self.client.session.keys())
+        self.assertEqual(self.client.session.get('payment'), [1])
+        self.assertEqual(Attendee.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.check_first_attendee(attendee)
+        self.assertEqual(attendee.answers.count(), 0)
 
 
 class AttendeeTestWithPromo(TestCase):
