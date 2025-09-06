@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import Item
 from .models import Package
+from .models import PromoCode
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -18,5 +19,13 @@ class PackageAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+class PromoCodeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'price_modifier', 'active',
+                    'start_date', 'end_date')
+    list_filter = ('active', 'start_date', 'end_date')
+    save_on_top = True
+
+
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Package, PackageAdmin)
+admin.site.register(PromoCode, PromoCodeAdmin)

@@ -51,11 +51,36 @@
     </table>
     </p>
 
+    {% if promo %}
+    <p>
+    Using promo code:
+    <b>{{ promo }}</b>.
+    <input type="hidden" name="promo" value="{{ promo }}" />
+    </p>
+    {% else %}
+    <p>
+    If you have a 1-5 digit promo code, enter it here:
+    </p>
+
+    <p>
+    <input type="text" name="promo" maxlength="5" size="5" />
+    </p>
+    {% endif %}
+
     <p>
     <input type="submit" value="Start Registration" />
     {% csrf_token %}
     </p>
     </form>
+
+    {% if promo %}
+    <h4>Change Promo Code</h4>
+
+    <form method="post" action=".">
+    <input type="submit" value="Change promo code" />
+    {% csrf_token %}
+    </form>
+    {% endif %}
 {% else %}
 No sponsorship packages currently available.
 {% endif %}
