@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reg23',
     'reports',
+    'sponsorship',
 ]
 
 MIDDLEWARE = [
