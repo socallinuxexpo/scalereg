@@ -75,10 +75,7 @@ class PromoCodeManager(models.Manager):
         return promo_codes
 
     def names(self):
-        name_list = []
-        for f in self.get_queryset():
-            name_list.append(f.name)
-        return name_list
+        return [f.name for f in self.get_queryset()]
 
 
 class PromoCode(models.Model):
