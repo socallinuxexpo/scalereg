@@ -1,0 +1,74 @@
+{% extends "sponsorship_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+Your {{ package.description }} costs {{ package.price|money }}.
+</p>
+
+<form method="post" action="../add_sponsor/">
+{% if items %}
+<p>
+Would you like to add any additional items to the sponsorship package?
+</p>
+
+<p>
+<table border="1">
+<thead>
+<tr>
+    <th>&nbsp;</th>
+    <th>Item</th>
+    <th>Price</th>
+    <th>Description</th>
+</tr>
+</thead>
+<tbody>
+{% for item in items %}
+<tr>
+    <td>
+        <input type="checkbox" name="item{{ forloop.counter0 }}"
+               id="item_{{ item.name }}" value="{{ item.name }}" />
+    </td>
+    <td>
+        <label for="item_{{ item.name }}">{{ item.description }}</label>
+    </td>
+    <td>
+        <label for="item_{{ item.name }}">
+        {{ item.price|money }}
+        {% if item.package_offset %}
+        (Waives package price of {{ package.price|money }})
+        {% endif %}
+        </label>
+    </td>
+    <td>
+        <label for="item_{{ item.name }}">{{ item.long_description }}</label>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</p>
+{% else %}
+<p>
+No addon items available.
+</p>
+{% endif %}
+
+<input type="hidden" name="package" value="{{ package.name }}" />
+
+<p>
+<input type="submit" value="Continue" />
+</p>
+{% csrf_token %}
+</form>
+
+<form method="post" action="../">
+<p>
+<input type="submit" value="Start Over" />
+</p>
+{% csrf_token %}
+</form>
+</div>
+{% endblock %}
