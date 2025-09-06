@@ -30,6 +30,7 @@ urlpatterns = [
     path('reg6/', RedirectView.as_view(url='/reg23/')),
     path('reg23/', include('reg23.urls')),
     path('reports/', include('reports.urls')),
+    path('sponsorship/', include('sponsorship.urls')),
 
     # Placeholder index page.
     path('', views.index_redirect),

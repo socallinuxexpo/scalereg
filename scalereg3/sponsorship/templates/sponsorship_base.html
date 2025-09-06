@@ -1,0 +1,12 @@
+{% extends "common/base_branding.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+     {% if step and steps_total %}
+     <p>
+     Step {{ step }} of {{ steps_total }}
+     </p>
+     {% endif %}
+</div>
+{% endblock %}
