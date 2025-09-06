@@ -4,6 +4,12 @@
 {% block content %}
 <div id="content-main">
 
+{% if promo %}
+<p>
+You are using promo code <b>{{ promo }}</b>.
+</p>
+{% endif %}
+
 <p>
 Your {{ package.description }} costs {{ package.price|money }}.
 </p>
@@ -56,6 +62,7 @@ No addon items available.
 </p>
 {% endif %}
 
+<input type="hidden" name="promo" value="{{ promo }}" />
 <input type="hidden" name="package" value="{{ package.name }}" />
 
 <p>
@@ -66,6 +73,7 @@ No addon items available.
 
 <form method="post" action="../">
 <p>
+<input type="hidden" name="promo" value="{{ promo }}" />
 <input type="submit" value="Start Over" />
 </p>
 {% csrf_token %}
