@@ -6,17 +6,20 @@ from . import models
 STEPS_TOTAL = 5
 
 
+def render_error(request, error_message):
+    return render(request, 'sponsorship_error.html', {
+        'title': 'Registration Problem',
+        'error_message': error_message,
+    })
+
+
 def check_vars(request, post):
     if request.method != 'POST':
         return redirect('/sponsorship/')
 
     for var in post:
         if var not in request.POST:
-            return render(
-                request, 'sponsorship_error.html', {
-                    'title': 'Registration Problem',
-                    'error_message': f'No {var} information.',
-                })
+            return render_error(request, f'No {var} information.')
     return None
 
 
@@ -69,11 +72,7 @@ def add_items(request):
     try:
         package = models.Package.public_objects.get(name=package_name)
     except models.Package.DoesNotExist:
-        return render(
-            request, 'sponsorship_error.html', {
-                'title': 'Registration Problem',
-                'error_message': f'Package {package_name} not found.',
-            })
+        return render_error(request, f'Package {package_name} not found.')
 
     (promo_name, promo_in_use) = get_promo_in_use(request.POST)
     package.apply_promo(promo_in_use)
