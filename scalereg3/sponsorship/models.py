@@ -2,6 +2,46 @@ import datetime
 
 from django.db import models
 
+SALUTATION_CHOICES = (
+    ('Mr', 'Mr.'),
+    ('Ms', 'Ms.'),
+    ('Mrs', 'Mrs.'),
+    ('Dr', 'Dr.'),
+)
+
+
+class Order(models.Model):
+    # basic info
+    order_num = models.CharField(
+        max_length=10,
+        primary_key=True,
+        help_text='Unique 10 upper-case letters + numbers code')
+    valid = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
+
+    # name and address
+    name = models.CharField(max_length=120)
+    address = models.CharField(max_length=120)
+    city = models.CharField(max_length=60)
+    state = models.CharField(max_length=60)
+    zip_code = models.CharField(max_length=20)
+    country = models.CharField(max_length=60, blank=True)
+
+    # contact info
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+
+    # payment info
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    payflow_auth_code = models.CharField(max_length=30, blank=True)
+    payflow_pnref = models.CharField(max_length=15, blank=True)
+    payflow_resp_msg = models.CharField(max_length=60, blank=True)
+    payflow_result = models.CharField(max_length=60, blank=True)
+
+    # sponsor data
+    sponsor = models.OneToOneField('Sponsor', on_delete=models.PROTECT)
+    already_paid_sponsor = models.BooleanField(default=False)
+
 
 class PackageManager(models.Manager):
 
@@ -34,11 +74,11 @@ class Package(models.Model):
     objects = models.Manager()
     public_objects = PackageManager()
 
-    def package_cost(self, items):
-        package_price = self.price
+    def package_cost(self, items, promo):
+        package_price = self.get_promo_price(promo)
         items_price = 0
         for item in items:
-            items_price += item.price
+            items_price += item.get_promo_price(promo)
             if item.package_offset:
                 package_price = 0
         return package_price + items_price
@@ -146,3 +186,34 @@ class Item(models.Model):
 
     def apply_promo(self, promo):
         self.price = self.get_promo_price(promo)
+
+
+class Sponsor(models.Model):
+    # meta
+    package = models.ForeignKey(Package, on_delete=models.PROTECT)
+    valid = models.BooleanField(default=False)
+
+    # name
+    salutation = models.CharField(max_length=10,
+                                  choices=SALUTATION_CHOICES,
+                                  blank=True)
+    first_name = models.CharField(max_length=60)
+    last_name = models.CharField(max_length=60)
+    title = models.CharField(max_length=60, blank=True)
+    org = models.CharField(max_length=60)
+
+    # contact info
+    email = models.EmailField()
+    zip_code = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, blank=True)
+
+    # etc
+    promo = models.ForeignKey(PromoCode,
+                              on_delete=models.PROTECT,
+                              blank=True,
+                              null=True)
+    agreed = models.BooleanField(default=False)
+    ordered_items = models.ManyToManyField(Item, blank=True)
+
+    def package_cost(self):
+        return self.package.package_cost(self.ordered_items.all(), self.promo)
