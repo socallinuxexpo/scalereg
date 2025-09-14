@@ -7,6 +7,10 @@ from . import utils
 
 class UtilsTest(TestCase):
 
+    def test_checkin_hash(self):
+        self.assertEqual(utils.checkin_hash('abc'), 'a9993e')
+        self.assertEqual(utils.checkin_hash('xyz'), '66b274')
+
     def test_generate_id(self):
         random.seed(0)
         self.assertEqual(utils.generate_id(5), 'Y0CQ6')

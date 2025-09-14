@@ -73,6 +73,22 @@ class TicketCostTest(TestCase):
         self.assertEqual(cost, 20)
 
 
+class AttendeeCheckinCodeTest(TestCase):
+
+    def test_name(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='T1',
+                                       ticket_type='full',
+                                       price=10,
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        attendee = Attendee.objects.create(badge_type=ticket,
+                                           first_name='Foo',
+                                           last_name='Bar Qux')
+        self.assertEqual(attendee.checkin_code(), '00018d4d7f')
+
+
 class AttendeeFullNameTest(TestCase):
 
     def test_name(self):

@@ -2,6 +2,8 @@ import datetime
 
 from django.db import models
 
+from common import utils
+
 SALUTATION_CHOICES = (
     ('Mr', 'Mr.'),
     ('Ms', 'Ms.'),
@@ -282,6 +284,9 @@ class Attendee(models.Model):
     ordered_items = models.ManyToManyField(Item, blank=True)
     can_email = models.BooleanField(default=False)
     answers = models.ManyToManyField(Answer, blank=True)
+
+    def checkin_code(self):
+        return f'{self.id:04d}{utils.checkin_hash(self.full_name())}'
 
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
