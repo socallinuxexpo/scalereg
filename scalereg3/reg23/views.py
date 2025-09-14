@@ -169,12 +169,16 @@ def generate_notify_attendee_body(attendee):
     return f'''Thank you for registering for SCALE.
 The details of your registration are included below.
 
+Please note the Express Check-In Code below, which will allow you to
+speed up your check-in and badge pickup on-site.
+
 First Name: {attendee.first_name}
 Last Name: {attendee.last_name}
 Email: {attendee.email}
 Zip Code: {attendee.zip_code}
 
 Badge Type: {attendee.badge_type.description}
+Express Check-In Code: {attendee.checkin_code()}
 '''
 
 
