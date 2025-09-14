@@ -165,17 +165,8 @@ def start_payment_search_for_attendee(id_str, email_str):
     return attendee
 
 
-def notify_attendee(attendee):
-    if not settings.SCALEREG_SEND_MAIL:
-        return
-
-    if (not attendee.email or attendee.email.endswith('@example.com')
-            or attendee.email.endswith('@none.com')
-            or '@' not in attendee.email):
-        return
-
-    subject = 'SCALE Registration'
-    body = f'''Thank you for registering for SCALE.
+def generate_notify_attendee_body(attendee):
+    return f'''Thank you for registering for SCALE.
 The details of your registration are included below.
 
 First Name: {attendee.first_name}
@@ -186,8 +177,19 @@ Zip Code: {attendee.zip_code}
 Badge Type: {attendee.badge_type.description}
 '''
 
+
+def notify_attendee(attendee):
+    if not settings.SCALEREG_SEND_MAIL:
+        return
+
+    if (not attendee.email or attendee.email.endswith('@example.com')
+            or attendee.email.endswith('@none.com')
+            or '@' not in attendee.email):
+        return
+
+    subject = 'SCALE Registration'
     send_mail(subject,
-              body,
+              generate_notify_attendee_body(attendee),
               settings.SCALEREG_EMAIL, [attendee.email],
               fail_silently=True)
 

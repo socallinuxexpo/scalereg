@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from .models import Item
-from .views import get_posted_items
+from .models import Attendee, Item, Ticket
+from .views import generate_notify_attendee_body, get_posted_items
 
 
 class GetPostedItemsTest(TestCase):
@@ -83,3 +83,32 @@ class GetPostedItemsTest(TestCase):
         selected_items = get_posted_items(post, avail_items)
         self.assertEqual(len(selected_items), 1)
         self.assertIn(self.item1, selected_items)
+
+
+class GenerateNotifyAttendeeBodyTest(TestCase):
+
+    def test_generate_body(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       price=100,
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False,
+                                       ticket_type='full')
+        attendee = Attendee.objects.create(first_name='Test',
+                                           last_name='User II',
+                                           email='a@b.com',
+                                           zip_code='12345',
+                                           badge_type=ticket)
+
+        expected = '''Thank you for registering for SCALE.
+The details of your registration are included below.
+
+First Name: Test
+Last Name: User II
+Email: a@b.com
+Zip Code: 12345
+
+Badge Type: Ticket 1
+'''
+        self.assertEqual(generate_notify_attendee_body(attendee), expected)
