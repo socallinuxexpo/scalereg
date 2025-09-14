@@ -104,11 +104,15 @@ class GenerateNotifyAttendeeBodyTest(TestCase):
         expected = '''Thank you for registering for SCALE.
 The details of your registration are included below.
 
+Please note the Express Check-In Code below, which will allow you to
+speed up your check-in and badge pickup on-site.
+
 First Name: Test
 Last Name: User II
 Email: a@b.com
 Zip Code: 12345
 
 Badge Type: Ticket 1
+Express Check-In Code: 0001cf7b36
 '''
         self.assertEqual(generate_notify_attendee_body(attendee), expected)
