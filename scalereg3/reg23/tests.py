@@ -250,7 +250,7 @@ class IndexTestWithPromo(TestCase):
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<label for="ticket_T2">$3.67</label>',
+                            '<label for="ticket_T2">$3.68</label>',
                             count=1,
                             html=True)
 

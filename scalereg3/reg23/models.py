@@ -134,7 +134,7 @@ class Ticket(models.Model):
 
     def apply_promo(self, promo):
         if promo and promo.is_applicable_to(self):
-            self.price *= promo.price_modifier
+            self.price = round(self.price * promo.price_modifier, 2)
 
 
 class PromoCodeManager(models.Manager):
@@ -210,7 +210,7 @@ class Item(models.Model):
 
     def apply_promo(self, promo):
         if promo and self.promo:
-            self.price *= promo.price_modifier
+            self.price = round(self.price * promo.price_modifier, 2)
 
 
 class Answer(models.Model):
