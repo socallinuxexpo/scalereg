@@ -818,7 +818,7 @@ class AttendeeTest(TestCase):
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* The item ($6.77)</p>',
+                            '<p>* The item: $6.77</p>',
                             count=1,
                             html=True)
         self.assertContains(response,
@@ -840,7 +840,7 @@ class AttendeeTest(TestCase):
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* The offset item ($99.99)</p>',
+                            '<p>* The offset item: $99.99</p>',
                             count=1,
                             html=True)
         self.assertContains(response,
@@ -1227,11 +1227,11 @@ class AttendeeTestWithPromo(TestCase):
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* Applies to promo ($8.50)</p>',
+                            '<p>* Applies to promo: $8.50</p>',
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* Does not apply to promo ($16.11)</p>',
+                            '<p>* Does not apply to promo: $16.11</p>',
                             count=1,
                             html=True)
         self.assertContains(response,
@@ -1278,11 +1278,11 @@ class AttendeeTestWithPromo(TestCase):
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* Applies to promo ($8.50)</p>',
+                            '<p>* Applies to promo: $8.50</p>',
                             count=1,
                             html=True)
         self.assertContains(response,
-                            '<p>* Does not apply to promo ($16.11)</p>',
+                            '<p>* Does not apply to promo: $16.11</p>',
                             count=1,
                             html=True)
         self.assertContains(response,

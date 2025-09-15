@@ -27,7 +27,7 @@ b { font-weight: bold }
 
     {% for item in items %}
     <p>
-        * {{ item.description }} ({{ item.price|money }})
+        * {{ item.description }}: {{ item.price|money }}
     </p>
     {% endfor %}
     {% endif %}
