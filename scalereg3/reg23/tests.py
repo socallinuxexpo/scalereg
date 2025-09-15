@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import random
 
 from django.test import TestCase
@@ -29,7 +30,7 @@ class IndexTest(TestCase):
         Ticket.objects.create(name='T1',
                               description='T1 full',
                               ticket_type='full',
-                              price=10,
+                              price=decimal.Decimal(10),
                               public=True,
                               cash=False,
                               upgradable=False,
@@ -38,21 +39,21 @@ class IndexTest(TestCase):
         Ticket.objects.create(name='T2',
                               description='T2 expo',
                               ticket_type='expo',
-                              price=5.25,
+                              price=decimal.Decimal(5.25),
                               public=True,
                               cash=False,
                               upgradable=False)
         Ticket.objects.create(name='T3',
                               description='T3 press',
                               ticket_type='press',
-                              price=0,
+                              price=decimal.Decimal(0),
                               public=False,
                               cash=False,
                               upgradable=False)
         Ticket.objects.create(name='T4',
                               description='T4 past',
                               ticket_type='expo',
-                              price=4.00,
+                              price=decimal.Decimal(4.00),
                               public=True,
                               cash=False,
                               upgradable=False,
@@ -60,7 +61,7 @@ class IndexTest(TestCase):
         Ticket.objects.create(name='T5',
                               description='T5 future',
                               ticket_type='expo',
-                              price=6.00,
+                              price=decimal.Decimal(6.00),
                               public=True,
                               cash=False,
                               upgradable=False,
@@ -144,7 +145,7 @@ class IndexTestWithPromo(TestCase):
         Ticket.objects.create(name='T1',
                               description='T1 full',
                               ticket_type='full',
-                              price=10,
+                              price=decimal.Decimal(10),
                               public=True,
                               cash=False,
                               upgradable=False,
@@ -153,37 +154,38 @@ class IndexTestWithPromo(TestCase):
         ticket2_expo = Ticket.objects.create(name='T2',
                                              description='T2 expo',
                                              ticket_type='expo',
-                                             price=5.25,
+                                             price=decimal.Decimal(5.25),
                                              public=True,
                                              cash=False,
                                              upgradable=False)
         PromoCode.objects.create(name='P1',
                                  description='P1 all',
-                                 price_modifier=0.5,
+                                 price_modifier=decimal.Decimal(0.5),
                                  active=True,
                                  applies_to_all=True)
         PromoCode.objects.create(name='P2',
                                  description='P2 inactive',
-                                 price_modifier=0.5,
+                                 price_modifier=decimal.Decimal(0.5),
                                  active=False,
                                  applies_to_all=True)
         PromoCode.objects.create(name='P3',
                                  description='P3 past',
-                                 price_modifier=0.5,
+                                 price_modifier=decimal.Decimal(0.5),
                                  active=True,
                                  end_date=today,
                                  applies_to_all=True)
         PromoCode.objects.create(name='P4',
                                  description='P4 future',
-                                 price_modifier=0.5,
+                                 price_modifier=decimal.Decimal(0.5),
                                  active=True,
                                  start_date=today + day,
                                  applies_to_all=True)
-        promo5_expo_only = PromoCode.objects.create(name='P5',
-                                                    description='P5 expo only',
-                                                    price_modifier=0.7,
-                                                    active=True,
-                                                    applies_to_all=False)
+        promo5_expo_only = PromoCode.objects.create(
+            name='P5',
+            description='P5 expo only',
+            price_modifier=decimal.Decimal(0.7),
+            active=True,
+            applies_to_all=False)
         promo5_expo_only.applies_to.add(ticket2_expo)
 
     def test_ticket_prices_with_promo(self):
@@ -304,27 +306,27 @@ class ItemsTest(TestCase):
         ticket1_full = Ticket.objects.create(name='T1',
                                              description='T1 full',
                                              ticket_type='full',
-                                             price=10,
+                                             price=decimal.Decimal(10),
                                              public=True,
                                              cash=False,
                                              upgradable=False)
         Ticket.objects.create(name='T2',
                               description='T2 expo',
                               ticket_type='expo',
-                              price=5.25,
+                              price=decimal.Decimal(5.25),
                               public=True,
                               cash=False,
                               upgradable=False)
         Item.objects.create(name='I1',
                             description='For all item',
-                            price=17,
+                            price=decimal.Decimal(17),
                             active=True,
                             promo=False,
                             ticket_offset=False,
                             applies_to_all=True)
         item2_full_only = Item.objects.create(name='I2',
                                               description='Full only item',
-                                              price=16,
+                                              price=decimal.Decimal(16),
                                               active=True,
                                               promo=False,
                                               ticket_offset=False,
@@ -332,7 +334,7 @@ class ItemsTest(TestCase):
         item2_full_only.applies_to.add(ticket1_full)
         Item.objects.create(name='I3',
                             description='Inactive item',
-                            price=15,
+                            price=decimal.Decimal(15),
                             active=False,
                             promo=False,
                             ticket_offset=False,
@@ -499,36 +501,37 @@ class ItemsTestWithPromo(TestCase):
         Ticket.objects.create(name='T1',
                               description='T1 full',
                               ticket_type='full',
-                              price=10,
+                              price=decimal.Decimal(10),
                               public=True,
                               cash=False,
                               upgradable=False)
         ticket2_expo = Ticket.objects.create(name='T2',
                                              description='T2 expo',
                                              ticket_type='expo',
-                                             price=5.25,
+                                             price=decimal.Decimal(5.25),
                                              public=True,
                                              cash=False,
                                              upgradable=False)
         Item.objects.create(name='I1',
                             description='Applies to promo',
-                            price=17,
+                            price=decimal.Decimal(17),
                             active=True,
                             promo=True,
                             ticket_offset=False,
                             applies_to_all=True)
         Item.objects.create(name='I2',
                             description='Does not apply to promo',
-                            price=16.11,
+                            price=decimal.Decimal(16.11),
                             active=True,
                             promo=False,
                             ticket_offset=False,
                             applies_to_all=True)
-        promo1_expo_only = PromoCode.objects.create(name='P1',
-                                                    description='P1 expo only',
-                                                    price_modifier=0.5,
-                                                    active=True,
-                                                    applies_to_all=False)
+        promo1_expo_only = PromoCode.objects.create(
+            name='P1',
+            description='P1 expo only',
+            price_modifier=decimal.Decimal(0.5),
+            active=True,
+            applies_to_all=False)
         promo1_expo_only.applies_to.add(ticket2_expo)
 
     def test_full_ticket_with_promo(self):
@@ -681,7 +684,7 @@ class AttendeeTest(TestCase):
         Ticket.objects.create(name='T1',
                               description='T1 full',
                               ticket_type='full',
-                              price=10,
+                              price=decimal.Decimal(10),
                               public=True,
                               cash=False,
                               upgradable=False,
@@ -690,20 +693,20 @@ class AttendeeTest(TestCase):
         Ticket.objects.create(name='T2',
                               description='T2 expo',
                               ticket_type='expo',
-                              price=5.25,
+                              price=decimal.Decimal(5.25),
                               public=True,
                               cash=False,
                               upgradable=False)
         Item.objects.create(name='I1',
                             description='The item',
-                            price=6.77,
+                            price=decimal.Decimal(6.77),
                             active=True,
                             promo=False,
                             ticket_offset=False,
                             applies_to_all=True)
         Item.objects.create(name='I2',
                             description='The offset item',
-                            price=99.99,
+                            price=decimal.Decimal(99.99),
                             active=True,
                             promo=False,
                             ticket_offset=True,
@@ -1152,36 +1155,37 @@ class AttendeeTestWithPromo(TestCase):
         Ticket.objects.create(name='T1',
                               description='T1 full',
                               ticket_type='full',
-                              price=10,
+                              price=decimal.Decimal(10),
                               public=True,
                               cash=False,
                               upgradable=False)
         ticket2_expo = Ticket.objects.create(name='T2',
                                              description='T2 expo',
                                              ticket_type='expo',
-                                             price=5.25,
+                                             price=decimal.Decimal(5.25),
                                              public=True,
                                              cash=False,
                                              upgradable=False)
         Item.objects.create(name='I1',
                             description='Applies to promo',
-                            price=17,
+                            price=decimal.Decimal(17),
                             active=True,
                             promo=True,
                             ticket_offset=False,
                             applies_to_all=True)
         Item.objects.create(name='I2',
                             description='Does not apply to promo',
-                            price=16.11,
+                            price=decimal.Decimal(16.11),
                             active=True,
                             promo=False,
                             ticket_offset=False,
                             applies_to_all=True)
-        promo1_expo_only = PromoCode.objects.create(name='P1',
-                                                    description='P1 expo only',
-                                                    price_modifier=0.5,
-                                                    active=True,
-                                                    applies_to_all=False)
+        promo1_expo_only = PromoCode.objects.create(
+            name='P1',
+            description='P1 expo only',
+            price_modifier=decimal.Decimal(0.5),
+            active=True,
+            applies_to_all=False)
         promo1_expo_only.applies_to.add(ticket2_expo)
 
     def test_full_ticket_with_promo(self):
@@ -1320,7 +1324,7 @@ class RegisteredAttendeeTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)
@@ -1372,7 +1376,7 @@ class StartPaymentTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)
@@ -1545,7 +1549,7 @@ class PaymentTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)
@@ -1653,7 +1657,7 @@ class SaleTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)
@@ -1818,7 +1822,7 @@ class FinishPaymentTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)
@@ -1889,7 +1893,7 @@ class RegLookupTest(TestCase):
         t = Ticket.objects.create(name='T1',
                                   description='T1 full',
                                   ticket_type='full',
-                                  price=10,
+                                  price=decimal.Decimal(10),
                                   public=True,
                                   cash=False,
                                   upgradable=False)

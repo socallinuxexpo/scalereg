@@ -1,3 +1,5 @@
+import decimal
+
 from django.test import TestCase
 
 from .models import Answer
@@ -15,34 +17,34 @@ class TicketCostTest(TestCase):
         cls.ticket = Ticket.objects.create(name='T1',
                                            description='T1',
                                            ticket_type='full',
-                                           price=10,
+                                           price=decimal.Decimal(10),
                                            public=True,
                                            cash=False,
                                            upgradable=False)
         cls.item1 = Item.objects.create(name='I1',
                                         description='Item 1',
-                                        price=17,
+                                        price=decimal.Decimal(17),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
                                         applies_to_all=True)
         cls.item2 = Item.objects.create(name='I2',
                                         description='Item 2',
-                                        price=6,
+                                        price=decimal.Decimal(6),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
                                         applies_to_all=True)
         cls.item3 = Item.objects.create(name='I3',
                                         description='Ticket offset 1',
-                                        price=14,
+                                        price=decimal.Decimal(14),
                                         active=True,
                                         promo=False,
                                         ticket_offset=True,
                                         applies_to_all=True)
         cls.item4 = Item.objects.create(name='I4',
                                         description='Ticket offset 1',
-                                        price=19,
+                                        price=decimal.Decimal(19),
                                         active=True,
                                         promo=False,
                                         ticket_offset=True,
@@ -79,7 +81,7 @@ class AttendeeCheckinCodeTest(TestCase):
         ticket = Ticket.objects.create(name='T1',
                                        description='T1',
                                        ticket_type='full',
-                                       price=10,
+                                       price=decimal.Decimal(10),
                                        public=True,
                                        cash=False,
                                        upgradable=False)
@@ -95,7 +97,7 @@ class AttendeeFullNameTest(TestCase):
         ticket = Ticket.objects.create(name='T1',
                                        description='T1',
                                        ticket_type='full',
-                                       price=10,
+                                       price=decimal.Decimal(10),
                                        public=True,
                                        cash=False,
                                        upgradable=False)
@@ -112,13 +114,13 @@ class AttendeeTicketCostTest(TestCase):
         ticket = Ticket.objects.create(name='T1',
                                        description='T1',
                                        ticket_type='full',
-                                       price=10,
+                                       price=decimal.Decimal(10),
                                        public=True,
                                        cash=False,
                                        upgradable=False)
         cls.item1 = Item.objects.create(name='I1',
                                         description='Promo',
-                                        price=17,
+                                        price=decimal.Decimal(17),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
@@ -153,13 +155,13 @@ class QuestionTest(TestCase):
         cls.ticket1 = Ticket.objects.create(name='T1',
                                             description='T1',
                                             ticket_type='full',
-                                            price=10,
+                                            price=decimal.Decimal(10),
                                             public=True,
                                             cash=False,
                                             upgradable=False)
         cls.item1 = Item.objects.create(name='I1',
                                         description='Item 1',
-                                        price=17,
+                                        price=decimal.Decimal(17),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
@@ -191,7 +193,7 @@ class QuestionTest(TestCase):
         ticket2 = Ticket.objects.create(name='T2',
                                         description='T2',
                                         ticket_type='expo',
-                                        price=5,
+                                        price=decimal.Decimal(5),
                                         public=True,
                                         cash=False,
                                         upgradable=False)
@@ -205,7 +207,7 @@ class QuestionTest(TestCase):
     def test_is_applicable_to_item(self):
         item2 = Item.objects.create(name='I2',
                                     description='Item 2',
-                                    price=6,
+                                    price=decimal.Decimal(6),
                                     active=True,
                                     promo=False,
                                     ticket_offset=False,

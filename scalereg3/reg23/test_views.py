@@ -1,3 +1,5 @@
+import decimal
+
 from django.test import TestCase
 
 from .models import Attendee, Item, Ticket
@@ -10,21 +12,21 @@ class GetPostedItemsTest(TestCase):
     def setUpTestData(cls):
         cls.item1 = Item.objects.create(name='I1',
                                         description='Item 1',
-                                        price=10,
+                                        price=decimal.Decimal(10),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
                                         applies_to_all=True)
         cls.item2 = Item.objects.create(name='I2',
                                         description='Item 2',
-                                        price=20,
+                                        price=decimal.Decimal(20),
                                         active=True,
                                         promo=False,
                                         ticket_offset=False,
                                         applies_to_all=True)
         cls.item3 = Item.objects.create(name='I3',
                                         description='Item 3',
-                                        price=30,
+                                        price=decimal.Decimal(30),
                                         active=False,
                                         promo=False,
                                         ticket_offset=False,
@@ -90,7 +92,7 @@ class GenerateNotifyAttendeeBodyTest(TestCase):
     def test_generate_body(self):
         ticket = Ticket.objects.create(name='T1',
                                        description='Ticket 1',
-                                       price=100,
+                                       price=decimal.Decimal(100),
                                        public=True,
                                        cash=False,
                                        upgradable=False,
