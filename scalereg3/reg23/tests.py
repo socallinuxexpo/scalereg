@@ -1373,24 +1373,43 @@ class StartPaymentTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        t = Ticket.objects.create(name='T1',
-                                  description='T1 full',
-                                  ticket_type='full',
-                                  price=decimal.Decimal(10),
-                                  public=True,
-                                  cash=False,
-                                  upgradable=False)
+        ticket = Ticket.objects.create(name='T1',
+                                       description='T1 full',
+                                       ticket_type='full',
+                                       price=decimal.Decimal(10),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        item = Item.objects.create(name='I1',
+                                   description='Applies to promo',
+                                   price=decimal.Decimal(90),
+                                   active=True,
+                                   promo=True,
+                                   ticket_offset=False,
+                                   applies_to_all=True)
+        promo = PromoCode.objects.create(name='P1',
+                                         description='P1 all',
+                                         price_modifier=decimal.Decimal(0.6),
+                                         active=True,
+                                         applies_to_all=True)
         Attendee.objects.create(first_name='First',
                                 last_name='Last',
                                 email='a@a.com',
                                 zip_code='12345',
-                                badge_type=t)
+                                badge_type=ticket)
         Attendee.objects.create(first_name='Second',
                                 last_name='Last',
                                 email='b@a.com',
                                 zip_code='54321',
-                                badge_type=t,
+                                badge_type=ticket,
                                 valid=True)
+        attendee = Attendee.objects.create(first_name='Third',
+                                           last_name='Person',
+                                           email='c@a.com',
+                                           zip_code='99999',
+                                           badge_type=ticket,
+                                           promo=promo)
+        attendee.ordered_items.add(item)
 
     def test_get_request_no_attendee_data(self):
         response = self.client.get('/reg23/start_payment/')
@@ -1413,6 +1432,19 @@ class StartPaymentTest(TestCase):
         self.assertContains(response, 'paying for the following')
         self.assertContains(response, 'Total: $10.00')
 
+    def test_get_request_with_unpaid_promo_attendee(self):
+        session = self.client.session
+        session['payment'] = [1, 3]
+        session.save()
+        response = self.client.get('/reg23/start_payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Third Person')
+        self.assertContains(response, '$10.00')
+        self.assertContains(response, '$60.00')
+        self.assertContains(response, 'Total: $70.00')
+
     def test_get_request_with_paid_attendee(self):
         session = self.client.session
         session['payment'] = [2]
@@ -1424,7 +1456,7 @@ class StartPaymentTest(TestCase):
 
     def test_get_request_with_no_such_attendee(self):
         session = self.client.session
-        session['payment'] = [3]
+        session['payment'] = [999]
         session.save()
         response = self.client.get('/reg23/start_payment/')
         self.assertEqual(response.status_code, 200)
@@ -1456,6 +1488,16 @@ class StartPaymentTest(TestCase):
         self.assertContains(response, 'paying for the following')
         self.assertContains(response, '$10.00')
         self.assertContains(response, 'First Last')
+
+    def test_add_promo_attendee(self):
+        response = self.client.post('/reg23/start_payment/', {
+            'id': 3,
+            'email': 'c@a.com'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Total: $60.00')
+        self.assertContains(response, 'Third Person')
 
     def test_add_paid_attendee(self):
         response = self.client.post('/reg23/start_payment/', {
@@ -1553,6 +1595,11 @@ class PaymentTest(TestCase):
                                   public=True,
                                   cash=False,
                                   upgradable=False)
+        p = PromoCode.objects.create(name='P1',
+                                     description='P1 all',
+                                     price_modifier=decimal.Decimal(0.6),
+                                     active=True,
+                                     applies_to_all=True)
         Attendee.objects.create(first_name='First',
                                 last_name='Last',
                                 email='a@a.com',
@@ -1564,6 +1611,12 @@ class PaymentTest(TestCase):
                                 zip_code='54321',
                                 badge_type=t,
                                 valid=True)
+        Attendee.objects.create(first_name='Third',
+                                last_name='Person',
+                                email='c@a.com',
+                                zip_code='99999',
+                                badge_type=t,
+                                promo=p)
 
     def test_get_request(self):
         response = self.client.get('/reg23/payment/')
@@ -1599,6 +1652,22 @@ class PaymentTest(TestCase):
         self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
         self.assertEqual(pending_order.attendees_list(), [1])
 
+    def test_post_request_with_unpaid_promo_attendee(self):
+        random.seed(0)
+        session = self.client.session
+        session['payment'] = [3]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Third Person')
+        self.assertContains(response, 'Total: $6.00')
+        self.assertNotContains(response, 'Cannot complete this transaction')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [3])
+
     def test_post_request_with_unpaid_attendee_and_existing_order(self):
         random.seed(0)
         PendingOrder.objects.create(order_num='Y0CQ65ZT4W')
@@ -1629,7 +1698,7 @@ class PaymentTest(TestCase):
 
     def test_post_request_with_no_such_attendee(self):
         session = self.client.session
-        session['payment'] = [3]
+        session['payment'] = [999]
         session.save()
         response = self.client.post('/reg23/payment/')
         self.assertEqual(response.status_code, 200)

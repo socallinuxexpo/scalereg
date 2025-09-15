@@ -342,7 +342,7 @@ def add_attendee(request):
 
     offset_items = [item for item in items if item.ticket_offset]
     offset_item = offset_items[0] if offset_items else None
-    total = ticket.ticket_cost(items)
+    total = ticket.ticket_cost(items, None)
 
     if action == 'add_new':
         request.session[ATTENDEE_COOKIE] = ''

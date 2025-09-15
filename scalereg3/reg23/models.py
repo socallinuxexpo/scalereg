@@ -110,11 +110,11 @@ class Ticket(models.Model):
     objects = models.Manager()
     public_objects = TicketManager()
 
-    def ticket_cost(self, items):
-        ticket_price = self.price
+    def ticket_cost(self, items, promo):
+        ticket_price = self.get_promo_price(promo)
         items_price = 0
         for item in items:
-            items_price += item.price
+            items_price += item.get_promo_price(promo)
             if item.ticket_offset:
                 ticket_price = 0
         return ticket_price + items_price
@@ -132,9 +132,13 @@ class Ticket(models.Model):
         items = Item.objects.filter(applies_to_all=True).filter(active=True)
         return items.union(self.item_set.filter(active=True)).order_by('name')
 
-    def apply_promo(self, promo):
+    def get_promo_price(self, promo):
         if promo and promo.is_applicable_to(self):
-            self.price = round(self.price * promo.price_modifier, 2)
+            return round(self.price * promo.price_modifier, 2)
+        return self.price
+
+    def apply_promo(self, promo):
+        self.price = self.get_promo_price(promo)
 
 
 class PromoCodeManager(models.Manager):
@@ -208,9 +212,13 @@ class Item(models.Model):
     applies_to = models.ManyToManyField(Ticket, blank=True)
     applies_to_all = models.BooleanField(help_text='Applies to all tickets')
 
-    def apply_promo(self, promo):
+    def get_promo_price(self, promo):
         if promo and self.promo:
-            self.price = round(self.price * promo.price_modifier, 2)
+            return round(self.price * promo.price_modifier, 2)
+        return self.price
+
+    def apply_promo(self, promo):
+        self.price = self.get_promo_price(promo)
 
 
 class Answer(models.Model):
@@ -292,7 +300,8 @@ class Attendee(models.Model):
         return f'{self.first_name} {self.last_name}'
 
     def ticket_cost(self):
-        return self.badge_type.ticket_cost(self.ordered_items.all())
+        return self.badge_type.ticket_cost(self.ordered_items.all(),
+                                           self.promo)
 
 
 class PendingOrder(models.Model):
