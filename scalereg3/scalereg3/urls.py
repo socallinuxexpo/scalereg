@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include
 from django.urls import path
+from django.views.generic.base import RedirectView
 
 from reg23 import views
 
@@ -26,6 +27,7 @@ urlpatterns = [
          auth_views.LoginView.as_view(template_name="admin/login.html")),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
+    path('reg6/', RedirectView.as_view(url='/reg23/')),
     path('reg23/', include('reg23.urls')),
     path('reports/', include('reports.urls')),
 
