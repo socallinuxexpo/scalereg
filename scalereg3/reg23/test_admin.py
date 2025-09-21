@@ -1,8 +1,23 @@
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
 
+from .admin import AttendeeAdmin
 from .admin import OrderAdmin
+from .models import Attendee
 from .models import Order
+
+
+class AttendeeAdminTest(TestCase):
+
+    def setUp(self):
+        site = AdminSite()
+        self.admin = AttendeeAdmin(Attendee, site)
+
+    def test_fieldsets(self):
+        form = self.admin.get_form(self.client.request)()
+        self.assertIn('first_name', form.fields)
+        self.assertIn('last_name', form.fields)
+        self.assertIn('ordered_items', form.fields)
 
 
 class OrderAdminTest(TestCase):
