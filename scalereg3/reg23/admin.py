@@ -65,8 +65,9 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('order_num', 'valid')
         }),
         ('Payment Info', {
-            'fields': ('amount', 'payment_type', 'auth_code', 'pnref',
-                       'resp_msg', 'result', 'already_paid_attendees')
+            'fields':
+            ('amount', 'payment_type', 'payflow_auth_code', 'payflow_pnref',
+             'payflow_resp_msg', 'payflow_result', 'already_paid_attendees')
         }),
     )
     list_display = ('order_num', 'date', 'name', 'address', 'city', 'state',
