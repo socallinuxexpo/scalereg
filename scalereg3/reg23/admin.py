@@ -31,11 +31,8 @@ class AttendeeAdmin(admin.ModelAdmin):
         ('Badge Info', {
             'fields': ('badge_type', 'valid', 'checked_in')
         }),
-        ('Items', {
-            'fields': ('ordered_items', 'obtained_items')
-        }),
         ('Misc', {
-            'fields': ('promo', 'order', 'answers')
+            'fields': ('promo', 'order', 'ordered_items', 'answers')
         }),
     )
     list_display = ('id', 'first_name', 'last_name', 'email', 'zip_code',
