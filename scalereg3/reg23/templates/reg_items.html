@@ -26,6 +26,9 @@ Would you like to add any additional items?
     <th>&nbsp;</th>
     <th>Item</th>
     <th>Price</th>
+    {% if display_url_column %}
+    <th>Website</th>
+    {% endif %}
 </tr>
 </thead>
 <tbody>
@@ -46,6 +49,11 @@ Would you like to add any additional items?
         {% endif %}
         </label>
     </td>
+    {% if display_url_column %}
+    <td>
+        {% if item.url %}<a href="{{ item.url }}">More Info</a>{% endif %}
+    </td>
+    {% endif %}
 </tr>
 {% endfor %}
 </tbody>

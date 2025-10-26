@@ -493,6 +493,43 @@ class ItemsTest(TestCase):
                                '<label for="item_I3">$15.00</label>',
                                html=True)
 
+    def test_no_more_info_header_without_urls(self):
+        Item.objects.create(name='I4',
+                            description='Item with URL',
+                            url='https://www.nosuch.site/',
+                            price=decimal.Decimal(15),
+                            active=False,
+                            promo=False,
+                            ticket_offset=False,
+                            applies_to_all=True)
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T1',
+            'promo': ''
+        })
+        self.assertNotContains(response, '<th>Website</th>', html=True)
+        self.assertNotContains(
+            response,
+            '<a href="https://www.nosuch.site/">More Info</a>',
+            html=True)
+
+    def test_more_info_header_and_url(self):
+        Item.objects.create(name='I4',
+                            description='Item with URL',
+                            url='https://www.nosuch.site/',
+                            price=decimal.Decimal(15),
+                            active=True,
+                            promo=False,
+                            ticket_offset=False,
+                            applies_to_all=True)
+        response = self.client.post('/reg23/add_items/', {
+            'ticket': 'T1',
+            'promo': ''
+        })
+        self.assertContains(response, '<th>Website</th>', html=True)
+        self.assertContains(response,
+                            '<a href="https://www.nosuch.site/">More Info</a>',
+                            html=True)
+
 
 class ItemsTestWithPromo(TestCase):
 

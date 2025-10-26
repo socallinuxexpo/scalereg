@@ -205,6 +205,7 @@ class Item(models.Model):
         primary_key=True,
         help_text='Unique, up to 4 upper-case letters / numbers')
     description = models.CharField(max_length=60)
+    url = models.URLField(max_length=200, blank=True, null=True)
     price = models.DecimalField(max_digits=5, decimal_places=2)
     active = models.BooleanField()
     promo = models.BooleanField(help_text='Price affected by promo code?')
