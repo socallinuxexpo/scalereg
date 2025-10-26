@@ -308,6 +308,7 @@ def add_items(request):
             'ticket': ticket,
             'items': items,
             'promo': promo_name,
+            'display_url_column': any(item.url for item in items),
             'step': 2,
             'steps_total': STEPS_TOTAL,
         })
