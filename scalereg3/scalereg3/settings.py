@@ -134,6 +134,9 @@ SCALEREG_PAYFLOW_PARTNER = ''
 # Secret used for express check-in and scanned badges.
 SCALEREG_EXPRESS_CHECKIN_SECRET = ''
 
+# URL for the sponsorship agreement document.
+SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
+
 # Set to True if you want scalereg to be able to email attendees.
 # You need to set EMAIL_HOST, EMAIL_PORT, and other EMAIL_ settings
 # appropriately.
