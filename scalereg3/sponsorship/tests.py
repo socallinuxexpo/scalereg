@@ -1,10 +1,12 @@
 import datetime
 import decimal
+import random
 
 from django.test import TestCase
 
 from .models import Item
 from .models import Package
+from .models import PendingOrder
 from .models import PromoCode
 from .models import Sponsor
 
@@ -953,3 +955,124 @@ class SponsorTest(TestCase):
         # Check that the total cost does not include the non-existent item.
         # Original package (10) + item1 (6.77) = 16.77
         self.assertEqual(sponsor.package_cost(), decimal.Decimal('16.77'))
+
+
+class PaymentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        p = Package.objects.create(name='PK1',
+                                   description='PK1 gold',
+                                   price=100,
+                                   public=True)
+        promo = PromoCode.objects.create(name='PROMO',
+                                         description='P all',
+                                         price_modifier=0.5,
+                                         active=True,
+                                         applies_to_all=True)
+        Sponsor.objects.create(first_name='First',
+                               last_name='Last',
+                               email='a@a.com',
+                               zip_code='12345',
+                               org='Org1',
+                               package=p)
+        Sponsor.objects.create(first_name='Second',
+                               last_name='Last',
+                               email='b@a.com',
+                               zip_code='54321',
+                               org='Org2',
+                               package=p,
+                               valid=True)
+        Sponsor.objects.create(first_name='Third',
+                               last_name='Person',
+                               email='c@a.com',
+                               zip_code='99999',
+                               org='Org3',
+                               package=p,
+                               promo=promo)
+
+    def test_post_request(self):
+        response = self.client.post('/sponsorship/payment/')
+        self.assertRedirects(response, '/sponsorship/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_get_request_no_session(self):
+        response = self.client.get('/sponsorship/payment/')
+        self.assertRedirects(response, '/sponsorship/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_get_request_with_invalid_sponsor_data_type(self):
+        session = self.client.session
+        session['sponsor'] = 'bad'
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertRedirects(response, '/sponsorship/')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_get_request_with_unpaid_sponsor(self):
+        random.seed(0)
+        session = self.client.session
+        session['sponsor'] = 1
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sponsorship - Payment')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$100.00')
+        self.assertNotContains(response, 'cannot generate order ID')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.sponsor.id, 1)
+
+    def test_get_request_with_unpaid_promo_sponsor(self):
+        random.seed(0)
+        session = self.client.session
+        session['sponsor'] = 3
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sponsorship - Payment')
+        self.assertContains(response, 'Third Person')
+        self.assertContains(response, '$50.00')
+        self.assertNotContains(response, 'cannot generate order ID')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.sponsor.id, 3)
+
+    def test_get_request_with_unpaid_sponsor_and_existing_order(self):
+        random.seed(0)
+        PendingOrder.objects.create(order_num='Y0CQ65ZT4W',
+                                    sponsor=Sponsor.objects.get(id=3))
+        session = self.client.session
+        session['sponsor'] = 1
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sponsorship - Payment')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$100.00')
+        self.assertNotContains(response, 'cannot generate order ID')
+        self.assertEqual(PendingOrder.objects.count(), 2)
+        pending_order = PendingOrder.objects.get(sponsor_id=1)
+        self.assertEqual(pending_order.order_num, 'N6ISIGQ8JT')
+        self.assertEqual(pending_order.sponsor.id, 1)
+
+    def test_get_request_with_paid_sponsor(self):
+        session = self.client.session
+        session['sponsor'] = 2
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No sponsor to pay for.')
+        self.assertEqual(PendingOrder.objects.count(), 0)
+
+    def test_get_request_with_no_such_sponsor(self):
+        session = self.client.session
+        session['sponsor'] = 999
+        session.save()
+        response = self.client.get('/sponsorship/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No sponsor to pay for.')
+        self.assertEqual(PendingOrder.objects.count(), 0)
