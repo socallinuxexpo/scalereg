@@ -1,7 +1,10 @@
 from django.conf import settings
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+
+from common import utils
 
 from . import forms
 from . import models
@@ -202,4 +205,47 @@ def add_sponsor(request):
 
 
 def payment(request):
-    return HttpResponse('')
+    if request.method != 'GET':
+        return redirect('/sponsorship/')
+    sponsor_id = request.session.get(SPONSOR_COOKIE, None)
+    if not isinstance(sponsor_id, int):
+        return redirect('/sponsorship/')
+
+    sponsor = None
+    try:
+        sponsor = models.Sponsor.objects.get(id=sponsor_id)
+    except models.Sponsor.DoesNotExist:
+        pass
+
+    if not sponsor or sponsor.valid:
+        return render_error(request, 'No sponsor to pay for.')
+
+    order_num = None
+    order_tries = 0
+    while True:
+        existing_order_ids = [
+            x.order_num for x in models.PendingOrder.objects.all()
+        ]
+        existing_order_ids += [x.order_num for x in models.Order.objects.all()]
+        order_num = utils.generate_unique_id(10, existing_order_ids)
+        pending_order = models.PendingOrder(order_num=order_num,
+                                            sponsor=sponsor)
+        try:
+            pending_order.save()
+            break
+        except IntegrityError:
+            order_tries += 1
+            if order_tries > 10:
+                return render_error(request, 'cannot generate order ID')
+
+    return render(
+        request, 'sponsorship_payment.html', {
+            'title': 'Sponsorship - Payment',
+            'sponsor': sponsor,
+            'order': order_num,
+            'payflow_url': settings.SCALEREG_PAYFLOW_URL,
+            'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
+            'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
+            'step': 4,
+            'steps_total': STEPS_TOTAL,
+        })
