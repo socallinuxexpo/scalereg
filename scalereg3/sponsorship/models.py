@@ -217,3 +217,12 @@ class Sponsor(models.Model):
 
     def package_cost(self):
         return self.package.package_cost(self.ordered_items.all(), self.promo)
+
+
+class PendingOrder(models.Model):
+    order_num = models.CharField(
+        max_length=10,
+        primary_key=True,
+        help_text='Unique 10 upper-case letters + numbers code')
+    sponsor = models.ForeignKey(Sponsor, on_delete=models.PROTECT)
+    date = models.DateTimeField(auto_now_add=True)
