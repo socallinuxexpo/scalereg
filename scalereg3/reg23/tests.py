@@ -4,6 +4,8 @@ import random
 
 from django.test import TestCase
 
+from sponsorship import models as sponsorship_models
+
 from .models import Answer
 from .models import Attendee
 from .models import Item
@@ -1779,6 +1781,21 @@ class SaleTest(TestCase):
                                 badge_type=t,
                                 valid=True)
         PendingOrder.objects.create(order_num='1234567890', attendees='1')
+
+        # For sponsorship redirect
+        p = sponsorship_models.Package.objects.create(
+            name='SP1',
+            description='Sponsor Package 1',
+            price=decimal.Decimal(500))
+        s = sponsorship_models.Sponsor.objects.create(first_name='Sponsor',
+                                                      last_name='Person',
+                                                      email='sponsor@a.com',
+                                                      zip_code='54321',
+                                                      org='Sponsor Org',
+                                                      package=p)
+        sponsorship_models.PendingOrder.objects.create(order_num='SPONSOR123',
+                                                       sponsor=s)
+
         cls.post_data = {
             'NAME': 'First Last',
             'ADDRESS': '123 Main St',
@@ -1799,6 +1816,17 @@ class SaleTest(TestCase):
     def test_get_request(self):
         response = self.client.get('/reg23/sale/')
         self.assertEqual(response.status_code, 405)
+
+    def test_post_request_sponsorship_redirect(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'SPONSOR123'
+        post_data['USER3'] = 'SPONSORSHIP'
+        post_data['AMOUNT'] = '500.00'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(sponsorship_models.Order.objects.count(), 1)
+        sponsor = sponsorship_models.Sponsor.objects.get(email='sponsor@a.com')
+        self.assertTrue(sponsor.valid)
 
     def test_post_request_success(self):
         response = self.client.post('/reg23/sale/', self.post_data)
