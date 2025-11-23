@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from common import utils
+from sponsorship import views as sponsorship_views
 
 from . import forms
 from . import models
@@ -150,6 +151,12 @@ def get_unpaid_attendees_from_payment_cookie(cookie_data):
             continue  # Ignore paid attendees
         unpaid_attendees.append(attendee)
     return unpaid_attendees
+
+
+def should_redirect_post_to_sponsorship(request):
+    if request.method != 'POST':
+        return False
+    return 'USER3' in request.POST and request.POST['USER3'] == 'SPONSORSHIP'
 
 
 def start_payment_search_for_attendee(id_str, email_str):
@@ -502,6 +509,9 @@ def payment(request):
 
 @csrf_exempt
 def sale(request):
+    if should_redirect_post_to_sponsorship(request):
+        return sponsorship_views.sale(request)
+
     required_vars = (
         'NAME',
         'ADDRESS',
