@@ -358,3 +358,34 @@ def failed_payment(request):
     return render(request, 'sponsorship_failed.html', {
         'title': 'Sponsorship Payment Failed',
     })
+
+
+@csrf_exempt
+def finish_payment(request):
+    required_vars = (
+        'NAME',
+        'EMAIL',
+        'AMOUNT',
+        'USER1',
+    )
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    try:
+        order = models.Order.objects.get(order_num=request.POST['USER1'])
+    except models.Order.DoesNotExist:
+        return render_error(request, 'Your sponsorship order cannot be found')
+
+    return render(
+        request, 'sponsorship_receipt.html', {
+            'title': 'Sponsorship Payment Receipt',
+            'name': request.POST['NAME'],
+            'email': request.POST['EMAIL'],
+            'sponsor': order.sponsor,
+            'already_paid_sponsor': order.already_paid_sponsor,
+            'order': request.POST['USER1'],
+            'step': 5,
+            'steps_total': STEPS_TOTAL,
+            'total': request.POST['AMOUNT'],
+        })
