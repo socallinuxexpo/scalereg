@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.db import IntegrityError
 from django.http import HttpResponse
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 from common import utils
 
@@ -21,6 +23,36 @@ def render_error(request, error_message):
     })
 
 
+def check_payment_amount(amount_str, expected_cost):
+    actual = int(float(amount_str))
+    expected = int(float(expected_cost))
+    if actual == 0:
+        return HttpResponseServerError(
+            f'incorrect payment amount: got {actual}')
+    if expected == 0:
+        return HttpResponseServerError(
+            'incorrect payment amount: should not expect 0')
+    if actual == expected:
+        return None
+    return HttpResponseServerError(
+        f'incorrect payment amount: expected {expected}, got {actual}')
+
+
+def check_sales_request(request, required_vars):
+    if request.method != 'POST':
+        return HttpResponse(f'Method not allowed: {request.method}',
+                            status=405)
+
+    for var in required_vars:
+        if var not in request.POST:
+            return HttpResponseServerError('required vars missing')
+    if request.POST['RESULT'] != '0':
+        return HttpResponseServerError('transaction did not succeed')
+    if request.POST['RESPMSG'] != 'Approved':
+        return HttpResponseServerError('transaction declined')
+    return None
+
+
 def check_vars(request, post):
     if request.method != 'POST':
         return redirect('/sponsorship/')
@@ -29,6 +61,16 @@ def check_vars(request, post):
         if var not in request.POST:
             return render_error(request, f'No {var} information.')
     return None
+
+
+def get_pending_order(order_num):
+    if models.Order.objects.filter(order_num=order_num):
+        return HttpResponseServerError('order already exists')
+
+    try:
+        return models.PendingOrder.objects.get(order_num=order_num)
+    except models.PendingOrder.DoesNotExist:
+        return HttpResponseServerError('cannot get pending order')
 
 
 def get_posted_items(post, avail_items):
@@ -249,3 +291,70 @@ def payment(request):
             'step': 4,
             'steps_total': STEPS_TOTAL,
         })
+
+
+@csrf_exempt
+def sale(request):
+    required_vars = [
+        'NAME',
+        'ADDRESS',
+        'CITY',
+        'STATE',
+        'ZIP',
+        'COUNTRY',
+        'PHONE',
+        'EMAIL',
+        'AMOUNT',
+        'AUTHCODE',
+        'PNREF',
+        'RESULT',
+        'RESPMSG',
+        'USER1',
+    ]
+    r = check_sales_request(request, required_vars)
+    if r:
+        return r
+
+    maybe_pending_order = get_pending_order(request.POST['USER1'])
+    if isinstance(maybe_pending_order, HttpResponseServerError):
+        return maybe_pending_order
+
+    sponsor = maybe_pending_order.sponsor
+    r = check_payment_amount(request.POST['AMOUNT'], sponsor.package_cost())
+    if r:
+        return r
+
+    try:
+        order = models.Order(order_num=request.POST['USER1'],
+                             valid=True,
+                             name=request.POST['NAME'],
+                             address=request.POST['ADDRESS'],
+                             city=request.POST['CITY'],
+                             state=request.POST['STATE'],
+                             zip_code=request.POST['ZIP'],
+                             country=request.POST['COUNTRY'],
+                             email=request.POST['EMAIL'],
+                             phone=request.POST['PHONE'],
+                             amount=request.POST['AMOUNT'],
+                             payflow_auth_code=request.POST['AUTHCODE'],
+                             payflow_pnref=request.POST['PNREF'],
+                             payflow_resp_msg=request.POST['RESPMSG'],
+                             payflow_result=request.POST['RESULT'],
+                             sponsor=sponsor,
+                             already_paid_sponsor=sponsor.valid)
+        order.save()
+    except IntegrityError:
+        return HttpResponseServerError('cannot save order')
+
+    if not sponsor.valid:
+        sponsor.valid = True
+        sponsor.save()
+
+    return HttpResponse('success')
+
+
+@csrf_exempt
+def failed_payment(request):
+    return render(request, 'sponsorship_failed.html', {
+        'title': 'Sponsorship Payment Failed',
+    })
