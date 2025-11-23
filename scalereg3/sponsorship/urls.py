@@ -10,4 +10,6 @@ urlpatterns = [
 
     # Payment
     path('payment/', views.payment),
+    path('sale/', views.sale),
+    path('failed_payment/', views.failed_payment),
 ]

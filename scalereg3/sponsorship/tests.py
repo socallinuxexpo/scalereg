@@ -5,6 +5,7 @@ import random
 from django.test import TestCase
 
 from .models import Item
+from .models import Order
 from .models import Package
 from .models import PendingOrder
 from .models import PromoCode
@@ -1076,3 +1077,156 @@ class PaymentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'No sponsor to pay for.')
         self.assertEqual(PendingOrder.objects.count(), 0)
+
+
+class SaleTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        p = Package.objects.create(name='PK1',
+                                   description='PK1 gold',
+                                   price=decimal.Decimal(100),
+                                   public=True)
+        Sponsor.objects.create(first_name='First',
+                               last_name='Last',
+                               email='a@a.com',
+                               zip_code='12345',
+                               org='Org1',
+                               package=p,
+                               valid=False)
+        Sponsor.objects.create(first_name='Second',
+                               last_name='Last',
+                               email='b@a.com',
+                               zip_code='54321',
+                               org='Org2',
+                               package=p,
+                               valid=True)
+
+        PendingOrder.objects.create(order_num='1234567890',
+                                    sponsor=Sponsor.objects.get(id=1))
+        PendingOrder.objects.create(order_num='ALREADYPAID',
+                                    sponsor=Sponsor.objects.get(id=2))
+
+        cls.post_data = {
+            'NAME': 'First Last',
+            'ADDRESS': '123 Main St',
+            'CITY': 'Anytown',
+            'STATE': 'CA',
+            'ZIP': '12345',
+            'COUNTRY': 'USA',
+            'PHONE': '555-555-5555',
+            'EMAIL': 'a@a.com',
+            'AMOUNT': '100.00',
+            'AUTHCODE': '123456',
+            'PNREF': 'A1B2C3D4E5F6',
+            'RESULT': '0',
+            'RESPMSG': 'Approved',
+            'USER1': '1234567890',
+        }
+
+    def test_get_request(self):
+        response = self.client.get('/sponsorship/sale/')
+        self.assertEqual(response.status_code, 405)
+
+    def test_post_request_success(self):
+        response = self.client.post('/sponsorship/sale/', self.post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(Order.objects.count(), 1)
+        sponsor = Sponsor.objects.get(id=1)
+        self.assertTrue(sponsor.valid)
+        self.assertTrue(sponsor.order)
+        order = Order.objects.first()
+        self.assertEqual(order.already_paid_sponsor, False)
+
+    def test_post_request_missing_data(self):
+        response = self.client.post('/sponsorship/sale/')
+        self.assertContains(response, 'required vars missing', status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+        for key in self.post_data:
+            if key == 'COUNTRY':
+                continue
+            post_data = self.post_data.copy()
+            del post_data[key]
+            response = self.client.post('/sponsorship/sale/', post_data)
+            self.assertContains(response,
+                                'required vars missing',
+                                status_code=500)
+            self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_bad_result(self):
+        post_data = self.post_data.copy()
+        post_data['RESULT'] = '1'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response,
+                            'transaction did not succeed',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_bad_response_message(self):
+        post_data = self.post_data.copy()
+        post_data['RESPMSG'] = 'BAD'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response, 'transaction declined', status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_order_already_exists(self):
+        Order.objects.create(order_num='1234567890',
+                             amount=decimal.Decimal(100),
+                             sponsor=Sponsor.objects.get(id=1))
+        response = self.client.post('/sponsorship/sale/', self.post_data)
+        self.assertContains(response, 'order already exists', status_code=500)
+        self.assertEqual(Order.objects.count(), 1)
+
+    def test_post_request_missing_pending_order(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'BAD'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response,
+                            'cannot get pending order',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_no_amount(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '0.00'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount: got 0',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_pending_order_wrong_amount(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '150.00'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount: expected 100, got 150',
+                            status_code=500)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_post_request_already_paid_sponsor(self):
+        post_data = self.post_data.copy()
+        post_data['USER1'] = 'ALREADYPAID'
+        post_data['EMAIL'] = 'b@a.com'
+        post_data['NAME'] = 'Second Last'
+        post_data['AMOUNT'] = '100.00'
+        response = self.client.post('/sponsorship/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(Order.objects.count(), 1)
+        sponsor = Sponsor.objects.get(id=2)
+        self.assertTrue(sponsor.valid)
+        order = Order.objects.first()
+        self.assertEqual(order.already_paid_sponsor, True)
+        self.assertEqual(order.sponsor, sponsor)
+
+
+class FailedPaymentTest(TestCase):
+
+    def test_get_request(self):
+        response = self.client.get('/sponsorship/failed_payment/')
+        self.assertContains(response, 'Sponsorship Payment Failed')
+
+    def test_post_request(self):
+        response = self.client.post('/sponsorship/failed_payment/')
+        self.assertContains(response, 'Sponsorship Payment Failed')
