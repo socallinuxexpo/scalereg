@@ -1230,3 +1230,76 @@ class FailedPaymentTest(TestCase):
     def test_post_request(self):
         response = self.client.post('/sponsorship/failed_payment/')
         self.assertContains(response, 'Sponsorship Payment Failed')
+
+
+class FinishPaymentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        p = Package.objects.create(name='PK1',
+                                   description='PK1 gold',
+                                   price=decimal.Decimal(100),
+                                   public=True)
+        Sponsor.objects.create(first_name='First',
+                               last_name='Last',
+                               email='a@a.com',
+                               zip_code='12345',
+                               org='Org1',
+                               package=p)
+        Sponsor.objects.create(first_name='Second',
+                               last_name='Last',
+                               email='b@a.com',
+                               zip_code='54321',
+                               org='Org2',
+                               package=p,
+                               valid=True)
+        cls.post_data = {
+            'NAME': 'First Last',
+            'EMAIL': 'a@a.com',
+            'AMOUNT': '100.00',
+            'USER1': '1234567890',
+        }
+
+    def test_get_request(self):
+        response = self.client.get('/sponsorship/finish_payment/')
+        self.assertRedirects(response, '/sponsorship/')
+
+    def test_post_request_success(self):
+        Order.objects.create(order_num='1234567890',
+                             amount=100,
+                             sponsor=Sponsor.objects.get(id=1))
+        response = self.client.post('/sponsorship/finish_payment/',
+                                    self.post_data)
+        self.assertContains(response, 'Sponsorship Payment Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$100.00')
+
+    def test_post_request_already_paid(self):
+        Order.objects.create(order_num='1234567890',
+                             amount=100,
+                             sponsor=Sponsor.objects.get(id=2),
+                             already_paid_sponsor=True)
+        response = self.client.post('/sponsorship/finish_payment/',
+                                    self.post_data)
+        self.assertContains(response, 'Sponsorship Payment Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$100.00')
+        self.assertContains(
+            response,
+            'The sponsorship package has already been paid before this order')
+
+    def test_post_missing_order(self):
+        response = self.client.post('/sponsorship/finish_payment/',
+                                    self.post_data)
+        self.assertContains(response, 'Your sponsorship order cannot be found')
+
+    def test_post_request_missing_data(self):
+        response = self.client.post('/sponsorship/finish_payment/')
+        self.assertContains(response, 'No NAME information.')
+
+        for key in self.post_data:
+            post_data = self.post_data.copy()
+            del post_data[key]
+            response = self.client.post('/sponsorship/finish_payment/',
+                                        post_data)
+            self.assertContains(response, f'No {key} information.')
