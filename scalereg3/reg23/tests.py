@@ -1948,6 +1948,19 @@ class FailedPaymentTest(TestCase):
         response = self.client.post('/reg23/failed_payment/')
         self.assertContains(response, 'Your transaction has been aborted')
 
+    def test_post_request_sponsorship_redirect(self):
+        response = self.client.post('/reg23/failed_payment/',
+                                    {'USER3': 'SPONSORSHIP'})
+        self.assertContains(response,
+                            'Sponsorship Payment Failed',
+                            status_code=200)
+        self.assertContains(response, 'Your transaction has been aborted')
+        self.assertContains(
+            response,
+            '<input type="submit" value="Return To Sponsorship Page" />',
+            count=1,
+            html=True)
+
 
 class FinishPaymentTest(TestCase):
 
@@ -1991,6 +2004,43 @@ class FinishPaymentTest(TestCase):
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, '$10.00')
+
+    def test_post_request_sponsorship_redirect(self):
+        p = sponsorship_models.Package.objects.create(
+            name='SP1',
+            description='Sponsor Package 1',
+            price=decimal.Decimal(500))
+        s = sponsorship_models.Sponsor.objects.create(first_name='Sponsor',
+                                                      last_name='Person',
+                                                      email='sponsor@a.com',
+                                                      zip_code='54321',
+                                                      org='Sponsor Org',
+                                                      package=p)
+        sponsorship_models.Order.objects.create(order_num='SPONSOR123',
+                                                amount=decimal.Decimal(500),
+                                                sponsor=s)
+
+        post_data = {
+            'NAME': 'Sponsor Person',
+            'ADDRESS': '123 Main St',
+            'CITY': 'Anytown',
+            'STATE': 'CA',
+            'ZIP': '12345',
+            'COUNTRY': 'USA',
+            'PHONE': '555-555-5555',
+            'EMAIL': 'sponsor@a.com',
+            'AMOUNT': '500.00',
+            'AUTHCODE': '123456',
+            'PNREF': 'A1B2C3D4E5F6',
+            'RESULT': '0',
+            'RESPMSG': 'Approved',
+            'USER1': 'SPONSOR123',
+            'USER3': 'SPONSORSHIP',
+        }
+        response = self.client.post('/reg23/finish_payment/', post_data)
+        self.assertContains(response, 'Sponsorship Payment Receipt')
+        self.assertContains(response, 'Sponsor Person')
+        self.assertContains(response, '$500.00')
 
     def test_post_request_already_paid(self):
         order = Order.objects.create(order_num='1234567890', amount=10)
