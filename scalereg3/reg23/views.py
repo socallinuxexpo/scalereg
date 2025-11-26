@@ -583,6 +583,9 @@ def sale(request):
 
 @csrf_exempt
 def failed_payment(request):
+    if should_redirect_post_to_sponsorship(request):
+        return sponsorship_views.failed_payment(request)
+
     return render(request, 'reg_failed.html', {
         'title': 'Registration Payment Failed',
     })
@@ -590,6 +593,9 @@ def failed_payment(request):
 
 @csrf_exempt
 def finish_payment(request):
+    if should_redirect_post_to_sponsorship(request):
+        return sponsorship_views.finish_payment(request)
+
     required_vars = (
         'NAME',
         'EMAIL',
