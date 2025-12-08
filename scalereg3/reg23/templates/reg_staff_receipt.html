@@ -1,0 +1,124 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if error_message %}
+<p>
+Error: {{error_message}}
+</p>
+{% endif %}
+
+{% if attendee %}
+<iframe
+    id="receipt"
+    width="600"
+    height="600"
+    srcdoc="<body><title>SCALE Receipt</title></body>
+<p><b>Payment Receipt</b></p>
+<table border=1 width=100%>
+  <tr>
+    <td colspan=2><b>Attendee Information</b></td>
+  </tr>
+  <tr>
+    <td>Name</td>
+    <td>{{attendee.first_name}} {{attendee.last_name}}</td>
+  </tr>
+  <tr>
+    <td>Title</td>
+    <td>{{attendee.title}}</td>
+  </tr>
+  <tr>
+    <td>Org</td>
+    <td>{{attendee.org}}</td>
+  </tr>
+  <tr>
+    <td>Email</td>
+    <td>{{attendee.email}}</td>
+  </tr>
+  <tr>
+    <td>Registration Type</td>
+    <td>{{attendee.badge_type.description}}</td>
+  </tr>
+  <tr>
+    <td>Price</td>
+    <td>${{attendee.ticket_cost}}</td>
+  </tr>
+</table>
+<br />
+<table border=1 width=100%>
+  <tr>
+    <td colspan=2><b>Billing Information</b></td>
+  </tr>
+  <tr>
+    <td>Name</td>
+    <td>{{attendee.order.name}}</td>
+  </tr>
+  <tr>
+    <td>Address</td>
+    <td>{{attendee.order.address}}</td>
+  </tr>
+  <tr>
+    <td>City</td>
+    <td>{{attendee.order.city}}</td>
+  </tr>
+  <tr>
+    <td>State</td>
+    <td>{{attendee.order.state}}</td>
+  </tr>
+  <tr>
+    <td>Zip Code</td>
+    <td>{{attendee.order.zip_code}}</td>
+  </tr>
+  <tr>
+    <td>Email</td>
+    <td>{{attendee.order.email}}</td>
+  </tr>
+  <tr>
+    <td>Phone</td>
+    <td>{{attendee.order.phone}}</td>
+  </tr>
+  <tr>
+    <td>Payment Amount</td>
+    <td>${{attendee.order.amount}}</td>
+  </tr>
+  <tr>
+    <td>Amount Due</td>
+    <td>$0.00</td>
+  </tr>
+  <tr>
+    <td>Payment Date</td>
+    <td>{{attendee.order.date}}</td>
+  </tr>
+  <tr>
+    <td>Order ID</td>
+    <td>{{attendee.order.payflow_pnref}}</td>
+  </tr>
+</table>">
+</iframe>
+
+<script>
+function printReceipt() {
+  document.getElementById("receipt").contentWindow.print();
+}
+</script>
+
+<p>
+<input type="button" value="Print receipt" onclick="printReceipt()">
+</p>
+{% endif %}
+
+<form method="post" action=".">
+<p>
+Attendee ID:
+<input type="text" name="attendee" maxlength="5" size="5" />
+</p>
+<p>
+<input type="submit" value="Get receipt" />
+</p>
+{% csrf_token %}
+</form>
+
+</div>
+{% endblock %}

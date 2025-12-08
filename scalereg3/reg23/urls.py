@@ -1,3 +1,4 @@
+from django.urls import include
 from django.urls import path
 
 from . import views
@@ -18,4 +19,7 @@ urlpatterns = [
 
     # Misc
     path('reg_lookup/', views.reg_lookup),
+
+    # Admin
+    path('staff/', include('reg23.staff.urls')),
 ]
