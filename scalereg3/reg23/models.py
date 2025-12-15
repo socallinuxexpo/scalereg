@@ -261,6 +261,12 @@ class Question(models.Model):
 
 
 class Attendee(models.Model):
+
+    class EmailChoices(models.IntegerChoices):
+        LOGISTICS_ONLY = 0
+        ANNOUNCEMENTS = 1
+        SPECIAL_OFFERS = 2
+
     # badge info
     badge_type = models.ForeignKey(Ticket, on_delete=models.PROTECT)
     order = models.ForeignKey(Order,
@@ -291,7 +297,8 @@ class Attendee(models.Model):
                               blank=True,
                               null=True)
     ordered_items = models.ManyToManyField(Item, blank=True)
-    can_email = models.BooleanField(default=False)
+    can_email = models.IntegerField(choices=EmailChoices,
+                                    default=EmailChoices.LOGISTICS_ONLY)
     answers = models.ManyToManyField(Answer, blank=True)
 
     def checkin_code(self):

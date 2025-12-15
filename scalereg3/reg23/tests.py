@@ -985,7 +985,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '12345'
+                'zip_code': '12345',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertContains(response,
@@ -1001,7 +1002,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '12345'
+                'zip_code': '12345',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1012,7 +1014,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '54321'
+                'zip_code': '54321',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertContains(response, 'Already added attendee')
@@ -1030,7 +1033,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '12345'
+                'zip_code': '12345',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1048,7 +1052,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First ',
                 'last_name': 'Last ',
                 'email': 'a@a.com ',
-                'zip_code': '12345 '
+                'zip_code': '12345 ',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1067,6 +1072,7 @@ class AttendeeTest(TestCase):
                 'last_name': 'Last',
                 'email': 'a@a.com',
                 'zip_code': '12345',
+                'can_email': 0,
                 'item0': 'I1'
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
@@ -1085,7 +1091,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '12345'
+                'zip_code': '12345',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1101,7 +1108,8 @@ class AttendeeTest(TestCase):
                 'first_name': 'Second',
                 'last_name': 'Last',
                 'email': 'b@a.com',
-                'zip_code': '54321'
+                'zip_code': '54321',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1136,7 +1144,8 @@ class AttendeeTest(TestCase):
                 'question1': answer1.id,
                 'question2': 'Text Answer 1',
                 'question3': 'Not relevant',
-                'zip_code': '12345 '
+                'zip_code': '12345 ',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1175,7 +1184,8 @@ class AttendeeTest(TestCase):
                 'question2': '99',
                 'question3': '',
                 'question4': '',
-                'zip_code': '12345 '
+                'zip_code': '12345 ',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
@@ -1348,7 +1358,8 @@ class AttendeeTestWithPromo(TestCase):
                 'first_name': 'First',
                 'last_name': 'Last',
                 'email': 'a@a.com',
-                'zip_code': '12345'
+                'zip_code': '12345',
+                'can_email': 0
             },
             HTTP_REFERER='https://example.com/reg23/add_attendee/')
         self.assertRedirects(response, '/reg23/registered_attendee/')
