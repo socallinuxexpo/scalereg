@@ -173,12 +173,41 @@ b { font-weight: bold }
     </tr>
     {% endif %}
     <tr>
-        <td>
+        <td valign="top">
             <label class="reg23_label" for="id_can_email">
-                Add me to the announcement mailing list:
+                <b>Add me to the announcement mailing list:</b>
             </label>
         </td>
-        <td>{{ form.can_email }}</td>
+        <td>
+            <table id="id_can_email">
+                {% for radio in form.can_email %}
+                <tr>
+                    <td valign="top">{{ radio.tag }}</td>
+                    <td>
+                        <label for="{{ radio.id_for_label }}">
+                        {% if radio.choice_label == "Logistics Only" %}
+                            Logistics Only - I only wish to receive important
+                            notifications about my tickets to this year's event.
+                            Do not contact me about future events.
+                        {% elif radio.choice_label == "Announcements" %}
+                            Include me on the SCALE announcement mailing list
+                            so I stay updated on future SCALE events.
+                        {% elif radio.choice_label == "Special Offers" %}
+                            Include me in the conference Opt-In list so I can
+                            receive one time messages and special offers from
+                            SCALE sponsors after the event. My personal
+                            information will not be shared with third parties
+                            unless I present my badge to them for scanning at
+                            the conference.
+                        {% else %}
+                            {{ radio.choice_label }}
+                        {% endif %}
+                        </label>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+       </td>
     </tr>
     </table>
     </p>

@@ -1,4 +1,5 @@
 from django.forms import ModelForm
+from django.forms import RadioSelect
 
 from . import models
 
@@ -18,6 +19,7 @@ class AttendeeForm(ModelForm):
             'phone',
             'can_email',
         )
+        widgets = {'can_email': RadioSelect}
 
 
 class AttendeeLookupForm(ModelForm):
