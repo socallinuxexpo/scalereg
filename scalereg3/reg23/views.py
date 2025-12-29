@@ -1,8 +1,12 @@
+import csv
+
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -471,7 +475,7 @@ def payment(request):
 
     order_num = None
     if unpaid_attendees:
-        csv = ','.join([str(x) for x in request.session[PAYMENT_COOKIE]])
+        csv_data = ','.join([str(x) for x in request.session[PAYMENT_COOKIE]])
         order_tries = 0
         while True:
             existing_order_ids = [
@@ -482,7 +486,7 @@ def payment(request):
             ]
             order_num = generate_order_id(existing_order_ids)
             pending_order = models.PendingOrder(order_num=order_num,
-                                                attendees=csv)
+                                                attendees=csv_data)
             try:
                 pending_order.save()
                 break
@@ -649,3 +653,82 @@ def reg_lookup(request):
             'form': form,
             'search': 1,
         })
+
+
+@staff_member_required
+def mass_add_attendees(request):
+    csrf_token_value = get_token(request)
+    input_form_html = f'''<form method="post">
+<p>first_name,last_name,title,org,email,zip,phone,order_number,ticket_code</p>
+<textarea name="data" rows="25" cols="80"></textarea><br />
+<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token_value}">
+<input type="submit" />
+</form>'''
+
+    response = HttpResponse()
+    response.write('<html><body>')
+
+    if request.method == 'GET':
+        response.write(input_form_html)
+        response.write('</body></html>')
+        return response
+
+    required_vars = ['data']
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendees_added_count = 0
+    csv_reader = csv.reader(request.POST['data'].split('\n'))
+    for entry in csv_reader:
+        if not entry:
+            continue
+
+        if len(entry) != 9:
+            response.write(f'Bad data: {entry}<br />\n')
+            continue
+
+        try:
+            order = models.Order.objects.get(order_num=entry[7])
+        except models.Order.DoesNotExist:
+            response.write(f'Bad order number: {entry[7]}<br />\n')
+            continue
+
+        try:
+            ticket = models.Ticket.objects.get(name=entry[8])
+        except models.Ticket.DoesNotExist:
+            response.write(f'Bad ticket type: {entry[8]}<br />\n')
+            continue
+
+        entry_dict = {
+            'first_name': entry[0].strip(),
+            'last_name': entry[1].strip(),
+            'title': entry[2].strip(),
+            'org': entry[3].strip(),
+            'email': entry[4].strip(),
+            'zip_code': entry[5].strip(),
+            'phone': entry[6].strip(),
+            'badge_type': ticket,
+        }
+        form = forms.MassAddAttendeesForm(entry_dict)
+        if not form.is_valid():
+            response.write(
+                f'Bad entry: {entry}, reason: {form.errors}<br />\n')
+            continue
+
+        attendee = form.save(commit=False)
+        attendee.valid = True
+        attendee.checked_in = False
+        attendee.can_email = models.Attendee.EmailChoices.LOGISTICS_ONLY
+        attendee.order = order
+        attendee.badge_type = ticket
+        attendee.save()
+        form.save_m2m()
+        notify_attendee(attendee)
+        response.write(f'Added: {entry}<br />\n')
+        attendees_added_count += 1
+
+    response.write(f'Total added attendees: {attendees_added_count}\n')
+    response.write(input_form_html)
+    response.write('</body></html>')
+    return response

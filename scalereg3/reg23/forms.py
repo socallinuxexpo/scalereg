@@ -30,3 +30,19 @@ class AttendeeLookupForm(ModelForm):
             'email',
             'zip_code',
         )
+
+
+class MassAddAttendeesForm(ModelForm):
+
+    class Meta:
+        model = models.Attendee
+        fields = (
+            'first_name',
+            'last_name',
+            'title',
+            'org',
+            'zip_code',
+            'email',
+            'order',
+            'badge_type',
+        )
