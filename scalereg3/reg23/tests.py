@@ -2,6 +2,7 @@ import datetime
 import decimal
 import random
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from sponsorship import models as sponsorship_models
@@ -2152,3 +2153,128 @@ class RegLookupTest(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'First Last')
+
+
+class MassAddAttendeesTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = get_user_model().objects.create_user('staff',
+                                                              is_staff=True)
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+
+        Ticket.objects.create(name='SPEAK',
+                              description='Speakers',
+                              ticket_type='speaker',
+                              price=decimal.Decimal(0),
+                              public=False,
+                              cash=False,
+                              upgradable=False)
+        Order.objects.create(order_num='SPEAKERS00',
+                             amount=0,
+                             payment_type='speaker')
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/mass_add_attendees/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_attendees/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/mass_add_attendees/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_attendees/')
+
+    def test_get_request_staff_user(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/mass_add_attendees/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'first_name,last_name')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/mass_add_attendees/', {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_attendees/')
+
+    def test_post_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/mass_add_attendees/', {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_attendees/')
+
+    def test_no_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_attendees/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'No data information')
+
+    def test_empty_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_attendees/', {'data': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'first_name,last_name')
+        self.assertContains(response, 'Total added attendees: 0')
+
+    def test_mixed_data(self):
+        mixed_data = '''Not,Enough
+
+First,Last,"VP, a.com",,vp@a.com,12345,,SPEAKERS00,SPEAK
+
+Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
+'''
+
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_attendees/',
+                                    {'data': mixed_data})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'first_name,last_name')
+        self.assertContains(response, 'Total added attendees: 2')
+        self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertEqual(Attendee.objects.count(), 2)
+        attendee1 = Attendee.objects.get(id=1)
+        self.assertEqual(attendee1.first_name, 'First')
+        self.assertEqual(attendee1.last_name, 'Last')
+        self.assertEqual(attendee1.title, 'VP, a.com')
+        self.assertEqual(attendee1.org, '')
+        self.assertEqual(attendee1.email, 'vp@a.com')
+        self.assertEqual(attendee1.zip_code, '12345')
+        attendee2 = Attendee.objects.get(id=2)
+        self.assertEqual(attendee2.first_name, 'Foo')
+        self.assertEqual(attendee2.last_name, 'Bar')
+        self.assertEqual(attendee2.title, '')
+        self.assertEqual(attendee2.org, 'b.com')
+        self.assertEqual(attendee2.email, 'foo@b.com')
+        self.assertEqual(attendee2.zip_code, '54321')
+
+    def test_bad_order(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post(
+            '/reg23/mass_add_attendees/',
+            {'data': 'First,Last,"VP, a.com",,vp@a.com,12345,,ORDER,TICKET'})
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'Bad order number: ORDER')
+
+    def test_bad_ticket(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_attendees/', {
+            'data':
+            'First,Last,"VP, a.com",,vp@a.com,12345,,SPEAKERS00,TICKET'
+        })
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'Bad ticket type: TICKET')
+
+    def test_bad_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_attendees/',
+                                    {'data': ',,,,,,,SPEAKERS00,SPEAK'})
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertContains(response, 'This field is required')

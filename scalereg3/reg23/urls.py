@@ -21,5 +21,6 @@ urlpatterns = [
     path('reg_lookup/', views.reg_lookup),
 
     # Admin
+    path('mass_add_attendees/', views.mass_add_attendees),
     path('staff/', include('reg23.staff.urls')),
 ]
