@@ -2278,3 +2278,113 @@ Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
                                     {'data': ',,,,,,,SPEAKERS00,SPEAK'})
         self.assertEqual(Attendee.objects.count(), 0)
         self.assertContains(response, 'This field is required')
+
+
+class MassAddPromosTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = get_user_model().objects.create_user('staff',
+                                                              is_staff=True)
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+
+        cls.ticket = Ticket.objects.create(name='T1',
+                                           description='T1 full',
+                                           ticket_type='full',
+                                           price=decimal.Decimal(10),
+                                           public=True,
+                                           cash=False,
+                                           upgradable=False)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/mass_add_promos/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_promos/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/mass_add_promos/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_promos/')
+
+    def test_get_request_staff_user(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/mass_add_promos/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.assertContains(response, 'code,modifier,description')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/mass_add_promos/', {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_promos/')
+
+    def test_post_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/mass_add_promos/', {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/admin/login/?next=/reg23/mass_add_promos/')
+
+    def test_no_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_promos/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.assertContains(response, 'No data information')
+
+    def test_empty_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_promos/', {'data': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.assertContains(response, 'code,modifier,description')
+        self.assertContains(response, 'Total added promos: 0')
+
+    def test_mixed_data(self):
+        mixed_data = '''Not,Enough
+
+SAVE,0.5,Save 50%
+
+JOE,0.6,"Joe's friends"
+'''
+
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_promos/',
+                                    {'data': mixed_data})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'code,modifier,description')
+        self.assertContains(response, 'Total added promos: 2')
+        self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertEqual(PromoCode.objects.count(), 2)
+        promo1 = PromoCode.objects.get(name='SAVE')
+        self.assertEqual(promo1.description, 'Save 50%')
+        self.assertAlmostEqual(promo1.price_modifier, decimal.Decimal(0.5))
+        self.assertTrue(promo1.active)
+        self.assertQuerySetEqual(promo1.applies_to.all(), [self.ticket])
+        self.assertFalse(promo1.applies_to_all)
+        promo2 = PromoCode.objects.get(name='JOE')
+        self.assertEqual(promo2.description, "Joe's friends")
+        self.assertAlmostEqual(promo2.price_modifier, decimal.Decimal(0.6))
+        self.assertTrue(promo2.active)
+        self.assertQuerySetEqual(promo2.applies_to.all(), [self.ticket])
+        self.assertFalse(promo2.applies_to_all)
+
+    def test_bad_price_modifier(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_promos/',
+                                    {'data': 'SAVE,ABC,Save 50%'})
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.assertContains(response, 'Bad price modifier: ABC')
+
+    def test_bad_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_promos/',
+                                    {'data': ',0.5,'})
+        self.assertEqual(PromoCode.objects.count(), 0)
+        self.assertContains(response, 'This field is required')

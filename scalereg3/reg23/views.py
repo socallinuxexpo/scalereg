@@ -732,3 +732,71 @@ def mass_add_attendees(request):
     response.write(input_form_html)
     response.write('</body></html>')
     return response
+
+
+@staff_member_required
+def mass_add_promos(request):
+    csrf_token_value = get_token(request)
+    input_form_html = f'''<form method="post">
+<p>code,modifier,description</p>
+<textarea name="data" rows="25" cols="80"></textarea><br />
+<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token_value}">
+<input type="submit" />
+</form>'''
+
+    response = HttpResponse()
+    response.write('<html><body>')
+
+    if request.method == 'GET':
+        response.write(input_form_html)
+        response.write('</body></html>')
+        return response
+
+    required_vars = ['data']
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    # Apply only to full tickets by default
+    full_tickets = models.Ticket.public_objects.filter(ticket_type='full')
+
+    promos_added_count = 0
+    csv_reader = csv.reader(request.POST['data'].split('\n'))
+    for entry in csv_reader:
+        if not entry:
+            continue
+
+        if len(entry) != 3:
+            response.write(f'Bad data: {entry}<br />\n')
+            continue
+
+        try:
+            price_modifier = float(entry[1].strip())
+        except ValueError:
+            response.write(f'Bad price modifier: {entry[1]}<br />\n')
+            continue
+
+        entry_dict = {
+            'name': entry[0].strip(),
+            'description': entry[2].strip(),
+            'price_modifier': price_modifier,
+        }
+        form = forms.MassAddPromoForm(entry_dict)
+        if not form.is_valid():
+            response.write(
+                f'Bad entry: {entry}, reason: {form.errors}<br />\n')
+            continue
+
+        promo = form.save(commit=False)
+        promo.active = True
+        promo.save()
+        form.save_m2m()
+        for ticket in full_tickets:
+            promo.applies_to.add(ticket)
+        response.write(f'Added: {entry}<br />\n')
+        promos_added_count += 1
+
+    response.write(f'Total added promos: {promos_added_count}\n')
+    response.write(input_form_html)
+    response.write('</body></html>')
+    return response
