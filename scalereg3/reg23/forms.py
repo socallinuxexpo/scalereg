@@ -46,3 +46,14 @@ class MassAddAttendeesForm(ModelForm):
             'order',
             'badge_type',
         )
+
+
+class MassAddPromoForm(ModelForm):
+
+    class Meta:
+        model = models.PromoCode
+        fields = (
+            'name',
+            'price_modifier',
+            'description',
+        )
