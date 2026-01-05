@@ -324,3 +324,13 @@ class PendingOrder(models.Model):
         if not self.attendees:
             return []
         return [int(x) for x in self.attendees.split(',')]
+
+
+class PaymentCode(models.Model):
+    code = models.CharField(
+        max_length=10,
+        primary_key=True,
+        help_text='Unique 10 upper-case letters + numbers code')
+    badge_type = models.ForeignKey(Ticket, on_delete=models.PROTECT)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    max_attendees = models.PositiveSmallIntegerField()
