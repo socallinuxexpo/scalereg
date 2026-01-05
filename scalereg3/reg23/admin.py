@@ -4,6 +4,7 @@ from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
+from .models import PaymentCode
 from .models import PromoCode
 from .models import Question
 from .models import Ticket
@@ -74,6 +75,12 @@ class OrderAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+class PaymentCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'badge_type', 'order', 'max_attendees')
+    list_filter = ('code', 'badge_type')
+    save_on_top = True
+
+
 class PromoCodeAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'price_modifier', 'active',
                     'start_date', 'end_date')
@@ -103,6 +110,7 @@ admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(PaymentCode, PaymentCodeAdmin)
 admin.site.register(PromoCode, PromoCodeAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Ticket, TicketAdmin)
