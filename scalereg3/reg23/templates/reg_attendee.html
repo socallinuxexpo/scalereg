@@ -6,6 +6,11 @@
 <style type="text/css">
 .reg23_form_error { color: #FF0000; font-weight: bold }
 .reg23_label { font-weight: normal }
+.reg23_title_org_dialog {
+    border-color: #000;
+    border-width: 3px;
+    padding: 16px;
+}
 b { font-weight: bold }
 </style>
 
@@ -52,7 +57,7 @@ b { font-weight: bold }
     are required.
     </p>
 
-    <form method="post" action=".">
+    <form id="form" method="post" action=".">
 
     <input type="hidden" name="promo" value="{{ promo }}" />
     <input type="hidden" name="ticket" value="{{ ticket.name }}" />
@@ -256,6 +261,19 @@ b { font-weight: bold }
     {% csrf_token %}
     </form>
 
+    <dialog id="title_org_dialog" class="reg23_title_org_dialog">
+        <p>
+            Before continuing, could we trouble you for your employer and
+            title?<br />
+            This helps us immensely as we tailor conference content for future
+            events.
+        </p>
+        <form>
+            <button value="cancel" formmethod="dialog">Go Back</button>
+            <button value="continue" formmethod="dialog">Continue</button>
+        </form>
+    </dialog>
+
     <form method="post" action="../">
     <p>
     <input type="hidden" name="promo" value="{{ promo }}" />
@@ -263,6 +281,25 @@ b { font-weight: bold }
     </p>
     {% csrf_token %}
     </form>
+
+    <script>
+    const form = document.getElementById("form");
+    const dialog = document.getElementById("title_org_dialog");
+
+    form.addEventListener('submit', () => {
+      if (!document.getElementById("id_title").value.length &&
+          !document.getElementById("id_org").value.length) {
+        event.preventDefault();
+        dialog.showModal();
+      }
+    });
+
+    dialog.addEventListener("close", () => {
+      if (dialog.returnValue === "continue") {
+        form.submit();
+      }
+    });
+    </script>
 {% else %}
 Registration is closed.
 {% endif %}
