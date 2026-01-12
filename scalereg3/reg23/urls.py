@@ -23,6 +23,7 @@ urlpatterns = [
 
     # Admin
     path('mass_add_attendees/', views.mass_add_attendees),
+    path('mass_add_payment_codes/', views.mass_add_payment_codes),
     path('mass_add_promos/', views.mass_add_promos),
     path('staff/', include('reg23.staff.urls')),
 ]

@@ -81,6 +81,11 @@ def get_attendee_for_id(attendee_id):
         return None
 
 
+def get_existing_order_ids():
+    return [x.order_num for x in models.PendingOrder.objects.all()
+            ] + [x.order_num for x in models.Order.objects.all()]
+
+
 def get_payment_code(code):
     try:
         payment_code = models.PaymentCode.objects.get(code=code.strip())
@@ -183,6 +188,13 @@ def start_payment_search_for_attendee(id_str, email_str):
         return None
 
     return attendee
+
+
+def generate_mass_add_get_response(content):
+    response = HttpResponse('<html><body>')
+    response.write(content)
+    response.write('</body></html>')
+    return response
 
 
 def generate_notify_attendee_body(attendee):
@@ -487,13 +499,7 @@ def payment(request):
         csv_data = ','.join([str(x) for x in request.session[PAYMENT_COOKIE]])
         order_tries = 0
         while True:
-            existing_order_ids = [
-                x.order_num for x in models.PendingOrder.objects.all()
-            ]
-            existing_order_ids += [
-                x.order_num for x in models.Order.objects.all()
-            ]
-            order_num = generate_order_id(existing_order_ids)
+            order_num = generate_order_id(get_existing_order_ids())
             pending_order = models.PendingOrder(order_num=order_num,
                                                 attendees=csv_data)
             try:
@@ -724,19 +730,15 @@ def mass_add_attendees(request):
 <input type="submit" />
 </form>'''
 
-    response = HttpResponse()
-    response.write('<html><body>')
-
     if request.method == 'GET':
-        response.write(input_form_html)
-        response.write('</body></html>')
-        return response
+        return generate_mass_add_get_response(input_form_html)
 
     required_vars = ['data']
     r = check_vars(request, required_vars)
     if r:
         return r
 
+    response = HttpResponse('<html><body>')
     attendees_added_count = 0
     csv_reader = csv.reader(request.POST['data'].split('\n'))
     for entry in csv_reader:
@@ -794,6 +796,95 @@ def mass_add_attendees(request):
 
 
 @staff_member_required
+def mass_add_payment_codes(request):
+    csrf_token_value = get_token(request)
+    input_form_html = f'''<form method="post">
+<p>name,addr,city,state,zip,email,phone,type,max_att</p>
+<textarea name="data" rows="25" cols="80"></textarea><br />
+<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token_value}">
+<input type="submit" />
+</form>'''
+
+    if request.method == 'GET':
+        return generate_mass_add_get_response(input_form_html)
+
+    required_vars = ['data']
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    response = HttpResponse('<html><body>')
+    payment_codes_added_count = 0
+    csv_reader = csv.reader(request.POST['data'].split('\n'))
+    for entry in csv_reader:
+        if not entry:
+            continue
+
+        if len(entry) != 9:
+            response.write(f'Bad data: {entry}<br />\n')
+            continue
+
+        try:
+            ticket = models.Ticket.objects.get(name=entry[7])
+        except models.Ticket.DoesNotExist:
+            response.write(f'Bad ticket type: {entry[7]}<br />\n')
+            continue
+
+        order_num = generate_order_id(get_existing_order_ids())
+        entry_dict = {
+            'order_num': order_num,
+            'name': entry[0].strip(),
+            'address': entry[1].strip(),
+            'city': entry[2].strip(),
+            'state': entry[3].strip(),
+            'zip_code': entry[4].strip(),
+            'email': entry[5].strip(),
+            'phone': entry[6].strip(),
+            'payment_type': models.TICKET_TO_PAYMENT_MAP[ticket.ticket_type],
+        }
+        form = forms.MassAddOrderForm(entry_dict)
+        if not form.is_valid():
+            response.write(
+                f'Bad entry: {entry}, reason: {form.errors}<br />\n')
+            continue
+
+        order = form.save(commit=False)
+        order.amount = 0
+
+        try:
+            order.save()
+        except IntegrityError:
+            response.write(f'Error while saving order for: {entry[0]}\n')
+            break
+
+        form.save_m2m()
+
+        payment_code = models.PaymentCode(
+            code=order.order_num,
+            badge_type=ticket,
+            order=order,
+            max_attendees=entry[8],
+        )
+        try:
+            payment_code.save()
+        except IntegrityError:
+            order.delete()
+            response.write(
+                f'Error while saving payment code for: {entry[0]}\n')
+            break
+
+        order.valid = True
+        order.save()
+        response.write(f'Added: {entry}<br />\n')
+        payment_codes_added_count += 1
+
+    response.write(f'Total added payment codes: {payment_codes_added_count}\n')
+    response.write(input_form_html)
+    response.write('</body></html>')
+    return response
+
+
+@staff_member_required
 def mass_add_promos(request):
     csrf_token_value = get_token(request)
     input_form_html = f'''<form method="post">
@@ -803,13 +894,8 @@ def mass_add_promos(request):
 <input type="submit" />
 </form>'''
 
-    response = HttpResponse()
-    response.write('<html><body>')
-
     if request.method == 'GET':
-        response.write(input_form_html)
-        response.write('</body></html>')
-        return response
+        return generate_mass_add_get_response(input_form_html)
 
     required_vars = ['data']
     r = check_vars(request, required_vars)
@@ -819,6 +905,7 @@ def mass_add_promos(request):
     # Apply only to full tickets by default
     full_tickets = models.Ticket.public_objects.filter(ticket_type='full')
 
+    response = HttpResponse('<html><body>')
     promos_added_count = 0
     csv_reader = csv.reader(request.POST['data'].split('\n'))
     for entry in csv_reader:

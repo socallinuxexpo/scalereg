@@ -2464,6 +2464,128 @@ Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
         self.assertContains(response, 'This field is required')
 
 
+class MassAddPaymentCodesTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = get_user_model().objects.create_user('staff',
+                                                              is_staff=True)
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+
+        cls.ticket = Ticket.objects.create(name='T1',
+                                           description='T1 full',
+                                           ticket_type='full',
+                                           price=decimal.Decimal(10),
+                                           public=True,
+                                           cash=False,
+                                           upgradable=False)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/mass_add_payment_codes/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/admin/login/?next=/reg23/mass_add_payment_codes/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/mass_add_payment_codes/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/admin/login/?next=/reg23/mass_add_payment_codes/')
+
+    def test_get_request_staff_user(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/mass_add_payment_codes/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertContains(
+            response, 'name,addr,city,state,zip,email,phone,type,max_att')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/mass_add_payment_codes/',
+                                    {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/admin/login/?next=/reg23/mass_add_payment_codes/')
+
+    def test_post_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/mass_add_payment_codes/',
+                                    {'data': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/admin/login/?next=/reg23/mass_add_payment_codes/')
+
+    def test_no_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_payment_codes/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertContains(response, 'No data information')
+
+    def test_empty_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_payment_codes/',
+                                    {'data': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertContains(
+            response, 'name,addr,city,state,zip,email,phone,type,max_att')
+        self.assertContains(response, 'Total added payment codes: 0')
+
+    def test_mixed_data(self):
+        mixed_data = '''Not,Enough
+
+John Doe,123 Main St,Anytown,CA,12345,john@example.com,555-1212,T1,1
+
+Jane Doe,456 Main St,Anytown,CA,12345,jane@example.com,,T1,2
+'''
+
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertEqual(Order.objects.count(), 0)
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/mass_add_payment_codes/',
+                                    {'data': mixed_data})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, 'name,addr,city,state,zip,email,phone,type,max_att')
+        self.assertContains(response, 'Total added payment codes: 2')
+        self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertEqual(PaymentCode.objects.count(), 2)
+        self.assertEqual(Order.objects.count(), 2)
+
+        pc1 = PaymentCode.objects.get(order__name='John Doe')
+        self.assertEqual(pc1.badge_type, self.ticket)
+        self.assertTrue(pc1.order.valid)
+        self.assertEqual(pc1.order.email, 'john@example.com')
+        self.assertEqual(pc1.max_attendees, 1)
+
+        pc2 = PaymentCode.objects.get(order__name='Jane Doe')
+        self.assertEqual(pc2.badge_type, self.ticket)
+        self.assertTrue(pc2.order.valid)
+        self.assertEqual(pc2.order.email, 'jane@example.com')
+        self.assertEqual(pc2.max_attendees, 2)
+
+    def test_bad_ticket_type(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post(
+            '/reg23/mass_add_payment_codes/', {
+                'data':
+                'John Doe,123 Main St,Anytown,CA,12345,john@example.com,555-1212,BAD,1'
+            })
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertContains(response, 'Bad ticket type: BAD')
+
+    def test_bad_data(self):
+        self.client.force_login(self.staff_user)
+        # Give it a valid ticket but invalid other fields (e.g. empty email which is required)
+        response = self.client.post('/reg23/mass_add_payment_codes/',
+                                    {'data': ',,,,,,,T1,1'})
+        self.assertEqual(PaymentCode.objects.count(), 0)
+        self.assertContains(response, 'This field is required')
+
+
 class MassAddPromosTest(TestCase):
 
     @classmethod

@@ -48,6 +48,23 @@ class MassAddAttendeesForm(ModelForm):
         )
 
 
+class MassAddOrderForm(ModelForm):
+
+    class Meta:
+        model = models.Order
+        fields = (
+            'order_num',
+            'name',
+            'address',
+            'city',
+            'state',
+            'zip_code',
+            'email',
+            'phone',
+            'payment_type',
+        )
+
+
 class MassAddPromoForm(ModelForm):
 
     class Meta:
