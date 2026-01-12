@@ -18,6 +18,7 @@ urlpatterns = [
     path('finish_payment/', views.finish_payment),
 
     # Misc
+    path('redeem_payment_code/', views.redeem_payment_code),
     path('reg_lookup/', views.reg_lookup),
 
     # Admin

@@ -53,6 +53,21 @@
     </p>
     {% csrf_token %}
     </form>
+
+    <h2>Use A Payment Code</h2>
+
+    <p>
+    If you have a payment code, please enter the 10 character code below:
+    </p>
+
+    <form method="post" action="../redeem_payment_code/">
+    <p>
+    <input type="text" name="code" maxlength="10">
+    <input type="hidden" name="order" value="{{ order }}">
+    <input type="submit" class="scale_kiosk_bordered" value="Use Payment Code" />
+    </p>
+    {% csrf_token %}
+    </form>
 {% else %}
     <h2>Cannot complete this transaction</h2>
 {% endif %}

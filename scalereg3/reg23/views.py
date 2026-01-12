@@ -70,6 +70,10 @@ def check_vars(request, required_post_vars):
     return None
 
 
+def generate_order_id(existing_ids):
+    return utils.generate_unique_id(10, existing_ids)
+
+
 def get_attendee_for_id(attendee_id):
     try:
         return models.Attendee.objects.get(id=attendee_id)
@@ -77,8 +81,13 @@ def get_attendee_for_id(attendee_id):
         return None
 
 
-def generate_order_id(existing_ids):
-    return utils.generate_unique_id(10, existing_ids)
+def get_payment_code(code):
+    try:
+        payment_code = models.PaymentCode.objects.get(code=code.strip())
+    except models.PaymentCode.DoesNotExist:
+        return None
+
+    return payment_code if payment_code.order.valid else None
 
 
 def get_pending_order_attendees(pending_order):
@@ -629,6 +638,56 @@ def finish_payment(request):
             'step': 7,
             'steps_total': STEPS_TOTAL,
             'total': request.POST['AMOUNT'],
+        })
+
+
+def redeem_payment_code(request):
+    required_vars = ['code', 'order']
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    payment_code = get_payment_code(request.POST['code'])
+    if not payment_code:
+        return render_error(request, 'Payment code is invalid')
+
+    maybe_pending_order = get_pending_order(request.POST['order'])
+    if isinstance(maybe_pending_order, HttpResponseServerError):
+        return maybe_pending_order
+
+    maybe_attendee_data = get_pending_order_attendees(maybe_pending_order)
+    if isinstance(maybe_attendee_data, HttpResponseServerError):
+        return maybe_attendee_data
+
+    all_attendees, already_paid_attendees = maybe_attendee_data
+    if len(all_attendees) > payment_code.max_attendees:
+        return render_error(
+            request, 'Payment code invalid for the number of attendees')
+
+    for attendee in all_attendees:
+        # Remove non-free addon items.
+        for item in attendee.ordered_items.all():
+            if item.price > 0:
+                attendee.ordered_items.remove(item)
+        attendee.badge_type = payment_code.badge_type
+        attendee.order = payment_code.order
+        attendee.valid = True
+        attendee.promo = None
+        attendee.save()
+        notify_attendee(attendee)
+
+    payment_code.max_attendees = payment_code.max_attendees - len(
+        all_attendees)
+    payment_code.save()
+
+    return render(
+        request, 'reg_receipt.html', {
+            'title': 'Registration Payment Code Receipt',
+            'attendees': all_attendees,
+            'already_paid_attendees': already_paid_attendees,
+            'payment_code': payment_code.code,
+            'step': 7,
+            'steps_total': STEPS_TOTAL,
         })
 
 
