@@ -4,6 +4,15 @@
 {% block content %}
 <div id="content-main">
 
+{% if payment_code %}
+<p>
+Payment Code: {{ payment_code|upper }}
+</p>
+
+<p>
+Please note payment codes do not pay for non-free addon items.
+</p>
+{% else %}
 <p>
 <table>
 <tr>
@@ -24,6 +33,7 @@
 </tr>
 </table>
 </p>
+{% endif %}
 
 <p>
 <table border="1">

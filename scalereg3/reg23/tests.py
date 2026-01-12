@@ -11,6 +11,7 @@ from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
+from .models import PaymentCode
 from .models import PendingOrder
 from .models import PromoCode
 from .models import Question
@@ -2080,6 +2081,189 @@ class FinishPaymentTest(TestCase):
             del post_data[key]
             response = self.client.post('/reg23/finish_payment/', post_data)
             self.assertContains(response, f'No {key} information')
+
+
+class RedeemPaymentCodeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.t1 = Ticket.objects.create(name='EXHBT',
+                                       description='Exhibitor',
+                                       ticket_type='exhibitor',
+                                       price=decimal.Decimal(0),
+                                       public=False,
+                                       cash=False,
+                                       upgradable=False)
+        order = Order.objects.create(order_num='ORDER12345',
+                                     valid=True,
+                                     amount=0,
+                                     payment_type='exhibitor')
+        PaymentCode.objects.create(code='PAYCODE123',
+                                   badge_type=cls.t1,
+                                   order=order,
+                                   max_attendees=1)
+        PendingOrder.objects.create(order_num='PENDING123', attendees='1')
+        Attendee.objects.create(id=1,
+                                first_name='First',
+                                last_name='Last',
+                                email='a@a.com',
+                                zip_code='12345',
+                                badge_type=cls.t1)
+
+        cls.post_data = {
+            'code': 'PAYCODE123',
+            'order': 'PENDING123',
+        }
+
+    def check_attendee_and_payment_code_did_not_change(self):
+        attendee = Attendee.objects.get(id=1)
+        self.assertFalse(attendee.valid)
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        self.assertEqual(payment_code.max_attendees, 1)
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/redeem_payment_code/')
+        self.assertRedirects(response, '/reg23/')
+        self.check_attendee_and_payment_code_did_not_change()
+
+    def test_post_request_success(self):
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data)
+        self.assertContains(response, 'Registration Payment Code Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Payment Code: PAYCODE123')
+
+        attendee = Attendee.objects.get(id=1)
+        self.assertTrue(attendee.valid)
+        self.assertEqual(attendee.order.order_num, 'ORDER12345')
+        self.assertEqual(attendee.badge_type, self.t1)
+
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        self.assertEqual(payment_code.max_attendees, 0)
+
+    def test_post_request_resets_ticket_type(self):
+        t2 = Ticket.objects.create(name='T2',
+                                   description='T2 Full',
+                                   ticket_type='full',
+                                   price=decimal.Decimal(99),
+                                   public=True,
+                                   cash=False,
+                                   upgradable=False)
+        attendee = Attendee.objects.get(id=1)
+        attendee.badge_type = t2
+        attendee.save()
+
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data)
+        self.assertContains(response, 'Registration Payment Code Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Payment Code: PAYCODE123')
+
+        attendee.refresh_from_db()
+        self.assertTrue(attendee.valid)
+        self.assertEqual(attendee.order.order_num, 'ORDER12345')
+        self.assertEqual(attendee.badge_type, self.t1)
+
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        self.assertEqual(payment_code.max_attendees, 0)
+
+    def test_post_request_removes_paid_items(self):
+        item1 = Item.objects.create(name='I1',
+                                    description='Paid Item',
+                                    price=decimal.Decimal(10),
+                                    active=True,
+                                    promo=False,
+                                    ticket_offset=False,
+                                    applies_to_all=True)
+        item2 = Item.objects.create(name='I2',
+                                    description='Free Item',
+                                    price=decimal.Decimal(0),
+                                    active=True,
+                                    promo=False,
+                                    ticket_offset=False,
+                                    applies_to_all=True)
+        attendee = Attendee.objects.get(id=1)
+        attendee.ordered_items.add(item1)
+        attendee.ordered_items.add(item2)
+
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data)
+        self.assertContains(response, 'Registration Payment Code Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Payment Code: PAYCODE123')
+
+        attendee.refresh_from_db()
+        self.assertTrue(attendee.valid)
+        self.assertEqual(attendee.order.order_num, 'ORDER12345')
+        self.assertEqual(attendee.badge_type, self.t1)
+        self.assertQuerySetEqual(attendee.ordered_items.all(), [item2])
+
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        self.assertEqual(payment_code.max_attendees, 0)
+
+    def test_post_request_missing_data(self):
+        response = self.client.post('/reg23/redeem_payment_code/', {})
+        self.assertContains(response, 'No code information')
+        self.check_attendee_and_payment_code_did_not_change()
+
+        post_data = self.post_data.copy()
+        del post_data['code']
+        response = self.client.post('/reg23/redeem_payment_code/', post_data)
+        self.assertContains(response, 'No code information')
+        self.check_attendee_and_payment_code_did_not_change()
+
+        post_data = self.post_data.copy()
+        del post_data['order']
+        response = self.client.post('/reg23/redeem_payment_code/', post_data)
+        self.assertContains(response, 'No order information')
+        self.check_attendee_and_payment_code_did_not_change()
+
+    def test_post_request_invalid_code(self):
+        post_data = self.post_data.copy()
+        post_data['code'] = 'INVALID'
+        response = self.client.post('/reg23/redeem_payment_code/', post_data)
+        self.assertContains(response, 'Payment code is invalid')
+        self.check_attendee_and_payment_code_did_not_change()
+
+    def test_post_request_invalid_order(self):
+        post_data = self.post_data.copy()
+        post_data['order'] = 'INVALID'
+        response = self.client.post('/reg23/redeem_payment_code/', post_data)
+        self.assertContains(response,
+                            'cannot get pending order',
+                            status_code=500)
+        self.check_attendee_and_payment_code_did_not_change()
+
+    def test_post_request_missing_attendee(self):
+        post_data = self.post_data.copy()
+        post_data['order'] = 'MISSING'
+        PendingOrder.objects.create(order_num='MISSING', attendees='5')
+        response = self.client.post('/reg23/redeem_payment_code/', post_data)
+        self.assertContains(response,
+                            'cannot find an attendee',
+                            status_code=500)
+        self.check_attendee_and_payment_code_did_not_change()
+
+    def test_post_request_max_attendees_exceeded(self):
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        payment_code.max_attendees = 0
+        payment_code.save()
+
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data)
+        self.assertContains(
+            response, 'Payment code invalid for the number of attendees')
+        attendee = Attendee.objects.get(id=1)
+        self.assertFalse(attendee.valid)
+
+    def test_post_request_code_for_invalid_order(self):
+        order = Order.objects.get(order_num='ORDER12345')
+        order.valid = False
+        order.save()
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data)
+        self.assertContains(response, 'Payment code is invalid')
+        self.check_attendee_and_payment_code_did_not_change()
 
 
 class RegLookupTest(TestCase):
