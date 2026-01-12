@@ -31,6 +31,16 @@ TICKET_CHOICES = (
     ('staff', 'Staff'),
 )
 
+TICKET_TO_PAYMENT_MAP = {
+    'exhibitor': 'exhibitor',
+    'expo': 'invitee',
+    'full': 'invitee',
+    'kid': 'invitee',
+    'press': 'press',
+    'speaker': 'speaker',
+    'staff': 'invitee',
+}
+
 
 class Order(models.Model):
     # basic info
