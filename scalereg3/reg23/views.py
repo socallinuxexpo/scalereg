@@ -786,7 +786,7 @@ def mass_add_attendees(request):
         attendee.save()
         form.save_m2m()
         notify_attendee(attendee)
-        response.write(f'Added: {entry}<br />\n')
+        response.write(f'Added: {entry} as {attendee.id}<br />\n')
         attendees_added_count += 1
 
     response.write(f'Total added attendees: {attendees_added_count}\n')
@@ -875,7 +875,7 @@ def mass_add_payment_codes(request):
 
         order.valid = True
         order.save()
-        response.write(f'Added: {entry}<br />\n')
+        response.write(f'Added: {entry} as {payment_code.code}<br />\n')
         payment_codes_added_count += 1
 
     response.write(f'Total added payment codes: {payment_codes_added_count}\n')
