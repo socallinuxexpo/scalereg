@@ -39,7 +39,7 @@ class Order(models.Model):
     payflow_result = models.CharField(max_length=60, blank=True)
 
     # sponsor data
-    sponsor = models.OneToOneField('Sponsor', on_delete=models.PROTECT)
+    sponsor = models.OneToOneField('Sponsor', on_delete=models.CASCADE)
     already_paid_sponsor = models.BooleanField(default=False)
 
 
@@ -190,7 +190,7 @@ class Item(models.Model):
 
 class Sponsor(models.Model):
     # meta
-    package = models.ForeignKey(Package, on_delete=models.PROTECT)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
     valid = models.BooleanField(default=False)
 
     # name
@@ -209,7 +209,7 @@ class Sponsor(models.Model):
 
     # etc
     promo = models.ForeignKey(PromoCode,
-                              on_delete=models.PROTECT,
+                              on_delete=models.CASCADE,
                               blank=True,
                               null=True)
     agreed = models.BooleanField(default=False)
@@ -224,5 +224,5 @@ class PendingOrder(models.Model):
         max_length=10,
         primary_key=True,
         help_text='Unique 10 upper-case letters + numbers code')
-    sponsor = models.ForeignKey(Sponsor, on_delete=models.PROTECT)
+    sponsor = models.ForeignKey(Sponsor, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
