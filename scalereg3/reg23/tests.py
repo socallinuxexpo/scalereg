@@ -2423,6 +2423,14 @@ Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
         self.assertContains(response, 'first_name,last_name')
         self.assertContains(response, 'Total added attendees: 2')
         self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertContains(
+            response,
+            "Added: ['First', 'Last', 'VP, a.com', '', 'vp@a.com', '12345', "
+            "'', 'SPEAKERS00', 'SPEAK'] as 1")
+        self.assertContains(
+            response,
+            "Added: ['Foo', 'Bar', '', 'b.com', 'foo@b.com', '54321', '', "
+            "'SPEAKERS00', 'SPEAK'] as 2")
         self.assertEqual(Attendee.objects.count(), 2)
         attendee1 = Attendee.objects.get(id=1)
         self.assertEqual(attendee1.first_name, 'First')
@@ -2535,6 +2543,7 @@ class MassAddPaymentCodesTest(TestCase):
         self.assertContains(response, 'Total added payment codes: 0')
 
     def test_mixed_data(self):
+        random.seed(0)
         mixed_data = '''Not,Enough
 
 John Doe,123 Main St,Anytown,CA,12345,john@example.com,555-1212,T1,1
@@ -2552,6 +2561,14 @@ Jane Doe,456 Main St,Anytown,CA,12345,jane@example.com,,T1,2
             response, 'name,addr,city,state,zip,email,phone,type,max_att')
         self.assertContains(response, 'Total added payment codes: 2')
         self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertContains(
+            response,
+            "Added: ['John Doe', '123 Main St', 'Anytown', 'CA', '12345', "
+            "'john@example.com', '555-1212', 'T1', '1'] as Y0CQ65ZT4W")
+        self.assertContains(
+            response,
+            "Added: ['Jane Doe', '456 Main St', 'Anytown', 'CA', '12345', "
+            "'jane@example.com', '', 'T1', '2'] as N6ISIGQ8JT")
         self.assertEqual(PaymentCode.objects.count(), 2)
         self.assertEqual(Order.objects.count(), 2)
 
@@ -2667,6 +2684,9 @@ JOE,0.6,"Joe's friends"
         self.assertContains(response, 'code,modifier,description')
         self.assertContains(response, 'Total added promos: 2')
         self.assertContains(response, "Bad data: ['Not', 'Enough']")
+        self.assertContains(response, "Added: ['SAVE', '0.5', 'Save 50%']")
+        self.assertContains(response,
+                            "Added: ['JOE', '0.6', \"Joe's friends\"]")
         self.assertEqual(PromoCode.objects.count(), 2)
         promo1 = PromoCode.objects.get(name='SAVE')
         self.assertEqual(promo1.description, 'Save 50%')
