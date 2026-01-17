@@ -233,7 +233,7 @@ class Item(models.Model):
 
 
 class Answer(models.Model):
-    question = models.ForeignKey('Question', on_delete=models.PROTECT)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
     text = models.CharField(max_length=200)
 
     def __str__(self):
@@ -278,9 +278,9 @@ class Attendee(models.Model):
         SPECIAL_OFFERS = 2
 
     # badge info
-    badge_type = models.ForeignKey(Ticket, on_delete=models.PROTECT)
+    badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     order = models.ForeignKey(Order,
-                              on_delete=models.PROTECT,
+                              on_delete=models.CASCADE,
                               blank=True,
                               null=True)
     valid = models.BooleanField(default=False)
@@ -303,7 +303,7 @@ class Attendee(models.Model):
 
     # etc
     promo = models.ForeignKey(PromoCode,
-                              on_delete=models.PROTECT,
+                              on_delete=models.CASCADE,
                               blank=True,
                               null=True)
     ordered_items = models.ManyToManyField(Item, blank=True)
@@ -341,6 +341,6 @@ class PaymentCode(models.Model):
         max_length=10,
         primary_key=True,
         help_text='Unique 10 upper-case letters + numbers code')
-    badge_type = models.ForeignKey(Ticket, on_delete=models.PROTECT)
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     max_attendees = models.PositiveSmallIntegerField()
