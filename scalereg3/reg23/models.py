@@ -366,3 +366,12 @@ class Upgrade(models.Model):
                                   on_delete=models.CASCADE,
                                   blank=True,
                                   null=True)
+
+    def upgrade_cost(self):
+        old_total = Ticket.ticket_cost(self.old_badge_type,
+                                       self.old_items.all(),
+                                       self.attendee.promo)
+        new_total = Ticket.ticket_cost(self.new_badge_type,
+                                       self.new_items.all(),
+                                       self.attendee.promo)
+        return new_total - old_total

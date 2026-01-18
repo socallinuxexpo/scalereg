@@ -5,10 +5,12 @@ from django.test import TestCase
 from .models import Answer
 from .models import Attendee
 from .models import Item
+from .models import Order
 from .models import PendingOrder
 from .models import PromoCode
 from .models import Question
 from .models import Ticket
+from .models import Upgrade
 
 
 class TicketCostTest(TestCase):
@@ -295,3 +297,80 @@ class QuestionTest(TestCase):
         self.assertFalse(self.list_question.is_applicable_to_item(item2))
         self.assertTrue(self.text_question.is_applicable_to_item(self.item1))
         self.assertFalse(self.text_question.is_applicable_to_item(item2))
+
+
+class UpgradeCostTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1',
+                                            ticket_type='expo',
+                                            price=decimal.Decimal(10),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.ticket2 = Ticket.objects.create(name='T2',
+                                            description='T2',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(30),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.order1 = Order.objects.create(order_num='ORDER1',
+                                          name='Order 1',
+                                          address='Addr',
+                                          city='City',
+                                          state='State',
+                                          zip_code='12345',
+                                          email='test@example.com',
+                                          amount=decimal.Decimal(10),
+                                          payment_type='payflow')
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
+                                               order=cls.order1,
+                                               first_name='Foo',
+                                               last_name='Bar')
+        cls.item1 = Item.objects.create(name='I1',
+                                        description='Item 1',
+                                        price=decimal.Decimal(5),
+                                        active=True,
+                                        promo=False,
+                                        ticket_offset=False,
+                                        applies_to_all=True)
+
+    def test_simple_upgrade(self):
+        upgrade = Upgrade.objects.create(attendee=self.attendee,
+                                         old_badge_type=self.ticket1,
+                                         old_order=self.order1,
+                                         new_badge_type=self.ticket2)
+        self.assertEqual(upgrade.upgrade_cost(), 20)
+
+    def test_upgrade_with_items(self):
+        upgrade = Upgrade.objects.create(attendee=self.attendee,
+                                         old_badge_type=self.ticket1,
+                                         old_order=self.order1,
+                                         new_badge_type=self.ticket2)
+        upgrade.new_items.add(self.item1)
+        self.assertEqual(upgrade.upgrade_cost(), 25)
+
+    def test_upgrade_from_items(self):
+        upgrade = Upgrade.objects.create(attendee=self.attendee,
+                                         old_badge_type=self.ticket1,
+                                         old_order=self.order1,
+                                         new_badge_type=self.ticket2)
+        upgrade.old_items.add(self.item1)
+        self.assertEqual(upgrade.upgrade_cost(), 15)
+
+    def test_upgrade_with_promo(self):
+        promo = PromoCode.objects.create(name='P1',
+                                         description='P1 50%',
+                                         price_modifier=decimal.Decimal(0.5),
+                                         active=True,
+                                         applies_to_all=True)
+        self.attendee.promo = promo
+        self.attendee.save()
+        upgrade = Upgrade.objects.create(attendee=self.attendee,
+                                         old_badge_type=self.ticket1,
+                                         old_order=self.order1,
+                                         new_badge_type=self.ticket2)
+        self.assertEqual(upgrade.upgrade_cost(), 10)
