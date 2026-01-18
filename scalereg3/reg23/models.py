@@ -344,3 +344,25 @@ class PaymentCode(models.Model):
     badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     max_attendees = models.PositiveSmallIntegerField()
+
+
+class Upgrade(models.Model):
+    attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
+    valid = models.BooleanField(default=False)
+
+    old_badge_type = models.ForeignKey(Ticket,
+                                       on_delete=models.CASCADE,
+                                       related_name='old_badge_type')
+    old_items = models.ManyToManyField(Item,
+                                       blank=True,
+                                       related_name='old_items')
+    old_order = models.ForeignKey(Order,
+                                  on_delete=models.CASCADE,
+                                  related_name='old_order')
+
+    new_badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    new_items = models.ManyToManyField(Item, blank=True)
+    new_order = models.ForeignKey(Order,
+                                  on_delete=models.CASCADE,
+                                  blank=True,
+                                  null=True)

@@ -8,6 +8,7 @@ from .models import PaymentCode
 from .models import PromoCode
 from .models import Question
 from .models import Ticket
+from .models import Upgrade
 
 
 class ListAnswerInline(admin.TabularInline):
@@ -106,6 +107,13 @@ class TicketAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
+class UpgradeAdmin(admin.ModelAdmin):
+    list_display = ('valid', 'attendee', 'old_badge_type', 'new_badge_type',
+                    'old_order', 'new_order')
+    list_filter = ['valid']
+    save_on_top = True
+
+
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Item, ItemAdmin)
@@ -114,3 +122,4 @@ admin.site.register(PaymentCode, PaymentCodeAdmin)
 admin.site.register(PromoCode, PromoCodeAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Ticket, TicketAdmin)
+admin.site.register(Upgrade, UpgradeAdmin)
