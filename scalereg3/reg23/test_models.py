@@ -128,6 +128,71 @@ class AttendeeFullNameTest(TestCase):
         self.assertEqual(attendee.full_name(), 'Foo Bar Qux')
 
 
+class AttendeeIsDifferentTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(10),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.ticket2 = Ticket.objects.create(name='T2',
+                                            description='T2',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(20),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.item1 = Item.objects.create(name='I1',
+                                        description='Item 1',
+                                        price=decimal.Decimal(5),
+                                        active=True,
+                                        promo=False,
+                                        ticket_offset=False,
+                                        applies_to_all=True)
+        cls.item2 = Item.objects.create(name='I2',
+                                        description='Item 2',
+                                        price=decimal.Decimal(10),
+                                        active=True,
+                                        promo=False,
+                                        ticket_offset=False,
+                                        applies_to_all=True)
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
+                                               first_name='Foo',
+                                               last_name='Bar')
+
+    def test_same_item(self):
+        self.assertFalse(
+            self.attendee.is_badge_type_or_items_different(self.ticket1, []))
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(self.ticket2, []))
+
+    def test_same_badge_type_different_items(self):
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(
+                self.ticket1, [self.item1]))
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(
+                self.ticket1, [self.item1, self.item2]))
+
+    def test_same_badge_type_multiple_items(self):
+        self.attendee.ordered_items.add(self.item1)
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(self.ticket1, []))
+        self.assertFalse(
+            self.attendee.is_badge_type_or_items_different(
+                self.ticket1, [self.item1]))
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(
+                self.ticket1, [self.item1, self.item2]))
+        self.assertTrue(
+            self.attendee.is_badge_type_or_items_different(
+                self.ticket1, [self.item2]))
+
+
 class AttendeeTicketCostTest(TestCase):
 
     @classmethod
