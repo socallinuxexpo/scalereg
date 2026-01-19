@@ -1,4 +1,5 @@
 import csv
+from enum import Enum
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -21,6 +22,66 @@ STEPS_TOTAL = 7
 
 ATTENDEE_COOKIE = 'attendee'
 PAYMENT_COOKIE = 'payment'
+
+
+class UpgradeError(Enum):
+    do_not_call_in_templates = True
+    ATTENDEE_NOT_FOUND = 0
+    ATTENDEE_NOT_PAID = 1
+    ATTENDEE_NOT_ELIGIBLE = 2
+
+
+class UpgradeState:
+
+    def __init__(self, attendee, post):
+        self._ticket = None
+        self._items = []
+        self._selected_items = []
+        self._changed = False
+        self._total = 0
+        self._upgrade_cost = 0
+
+        try:
+            self._ticket = models.Ticket.objects.get(name=post['ticket'])
+        except models.Ticket.DoesNotExist:
+            return
+
+        self._ticket.apply_promo(attendee.promo)
+        self._items = self._ticket.get_items()
+        for item in self._items:
+            item.apply_promo(attendee.promo)
+        self._selected_items = get_posted_items(post, self._items)
+        for item in self._selected_items:
+            item.apply_promo(attendee.promo)
+        self._changed = attendee.is_badge_type_or_items_different(
+            self._ticket, self._selected_items)
+        if self._changed:
+            self._total = self._ticket.ticket_cost(self._selected_items, None)
+            self._upgrade_cost = self._total - attendee.ticket_cost()
+
+    @property
+    def ticket(self):
+        return self._ticket
+
+    @property
+    def items(self):
+        return self._items
+
+    @property
+    def selected_items(self):
+        return self._selected_items
+
+    @property
+    def changed(self):
+        return self._changed
+
+    @property
+    def total(self):
+        return self._total
+
+    @property
+    def upgrade_cost(self):
+        return self._upgrade_cost
 
 
 def render_error(request, error_message):
@@ -187,6 +248,17 @@ def start_payment_search_for_attendee(id_str, email_str):
     if not attendee or attendee.email != email_str:
         return None
 
+    return attendee
+
+
+def get_upgrade_attendee(id_str, email_str):
+    attendee = start_payment_search_for_attendee(id_str, email_str)
+    if not attendee:
+        return UpgradeError.ATTENDEE_NOT_FOUND
+    if not attendee.valid:
+        return UpgradeError.ATTENDEE_NOT_PAID
+    if not attendee.badge_type.upgradable:
+        return UpgradeError.ATTENDEE_NOT_ELIGIBLE
     return attendee
 
 
@@ -713,6 +785,77 @@ def reg_lookup(request):
             'attendees': attendees,
             'form': form,
             'search': 1,
+        })
+
+
+def start_upgrade(request):
+    title = 'Registration Upgrade'
+
+    required_vars = [
+        'id',
+        'email',
+    ]
+    if check_vars(request, required_vars):
+        return render(request, 'reg_start_upgrade.html', {
+            'title': title,
+        })
+
+    maybe_attendee = get_upgrade_attendee(request.POST['id'],
+                                          request.POST['email'])
+    if isinstance(maybe_attendee, UpgradeError):
+        return render(
+            request, 'reg_start_upgrade.html', {
+                'title': title,
+                'email': request.POST['email'],
+                'id': request.POST['id'],
+                'upgrade_error': maybe_attendee.value,
+                'UpgradeError': UpgradeError,
+            })
+
+    attendee = maybe_attendee
+    if 'ticket' not in request.POST:
+        # Show available tickets.
+        avail_tickets = [
+            ticket
+            for ticket in models.Ticket.public_objects.order_by('description')
+            if ticket != attendee.badge_type
+        ]
+        for ticket in avail_tickets:
+            ticket.apply_promo(attendee.promo)
+        return render(request, 'reg_start_upgrade.html', {
+            'title': title,
+            'attendee': attendee,
+            'tickets': avail_tickets,
+        })
+
+    upgrade_state = UpgradeState(attendee, request.POST)
+    if not upgrade_state.ticket:
+        return render_error(request,
+                            'You have selected an invalid ticket type.')
+
+    if 'has_selected_items' not in request.POST:
+        # Show available items if there is a ticket selected.
+        return render(
+            request, 'reg_start_upgrade.html', {
+                'title': title,
+                'attendee': attendee,
+                'display_url_column': any(item.url
+                                          for item in upgrade_state.items),
+                'items': upgrade_state.items,
+                'selected_ticket': upgrade_state.ticket,
+            })
+
+    # Show final upgrade confirmation if items have been selected.
+    return render(
+        request, 'reg_start_upgrade.html', {
+            'title': title,
+            'attendee': attendee,
+            'changed': upgrade_state.changed,
+            'has_selected_items': True,
+            'selected_items': upgrade_state.selected_items,
+            'selected_ticket': upgrade_state.ticket,
+            'total': upgrade_state.total,
+            'upgrade_cost': upgrade_state.upgrade_cost,
         })
 
 
