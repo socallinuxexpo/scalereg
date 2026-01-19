@@ -317,6 +317,11 @@ class Attendee(models.Model):
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
+    def is_badge_type_or_items_different(self, new_badge_type, new_items):
+        if self.badge_type != new_badge_type:
+            return True
+        return set(new_items) != set(self.ordered_items.all())
+
     def ticket_cost(self):
         return self.badge_type.ticket_cost(self.ordered_items.all(),
                                            self.promo)
