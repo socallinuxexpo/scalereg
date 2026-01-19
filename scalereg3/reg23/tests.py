@@ -1975,6 +1975,206 @@ class FailedPaymentTest(TestCase):
             html=True)
 
 
+class StartUpgradeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(10),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.ticket2 = Ticket.objects.create(name='T2',
+                                            description='T2 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(30),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
+                                               first_name='Foo',
+                                               last_name='Bar',
+                                               email='foo@example.com',
+                                               valid=True)
+        cls.item1 = Item.objects.create(name='I1',
+                                        description='Item 1',
+                                        price=decimal.Decimal(5),
+                                        active=True,
+                                        promo=False,
+                                        ticket_offset=False,
+                                        applies_to_all=True)
+
+    def test_start_upgrade_get(self):
+        response = self.client.get('/reg23/start_upgrade/')
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'Find an attendee to upgrade')
+        self.assertNotContains(response, 'No Attendee with id')
+
+    def test_start_upgrade_flow(self):
+        # 1. Find attendee
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response,
+                            'Select the ticket you would like to upgrade to')
+        self.assertContains(response, 'T1 Ticket')
+        self.assertContains(response, 'T2 Ticket')
+
+        # 2. Select ticket
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T2',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'You have selected the following ticket')
+        self.assertContains(response, 'T2 Ticket')
+        self.assertContains(
+            response, 'Select the items you would like to add to this ticket')
+        self.assertContains(response, 'Item 1')
+
+        # 3. Select items
+        response = self.client.post(
+            '/reg23/start_upgrade/', {
+                'id': self.attendee.id,
+                'email': 'foo@example.com',
+                'ticket': 'T2',
+                'has_selected_items': '1',
+                'item0': 'I1',
+            })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'You have selected the following ticket')
+        self.assertContains(response, 'T2 Ticket, and the following items:')
+        self.assertContains(response, 'Your upgraded ticket costs: $35.00')
+        self.assertContains(response, 'The difference in price is $25.00')
+        self.assertContains(response, 'Confirm Upgrade')
+
+    def test_start_upgrade_attendee_not_found(self):
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': '99999',
+            'email': 'nosuch@example.com',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(
+            response,
+            'No Attendee with id: 99999 and email: nosuch@example.com found.')
+
+    def test_start_upgrade_attendee_not_paid(self):
+        unpaid_attendee = Attendee.objects.create(badge_type=self.ticket1,
+                                                  first_name='Unpaid',
+                                                  last_name='User',
+                                                  email='unpaid@example.com',
+                                                  valid=False)
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': unpaid_attendee.id,
+            'email': 'unpaid@example.com',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(
+            response,
+            'eligible for an upgrade because the registration has not been '
+            'paid')
+
+    def test_start_upgrade_attendee_not_eligible(self):
+        non_upgradable_ticket = Ticket.objects.create(
+            name='T3',
+            description='T3 Non-upgradable',
+            ticket_type='full',
+            price=decimal.Decimal(10),
+            public=True,
+            cash=False,
+            upgradable=False)
+        attendee = Attendee.objects.create(badge_type=non_upgradable_ticket,
+                                           first_name='Not',
+                                           last_name='Eligible',
+                                           email='ineligible@example.com',
+                                           valid=True)
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': attendee.id,
+            'email': 'ineligible@example.com',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(
+            response,
+            'eligible for an upgrade because their ticket cannot be upgraded')
+
+    def test_start_upgrade_flow_with_promo(self):
+        promo = PromoCode.objects.create(name='PRM01',
+                                         description='Promo 40%',
+                                         price_modifier=decimal.Decimal(0.4),
+                                         active=True,
+                                         applies_to_all=True)
+        attendee = Attendee.objects.create(badge_type=self.ticket1,
+                                           first_name='Promo',
+                                           last_name='User',
+                                           email='promo@example.com',
+                                           valid=True,
+                                           promo=promo)
+        Item.objects.create(name='I2',
+                            description='Item 2',
+                            price=decimal.Decimal(10),
+                            active=True,
+                            promo=True,
+                            ticket_offset=False,
+                            applies_to_all=True)
+
+        # 1. Find attendee
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': attendee.id,
+            'email': 'promo@example.com',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'Promo User')
+        self.assertContains(response, 'Promo Code:')
+        self.assertContains(response, 'PRM01')
+        self.assertContains(response, '$4.00')
+        self.assertContains(response, '$12.00')
+
+        # 2. Select ticket
+        response = self.client.post('/reg23/start_upgrade/', {
+            'id': attendee.id,
+            'email': 'promo@example.com',
+            'ticket': 'T2',
+        })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'You have selected the following ticket')
+        self.assertContains(response, 'T2 Ticket')
+        self.assertContains(
+            response, 'Select the items you would like to add to this ticket')
+        self.assertContains(response, 'Item 1')
+        self.assertContains(response, 'Item 2')
+
+        # 3. Select items
+        response = self.client.post(
+            '/reg23/start_upgrade/', {
+                'id': attendee.id,
+                'email': 'promo@example.com',
+                'ticket': 'T2',
+                'has_selected_items': '1',
+                'item0': 'I1',
+                'item1': 'I2',
+            })
+        self.assertContains(response, 'Registration Upgrade', status_code=200)
+        self.assertContains(response, 'Your upgraded ticket costs: $21.00')
+        self.assertContains(response, 'The difference in price is $17.00')
+        self.assertContains(response, 'Confirm Upgrade')
+
+    def test_start_upgrade_no_such_ticket(self):
+        response = self.client.post(
+            '/reg23/start_upgrade/', {
+                'id': self.attendee.id,
+                'email': 'foo@example.com',
+                'ticket': 'NOSUCH',
+            })
+        self.assertContains(response,
+                            'You have selected an invalid ticket type.')
+
+
 class FinishPaymentTest(TestCase):
 
     @classmethod

@@ -17,6 +17,9 @@ urlpatterns = [
     path('failed_payment/', views.failed_payment),
     path('finish_payment/', views.finish_payment),
 
+    # Upgrade
+    path('start_upgrade/', views.start_upgrade),
+
     # Misc
     path('redeem_payment_code/', views.redeem_payment_code),
     path('reg_lookup/', views.reg_lookup),
