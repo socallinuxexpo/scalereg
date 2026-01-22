@@ -750,13 +750,13 @@ def mass_add_attendees(request):
             continue
 
         try:
-            order = models.Order.objects.get(order_num=entry[7])
+            order = models.Order.objects.get(order_num=entry[7].strip())
         except models.Order.DoesNotExist:
             response.write(f'Bad order number: {entry[7]}<br />\n')
             continue
 
         try:
-            ticket = models.Ticket.objects.get(name=entry[8])
+            ticket = models.Ticket.objects.get(name=entry[8].strip())
         except models.Ticket.DoesNotExist:
             response.write(f'Bad ticket type: {entry[8]}<br />\n')
             continue
@@ -825,7 +825,7 @@ def mass_add_payment_codes(request):
             continue
 
         try:
-            ticket = models.Ticket.objects.get(name=entry[7])
+            ticket = models.Ticket.objects.get(name=entry[7].strip())
         except models.Ticket.DoesNotExist:
             response.write(f'Bad ticket type: {entry[7]}<br />\n')
             continue
@@ -863,7 +863,7 @@ def mass_add_payment_codes(request):
             code=order.order_num,
             badge_type=ticket,
             order=order,
-            max_attendees=entry[8],
+            max_attendees=entry[8].strip(),
         )
         try:
             payment_code.save()

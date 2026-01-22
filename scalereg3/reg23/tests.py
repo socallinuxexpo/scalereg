@@ -2412,7 +2412,7 @@ class MassAddAttendeesTest(TestCase):
 
 First,Last,"VP, a.com",,vp@a.com,12345,,SPEAKERS00,SPEAK
 
-Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
+Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00  ,  SPEAK
 '''
 
         self.assertEqual(Attendee.objects.count(), 0)
@@ -2430,7 +2430,7 @@ Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00,SPEAK
         self.assertContains(
             response,
             "Added: ['Foo', 'Bar', '', 'b.com', 'foo@b.com', '54321', '', "
-            "'SPEAKERS00', 'SPEAK'] as 2")
+            "'SPEAKERS00  ', '  SPEAK'] as 2")
         self.assertEqual(Attendee.objects.count(), 2)
         attendee1 = Attendee.objects.get(id=1)
         self.assertEqual(attendee1.first_name, 'First')
@@ -2548,7 +2548,7 @@ class MassAddPaymentCodesTest(TestCase):
 
 John Doe,123 Main St,Anytown,CA,12345,john@example.com,555-1212,T1,1
 
-Jane Doe,456 Main St,Anytown,CA,12345,jane@example.com,,T1,2
+Jane Doe,456 Main St,Anytown,CA,12345,jane@example.com  ,,  T1,  2
 '''
 
         self.assertEqual(PaymentCode.objects.count(), 0)
@@ -2568,7 +2568,7 @@ Jane Doe,456 Main St,Anytown,CA,12345,jane@example.com,,T1,2
         self.assertContains(
             response,
             "Added: ['Jane Doe', '456 Main St', 'Anytown', 'CA', '12345', "
-            "'jane@example.com', '', 'T1', '2'] as N6ISIGQ8JT")
+            "'jane@example.com  ', '', '  T1', '  2'] as N6ISIGQ8JT")
         self.assertEqual(PaymentCode.objects.count(), 2)
         self.assertEqual(Order.objects.count(), 2)
 
@@ -2671,7 +2671,7 @@ class MassAddPromosTest(TestCase):
     def test_mixed_data(self):
         mixed_data = '''Not,Enough
 
-SAVE,0.5,Save 50%
+SAVE , 0.5 , Save 50%
 
 JOE,0.6,"Joe's friends"
 '''
@@ -2684,7 +2684,7 @@ JOE,0.6,"Joe's friends"
         self.assertContains(response, 'code,modifier,description')
         self.assertContains(response, 'Total added promos: 2')
         self.assertContains(response, "Bad data: ['Not', 'Enough']")
-        self.assertContains(response, "Added: ['SAVE', '0.5', 'Save 50%']")
+        self.assertContains(response, "Added: ['SAVE ', ' 0.5 ', ' Save 50%']")
         self.assertContains(response,
                             "Added: ['JOE', '0.6', \"Joe's friends\"]")
         self.assertEqual(PromoCode.objects.count(), 2)
