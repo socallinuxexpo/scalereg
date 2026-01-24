@@ -322,11 +322,7 @@ def add_items(request):
     try:
         ticket = models.Ticket.public_objects.get(name=ticket_name)
     except models.Ticket.DoesNotExist:
-        return render(
-            request, 'reg_error.html', {
-                'title': 'Registration Problem',
-                'error_message': f'Ticket {ticket_name} not found.',
-            })
+        return render_error(request, f'Ticket {ticket_name} not found.')
 
     (promo_name, promo_in_use) = get_promo_in_use(request.POST)
     ticket.apply_promo(promo_in_use)
