@@ -16,6 +16,7 @@ from .models import PendingOrder
 from .models import PromoCode
 from .models import Question
 from .models import Ticket
+from .models import Upgrade
 
 
 class RootRedirectTest(TestCase):
@@ -2914,3 +2915,252 @@ JOE,0.6,"Joe's friends"
                                     {'data': ',0.5,'})
         self.assertEqual(PromoCode.objects.count(), 0)
         self.assertContains(response, 'This field is required')
+
+
+class FreeUpgradeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(10),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.ticket2 = Ticket.objects.create(name='T2',
+                                            description='T2 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(30),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.order = Order.objects.create(order_num='ORDER12345',
+                                         valid=True,
+                                         name='Foo Bar',
+                                         address='123 St',
+                                         city='City',
+                                         state='CA',
+                                         zip_code='90000',
+                                         email='foo@example.com',
+                                         amount=30,
+                                         payment_type='payflow')
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket2,
+                                               first_name='Foo',
+                                               last_name='Bar',
+                                               email='foo@example.com',
+                                               valid=True,
+                                               order=cls.order)
+
+    def check_no_new_db_entries(self):
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(Upgrade.objects.count(), 0)
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/free_upgrade/')
+        self.assertRedirects(response, '/reg23/')
+        self.check_no_new_db_entries()
+
+    def test_free_upgrade(self):
+        random.seed(0)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(Upgrade.objects.count(), 0)
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'Y0CQ65ZT4W')
+        self.assertContains(response, '$0.00')
+        self.assertContains(response, 'T1 Ticket')
+        self.assertNotContains(response, 'Items')
+        self.assertNotContains(response, 'Order object')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertTrue(attendee.order)
+        self.assertEqual(attendee.order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(attendee.order.amount, 0)
+        self.assertEqual(attendee.order.payment_type, 'freeup')
+
+        self.assertEqual(Upgrade.objects.count(), 1)
+        upgrade = Upgrade.objects.all()[0]
+        self.assertEqual(upgrade.attendee, attendee)
+        self.assertTrue(upgrade.valid)
+        self.assertEqual(upgrade.old_badge_type.name, 'T2')
+        self.assertEqual(upgrade.old_items.count(), 0)
+        self.assertEqual(upgrade.old_order, self.order)
+        self.assertEqual(upgrade.new_badge_type.name, 'T1')
+        self.assertEqual(upgrade.new_items.count(), 0)
+        self.assertEqual(upgrade.new_order, attendee.order)
+
+    def test_free_upgrade_with_items(self):
+        random.seed(0)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(Upgrade.objects.count(), 0)
+
+        item1 = Item.objects.create(name='I1',
+                                    description='Free item',
+                                    price=decimal.Decimal(0),
+                                    active=True,
+                                    promo=False,
+                                    ticket_offset=False,
+                                    applies_to_all=True)
+        self.attendee.ordered_items.add(item1)
+        item2 = Item.objects.create(name='I2',
+                                    description='New item',
+                                    price=decimal.Decimal(17),
+                                    active=True,
+                                    promo=False,
+                                    ticket_offset=False,
+                                    applies_to_all=True)
+
+        response = self.client.post(
+            '/reg23/free_upgrade/', {
+                'id': self.attendee.id,
+                'email': 'foo@example.com',
+                'ticket': 'T1',
+                'item0': 'I2',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'Y0CQ65ZT4W')
+        self.assertContains(response, '$0.00')
+        self.assertContains(response, 'T1 Ticket')
+        self.assertContains(response, 'Items')
+        self.assertContains(response, 'Free item')
+        self.assertContains(response, 'New item')
+        self.assertNotContains(response, 'Order object')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertTrue(attendee.order)
+        self.assertEqual(attendee.order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(attendee.order.amount, 0)
+        self.assertEqual(attendee.order.payment_type, 'freeup')
+
+        self.assertEqual(Upgrade.objects.count(), 1)
+        upgrade = Upgrade.objects.all()[0]
+        self.assertEqual(upgrade.attendee, attendee)
+        self.assertTrue(upgrade.valid)
+        self.assertEqual(upgrade.old_badge_type.name, 'T2')
+        self.assertQuerySetEqual(upgrade.old_items.all(), [item1])
+        self.assertEqual(upgrade.old_order, self.order)
+        self.assertEqual(upgrade.new_badge_type.name, 'T1')
+        self.assertQuerySetEqual(upgrade.new_items.all(), [item2])
+        self.assertEqual(upgrade.new_order, attendee.order)
+
+    def test_missing_id(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'No id information.')
+        self.check_no_new_db_entries()
+
+    def test_missing_email(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'No email information.')
+        self.check_no_new_db_entries()
+
+    def test_missing_ticket(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+        })
+        self.assertContains(response, 'No ticket information.')
+        self.check_no_new_db_entries()
+
+    def test_attendee_without_order(self):
+        self.attendee.order = None
+        self.attendee.save()
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'Cannot save upgrade.')
+        self.check_no_new_db_entries()
+
+    def test_attendee_with_order_but_not_valid(self):
+        self.attendee.valid = False
+        self.attendee.save()
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'Bad upgrade.')
+        self.check_no_new_db_entries()
+
+    def test_attendee_not_paid(self):
+        self.attendee.order = None
+        self.attendee.valid = False
+        self.attendee.save()
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'Bad upgrade.')
+        self.check_no_new_db_entries()
+
+    def test_attendee_not_found(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': 9999,
+            'email': 'foo@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'Bad upgrade.')
+        self.check_no_new_db_entries()
+
+    def test_wrong_email(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'wrong@example.com',
+            'ticket': 'T1',
+        })
+        self.assertContains(response, 'Bad upgrade.')
+        self.check_no_new_db_entries()
+
+    def test_not_free(self):
+        attendee = Attendee.objects.create(badge_type=self.ticket1,
+                                           first_name='Baz',
+                                           last_name='Qux',
+                                           email='baz@example.com',
+                                           valid=True)
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': attendee.id,
+            'email': 'baz@example.com',
+            'ticket': 'T2',
+        })
+        self.assertContains(response, 'Invalid upgrade: Not Free.')
+        self.check_no_new_db_entries()
+
+    def test_nothing_changed(self):
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T2',
+        })
+        self.assertContains(response, 'Invalid upgrade: Nothing changed.')
+        self.check_no_new_db_entries()
+
+    def test_invalid_ticket(self):
+        response = self.client.post(
+            '/reg23/free_upgrade/', {
+                'id': self.attendee.id,
+                'email': 'foo@example.com',
+                'ticket': 'INVALID',
+            })
+        self.assertContains(response, 'Invalid upgrade: Invalid ticket type.')
+        self.check_no_new_db_entries()

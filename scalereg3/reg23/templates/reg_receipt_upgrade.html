@@ -1,0 +1,67 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+<table>
+<tr>
+<td>Name:</td>
+<td>{{ name }}</td>
+</tr>
+<tr>
+<td>Email:</td>
+<td>{{ email }}</td>
+</tr>
+<tr>
+<td>Order Number:</td>
+<td>{{ order.order_num }}</td>
+</tr>
+<tr>
+<td>Amount:</td>
+<td>{{ total|money }}</td>
+</tr>
+</table>
+
+<p>Registration Upgrade Details:</p>
+
+<table border="1">
+<tr>
+    <td>&nbsp;</td>
+    <td>Old</td>
+    <td>New</td>
+</tr>
+<tr>
+    <td>Order Number</td>
+    <td>{{ upgrade.old_order.order_num }}</td>
+    <td>{{ upgrade.new_order.order_num }}</td>
+</tr>
+<tr>
+    <td>Ticket Type</td>
+    <td>{{ upgrade.old_badge_type.description }}</td>
+    <td>{{ upgrade.new_badge_type.description }}</td>
+</tr>
+{% if upgrade.old_items.all or upgrade.new_items.all %}
+    <tr>
+        <td>Items</td>
+        <td>
+        {% for item in upgrade.old_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+        </td>
+        <td>
+        {% for item in upgrade.new_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+        </td>
+    </tr>
+{% endif %}
+</table>
+
+<p>
+<button type="button" onclick="window.print()">Print receipt</button>
+</p>
+
+</div>
+{% endblock %}
+
