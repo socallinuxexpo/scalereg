@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.db import IntegrityError
+from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
 from django.middleware.csrf import get_token
@@ -58,6 +59,15 @@ class UpgradeState:
         if self._changed:
             self._total = self._ticket.ticket_cost(self._selected_items, None)
             self._upgrade_cost = self._total - attendee.ticket_cost()
+
+    def get_error(self, is_free):
+        if not self._ticket:
+            return 'Invalid upgrade: Invalid ticket type.'
+        if not self._changed:
+            return 'Invalid upgrade: Nothing changed.'
+        if is_free and self.upgrade_cost > 0:
+            return 'Invalid upgrade: Not Free.'
+        return None
 
     @property
     def ticket(self):
@@ -260,6 +270,34 @@ def get_upgrade_attendee(id_str, email_str):
     if not attendee.badge_type.upgradable:
         return UpgradeError.ATTENDEE_NOT_ELIGIBLE
     return attendee
+
+
+def create_upgrade(attendee, new_ticket, new_items):
+    with transaction.atomic():
+        upgrade = models.Upgrade()
+        upgrade.attendee = attendee
+        upgrade.old_badge_type = attendee.badge_type
+        upgrade.old_order = attendee.order
+        upgrade.new_badge_type = new_ticket
+        upgrade.save()
+        upgrade.old_items.add(*attendee.ordered_items.all())
+        upgrade.new_items.add(*new_items)
+    return upgrade
+
+
+def upgrade_attendee(upgrade, new_order):
+    upgrade.new_order = new_order
+    upgrade.valid = True
+    upgrade.save()
+
+    attendee = upgrade.attendee
+    attendee.badge_type = upgrade.new_badge_type
+    attendee.order = new_order
+    attendee.save()
+    attendee.ordered_items.clear()
+    for item in upgrade.new_items.all():
+        attendee.ordered_items.add(item)
+    notify_attendee(attendee)
 
 
 def generate_mass_add_get_response(content):
@@ -856,6 +894,68 @@ def start_upgrade(request):
             'selected_ticket': upgrade_state.ticket,
             'total': upgrade_state.total,
             'upgrade_cost': upgrade_state.upgrade_cost,
+        })
+
+
+def free_upgrade(request):
+    required_vars = [
+        'id',
+        'email',
+        'ticket',
+    ]
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    maybe_attendee = get_upgrade_attendee(request.POST['id'],
+                                          request.POST['email'])
+    if isinstance(maybe_attendee, UpgradeError):
+        return render_error(request, 'Bad upgrade.')
+
+    attendee = maybe_attendee
+    upgrade_state = UpgradeState(attendee, request.POST)
+    upgrade_error = upgrade_state.get_error(True)
+    if upgrade_error:
+        return render_error(request, upgrade_error)
+
+    try:
+        upgrade = create_upgrade(attendee, upgrade_state.ticket,
+                                 upgrade_state.selected_items)
+    except IntegrityError:
+        return render_error(request, 'Cannot save upgrade.')
+
+    order_tries = 0
+    while True:
+        order_num = generate_order_id(get_existing_order_ids())
+        order = models.Order(
+            order_num=order_num,
+            valid=True,
+            name='Free Upgrade',
+            address='N/A',
+            city='N/A',
+            state='N/A',
+            zip_code='N/A',
+            email=attendee.email,
+            amount=0,
+            payment_type='freeup',
+        )
+        try:
+            order.save()
+            break
+        except IntegrityError:
+            order_tries += 1
+            if order_tries > 10:
+                return render_error(request, 'Cannot generate order ID.')
+
+    upgrade_attendee(upgrade, order)
+    return render(
+        request, 'reg_receipt_upgrade.html', {
+            'title': 'Registration Payment Receipt',
+            'name': attendee.full_name(),
+            'email': attendee.email,
+            'order': order,
+            'total': 0,
+            'upgrade': upgrade,
         })
 
 
