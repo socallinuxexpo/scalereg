@@ -1,0 +1,139 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+<style type="text/css">
+.form_error { color: #FF0000; font-weight: bold }
+b { font-weight: bold }
+</style>
+
+{% if attendee %}
+    <p>
+    Attendee {{ attendee.full_name }} successfully registered!
+    </p>
+    <hr />
+{% endif %}
+
+{% if error_message %}
+    <p class="form_error">
+    Error: {{ error_message }}
+    </p>
+    <hr />
+{% endif %}
+
+<p>
+Please type in the following information:
+</p>
+
+<form method="post" action=".">
+<p>
+<table>
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_first_name">
+                <b>First Name:</b>
+            </label>
+        </td>
+        <td>{{ form.first_name }}</td>
+    </tr>
+    {% if form.last_name.errors %}
+    <tr>
+        <td colspan="2" class="reg23_form_error">
+            {{ form.last_name.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_last_name">
+                <b>Last Name:</b>
+            </label>
+        </td>
+        <td>{{ form.last_name }}</td>
+    </tr>
+    {% if form.title.errors %}
+    <tr>
+        <td colspan="2" class="reg23_form_error">
+            {{ form.title.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_title">Title:</label></td>
+        <td>{{ form.title }}</td>
+    </tr>
+    {% if form.org.errors %}
+    <tr>
+        <td colspan="2" class="reg23_form_error">
+            {{ form.org.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_org">Organization:</label></td>
+        <td>{{ form.org }}</td>
+    </tr>
+    {% if form.zip_code.errors %}
+    <tr>
+        <td colspan="2" class="reg23_form_error">
+            {{ form.zip_code.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_zip_code">
+                <b>Zip/Postal Code:</b>
+            </label>
+        </td>
+        <td>{{ form.zip_code }}</td>
+    </tr>
+    {% if form.email.errors %}
+    <tr>
+        <td colspan="2" class="reg23_form_error">
+            {{ form.email.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_email"><b>Email:</b></label></td>
+        <td>{{ form.email }}</td>
+    </tr>
+    <tr>
+        <td><b>Type</b></td>
+        <td><select name="TICKET">
+        {% for t in tickets %}
+            <option value="{{ t.name }}">
+                {{ t.name }} - {{ t.description }} - {{ t.price|money }}
+            </option>
+        {% endfor %}
+        </select>
+        <br />
+        No promo codes can be applied here.
+        </td>
+    </tr>
+</table>
+<input type="submit" value="Register" />
+</p>
+{% csrf_token %}
+</form>
+
+<hr />
+
+<p>
+If the attendee already registered but wants to pay in cash,
+<a href="../checkin/">look up their invalid registration</a>
+and click the <i>Cash Payment</i> button.
+</p>
+
+<hr />
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+</div>
+{% endblock %}
