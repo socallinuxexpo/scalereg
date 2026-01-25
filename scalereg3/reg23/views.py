@@ -285,6 +285,19 @@ def start_payment_search_for_attendee(id_str, email_str):
     return attendee
 
 
+def try_save_order(create_func):
+    order_tries = 0
+    while True:
+        order = create_func()
+        try:
+            order.save()
+            return order
+        except IntegrityError:
+            order_tries += 1
+            if order_tries > 10:
+                return render_error(request, 'Cannot generate order ID.')
+
+
 def get_upgrade_attendee(id_str, email_str):
     attendee = start_payment_search_for_attendee(id_str, email_str)
     if not attendee:
@@ -660,18 +673,14 @@ def payment(request):
     order_num = None
     if unpaid_attendees:
         csv_data = ','.join([str(x) for x in request.session[PAYMENT_COOKIE]])
-        order_tries = 0
-        while True:
-            order_num = generate_order_id(get_existing_order_ids())
-            pending_order = models.PendingOrder(order_num=order_num,
-                                                attendees=csv_data)
-            try:
-                pending_order.save()
-                break
-            except IntegrityError:
-                order_tries += 1
-                if order_tries > 10:
-                    return render_error(request, 'cannot generate order ID')
+        order_num = generate_order_id(get_existing_order_ids())
+
+        def create_func():
+            return models.PendingOrder(order_num=order_num, attendees=csv_data)
+
+        maybe_pending_order = try_save_order(create_func)
+        if isinstance(maybe_pending_order, HttpResponse):
+            return maybe_pending_order
 
     total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
 
@@ -736,11 +745,10 @@ def sale_registration(request, pending_order):
     if r:
         return r
 
+    order = generate_payflow_order(request.POST)
     try:
-        order = generate_payflow_order(request.POST)
         order.save()
-        for attendee in already_paid_attendees:
-            order.already_paid_attendees.add(attendee)
+        order.already_paid_attendees.add(*already_paid_attendees)
     except IntegrityError:
         return HttpResponseServerError('cannot save order')
 
@@ -765,8 +773,8 @@ def sale_upgrade(request, upgrade):
             or attendee.order != upgrade.old_order or items != orig_items):
         return HttpResponseServerError('bad upgrade')
 
+    order = generate_payflow_order(request.POST)
     try:
-        order = generate_payflow_order(request.POST)
         order.save()
     except IntegrityError:
         return HttpResponseServerError('cannot save order')
@@ -995,10 +1003,9 @@ def free_upgrade(request):
     except IntegrityError:
         return render_error(request, 'Cannot save upgrade.')
 
-    order_tries = 0
-    while True:
+    def create_func():
         order_num = generate_order_id(get_existing_order_ids())
-        order = models.Order(
+        return models.Order(
             order_num=order_num,
             valid=True,
             name='Free Upgrade',
@@ -1010,21 +1017,18 @@ def free_upgrade(request):
             amount=0,
             payment_type='freeup',
         )
-        try:
-            order.save()
-            break
-        except IntegrityError:
-            order_tries += 1
-            if order_tries > 10:
-                return render_error(request, 'Cannot generate order ID.')
 
-    upgrade_attendee(upgrade, order)
+    maybe_order = try_save_order(create_func)
+    if isinstance(maybe_order, HttpResponse):
+        return maybe_order
+
+    upgrade_attendee(upgrade, maybe_order)
     return render(
         request, 'reg_receipt_upgrade.html', {
             'title': 'Registration Payment Receipt',
             'name': attendee.full_name(),
             'email': attendee.email,
-            'order': order,
+            'order': maybe_order,
             'total': 0,
             'upgrade': upgrade,
         })
@@ -1057,18 +1061,14 @@ def non_free_upgrade(request):
     except IntegrityError:
         return render_error(request, 'Cannot save upgrade.')
 
-    order_tries = 0
-    while True:
-        order_num = generate_order_id(get_existing_order_ids())
-        pending_order = models.PendingOrder(order_num=order_num,
-                                            upgrade=upgrade)
-        try:
-            pending_order.save()
-            break
-        except IntegrityError:
-            order_tries += 1
-            if order_tries > 10:
-                return render_error(request, 'Cannot generate order ID.')
+    order_num = generate_order_id(get_existing_order_ids())
+
+    def create_func():
+        return models.PendingOrder(order_num=order_num, upgrade=upgrade)
+
+    maybe_pending_order = try_save_order(create_func)
+    if isinstance(maybe_pending_order, HttpResponse):
+        return maybe_pending_order
 
     return render(
         request, 'reg_non_free_upgrade.html', {
