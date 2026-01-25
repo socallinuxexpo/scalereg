@@ -361,6 +361,39 @@ def notify_attendee(attendee):
               fail_silently=True)
 
 
+def print_attendee(attendee):
+
+    def get_parity_code(attendee):
+        parity = 0
+        for f in attendee.checkin_code():
+            parity += int(f, 16)
+        return str(parity % 10)
+
+    badge = [
+        '',  # header
+        attendee.salutation,
+        attendee.first_name,
+        attendee.last_name,
+        attendee.title,
+        attendee.org,
+        attendee.email,
+        attendee.phone,
+        attendee.zip_code,
+        str(attendee.id),
+        get_parity_code(attendee)
+    ]
+    # Reserved for reprint count.
+    badge.append('0')
+    badge.append(attendee.badge_type.ticket_type)
+    if attendee.order.payment_type in ('payflow', 'cash'):
+        badge.append(f'{attendee.ticket_cost():.2f}')
+    else:
+        badge.append('0.00')
+    badge.append('')  # footer
+
+    return '~'.join([entry.replace('~', '') for entry in badge])
+
+
 def validate_save_attendee(request, ticket, items, promo_in_use):
     if ATTENDEE_COOKIE in request.session and request.session[ATTENDEE_COOKIE]:
         return render_error(request, 'Already added attendee.')
@@ -1042,6 +1075,24 @@ def non_free_upgrade(request):
             'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
             'upgrade': upgrade,
         })
+
+
+@staff_member_required
+def checked_in(request):
+    attendees = models.Attendee.objects.filter(order__isnull=False,
+                                               valid=True,
+                                               checked_in=True)
+    if request.method == 'GET' and 'idsonly' in request.GET:
+        return HttpResponse('\n'.join([str(att.id) for att in attendees]),
+                            content_type='text/plain')
+
+    if request.method == 'POST':
+        attendees_data = request.POST.get('attendees', '')
+        attendee_ids = [int(att) for att in attendees_data.split(',') if att]
+        attendees = attendees.filter(id__in=attendee_ids)
+
+    return HttpResponse('\n'.join([print_attendee(att) for att in attendees]),
+                        content_type='text/plain')
 
 
 @staff_member_required
