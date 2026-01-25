@@ -333,6 +333,10 @@ class PendingOrder(models.Model):
         primary_key=True,
         help_text='Unique 10 upper-case letters + numbers code')
     attendees = models.TextField(blank=True)
+    upgrade = models.ForeignKey('Upgrade',
+                                on_delete=models.CASCADE,
+                                blank=True,
+                                null=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def attendees_list(self):
