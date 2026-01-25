@@ -3380,3 +3380,110 @@ class NonFreeUpgradeTest(TestCase):
         })
         self.assertContains(response, 'Invalid upgrade: Nothing changed.')
         self.check_no_new_db_entries()
+
+
+class SaleUpgradeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket1 = Ticket.objects.create(name='T1',
+                                            description='T1 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(10),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.ticket2 = Ticket.objects.create(name='T2',
+                                            description='T2 Ticket',
+                                            ticket_type='full',
+                                            price=decimal.Decimal(30),
+                                            public=True,
+                                            cash=False,
+                                            upgradable=True)
+        cls.old_order = Order.objects.create(order_num='ORDER12345',
+                                             valid=True,
+                                             name='Foo Bar',
+                                             email='foo@example.com',
+                                             amount=10,
+                                             payment_type='payflow')
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
+                                               first_name='Foo',
+                                               last_name='Bar',
+                                               email='foo@example.com',
+                                               valid=True,
+                                               order=cls.old_order)
+        cls.upgrade = Upgrade.objects.create(attendee=cls.attendee,
+                                             old_badge_type=cls.ticket1,
+                                             old_order=cls.old_order,
+                                             new_badge_type=cls.ticket2)
+        cls.pending_order = PendingOrder.objects.create(order_num='ORDER67890',
+                                                        upgrade=cls.upgrade)
+
+        cls.post_data = {
+            'NAME': 'Foo Bar',
+            'ADDRESS': '123 Main St',
+            'CITY': 'Anytown',
+            'STATE': 'CA',
+            'ZIP': '12345',
+            'COUNTRY': 'USA',
+            'PHONE': '555-555-5555',
+            'EMAIL': 'foo@example.com',
+            'AMOUNT': '20.00',
+            'AUTHCODE': '123456',
+            'PNREF': 'A1B2C3D4E5F6',
+            'RESULT': '0',
+            'RESPMSG': 'Approved',
+            'USER1': 'ORDER67890',
+        }
+
+    def test_post_request_success(self):
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'success', status_code=200)
+
+        upgrade = Upgrade.objects.get(id=self.upgrade.id)
+        self.assertTrue(upgrade.valid)
+        self.assertTrue(upgrade.new_order)
+        self.assertEqual(upgrade.new_order.order_num, 'ORDER67890')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket2)
+        self.assertEqual(attendee.order, upgrade.new_order)
+
+    def test_post_request_incorrect_amount(self):
+        post_data = self.post_data.copy()
+        post_data['AMOUNT'] = '10.00'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response,
+                            'incorrect payment amount',
+                            status_code=500)
+
+    def test_post_request_bad_upgrade_already_valid(self):
+        self.upgrade.valid = True
+        self.upgrade.save()
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'bad upgrade', status_code=500)
+
+    def test_post_request_bad_upgrade_ticket_changed(self):
+        self.attendee.badge_type = self.ticket2
+        self.attendee.save()
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'bad upgrade', status_code=500)
+
+    def test_post_request_bad_upgrade_order_changed(self):
+        new_order = Order.objects.create(order_num='ORDER54321', amount=0)
+        self.attendee.order = new_order
+        self.attendee.save()
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'bad upgrade', status_code=500)
+
+    def test_post_request_bad_upgrade_items_changed(self):
+        item = Item.objects.create(name='I1',
+                                   description='Item 1',
+                                   price=decimal.Decimal(5),
+                                   active=True,
+                                   promo=False,
+                                   ticket_offset=False,
+                                   applies_to_all=True)
+        self.attendee.ordered_items.add(item)
+        response = self.client.post('/reg23/sale/', self.post_data)
+        self.assertContains(response, 'bad upgrade', status_code=500)
