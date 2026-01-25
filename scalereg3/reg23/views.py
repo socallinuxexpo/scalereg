@@ -285,7 +285,7 @@ def start_payment_search_for_attendee(id_str, email_str):
     return attendee
 
 
-def try_save_order(create_func):
+def try_save_order(request, create_func):
     order_tries = 0
     while True:
         order = create_func()
@@ -678,7 +678,7 @@ def payment(request):
         def create_func():
             return models.PendingOrder(order_num=order_num, attendees=csv_data)
 
-        maybe_pending_order = try_save_order(create_func)
+        maybe_pending_order = try_save_order(request, create_func)
         if isinstance(maybe_pending_order, HttpResponse):
             return maybe_pending_order
 
@@ -1018,7 +1018,7 @@ def free_upgrade(request):
             payment_type='freeup',
         )
 
-    maybe_order = try_save_order(create_func)
+    maybe_order = try_save_order(request, create_func)
     if isinstance(maybe_order, HttpResponse):
         return maybe_order
 
@@ -1066,7 +1066,7 @@ def non_free_upgrade(request):
     def create_func():
         return models.PendingOrder(order_num=order_num, upgrade=upgrade)
 
-    maybe_pending_order = try_save_order(create_func)
+    maybe_pending_order = try_save_order(request, create_func)
     if isinstance(maybe_pending_order, HttpResponse):
         return maybe_pending_order
 
