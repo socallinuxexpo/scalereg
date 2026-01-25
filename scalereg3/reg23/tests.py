@@ -1738,6 +1738,35 @@ class PaymentTest(TestCase):
         self.assertEqual(pending_order.order_num, 'N6ISIGQ8JT')
         self.assertEqual(pending_order.attendees_list(), [1])
 
+    def test_post_request_payment_amount(self):
+        random.seed(0)
+        t = Ticket.objects.create(name='T2',
+                                  description='T2 full',
+                                  ticket_type='full',
+                                  price=decimal.Decimal(5.47),
+                                  public=True,
+                                  cash=False,
+                                  upgradable=False)
+        attendee = Attendee.objects.get(id=3)
+        attendee.badge_type = t
+        attendee.save()
+        self.assertAlmostEqual(attendee.ticket_cost(), decimal.Decimal(3.28))
+        session = self.client.session
+        session['payment'] = [3]
+        session.save()
+        response = self.client.post('/reg23/payment/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'Third Person')
+        self.assertContains(response, 'Total: $3.28')
+        self.assertContains(
+            response, '<input type="hidden" name="AMOUNT" value="3.28">')
+        self.assertNotContains(response, 'Cannot complete this transaction')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [3])
+
     def test_post_request_with_paid_attendee(self):
         session = self.client.session
         session['payment'] = [2]
@@ -2149,6 +2178,11 @@ class StartUpgradeTest(TestCase):
             response, 'Select the items you would like to add to this ticket')
         self.assertContains(response, 'Item 1')
         self.assertContains(response, 'Item 2')
+        self.assertContains(response, '$12.00')
+        self.assertContains(response, '$5.00')
+        self.assertContains(response, '$4.00')
+        self.assertNotContains(response, '$30.00')
+        self.assertNotContains(response, '$10.00')
 
         # 3. Select items
         response = self.client.post(
@@ -3350,6 +3384,12 @@ class NonFreeUpgradeTest(TestCase):
                                          email='foo@example.com',
                                          amount=10,
                                          payment_type='payflow')
+        cls.promo = PromoCode.objects.create(
+            name='P1',
+            description='P1 all',
+            price_modifier=decimal.Decimal(0.6),
+            active=True,
+            applies_to_all=True)
         cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
                                                first_name='Foo',
                                                last_name='Bar',
@@ -3448,6 +3488,56 @@ class NonFreeUpgradeTest(TestCase):
         self.assertEqual(upgrade.old_order, self.order)
         self.assertEqual(upgrade.new_badge_type.name, 'T1')
         self.assertQuerySetEqual(upgrade.new_items.all(), [item1])
+        self.assertFalse(upgrade.new_order)
+
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [])
+        self.assertEqual(pending_order.upgrade, upgrade)
+
+    def test_non_free_upgrade_payment_amount(self):
+        random.seed(0)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(PendingOrder.objects.count(), 0)
+        self.assertEqual(Upgrade.objects.count(), 0)
+        self.attendee.promo = self.promo
+        self.attendee.save()
+        Ticket.objects.create(name='T3',
+                              description='T3 Ticket',
+                              ticket_type='full',
+                              price=decimal.Decimal(15.47),
+                              public=True,
+                              cash=False,
+                              upgradable=True)
+        response = self.client.post('/reg23/non_free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T3',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Upgrade')
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'Y0CQ65ZT4W')
+        self.assertContains(response, 'T3 Ticket')
+        self.assertContains(response, '$3.28')
+        self.assertContains(
+            response, '<input type="hidden" name="AMOUNT" value="3.28">')
+
+        # Attendee should not be updated yet.
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket1)
+
+        self.assertEqual(Upgrade.objects.count(), 1)
+        upgrade = Upgrade.objects.all()[0]
+        self.assertEqual(upgrade.attendee, attendee)
+        self.assertFalse(upgrade.valid)
+        self.assertEqual(upgrade.old_badge_type.name, 'T1')
+        self.assertEqual(upgrade.old_items.count(), 0)
+        self.assertEqual(upgrade.old_order, self.order)
+        self.assertEqual(upgrade.new_badge_type.name, 'T3')
+        self.assertEqual(upgrade.new_items.count(), 0)
         self.assertFalse(upgrade.new_order)
 
         self.assertEqual(PendingOrder.objects.count(), 1)

@@ -47,17 +47,13 @@ class UpgradeState:
         except models.Ticket.DoesNotExist:
             return
 
-        self._ticket.apply_promo(attendee.promo)
         self._items = self._ticket.get_items()
-        for item in self._items:
-            item.apply_promo(attendee.promo)
         self._selected_items = get_posted_items(post, self._items)
-        for item in self._selected_items:
-            item.apply_promo(attendee.promo)
         self._changed = attendee.is_badge_type_or_items_different(
             self._ticket, self._selected_items)
         if self._changed:
-            self._total = self._ticket.ticket_cost(self._selected_items, None)
+            self._total = self._ticket.ticket_cost(self._selected_items,
+                                                   attendee.promo)
             self._upgrade_cost = self._total - attendee.ticket_cost()
 
     def get_error(self, is_free):
@@ -68,6 +64,13 @@ class UpgradeState:
         if is_free and self.upgrade_cost > 0:
             return 'Invalid upgrade: Not Free.'
         return None
+
+    def apply_promo(self, promo):
+        self._ticket.apply_promo(promo)
+        for item in self._items:
+            item.apply_promo(promo)
+        for item in self._selected_items:
+            item.apply_promo(promo)
 
     @property
     def ticket(self):
@@ -939,6 +942,7 @@ def start_upgrade(request):
 
     if 'has_selected_items' not in request.POST:
         # Show available items if there is a ticket selected.
+        upgrade_state.apply_promo(attendee.promo)
         return render(
             request, 'reg_start_upgrade.html', {
                 'title': title,
@@ -950,6 +954,7 @@ def start_upgrade(request):
             })
 
     # Show final upgrade confirmation if items have been selected.
+    upgrade_state.apply_promo(attendee.promo)
     return render(
         request, 'reg_start_upgrade.html', {
             'title': title,
