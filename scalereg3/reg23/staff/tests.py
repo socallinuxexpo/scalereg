@@ -100,3 +100,33 @@ class ReceiptTest(TestCase):
                                     {'attendee': attendee.id})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Invalid attendee')
+
+
+class StaffIndexTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/accounts/login/?next=/reg23/staff/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Staff Page')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/', {})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/accounts/login/?next=/reg23/staff/')
+
+    def test_post_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Staff Page')

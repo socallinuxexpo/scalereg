@@ -5,6 +5,11 @@ from reg23 import views as reg23_views
 
 
 @login_required
+def index(request):
+    return render(request, 'reg_staff_index.html', {'title': 'Staff Page'})
+
+
+@login_required
 def receipt(request):
     attendee = None
     error_message = None
