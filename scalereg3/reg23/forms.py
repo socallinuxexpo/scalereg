@@ -4,6 +4,20 @@ from django.forms import RadioSelect
 from . import models
 
 
+class AttendeeCashForm(ModelForm):
+
+    class Meta:
+        model = models.Attendee
+        fields = (
+            'first_name',
+            'last_name',
+            'title',
+            'org',
+            'email',
+            'zip_code',
+        )
+
+
 class AttendeeForm(ModelForm):
 
     class Meta:
