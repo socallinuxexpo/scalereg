@@ -2540,6 +2540,162 @@ class RegLookupTest(TestCase):
         self.assertNotContains(response, 'First Last')
 
 
+class CheckedInTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = get_user_model().objects.create_user('staff',
+                                                              is_staff=True)
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+        cls.ticket = Ticket.objects.create(name='T1',
+                                           description='T1 full',
+                                           ticket_type='full',
+                                           price=decimal.Decimal(10),
+                                           public=True,
+                                           cash=False,
+                                           upgradable=False)
+        cls.order = Order.objects.create(order_num='ORDER12345',
+                                         valid=True,
+                                         amount=10,
+                                         payment_type='payflow')
+
+        cls.attendee1 = Attendee.objects.create(first_name='Checked',
+                                                last_name='In',
+                                                email='a1@a.com',
+                                                zip_code='12345',
+                                                badge_type=cls.ticket,
+                                                order=cls.order,
+                                                valid=True,
+                                                checked_in=True)
+        cls.attendee2 = Attendee.objects.create(first_name='Not',
+                                                last_name='CheckedIn',
+                                                email='a2@a.com',
+                                                zip_code='12345',
+                                                badge_type=cls.ticket,
+                                                order=cls.order,
+                                                valid=True,
+                                                checked_in=False)
+        cls.attendee3 = Attendee.objects.create(first_name='Unpaid',
+                                                last_name='User',
+                                                email='a3@a.com',
+                                                zip_code='12345',
+                                                badge_type=cls.ticket,
+                                                order=cls.order,
+                                                valid=False,
+                                                checked_in=True)
+        cls.attendee4 = Attendee.objects.create(first_name='No',
+                                                last_name='Order',
+                                                email='a4@a.com',
+                                                zip_code='12345',
+                                                badge_type=cls.ticket,
+                                                valid=True,
+                                                checked_in=True)
+
+    def check_response_is_success_text(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+
+    def check_response_is_redirect(self, response):
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=/reg23/checked_in/')
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/checked_in/')
+        self.check_response_is_redirect(response)
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/checked_in/')
+        self.check_response_is_redirect(response)
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/checked_in/', {})
+        self.check_response_is_redirect(response)
+
+    def test_post_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/checked_in/', {})
+        self.check_response_is_redirect(response)
+
+    def test_get_request(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/checked_in/')
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content,
+                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~')
+
+    def test_get_idsonly(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/checked_in/', {'idsonly': ''})
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, b'1')
+
+    def test_post_specific_ids(self):
+        self.client.force_login(self.staff_user)
+        speaker_ticket = Ticket.objects.create(name='SPEAK',
+                                               description='Speaker',
+                                               ticket_type='speaker',
+                                               price=decimal.Decimal(0),
+                                               public=False,
+                                               cash=False,
+                                               upgradable=False)
+        speaker_order = Order.objects.create(order_num='ORDERFREE1',
+                                             valid=True,
+                                             amount=0,
+                                             payment_type='speaker')
+        attendee5 = Attendee.objects.create(first_name='Another',
+                                            last_name='One',
+                                            email='a5@a.com',
+                                            zip_code='12345',
+                                            badge_type=speaker_ticket,
+                                            order=speaker_order,
+                                            valid=True,
+                                            checked_in=True)
+
+        response = self.client.post(
+            '/reg23/checked_in/',
+            {'attendees': f'{self.attendee1.id},{attendee5.id}'})
+        self.check_response_is_success_text(response)
+        attendee1_str = b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~'
+        attendee5_str = b'~~Another~One~~~a5@a.com~~12345~5~3~0~speaker~0.00~'
+        self.assertEqual(response.content, b'\n'.join(
+            (attendee1_str, attendee5_str)))
+
+        response = self.client.post('/reg23/checked_in/',
+                                    {'attendees': f'{attendee5.id}'})
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, attendee5_str)
+
+        response = self.client.post('/reg23/checked_in/', {'attendees': ''})
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, b'')
+
+    def test_post_no_data(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/checked_in/', {})
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, b'')
+
+    def test_post_invalid_ids(self):
+        self.client.force_login(self.staff_user)
+        ids = f'{self.attendee2.id},{self.attendee3.id},{self.attendee4.id},999'
+        response = self.client.post('/reg23/checked_in/', {
+            'attendees': ids,
+        })
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, b'')
+
+    def test_post_empty_ids(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/checked_in/', {
+            'attendees': '1,,,',
+        })
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content,
+                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~')
+
+
 class MassAddAttendeesTest(TestCase):
 
     @classmethod

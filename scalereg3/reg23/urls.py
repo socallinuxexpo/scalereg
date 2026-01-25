@@ -27,6 +27,7 @@ urlpatterns = [
     path('reg_lookup/', views.reg_lookup),
 
     # Admin
+    path('checked_in/', views.checked_in),
     path('mass_add_attendees/', views.mass_add_attendees),
     path('mass_add_payment_codes/', views.mass_add_payment_codes),
     path('mass_add_promos/', views.mass_add_promos),
