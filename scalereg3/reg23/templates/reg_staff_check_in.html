@@ -1,0 +1,110 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if search %}
+    <p>
+    <b>Search results for:</b><br />
+    {% if express %}
+        Express Check In Code: {{ express }}<br />
+    {% endif %}
+    {% if last_name %}
+        Last Name: {{ last_name }}<br />
+    {% endif %}
+    {% if payflow %}
+        Paypal Payflow Confirmation: {{ payflow }}<br />
+    {% endif %}
+    {% if zip_code %}
+        Zip Code: {{ zip_code }}<br />
+    {% endif %}
+    </p>
+{% endif %}
+
+{% if attendees %}
+    <table border="1">
+    <tr>
+        <th>Registration Number<br />Express Check In Code</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Status</th>
+    </tr>
+    {% for attendee in attendees %}
+    <tr>
+        <td>
+            <a href="/admin/reg23/attendee/{{ attendee.id }}/">{{ attendee.id }}</a><br />
+            {{ attendee.checkin_code }}
+        </td>
+        <td>{{ attendee.full_name }}</td>
+        <td>{{ attendee.badge_type.description }}</td>
+        <td>
+        {% if not attendee.valid %}
+            Invalid
+        {% elif attendee.checked_in %}
+            Already Checked In
+        {% else %}
+            <form method="post" action="../finish_check_in/">
+                <input type="hidden" name="id" value="{{ attendee.id }}">
+                <input type="submit" value="Check In">
+                {% csrf_token %}
+            </form>
+        {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+{% else %}
+<b>Attendee not found.</b>
+{% endif %}
+
+{% if search %}
+    <hr />
+{% endif %}
+
+<p>
+Please try using one of the fields below. They are in the preferred order:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td>Express Check In Code</td>
+    <td><input type="text" name="express" maxlength="10" size="10"
+      value="{{ express }}" /></td>
+</tr>
+<tr>
+    <td>Paypal Payflow Confirmation</td>
+    <td><input type="text" name="payflow" maxlength="15" size="15"
+      value="{{ payflow }}" /></td>
+</tr>
+<tr>
+    <td>Last Name</td>
+    <td><input type="text" name="last_name" maxlength="60" size="40"
+      value="{{ last_name }}" /></td>
+</tr>
+<tr>
+    <td>Zip Code</td>
+    <td><input type="text" name="zip_code" maxlength="20" size="20"
+      value="{{ zip_code }}" /></td>
+</tr>
+</table>
+
+{% with search_button_value=search|yesno:"Search,Search Again" %}
+<input type="submit" value="{{ search_button_value }}" />
+{% endwith %}
+{% csrf_token %}
+</form>
+</p>
+
+<hr />
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+</div>
+{% endblock %}

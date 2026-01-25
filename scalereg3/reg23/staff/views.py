@@ -8,6 +8,15 @@ from reg23 import models as reg23_models
 from reg23 import views as reg23_views
 
 
+def get_attendee_from_express_check_in_code(code):
+    code = code.strip().lower()
+    if len(code) != 10:
+        return None
+
+    attendee = reg23_views.get_attendee_for_id(code[:4])
+    return attendee if attendee and attendee.checkin_code() == code else None
+
+
 @login_required
 def index(request):
     return render(request, 'reg_staff_index.html', {'title': 'Staff Page'})
@@ -84,6 +93,52 @@ def cash_payment(request):
             'attendee': attendee,
             'form': reg23_forms.AttendeeCashForm(),
             'tickets': tickets,
+        })
+
+
+@login_required
+def check_in(request):
+    if request.method == 'GET':
+        return render(request, 'reg_staff_check_in.html', {
+            'title': 'Attendee Check In',
+        })
+
+    attendees = []
+    if 'express' in request.POST:
+        attendee = get_attendee_from_express_check_in_code(
+            request.POST['express'])
+        if attendee:
+            attendees.append(attendee)
+
+    if not attendees and 'payflow' in request.POST and request.POST['payflow']:
+        orders = reg23_models.Order.objects.filter(
+            payment_type='payflow', payflow_pnref=request.POST['payflow'])
+        if orders.count() == 1:
+            attendees = list(
+                reg23_models.Attendee.objects.filter(order=orders[0]))
+
+    if not attendees and 'last_name' in request.POST and request.POST[
+            'last_name']:
+        attendees = list(
+            reg23_models.Attendee.objects.filter(
+                last_name__icontains=request.POST['last_name']).order_by(
+                    '-valid'))
+
+    if not attendees and 'zip_code' in request.POST and request.POST[
+            'zip_code']:
+        attendees = list(
+            reg23_models.Attendee.objects.filter(
+                zip_code=request.POST['zip_code']))
+
+    return render(
+        request, 'reg_staff_check_in.html', {
+            'title': 'Attendee Check In',
+            'attendees': attendees,
+            'express': request.POST['express'],
+            'last_name': request.POST['last_name'],
+            'payflow': request.POST['payflow'],
+            'search': True,
+            'zip_code': request.POST['zip_code'],
         })
 
 
