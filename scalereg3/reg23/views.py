@@ -145,6 +145,27 @@ def generate_order_id(existing_ids):
     return utils.generate_unique_id(10, existing_ids)
 
 
+def generate_payflow_order(post):
+    return models.Order(
+        order_num=post['USER1'],
+        valid=True,
+        name=post['NAME'],
+        address=post['ADDRESS'],
+        city=post['CITY'],
+        state=post['STATE'],
+        zip_code=post['ZIP'],
+        country=post['COUNTRY'],
+        email=post['EMAIL'],
+        phone=post['PHONE'],
+        amount=post['AMOUNT'],
+        payment_type='payflow',
+        payflow_auth_code=post['AUTHCODE'],
+        payflow_pnref=post['PNREF'],
+        payflow_resp_msg=post['RESPMSG'],
+        payflow_result=post['RESULT'],
+    )
+
+
 def get_attendee_for_id(attendee_id):
     try:
         return models.Attendee.objects.get(id=attendee_id)
@@ -661,7 +682,14 @@ def sale(request):
     if isinstance(maybe_pending_order, HttpResponseServerError):
         return maybe_pending_order
 
-    maybe_attendee_data = get_pending_order_attendees(maybe_pending_order)
+    if maybe_pending_order.upgrade:
+        return sale_upgrade(request, maybe_pending_order.upgrade)
+    return sale_registration(request, maybe_pending_order)
+
+
+@csrf_exempt
+def sale_registration(request, pending_order):
+    maybe_attendee_data = get_pending_order_attendees(pending_order)
     if isinstance(maybe_attendee_data, HttpResponseServerError):
         return maybe_attendee_data
 
@@ -673,24 +701,7 @@ def sale(request):
         return r
 
     try:
-        order = models.Order(
-            order_num=request.POST['USER1'],
-            valid=True,
-            name=request.POST['NAME'],
-            address=request.POST['ADDRESS'],
-            city=request.POST['CITY'],
-            state=request.POST['STATE'],
-            zip_code=request.POST['ZIP'],
-            country=request.POST['COUNTRY'],
-            email=request.POST['EMAIL'],
-            phone=request.POST['PHONE'],
-            amount=request.POST['AMOUNT'],
-            payment_type='payflow',
-            payflow_auth_code=request.POST['AUTHCODE'],
-            payflow_pnref=request.POST['PNREF'],
-            payflow_resp_msg=request.POST['RESPMSG'],
-            payflow_result=request.POST['RESULT'],
-        )
+        order = generate_payflow_order(request.POST)
         order.save()
         for attendee in already_paid_attendees:
             order.already_paid_attendees.add(attendee)
@@ -702,7 +713,29 @@ def sale(request):
         attendee.order = order
         attendee.save()
         notify_attendee(attendee)
+    return HttpResponse('success')
 
+
+@csrf_exempt
+def sale_upgrade(request, upgrade):
+    r = check_payment_amount(request.POST['AMOUNT'], upgrade.upgrade_cost())
+    if r:
+        return r
+
+    attendee = upgrade.attendee
+    items = {item.name for item in attendee.ordered_items.all()}
+    orig_items = {item.name for item in upgrade.old_items.all()}
+    if (upgrade.valid or attendee.badge_type != upgrade.old_badge_type
+            or attendee.order != upgrade.old_order or items != orig_items):
+        return HttpResponseServerError('bad upgrade')
+
+    try:
+        order = generate_payflow_order(request.POST)
+        order.save()
+    except IntegrityError:
+        return HttpResponseServerError('cannot save order')
+
+    upgrade_attendee(upgrade, order)
     return HttpResponse('success')
 
 
