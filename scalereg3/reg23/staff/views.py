@@ -1,10 +1,10 @@
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from reg23 import views as reg23_views
 
 
-@staff_member_required
+@login_required
 def receipt(request):
     attendee = None
     error_message = None
