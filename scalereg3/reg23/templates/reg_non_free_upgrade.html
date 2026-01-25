@@ -1,0 +1,104 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if attendee and upgrade %}
+    <h3>
+    <b>Please note:</b> You're not done yet! This registration upgrade
+    <b>IS NOT VALID</b> until it has been <b>PAID</b> for.
+    </h3>
+    <p>
+    You started upgrading the following attendee:
+    </p>
+
+    <table>
+    <tr>
+    <td>Name:</td>
+    <td>{{ attendee.first_name }} {{ attendee.last_name }}</td>
+    </tr>
+    <tr>
+    <td>Email:</td>
+    <td>{{ attendee.email }}</td>
+    </tr>
+    <tr>
+    <td>Registration Number:</td>
+    <td>{{ attendee.id }}</td>
+    </tr>
+    <tr>
+    <td>Original Ticket Type:</td>
+    <td>{{ upgrade.old_badge_type.description }}</td>
+    </tr>
+    <tr>
+    <td>Original Items:</td>
+    <td>
+    {% if upgrade.old_items.all %}
+        {% for item in upgrade.old_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+    {% else %}
+        None
+    {% endif %}
+    </td>
+    </tr>
+    <tr>
+    <td>New Ticket Type:</td>
+    <td>{{ upgrade.new_badge_type.description }}</td>
+    </tr>
+    <tr>
+    <td>New Items:</td>
+    <td>
+    {% if upgrade.new_items.all %}
+        {% for item in upgrade.new_items.all %}
+            {{ item.description }}<br />
+        {% endfor %}
+    {% else %}
+        None
+    {% endif %}
+    </td>
+    </tr>
+    <tr>
+    <td>Upgrade Cost:</td>
+    <td>{{ upgrade.upgrade_cost|money }}</td>
+    </tr>
+    <tr>
+    <td>Upgrade Status:</td>
+    <td><b>Unpaid</b></td>
+    </tr>
+    </table>
+
+    <p>
+    To pay for your registration upgrade, click "Pay For Upgrade" below.
+    You will now be redirected to our payment gateway.
+    We accept VISA, Mastercard, American Express, and Discover.
+    </p>
+
+    <form method="post" action="{{ payflow_url }}">
+    <p>
+    <input type="hidden" name="AMOUNT" value="{{ upgrade.upgrade_cost|floatformat:2 }}">
+    <input type="hidden" name="LOGIN" value="{{ payflow_login }}">
+    <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
+    <input type="hidden" name="TYPE" value="S">
+    <input type="hidden" name="USER1" value="{{ order }}">
+    <input type="submit" class="scale_kiosk_bordered" value="Pay For Upgrade" />
+    </p>
+    {% csrf_token %}
+    </form>
+
+    <form method="post" action="../">
+    <p>
+    {% if attendee.promo %}
+    <input type="hidden" name="promo" value="{{ attendee.promo }}" />
+    {% endif %}
+    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
+    </p>
+    {% csrf_token %}
+    </form>
+{% else %}
+<b>We cannot pull up your registration data. Please contact us with your full name and this error message.</b>
+{% endif %}
+</div>
+{% endblock %}
+
+

@@ -959,6 +959,58 @@ def free_upgrade(request):
         })
 
 
+def non_free_upgrade(request):
+    required_vars = [
+        'email',
+        'id',
+        'ticket',
+    ]
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    maybe_attendee = get_upgrade_attendee(request.POST['id'],
+                                          request.POST['email'])
+    if isinstance(maybe_attendee, UpgradeError):
+        return render_error(request, 'Bad upgrade.')
+
+    attendee = maybe_attendee
+    upgrade_state = UpgradeState(attendee, request.POST)
+    upgrade_error = upgrade_state.get_error(False)
+    if upgrade_error:
+        return render_error(request, upgrade_error)
+
+    try:
+        upgrade = create_upgrade(attendee, upgrade_state.ticket,
+                                 upgrade_state.selected_items)
+    except IntegrityError:
+        return render_error(request, 'Cannot save upgrade.')
+
+    order_tries = 0
+    while True:
+        order_num = generate_order_id(get_existing_order_ids())
+        pending_order = models.PendingOrder(order_num=order_num,
+                                            upgrade=upgrade)
+        try:
+            pending_order.save()
+            break
+        except IntegrityError:
+            order_tries += 1
+            if order_tries > 10:
+                return render_error(request, 'Cannot generate order ID.')
+
+    return render(
+        request, 'reg_non_free_upgrade.html', {
+            'title': 'Registration Upgrade',
+            'attendee': attendee,
+            'order': order_num,
+            'payflow_url': settings.SCALEREG_PAYFLOW_URL,
+            'payflow_partner': settings.SCALEREG_PAYFLOW_PARTNER,
+            'payflow_login': settings.SCALEREG_PAYFLOW_LOGIN,
+            'upgrade': upgrade,
+        })
+
+
 @staff_member_required
 def mass_add_attendees(request):
     csrf_token_value = get_token(request)

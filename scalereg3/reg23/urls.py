@@ -20,6 +20,7 @@ urlpatterns = [
     # Upgrade
     path('start_upgrade/', views.start_upgrade),
     path('free_upgrade/', views.free_upgrade),
+    path('non_free_upgrade/', views.non_free_upgrade),
 
     # Misc
     path('redeem_payment_code/', views.redeem_payment_code),
