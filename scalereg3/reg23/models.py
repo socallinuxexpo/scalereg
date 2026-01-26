@@ -86,6 +86,9 @@ class Order(models.Model):
         related_name='already_paid',
         help_text='Attendees charged multiple times on this order')
 
+    def __str__(self):
+        return self.order_num
+
 
 class TicketManager(models.Manager):
 
@@ -119,6 +122,9 @@ class Ticket(models.Model):
 
     objects = models.Manager()
     public_objects = TicketManager()
+
+    def __str__(self):
+        return self.name
 
     def ticket_cost(self, items, promo):
         ticket_price = self.get_promo_price(promo)
@@ -193,6 +199,9 @@ class PromoCode(models.Model):
     objects = models.Manager()
     active_objects = PromoCodeManager()
 
+    def __str__(self):
+        return self.name
+
     def is_active(self):
         if not self.active:
             return False
@@ -222,6 +231,9 @@ class Item(models.Model):
     ticket_offset = models.BooleanField(help_text='Item offsets ticket price?')
     applies_to = models.ManyToManyField(Ticket, blank=True)
     applies_to_all = models.BooleanField(help_text='Applies to all tickets')
+
+    def __str__(self):
+        return f'{self.description} ({self.name})'
 
     def get_promo_price(self, promo):
         if promo and self.promo:
@@ -253,6 +265,10 @@ class Question(models.Model):
                                      blank=True,
                                      help_text='Only for text questions')
 
+    def __str__(self):
+        type_text = 'Text' if self.is_text_question else 'List'
+        return f'{type_text} Question: {self.text}'
+
     def get_list_answers(self):
         assert not self.is_text_question
         return Answer.objects.filter(question=self.id).order_by('id')
@@ -264,10 +280,6 @@ class Question(models.Model):
 
     def is_applicable_to_item(self, item):
         return item in self.applies_to_items.all()
-
-    def __str__(self):
-        type_text = 'Text' if self.is_text_question else 'List'
-        return f'{type_text} Question: {self.text}'
 
 
 class Attendee(models.Model):
@@ -311,6 +323,9 @@ class Attendee(models.Model):
                                     default=EmailChoices.LOGISTICS_ONLY)
     answers = models.ManyToManyField(Answer, blank=True)
 
+    def __str__(self):
+        return f'({self.id}) ({self.email})'
+
     def checkin_code(self):
         return f'{self.id:04d}{utils.checkin_hash(self.full_name())}'
 
@@ -339,6 +354,9 @@ class PendingOrder(models.Model):
                                 null=True)
     date = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.order_num
+
     def attendees_list(self):
         if not self.attendees:
             return []
@@ -353,6 +371,9 @@ class PaymentCode(models.Model):
     badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     max_attendees = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.code
 
 
 class Upgrade(models.Model):
@@ -375,6 +396,9 @@ class Upgrade(models.Model):
                                   on_delete=models.CASCADE,
                                   blank=True,
                                   null=True)
+
+    def __str__(self):
+        return str(self.attendee)
 
     def upgrade_cost(self):
         old_total = Ticket.ticket_cost(self.old_badge_type,

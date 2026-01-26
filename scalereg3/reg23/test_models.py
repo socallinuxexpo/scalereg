@@ -6,11 +6,123 @@ from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
+from .models import PaymentCode
 from .models import PendingOrder
 from .models import PromoCode
 from .models import Question
 from .models import Ticket
 from .models import Upgrade
+
+
+class ModelStrTest(TestCase):
+
+    def test_order_str(self):
+        order = Order.objects.create(order_num='ORDER1',
+                                     name='Order 1',
+                                     address='Addr',
+                                     city='City',
+                                     state='State',
+                                     zip_code='12345',
+                                     email='test@example.com',
+                                     amount=decimal.Decimal(10),
+                                     payment_type='payflow')
+        self.assertEqual(str(order), 'ORDER1')
+
+    def test_ticket_str(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       ticket_type='full',
+                                       price=decimal.Decimal(10),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        self.assertEqual(str(ticket), 'T1')
+
+    def test_promo_code_str(self):
+        promo = PromoCode.objects.create(name='P1',
+                                         description='Promo 1',
+                                         price_modifier=decimal.Decimal(0.6))
+        self.assertEqual(str(promo), 'P1')
+
+    def test_item_str(self):
+        item = Item.objects.create(name='I1',
+                                   description='Item 1',
+                                   price=decimal.Decimal(10),
+                                   active=True,
+                                   promo=False,
+                                   ticket_offset=False,
+                                   applies_to_all=True)
+        self.assertEqual(str(item), 'Item 1 (I1)')
+
+    def test_attendee_str(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       ticket_type='full',
+                                       price=decimal.Decimal(10),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        attendee = Attendee.objects.create(badge_type=ticket,
+                                           first_name='Foo',
+                                           last_name='Bar',
+                                           email='test@example.com',
+                                           zip_code='12345')
+        self.assertEqual(str(attendee), f'({attendee.id}) (test@example.com)')
+
+    def test_pending_order_str(self):
+        po = PendingOrder.objects.create(order_num='PEND1')
+        self.assertEqual(str(po), 'PEND1')
+
+    def test_payment_code_str(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       ticket_type='full',
+                                       price=decimal.Decimal(10),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        order = Order.objects.create(order_num='ORDER1',
+                                     name='Order 1',
+                                     address='Addr',
+                                     city='City',
+                                     state='State',
+                                     zip_code='12345',
+                                     email='test@example.com',
+                                     amount=decimal.Decimal(10),
+                                     payment_type='payflow')
+        pc = PaymentCode.objects.create(code='CODE1',
+                                        badge_type=ticket,
+                                        order=order,
+                                        max_attendees=1)
+        self.assertEqual(str(pc), 'CODE1')
+
+    def test_upgrade_str(self):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       ticket_type='full',
+                                       price=decimal.Decimal(10),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False)
+        order = Order.objects.create(order_num='ORDER1',
+                                     name='Order 1',
+                                     address='Addr',
+                                     city='City',
+                                     state='State',
+                                     zip_code='12345',
+                                     email='test@example.com',
+                                     amount=decimal.Decimal(10),
+                                     payment_type='payflow')
+        attendee = Attendee.objects.create(badge_type=ticket,
+                                           first_name='Foo',
+                                           last_name='Bar',
+                                           email='test@example.com',
+                                           zip_code='12345')
+        upgrade = Upgrade.objects.create(attendee=attendee,
+                                         old_badge_type=ticket,
+                                         old_order=order,
+                                         new_badge_type=ticket)
+        self.assertEqual(str(upgrade), str(attendee))
 
 
 class TicketCostTest(TestCase):
