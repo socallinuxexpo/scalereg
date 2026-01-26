@@ -143,6 +143,42 @@ def check_in(request):
 
 
 @login_required
+def finish_check_in(request):
+    required_vars = ['id']
+    r = reg23_views.check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = reg23_views.get_attendee_for_id(request.POST['id'])
+    if not attendee:
+        return render(request, 'reg_staff_finish_check_in.html', {
+            'title': 'Attendee Check In',
+            'error_message': 'Attendee not found.',
+        })
+
+    if not attendee.valid:
+        return render(request, 'reg_staff_finish_check_in.html', {
+            'title': 'Attendee Check In',
+            'error_message': 'Attendee not valid.',
+        })
+
+    attendee.checked_in = True
+    try:
+        attendee.save()
+    except IntegrityError:
+        return render(
+            request, 'reg_staff_finish_check_in.html', {
+                'title': 'Attendee Check In',
+                'error_message': 'Cannot save attendee data.',
+            })
+
+    return render(request, 'reg_staff_finish_check_in.html', {
+        'title': 'Attendee Check In',
+        'attendee': attendee,
+    })
+
+
+@login_required
 def receipt(request):
     attendee = None
     error_message = None
