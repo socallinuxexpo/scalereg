@@ -59,6 +59,12 @@
                 <input type="submit" value="Email {{ attendee.email }}">
                 {% csrf_token %}
             </form>
+        {% else %}
+            <form method="post" action="../cash_payment_registered/">
+                <input type="hidden" name="id" value="{{ attendee.id }}">
+                <input type="submit" value="Cash Payment">
+                {% csrf_token %}
+            </form>
         {% endif %}
         </td>
     </tr>

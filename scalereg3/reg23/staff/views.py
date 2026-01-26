@@ -17,6 +17,24 @@ def get_attendee_from_express_check_in_code(code):
     return attendee if attendee and attendee.checkin_code() == code else None
 
 
+def add_cash_order_to_attendee(attendee, ticket_cost):
+    attendee.valid = True
+    attendee.checked_in = True
+
+    order_num = reg23_views.generate_order_id(
+        reg23_views.get_existing_order_ids())
+    attendee.order = reg23_models.Order(order_num=order_num,
+                                        valid=True,
+                                        name=attendee.full_name(),
+                                        address='Cash',
+                                        city='Cash',
+                                        state='Cash',
+                                        zip_code=attendee.zip_code,
+                                        email=attendee.email,
+                                        amount=ticket_cost,
+                                        payment_type='cash')
+
+
 @login_required
 def index(request):
     return render(request, 'reg_staff_index.html', {'title': 'Staff Page'})
@@ -58,21 +76,7 @@ def cash_payment(request):
 
     attendee = form.save(commit=False)
     attendee.badge_type = ticket
-    attendee.valid = True
-    attendee.checked_in = True
-
-    order_num = reg23_views.generate_order_id(
-        reg23_views.get_existing_order_ids())
-    attendee.order = reg23_models.Order(order_num=order_num,
-                                        valid=True,
-                                        name=attendee.full_name(),
-                                        address='Cash',
-                                        city='Cash',
-                                        state='Cash',
-                                        zip_code=attendee.zip_code,
-                                        email=attendee.email,
-                                        amount=ticket.price,
-                                        payment_type='cash')
+    add_cash_order_to_attendee(attendee, ticket.price)
 
     try:
         with transaction.atomic():
@@ -93,6 +97,48 @@ def cash_payment(request):
             'attendee': attendee,
             'form': reg23_forms.AttendeeCashForm(),
             'tickets': tickets,
+        })
+
+
+@login_required
+def cash_payment_registered(request):
+    required_vars = ['id']
+    r = reg23_views.check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = reg23_views.get_attendee_for_id(request.POST['id'])
+    if not attendee:
+        return render(
+            request, 'reg_staff_cash_payment_registered.html', {
+                'title': 'Cash Payment For Registered Attendee',
+                'error_message': 'Attendee not found.',
+            })
+
+    if request.POST.get('action', '') != 'pay':
+        return render(
+            request, 'reg_staff_cash_payment_registered.html', {
+                'title': 'Cash Payment For Registered Attendee',
+                'attendee': attendee,
+            })
+
+    add_cash_order_to_attendee(attendee, attendee.ticket_cost())
+    try:
+        with transaction.atomic():
+            attendee.save()
+            attendee.order.save()
+    except IntegrityError:
+        return render(
+            request, 'reg_staff_cash_payment_registered.html', {
+                'title': 'Cash Payment For Registered Attendee',
+                'error_message': 'Cannot save order',
+            })
+
+    return render(
+        request, 'reg_staff_cash_payment_registered.html', {
+            'title': 'Cash Payment For Registered Attendee',
+            'attendee': attendee,
+            'success': True,
         })
 
 

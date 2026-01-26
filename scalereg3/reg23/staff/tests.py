@@ -279,6 +279,93 @@ class CashPaymentTest(TestCase):
         self.assertContains(response, 'This field is required.')
 
 
+class CashPaymentRegisteredTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+        cls.ticket = Ticket.objects.create(name='CASH',
+                                           description='Cash Pass',
+                                           price=50,
+                                           public=True,
+                                           cash=True,
+                                           upgradable=True)
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket,
+                                               first_name='Test',
+                                               last_name='User',
+                                               email='attendee@example.com',
+                                               zip_code='12345',
+                                               valid=False)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/cash_payment_registered/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response,
+            '/accounts/login/?next=/reg23/staff/cash_payment_registered/')
+
+    def test_get_request_logged_in(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/cash_payment_registered/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/cash_payment_registered/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response,
+            '/accounts/login/?next=/reg23/staff/cash_payment_registered/')
+
+    def test_valid_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/cash_payment_registered/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.attendee.first_name)
+        self.assertContains(response, self.attendee.last_name)
+        self.assertContains(response, self.attendee.zip_code)
+        self.assertContains(response, 'Pay For Registration')
+        self.assertNotContains(response, 'successfully registered!')
+        self.assertNotContains(response, 'Error:')
+
+    def test_valid_id_pay(self):
+        self.client.force_login(self.normal_user)
+        self.assertFalse(self.attendee.valid)
+        self.assertFalse(self.attendee.order)
+        response = self.client.post('/reg23/staff/cash_payment_registered/', {
+            'id': self.attendee.id,
+            'action': 'pay'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.attendee.refresh_from_db()
+        self.assertTrue(self.attendee.valid)
+        self.assertTrue(self.attendee.checked_in)
+        self.assertTrue(self.attendee.order)
+        self.assertEqual(self.attendee.order.payment_type, 'cash')
+        self.assertContains(
+            response,
+            f'Attendee {self.attendee.full_name()} successfully registered!')
+        self.assertNotContains(response, 'Error:')
+
+    def test_post_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/cash_payment_registered/',
+                                    {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
+
+    def test_post_invalid_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/cash_payment_registered/',
+                                    {'id': 9999})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Error: Attendee not found.')
+        self.assertNotContains(response, 'successfully registered!')
+
+
 class CheckInTest(TestCase):
 
     @classmethod
@@ -330,6 +417,7 @@ class CheckInTest(TestCase):
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
+        self.assertNotContains(response, 'Cash Payment')
 
     def check_attendee_not_found(self, response, attendee):
         self.assertContains(response, 'Search results for:')
@@ -342,6 +430,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
         self.assertContains(response, 'Invalid')
+        self.assertContains(response, 'Cash Payment')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, f'Email {attendee.email}')
