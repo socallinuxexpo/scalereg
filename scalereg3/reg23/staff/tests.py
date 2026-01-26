@@ -569,3 +569,67 @@ class CheckInTest(TestCase):
         self.assertContains(
             response, f'Express Check In Code: {self.attendee.checkin_code()}')
         self.check_attendee_already_checked_in(response, self.attendee)
+
+
+class FinishCheckInTest(CheckInTest):
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/finish_check_in/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/accounts/login/?next=/reg23/staff/finish_check_in/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/finish_check_in/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/finish_check_in/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/accounts/login/?next=/reg23/staff/finish_check_in/')
+
+    def test_valid_attendee(self):
+        self.client.force_login(self.normal_user)
+        self.assertFalse(self.attendee.checked_in)
+        response = self.client.post('/reg23/staff/finish_check_in/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Check In')
+        self.assertContains(response,
+                            'The following attendee has been checked in:')
+        self.assertContains(response, self.attendee.full_name())
+        self.assertNotContains(response, 'Error:')
+        self.attendee.refresh_from_db()
+        self.assertTrue(self.attendee.checked_in)
+
+    def test_post_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/finish_check_in/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
+        self.assertNotContains(response,
+                               'The following attendee has been checked in:')
+
+    def test_post_nonexistent_attendee(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/finish_check_in/',
+                                    {'id': 9999})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Error: Attendee not found.')
+        self.assertNotContains(response,
+                               'The following attendee has been checked in:')
+
+    def test_post_invalid_attendee(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/finish_check_in/',
+                                    {'id': self.invalid_attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Error: Attendee not valid.')
+        self.assertNotContains(response,
+                               'The following attendee has been checked in:')
+        self.invalid_attendee.refresh_from_db()
+        self.assertFalse(self.invalid_attendee.checked_in)

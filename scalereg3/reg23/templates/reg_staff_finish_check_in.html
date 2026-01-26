@@ -1,0 +1,22 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+{% if attendee %}
+The following attendee has been checked in:<br />
+<b>{{ attendee.full_name }}</b>
+{% elif error_message %}
+Error: {{ error_message }}
+{% endif %}
+</p>
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+{% endblock %}
