@@ -1,0 +1,169 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+<style type="text/css">
+.reg23_form_error { color: #FF0000; font-weight: bold }
+.reg23_label { font-weight: normal }
+.reg23_title_org_dialog {
+    border-color: #000;
+    border-width: 3px;
+    padding: 16px;
+}
+b { font-weight: bold }
+</style>
+
+{% if updated_attendee_id %}
+<p>
+Attendee {{updated_attendee_id}} successfully updated!
+</p>
+{% elif error_message %}
+<p class="reg23_form_error">
+Update error: {{error_message}}
+</p>
+{% elif form %}
+<p>
+Attendee {{form.instance.id}}:
+</p>
+
+<p>
+<form method="post" action=".">
+<table border="1">
+    <tr>
+        <th><b>Field</b></th>
+        <th><b>Current Value</b></th>
+        <th><b>New Value</b></th>
+    </tr>
+    {% if form.salutation.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.salutation.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+            <td>
+                <label class="reg23_label" for="id_salutation">Salutation:</label>
+            </td>
+            <td>{{ form.instance.salutation }}</td>
+            <td>{{ form.salutation }}</td>
+    </tr>
+    {% if form.first_name.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.first_name.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_first_name">
+                <b>First Name:</b>
+            </label>
+        </td>
+        <td>{{ form.instance.first_name }}</td>
+        <td>{{ form.first_name }}</td>
+    </tr>
+    {% if form.last_name.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.last_name.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_last_name">
+                <b>Last Name:</b>
+            </label>
+        </td>
+        <td>{{ form.instance.last_name }}</td>
+        <td>{{ form.last_name }}</td>
+    </tr>
+    {% if form.title.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.title.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_title">Title:</label></td>
+        <td>{{ form.instance.title }}</td>
+        <td>{{ form.title }}</td>
+    </tr>
+    {% if form.org.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.org.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_org">Organization:</label></td>
+        <td>{{ form.instance.org }}</td>
+        <td>{{ form.org }}</td>
+    </tr>
+    {% if form.zip_code.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.zip_code.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            <label class="reg23_label" for="id_zip_code">
+                <b>Zip/Postal Code:</b>
+            </label>
+        </td>
+        <td>{{ form.instance.zip_code }}</td>
+        <td>{{ form.zip_code }}</td>
+    </tr>
+    {% if form.email.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.email.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_email"><b>Email:</b></label></td>
+        <td>{{ form.instance.email }}</td>
+        <td>{{ form.email }}</td>
+    </tr>
+    {% if form.phone.errors %}
+    <tr>
+        <td colspan="3" class="reg23_form_error">
+            {{ form.phone.errors|join:", " }}
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td><label class="reg23_label" for="id_phone">Phone:</label></td>
+        <td>{{ form.instance.phone }}</td>
+        <td>{{ form.phone }}</td>
+    </tr>
+</table>
+<p>
+<input type="hidden" name="id" value="{{ form.instance.id }}">
+<input type="hidden" name="can_email" value="{{ form.instance.can_email }}">
+<input type="hidden" name="action" value="update" />
+<input type="submit" value="Update Attendee" />
+{% csrf_token %}
+<p>
+</form>
+</p>
+{% endif %}
+
+<hr />
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+</div>
+{% endblock %}
