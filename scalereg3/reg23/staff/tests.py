@@ -779,3 +779,123 @@ class FinishCheckInTest(CheckInTest):
                                'The following attendee has been checked in:')
         self.invalid_attendee.refresh_from_db()
         self.assertFalse(self.invalid_attendee.checked_in)
+
+
+class UpdateAttendeeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+        cls.ticket = Ticket.objects.create(name='FULL',
+                                           description='Full Pass',
+                                           price=100,
+                                           public=True,
+                                           cash=True,
+                                           upgradable=True)
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket,
+                                               first_name='Test',
+                                               last_name='User',
+                                               email='attendee@example.com',
+                                               zip_code='12345',
+                                               valid=True)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/update_attendee/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/accounts/login/?next=/reg23/staff/update_attendee/')
+
+    def test_get_request_logged_in(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/update_attendee/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/update_attendee/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, '/accounts/login/?next=/reg23/staff/update_attendee/')
+
+    def test_post_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/update_attendee/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
+        self.assertNotContains(response, 'successfully updated')
+        self.assertNotContains(response, 'Current Value')
+
+    def test_post_nonexistent_attendee(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/update_attendee/',
+                                    {'id': 9999})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee not found.')
+        self.assertNotContains(response, 'successfully updated')
+        self.assertNotContains(response, 'Current Value')
+
+    def test_load_form(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/update_attendee/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Update Attendee Info')
+        self.assertContains(response, 'Current Value')
+        self.assertContains(response, self.attendee.first_name)
+        self.assertContains(response, self.attendee.last_name)
+        self.assertContains(response, self.attendee.email)
+        self.assertNotContains(response, 'successfully updated')
+        self.assertNotContains(response, 'Update error')
+
+    def test_update_success(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post(
+            '/reg23/staff/update_attendee/', {
+                'id': self.attendee.id,
+                'can_email': '0',
+                'action': 'update',
+                'first_name': 'NewFirst',
+                'last_name': 'NewLast',
+                'title': 'NewTitle',
+                'org': 'NewOrg',
+                'zip_code': '54321',
+                'email': 'new@example.com',
+                'phone': '555-1234',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, f'Attendee {self.attendee.id} successfully updated!')
+
+        self.attendee.refresh_from_db()
+        self.assertEqual(self.attendee.first_name, 'NewFirst')
+        self.assertEqual(self.attendee.last_name, 'NewLast')
+        self.assertEqual(self.attendee.title, 'NewTitle')
+        self.assertEqual(self.attendee.org, 'NewOrg')
+        self.assertEqual(self.attendee.zip_code, '54321')
+        self.assertEqual(self.attendee.email, 'new@example.com')
+        self.assertEqual(self.attendee.phone, '555-1234')
+        self.assertNotContains(response, 'Current Value')
+        self.assertNotContains(response, 'Update error')
+
+    def test_update_attendee_invalid(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post(
+            '/reg23/staff/update_attendee/', {
+                'id': self.attendee.id,
+                'action': 'update',
+                'first_name': '',
+                'last_name': 'NewLast',
+                'email': 'new@example.com',
+                'zip_code': '54321',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Current Value')
+        self.assertContains(response, 'This field is required.')
+        self.assertTrue(response.context['form'].errors)
+        self.assertIn('first_name', response.context['form'].errors)
+        self.attendee.refresh_from_db()
+        self.assertEqual(self.attendee.last_name, 'User')
+        self.assertNotContains(response, 'successfully updated')
+        self.assertNotContains(response, 'Update error')

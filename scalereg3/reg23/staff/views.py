@@ -260,3 +260,47 @@ def receipt(request):
             'attendee': attendee,
             'error_message': error_message,
         })
+
+
+@login_required
+def update_attendee(request):
+    required_vars = ['id']
+    r = reg23_views.check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = reg23_views.get_attendee_for_id(request.POST['id'])
+    if not attendee:
+        return render(
+            request, 'reg_staff_update_attendee.html', {
+                'title': 'Update Attendee Info',
+                'error_message': 'Attendee not found.',
+            })
+
+    if request.POST.get('action', '') != 'update':
+        return render(
+            request, 'reg_staff_update_attendee.html', {
+                'title': 'Update Attendee Info',
+                'form': reg23_forms.AttendeeForm(None, instance=attendee),
+            })
+
+    form = reg23_forms.AttendeeForm(request.POST, instance=attendee)
+    if not form.is_valid():
+        return render(request, 'reg_staff_update_attendee.html', {
+            'title': 'Update Attendee Info',
+            'form': form,
+        })
+
+    try:
+        form.save()
+    except IntegrityError:
+        return render(
+            request, 'reg_staff_update_attendee.html', {
+                'title': 'Update Attendee Info',
+                'error_message': 'Cannot save order, bad data?',
+            })
+
+    return render(request, 'reg_staff_update_attendee.html', {
+        'title': 'Update Attendee Info',
+        'updated_attendee_id': attendee.id,
+    })
