@@ -1,0 +1,24 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+<p>
+{% if attendee %}
+Emailed {{ attendee.full_name }} at {{ attendee.email }}.
+{% else %}
+ERROR! Email failed.
+{% endif %}
+</p>
+
+<hr />
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+</div>
+{% endblock %}

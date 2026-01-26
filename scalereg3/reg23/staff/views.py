@@ -143,6 +143,23 @@ def check_in(request):
 
 
 @login_required
+def email(request):
+    required_vars = ['id']
+    r = reg23_views.check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = reg23_views.get_attendee_for_id(request.POST['id'])
+    if attendee:
+        reg23_views.notify_attendee(attendee)
+
+    return render(request, 'reg_staff_email.html', {
+        'title': 'Attendee Check In',
+        'attendee': attendee,
+    })
+
+
+@login_required
 def finish_check_in(request):
     required_vars = ['id']
     r = reg23_views.check_vars(request, required_vars)
