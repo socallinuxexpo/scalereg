@@ -1,0 +1,75 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if success %}
+<p>
+Attendee {{ attendee.full_name }} successfully registered!
+</p>
+{% elif error_message %}
+<p class="form_error">
+Error: {{ error_message }}
+</p>
+{% else %}
+<p>
+Registered attendee to take cash payment for:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td><b>First Name</b></td>
+    <td><input type="text" name="FIRST" maxlength="60" size="50"
+         disabled value="{{ attendee.first_name }}" /></td>
+</tr>
+<tr>
+    <td><b>Last Name</b></td>
+    <td><input type="text" name="LAST" maxlength="60" size="50"
+         disabled value="{{ attendee.last_name }}" /></td>
+</tr>
+<tr>
+    <td><b>Email</b></td>
+    <td><input type="text" name="EMAIL" maxlength="60" size="50"
+         disabled value="{{ attendee.email }}" /></td>
+</tr>
+<tr>
+    <td><b>Zip</b></td>
+    <td><input type="text" name="ZIP" maxlength="20" size="20"
+         disabled value="{{ attendee.zip_code }}" /><br />
+    </td>
+</tr>
+<tr>
+    <td><b>Type</b></td>
+    <td><select name="TICKET" disabled>
+        <option>
+        {{ attendee.badge_type.name }} - {{ attendee.badge_type.description }}
+        </option>
+    </select>
+    </td>
+</tr>
+<tr>
+    <td><b>Cost</b></td>
+    <td>{{ attendee.ticket_cost|money }}</td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{{ attendee.id }}">
+<input type="hidden" name="action" value="pay" />
+<input type="submit" value="Pay For Registration" />
+{% csrf_token %}
+</form>
+</p>
+{% endif %}
+
+<hr />
+
+<p>
+<form method="get" action="../">
+<input type="submit" value="Return To Staff Page" />
+</form>
+</p>
+
+</div>
+{% endblock %}

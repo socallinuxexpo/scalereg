@@ -5,6 +5,7 @@ from reg23.staff import views
 urlpatterns = [
     path('', views.index),
     path('cash_payment/', views.cash_payment),
+    path('cash_payment_registered/', views.cash_payment_registered),
     path('check_in/', views.check_in),
     path('email/', views.email),
     path('finish_check_in/', views.finish_check_in),
