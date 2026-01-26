@@ -29,6 +29,7 @@
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
+        <th>Options</th>
     </tr>
     {% for attendee in attendees %}
     <tr>
@@ -47,6 +48,15 @@
             <form method="post" action="../finish_check_in/">
                 <input type="hidden" name="id" value="{{ attendee.id }}">
                 <input type="submit" value="Check In">
+                {% csrf_token %}
+            </form>
+        {% endif %}
+        </td>
+        <td>
+        {% if attendee.valid %}
+            <form method="post" action="../email/">
+                <input type="hidden" name="id" value="{{ attendee.id }}">
+                <input type="submit" value="Email {{ attendee.email }}">
                 {% csrf_token %}
             </form>
         {% endif %}

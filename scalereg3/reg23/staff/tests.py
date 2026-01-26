@@ -1,7 +1,9 @@
 import random
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
+from django.test import override_settings
 
 from reg23.models import Attendee
 from reg23.models import Order
@@ -324,6 +326,7 @@ class CheckInTest(TestCase):
     def check_attendee_found(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
+        self.assertContains(response, f'Email {attendee.email}')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
@@ -341,6 +344,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Invalid')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Already Checked In')
+        self.assertNotContains(response, f'Email {attendee.email}')
 
     def check_attendee_already_checked_in(self, response, attendee):
         self.assertContains(response, 'Search results for:')
@@ -569,6 +573,59 @@ class CheckInTest(TestCase):
         self.assertContains(
             response, f'Express Check In Code: {self.attendee.checkin_code()}')
         self.check_attendee_already_checked_in(response, self.attendee)
+
+
+class EmailTest(CheckInTest):
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/email/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/accounts/login/?next=/reg23/staff/email/')
+
+    def test_get_request_normal_user(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/email/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/email/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/accounts/login/?next=/reg23/staff/email/')
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_email_attendee(self):
+        self.client.force_login(self.normal_user)
+        self.attendee.email = 'alice@localhost'
+        self.attendee.save()
+
+        response = self.client.post('/reg23/staff/email/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Check In')
+        self.assertContains(
+            response,
+            f'Emailed {self.attendee.full_name()} at {self.attendee.email}.')
+
+        # Verify mail was "sent" to outbox
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.attendee.email])
+
+    def test_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/email/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
+
+    def test_nonexistent_attendee(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/email/', {'id': 9999})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'ERROR! Email failed.')
+        self.assertNotContains(response, 'Emailed ')
 
 
 class FinishCheckInTest(CheckInTest):
