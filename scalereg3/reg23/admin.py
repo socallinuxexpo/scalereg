@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import Answer
 from .models import Attendee
@@ -9,6 +11,25 @@ from .models import PromoCode
 from .models import Question
 from .models import Ticket
 from .models import Upgrade
+
+
+def link_to_badge_type(ticket):
+    url = reverse('admin:reg23_ticket_change', args=[ticket.name])
+    return format_html('<a href="{}">{}</a>', url, ticket.name)
+
+
+def link_to_order(order):
+    if not order:
+        return '-'
+    url = reverse('admin:reg23_order_change', args=[order.order_num])
+    return format_html('<a href="{}">{}</a>', url, order.order_num)
+
+
+def link_to_promo(promo):
+    if not promo:
+        return '-'
+    url = reverse('admin:reg23_promocode_change', args=[promo.name])
+    return format_html('<a href="{}">{}</a>', url, promo.name)
 
 
 class ListAnswerInline(admin.TabularInline):
@@ -38,10 +59,21 @@ class AttendeeAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('id', 'first_name', 'last_name', 'email', 'zip_code',
-                    'badge_type', 'valid', 'checked_in', 'order', 'promo')
+                    'link_to_badge_type', 'valid', 'checked_in',
+                    'link_to_order', 'link_to_promo')
     list_filter = ('badge_type', 'valid', 'checked_in', 'promo',
                    'ordered_items')
+    list_select_related = ('badge_type', 'order', 'promo')
     save_on_top = True
+
+    def link_to_badge_type(self, obj):
+        return link_to_badge_type(obj.badge_type)
+
+    def link_to_order(self, obj):
+        return link_to_order(obj.order)
+
+    def link_to_promo(self, obj):
+        return link_to_promo(obj.promo)
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -77,9 +109,17 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class PaymentCodeAdmin(admin.ModelAdmin):
-    list_display = ('code', 'badge_type', 'order', 'max_attendees')
+    list_display = ('code', 'link_to_badge_type', 'link_to_order',
+                    'max_attendees')
     list_filter = ('code', 'badge_type')
+    list_select_related = ('badge_type', 'order')
     save_on_top = True
+
+    def link_to_badge_type(self, obj):
+        return link_to_badge_type(obj.badge_type)
+
+    def link_to_order(self, obj):
+        return link_to_order(obj.order)
 
 
 class PromoCodeAdmin(admin.ModelAdmin):
@@ -108,10 +148,25 @@ class TicketAdmin(admin.ModelAdmin):
 
 
 class UpgradeAdmin(admin.ModelAdmin):
-    list_display = ('valid', 'attendee', 'old_badge_type', 'new_badge_type',
-                    'old_order', 'new_order')
+    list_display = ('valid', 'attendee', 'link_to_old_badge_type',
+                    'link_to_new_badge_type', 'link_to_old_order',
+                    'link_to_new_order')
     list_filter = ['valid']
+    list_select_related = ('old_badge_type', 'new_badge_type', 'old_order',
+                           'new_order')
     save_on_top = True
+
+    def link_to_new_badge_type(self, obj):
+        return link_to_badge_type(obj.new_badge_type)
+
+    def link_to_new_order(self, obj):
+        return link_to_order(obj.new_order)
+
+    def link_to_old_badge_type(self, obj):
+        return link_to_badge_type(obj.old_badge_type)
+
+    def link_to_old_order(self, obj):
+        return link_to_order(obj.old_order)
 
 
 admin.site.register(Answer, AnswerAdmin)
