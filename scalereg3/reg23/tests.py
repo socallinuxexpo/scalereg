@@ -3,7 +3,9 @@ import decimal
 import random
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
+from django.test import override_settings
 
 from sponsorship import models as sponsorship_models
 
@@ -1871,6 +1873,7 @@ class SaleTest(TestCase):
         sponsor = sponsorship_models.Sponsor.objects.get(email='sponsor@a.com')
         self.assertTrue(sponsor.valid)
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_success(self):
         response = self.client.post('/reg23/sale/', self.post_data)
         self.assertContains(response, 'success', status_code=200)
@@ -1878,6 +1881,9 @@ class SaleTest(TestCase):
         attendee = Attendee.objects.get(id=1)
         self.assertTrue(attendee.valid)
         self.assertTrue(attendee.order)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@a.com'])
 
     def test_post_request_missing_data(self):
         response = self.client.post('/reg23/sale/')
@@ -1962,6 +1968,7 @@ class SaleTest(TestCase):
                             status_code=500)
         self.assertEqual(Order.objects.count(), 0)
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_already_paid_attendee(self):
         post_data = self.post_data.copy()
         post_data['AMOUNT'] = '20.00'
@@ -1979,6 +1986,9 @@ class SaleTest(TestCase):
         order = Order.objects.all()[0]
         self.assertEqual(order.already_paid_attendees.count(), 1)
         self.assertEqual(order.already_paid_attendees.all()[0], attendee)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@a.com'])
 
 
 class FailedPaymentTest(TestCase):
@@ -2361,6 +2371,7 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertRedirects(response, '/reg23/')
         self.check_attendee_and_payment_code_did_not_change()
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_success(self):
         response = self.client.post('/reg23/redeem_payment_code/',
                                     self.post_data)
@@ -2376,6 +2387,10 @@ class RedeemPaymentCodeTest(TestCase):
         payment_code = PaymentCode.objects.get(code='PAYCODE123')
         self.assertEqual(payment_code.max_attendees, 0)
 
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@a.com'])
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_resets_ticket_type(self):
         t2 = Ticket.objects.create(name='T2',
                                    description='T2 Full',
@@ -2402,6 +2417,10 @@ class RedeemPaymentCodeTest(TestCase):
         payment_code = PaymentCode.objects.get(code='PAYCODE123')
         self.assertEqual(payment_code.max_attendees, 0)
 
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@a.com'])
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_removes_paid_items(self):
         item1 = Item.objects.create(name='I1',
                                     description='Paid Item',
@@ -2435,6 +2454,9 @@ class RedeemPaymentCodeTest(TestCase):
 
         payment_code = PaymentCode.objects.get(code='PAYCODE123')
         self.assertEqual(payment_code.max_attendees, 0)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@a.com'])
 
     def test_post_request_missing_data(self):
         response = self.client.post('/reg23/redeem_payment_code/', {})
@@ -2798,6 +2820,7 @@ class MassAddAttendeesTest(TestCase):
         self.assertContains(response, 'first_name,last_name')
         self.assertContains(response, 'Total added attendees: 0')
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_mixed_data(self):
         mixed_data = '''Not,Enough
 
@@ -2837,6 +2860,10 @@ Foo,Bar,,b.com,foo@b.com,54321,,SPEAKERS00  ,  SPEAK
         self.assertEqual(attendee2.org, 'b.com')
         self.assertEqual(attendee2.email, 'foo@b.com')
         self.assertEqual(attendee2.zip_code, '54321')
+
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[0].to, ['vp@a.com'])
+        self.assertEqual(mail.outbox[1].to, ['foo@b.com'])
 
     def test_bad_order(self):
         self.client.force_login(self.staff_user)
@@ -3132,13 +3159,13 @@ class FreeUpgradeTest(TestCase):
                                          city='City',
                                          state='CA',
                                          zip_code='90000',
-                                         email='foo@example.com',
+                                         email='foo@a.com',
                                          amount=30,
                                          payment_type='payflow')
         cls.attendee = Attendee.objects.create(badge_type=cls.ticket2,
                                                first_name='Foo',
                                                last_name='Bar',
-                                               email='foo@example.com',
+                                               email='foo@a.com',
                                                valid=True,
                                                order=cls.order)
 
@@ -3151,19 +3178,20 @@ class FreeUpgradeTest(TestCase):
         self.assertRedirects(response, '/reg23/')
         self.check_no_new_db_entries()
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_free_upgrade(self):
         random.seed(0)
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(Upgrade.objects.count(), 0)
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'Foo Bar')
-        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'foo@a.com')
         self.assertContains(response, 'Y0CQ65ZT4W')
         self.assertContains(response, '$0.00')
         self.assertContains(response, 'T1 Ticket')
@@ -3188,6 +3216,10 @@ class FreeUpgradeTest(TestCase):
         self.assertEqual(upgrade.new_items.count(), 0)
         self.assertEqual(upgrade.new_order, attendee.order)
 
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_free_upgrade_with_items(self):
         random.seed(0)
         self.assertEqual(Order.objects.count(), 1)
@@ -3212,14 +3244,14 @@ class FreeUpgradeTest(TestCase):
         response = self.client.post(
             '/reg23/free_upgrade/', {
                 'id': self.attendee.id,
-                'email': 'foo@example.com',
+                'email': 'foo@a.com',
                 'ticket': 'T1',
                 'item0': 'I2',
             })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'Foo Bar')
-        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'foo@a.com')
         self.assertContains(response, 'Y0CQ65ZT4W')
         self.assertContains(response, '$0.00')
         self.assertContains(response, 'T1 Ticket')
@@ -3246,9 +3278,12 @@ class FreeUpgradeTest(TestCase):
         self.assertQuerySetEqual(upgrade.new_items.all(), [item2])
         self.assertEqual(upgrade.new_order, attendee.order)
 
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
+
     def test_missing_id(self):
         response = self.client.post('/reg23/free_upgrade/', {
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertContains(response, 'No id information.')
@@ -3265,7 +3300,7 @@ class FreeUpgradeTest(TestCase):
     def test_missing_ticket(self):
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
         })
         self.assertContains(response, 'No ticket information.')
         self.check_no_new_db_entries()
@@ -3275,7 +3310,7 @@ class FreeUpgradeTest(TestCase):
         self.attendee.save()
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertContains(response, 'Cannot save upgrade.')
@@ -3286,7 +3321,7 @@ class FreeUpgradeTest(TestCase):
         self.attendee.save()
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertContains(response, 'Bad upgrade.')
@@ -3298,7 +3333,7 @@ class FreeUpgradeTest(TestCase):
         self.attendee.save()
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertContains(response, 'Bad upgrade.')
@@ -3307,7 +3342,7 @@ class FreeUpgradeTest(TestCase):
     def test_attendee_not_found(self):
         response = self.client.post('/reg23/free_upgrade/', {
             'id': 9999,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T1',
         })
         self.assertContains(response, 'Bad upgrade.')
@@ -3339,19 +3374,18 @@ class FreeUpgradeTest(TestCase):
     def test_nothing_changed(self):
         response = self.client.post('/reg23/free_upgrade/', {
             'id': self.attendee.id,
-            'email': 'foo@example.com',
+            'email': 'foo@a.com',
             'ticket': 'T2',
         })
         self.assertContains(response, 'Invalid upgrade: Nothing changed.')
         self.check_no_new_db_entries()
 
     def test_invalid_ticket(self):
-        response = self.client.post(
-            '/reg23/free_upgrade/', {
-                'id': self.attendee.id,
-                'email': 'foo@example.com',
-                'ticket': 'INVALID',
-            })
+        response = self.client.post('/reg23/free_upgrade/', {
+            'id': self.attendee.id,
+            'email': 'foo@a.com',
+            'ticket': 'INVALID',
+        })
         self.assertContains(response, 'Invalid upgrade: Invalid ticket type.')
         self.check_no_new_db_entries()
 
@@ -3649,13 +3683,13 @@ class SaleUpgradeTest(TestCase):
         cls.old_order = Order.objects.create(order_num='ORDER12345',
                                              valid=True,
                                              name='Foo Bar',
-                                             email='foo@example.com',
+                                             email='foo@a.com',
                                              amount=10,
                                              payment_type='payflow')
         cls.attendee = Attendee.objects.create(badge_type=cls.ticket1,
                                                first_name='Foo',
                                                last_name='Bar',
-                                               email='foo@example.com',
+                                               email='foo@a.com',
                                                valid=True,
                                                order=cls.old_order)
         cls.upgrade = Upgrade.objects.create(attendee=cls.attendee,
@@ -3673,7 +3707,7 @@ class SaleUpgradeTest(TestCase):
             'ZIP': '12345',
             'COUNTRY': 'USA',
             'PHONE': '555-555-5555',
-            'EMAIL': 'foo@example.com',
+            'EMAIL': 'foo@a.com',
             'AMOUNT': '20.00',
             'AUTHCODE': '123456',
             'PNREF': 'A1B2C3D4E5F6',
@@ -3682,6 +3716,7 @@ class SaleUpgradeTest(TestCase):
             'USER1': 'ORDER67890',
         }
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_success(self):
         response = self.client.post('/reg23/sale/', self.post_data)
         self.assertContains(response, 'success', status_code=200)
@@ -3694,6 +3729,9 @@ class SaleUpgradeTest(TestCase):
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket2)
         self.assertEqual(attendee.order, upgrade.new_order)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
 
     def test_post_request_incorrect_amount(self):
         post_data = self.post_data.copy()

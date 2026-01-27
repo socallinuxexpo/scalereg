@@ -1,9 +1,15 @@
 import decimal
 
+from django.core import mail
 from django.test import TestCase
+from django.test import override_settings
 
-from .models import Attendee, Item, Ticket
-from .views import generate_notify_attendee_body, get_posted_items
+from .models import Attendee
+from .models import Item
+from .models import Ticket
+from .views import generate_notify_attendee_body
+from .views import get_posted_items
+from .views import notify_attendee
 
 
 class GetPostedItemsTest(TestCase):
@@ -118,3 +124,45 @@ Badge Type: Ticket 1
 Express Check-In Code: 0001cf7b36
 '''
         self.assertEqual(generate_notify_attendee_body(attendee), expected)
+
+
+class NotifyAttendeeTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        ticket = Ticket.objects.create(name='T1',
+                                       description='Ticket 1',
+                                       price=decimal.Decimal(100),
+                                       public=True,
+                                       cash=False,
+                                       upgradable=False,
+                                       ticket_type='full')
+        cls.attendee = Attendee.objects.create(first_name='Test',
+                                               last_name='User',
+                                               email='a@b.com',
+                                               zip_code='12345',
+                                               badge_type=ticket)
+
+    @override_settings(SCALEREG_SEND_MAIL=False)
+    def test_no_mail_sent(self):
+        notify_attendee(self.attendee)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_no_mail_sent_to_invalid_email_addresses(self):
+        self.attendee.email = ''
+        notify_attendee(self.attendee)
+        self.attendee.email = 'foo'
+        notify_attendee(self.attendee)
+        self.attendee.email = 'bar@example.com'
+        notify_attendee(self.attendee)
+        self.attendee.email = 'qux@none.com'
+        notify_attendee(self.attendee)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_mail_sent(self):
+        self.attendee.email = 'a@b.com'
+        notify_attendee(self.attendee)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['a@b.com'])
