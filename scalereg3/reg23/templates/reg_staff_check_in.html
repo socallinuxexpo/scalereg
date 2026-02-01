@@ -115,7 +115,7 @@ Please try using one of the fields below. They are in the preferred order:
 </tr>
 </table>
 
-{% with search_button_value=search|yesno:"Search,Search Again" %}
+{% with search_button_value=search|yesno:"Search Again,Search" %}
 <input type="submit" value="{{ search_button_value }}" />
 {% endwith %}
 {% csrf_token %}

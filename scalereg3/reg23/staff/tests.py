@@ -414,6 +414,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
         self.assertContains(response, f'Email {attendee.email}')
+        self.assertContains(response, 'Search Again')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
@@ -422,6 +423,7 @@ class CheckInTest(TestCase):
     def check_attendee_not_found(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, 'Attendee not found.')
+        self.assertContains(response, 'Search Again')
         self.assertNotContains(response, attendee.full_name())
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
@@ -431,6 +433,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, attendee.full_name())
         self.assertContains(response, 'Invalid')
         self.assertContains(response, 'Cash Payment')
+        self.assertContains(response, 'Search Again')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, f'Email {attendee.email}')
@@ -439,6 +442,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
         self.assertContains(response, 'Already Checked In')
+        self.assertContains(response, 'Search Again')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
 
@@ -453,6 +457,8 @@ class CheckInTest(TestCase):
         response = self.client.get('/reg23/staff/check_in/')
         self.assertEqual(response.status_code, 200)
         self.check_basic_strings(response)
+        self.assertContains(response, 'Search')
+        self.assertNotContains(response, 'Search Again')
 
     def test_post_request_not_logged_in(self):
         response = self.client.post(
