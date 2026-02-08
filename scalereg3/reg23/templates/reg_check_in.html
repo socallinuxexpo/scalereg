@@ -1,0 +1,122 @@
+{% extends "reg_base.html" %}
+{% load i18n %}
+{% load reg23_filters %}
+{% block content %}
+<div id="content-main">
+
+{% if express_fail %}
+    <p>
+    <b>Error: "{{ express_code }}" is not a valid express check-in code.</b>
+    </p>
+    <hr />
+{% elif reprint %}
+    <p><b>Error: Attendee already checked in.</b></p>
+    <p>If you need to reprint a badge, or you believe this is a mistake,
+       please go to the help desk.</p>
+    <hr />
+{% elif search %}
+    <p>
+    Search results for:<br />
+    First name: {{ first_name }}<br />
+    Last name: {{ last_name }}<br />
+    Email: {{ email }}<br />
+    Zip/postal code: {{ zip_code }}<br />
+    </p>
+
+    {% if attendees %}
+        <table border="1">
+        <thead>
+        <tr>
+            <th>Registration Number</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for attendee in attendees %}
+        <tr>
+            <td>{{ attendee.id }}</td>
+            <td>{{ attendee.full_name }}</td>
+            <td>
+                <form method="post" action="../finish_checkin/">
+                    <input type="hidden" name="id" value="{{ attendee.id }}">
+                    <input type="submit" value="Check Me In">
+                    {% csrf_token %}
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% else %}
+        <p>
+        <b>No registration results found.</b>
+        <b>Please check your information below and try again.</b>
+        </p>
+        <p>If you need to reprint a badge, please go to the help desk.</p>
+    {% endif %}
+
+    <hr />
+{% endif %}
+
+<p>
+If you have an Express Check-In Code, please type it in below:<br />
+(Express Check-In Codes are 10 digits, all lower cases.)
+</p>
+
+<p>
+<form method="post" action=".">
+<p><input type="text" name="express_code" maxlength="10" size="10" /></p>
+<p><input type="submit" value="Check In With Express Code" /></p>
+{% csrf_token %}
+</form>
+</p>
+
+<p>
+Otherwise, please fill in all your registration information:
+</p>
+
+<p>
+<form method="post" action=".">
+<table>
+<tr>
+    <td>First Name</td>
+    <td><input type="text" name="first_name" maxlength="60" size="40"
+      value="{{ first_name }}" /></td>
+</tr>
+<tr>
+    <td>Last Name</td>
+    <td><input type="text" name="last_name" maxlength="60" size="40"
+      value="{{ last_name }}" /></td>
+</tr>
+<tr>
+    <td>Email</td>
+    <td><input type="text" name="email" maxlength="75" size="40"
+      value="{{ email }}" /></td>
+</tr>
+<tr>
+    <td>Zip/Postal Code</td>
+    <td><input type="text" name="zip_code" maxlength="10" size="10"
+      value="{{ zip_code }}" /></td>
+</tr>
+</table>
+
+<p>
+<input type="submit"
+{% if search %}
+    value="Find My Registration Again"
+{% else %}
+    value="Find My Registration"
+{% endif %}
+{% csrf_token %}
+/>
+</p>
+
+</form>
+</p>
+
+<p>
+If you need to reprint a badge, please go to the help desk.
+</p>
+</div>
+{% endblock %}
