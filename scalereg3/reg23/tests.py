@@ -306,6 +306,73 @@ class IndexTestWithPromo(TestCase):
                             html=True)
 
 
+class KioskIndexTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Ticket.objects.create(name='T1',
+                              description='T1 full',
+                              ticket_type='full',
+                              price=decimal.Decimal(10),
+                              public=True,
+                              cash=False,
+                              upgradable=False)
+
+        cls.user_agent = 'Mozilla/5.0 SECRET:235'
+
+    def test_get_no_agent(self):
+        response = self.client.get('/reg23/kiosk/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertContains(response, 'Brought to you by')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response, 'Close Window')
+
+    def test_post_no_agent(self):
+        response = self.client.post('/reg23/kiosk/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertContains(response, 'Brought to you by')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response, 'Close Window')
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    def test_get_with_agent(self):
+        response = self.client.get('/reg23/kiosk/',
+                                   HTTP_USER_AGENT=self.user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Station 235')
+        self.assertContains(response, 'Close Window')
+        self.assertContains(response, '<iframe name="scalereg" src="/reg23/"')
+        self.assertNotContains(response, 'T1 full')
+        self.assertNotContains(response, 'Brought to you by')
+        response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response,
+                               '<iframe name="scalereg" src="/reg23/"')
+        self.assertNotContains(response, 'Brought to you by')
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    def test_post_with_agent(self):
+        response = self.client.post('/reg23/kiosk/',
+                                    HTTP_USER_AGENT=self.user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Station 235')
+        self.assertContains(response, 'Close Window')
+        self.assertContains(response, '<iframe name="scalereg" src="/reg23/"')
+        self.assertNotContains(response, 'T1 full')
+        self.assertNotContains(response, 'Brought to you by')
+        response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response,
+                               '<iframe name="scalereg" src="/reg23/"')
+        self.assertNotContains(response, 'Brought to you by')
+
+
 class ItemsTest(TestCase):
 
     @classmethod

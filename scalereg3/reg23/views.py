@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseServerError
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import render as django_render
 from django.views.decorators.csrf import csrf_exempt
 
 from common import utils
@@ -97,6 +97,13 @@ class UpgradeState:
         return self._upgrade_cost
 
 
+def render(request, template_name, context):
+    kiosk_agent = get_kiosk_agent(request)
+    if kiosk_agent:
+        context['kiosk'] = True
+    return django_render(request, template_name, context)
+
+
 def render_error(request, error_message):
     return render(request, 'reg_error.html', {
         'title': 'Registration Problem',
@@ -179,6 +186,14 @@ def get_attendee_for_id(attendee_id):
 def get_existing_order_ids():
     return [x.order_num for x in models.PendingOrder.objects.all()
             ] + [x.order_num for x in models.Order.objects.all()]
+
+
+def get_kiosk_agent(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    agent_index = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET)
+    if agent_index < 0:
+        return ''
+    return user_agent[agent_index + len(settings.SCALEREG_KIOSK_AGENT_SECRET):]
 
 
 def get_payment_code(code):
@@ -490,6 +505,13 @@ def index(request):
             'step': 1,
             'steps_total': STEPS_TOTAL,
         })
+
+
+def kiosk_index(request):
+    kiosk_agent = get_kiosk_agent(request)
+    if not kiosk_agent:
+        return index(request)
+    return render(request, 'reg_kiosk_index.html', {'agent': kiosk_agent})
 
 
 def add_items(request):
