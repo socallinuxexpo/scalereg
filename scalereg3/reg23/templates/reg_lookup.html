@@ -71,7 +71,7 @@ Use this form to look up existing registrations. All fields are required.
     <td>{{ form.zip_code }}</td>
 </tr>
 </table>
-<input type="submit" class="scale_kiosk_bordered" value="Search" />
+<input type="submit" value="Search" />
 {% csrf_token %}
 </form>
 </p>
@@ -83,7 +83,7 @@ to return to your previous form.
 
 <p>
 <form method="get" action="../start_payment/">
-<input type="submit" class="scale_kiosk_bordered" value="Pay For Registration" />
+<input type="submit" value="Pay For Registration" />
 </form>
 </p>
 </div>

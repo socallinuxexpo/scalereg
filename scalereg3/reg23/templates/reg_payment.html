@@ -49,7 +49,7 @@
     <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
     <input type="hidden" name="TYPE" value="S">
     <input type="hidden" name="USER1" value="{{ order }}">
-    <input type="submit" class="scale_kiosk_bordered" value="Continue With Credit Card Payment" />
+    <input type="submit" value="Continue With Credit Card Payment" />
     </p>
     {% csrf_token %}
     </form>
@@ -64,7 +64,7 @@
     <p>
     <input type="text" name="code" maxlength="10">
     <input type="hidden" name="order" value="{{ order }}">
-    <input type="submit" class="scale_kiosk_bordered" value="Use Payment Code" />
+    <input type="submit" value="Use Payment Code" />
     </p>
     {% csrf_token %}
     </form>
@@ -76,7 +76,7 @@
 
     <form method="post" action="../">
     <p>
-    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
+    <input type="submit" value="Start Over" />
     </p>
     {% csrf_token %}
     </form>

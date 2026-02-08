@@ -81,7 +81,7 @@
     <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
     <input type="hidden" name="TYPE" value="S">
     <input type="hidden" name="USER1" value="{{ order }}">
-    <input type="submit" class="scale_kiosk_bordered" value="Pay For Upgrade" />
+    <input type="submit" value="Pay For Upgrade" />
     </p>
     {% csrf_token %}
     </form>
@@ -91,7 +91,7 @@
     {% if attendee.promo %}
     <input type="hidden" name="promo" value="{{ attendee.promo }}" />
     {% endif %}
-    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
+    <input type="submit" value="Start Over" />
     </p>
     {% csrf_token %}
     </form>

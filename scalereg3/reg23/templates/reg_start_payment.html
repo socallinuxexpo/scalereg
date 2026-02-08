@@ -98,7 +98,7 @@
         <td>
         <form method="post" action=".">
         <input type="hidden" name="remove" value="{{ person.id }}" />
-        <input type="submit" class="scale_kiosk_bordered" value="Remove" />
+        <input type="submit" value="Remove" />
         {% csrf_token %}
         </form>
         </td>
@@ -118,7 +118,7 @@
 
     <p>
     <form method="post" action="../payment/">
-    <input type="submit" class="scale_kiosk_bordered" value="Pay For This Order" />
+    <input type="submit" value="Pay For This Order" />
     {% csrf_token %}
     </form>
     <br />
@@ -148,7 +148,7 @@
     </table>
 
     <br />
-    <input type="submit" class="scale_kiosk_bordered" value="Add Attendee" />
+    <input type="submit" value="Add Attendee" />
     {% csrf_token %}
     </form>
     <br />
@@ -157,7 +157,7 @@
     <h2>Other Options:</h2>
     <p>
     <form method="post" action="..">
-    <input type="submit" class="scale_kiosk_bordered" value="Register Another Attendee" />
+    <input type="submit" value="Register Another Attendee" />
     {% csrf_token %}
     </form>
     </p>
