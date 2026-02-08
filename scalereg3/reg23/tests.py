@@ -4028,6 +4028,28 @@ class SaleUpgradeTest(TestCase):
 
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_post_request_reprint_at_kiosk(self):
+        self.attendee.checked_in = True
+        self.attendee.save()
+        post_data = self.post_data.copy()
+        post_data['USER2'] = 'Y'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+
+        upgrade = Upgrade.objects.get(id=self.upgrade.id)
+        self.assertTrue(upgrade.valid)
+        self.assertTrue(upgrade.new_order)
+        self.assertEqual(upgrade.new_order.order_num, 'ORDER67890')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket2)
+        self.assertEqual(attendee.order, upgrade.new_order)
+        self.assertTrue(attendee.checked_in)
+        self.assertEqual(attendee.reprint_count, 1)
+
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_post_request_incorrect_amount(self):
         post_data = self.post_data.copy()
         post_data['AMOUNT'] = '10.00'

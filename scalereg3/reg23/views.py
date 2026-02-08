@@ -451,7 +451,10 @@ def upgrade_attendee(upgrade, new_order, at_kiosk):
     attendee.badge_type = upgrade.new_badge_type
     attendee.order = new_order
     if at_kiosk:
-        attendee.checked_in = True
+        if attendee.checked_in:
+            attendee.reprint_count += 1
+        else:
+            attendee.checked_in = True
     attendee.save()
     attendee.ordered_items.clear()
     for item in upgrade.new_items.all():
