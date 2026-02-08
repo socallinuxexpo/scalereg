@@ -1040,6 +1040,25 @@ def check_in(request):
     return do_check_in_search(request)
 
 
+def finish_check_in(request):
+    kiosk_agent = get_kiosk_agent(request)
+    if not kiosk_agent:
+        return render_error(request, 'Not in kiosk mode')
+
+    required_vars = ['id']
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = get_attendee_for_id(request.POST['id'])
+    if not attendee:
+        return render(request, 'reg_finish_check_in.html', {
+            'title': 'Checked In',
+        })
+
+    return do_check_in(request, attendee, kiosk_agent)
+
+
 def reg_lookup(request):
     if request.method != 'POST':
         return render(request, 'reg_lookup.html', {
