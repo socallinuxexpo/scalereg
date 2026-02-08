@@ -2883,14 +2883,15 @@ class CheckedInTest(TestCase):
                                             badge_type=speaker_ticket,
                                             order=speaker_order,
                                             valid=True,
-                                            checked_in=True)
+                                            checked_in=True,
+                                            reprint_count=7)
 
         response = self.client.post(
             '/reg23/checked_in/',
             {'attendees': f'{self.attendee1.id},{attendee5.id}'})
         self.check_response_is_success_text(response)
         attendee1_str = b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~'
-        attendee5_str = b'~~Another~One~~~a5@a.com~~12345~5~3~0~speaker~0.00~'
+        attendee5_str = b'~~Another~One~~~a5@a.com~~12345~5~3~7~speaker~0.00~'
         self.assertEqual(response.content, b'\n'.join(
             (attendee1_str, attendee5_str)))
 
