@@ -420,6 +420,15 @@ class CheckInTest(TestCase):
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, 'Cash Payment')
 
+        check_in_index = response.text.find('value="Check In"')
+        self.assertGreaterEqual(check_in_index, 0)
+        update_info_index = response.text.find('value="Update Info"')
+        self.assertGreaterEqual(update_info_index, 0)
+        email_index = response.text.find('value="Email ')
+        self.assertGreaterEqual(email_index, 0)
+        self.assertGreater(update_info_index, check_in_index)
+        self.assertGreater(email_index, update_info_index)
+
     def check_attendee_not_found(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, 'Attendee not found.')

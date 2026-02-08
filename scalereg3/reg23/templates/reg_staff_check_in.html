@@ -41,13 +41,6 @@
         <td>{{ attendee.full_name }}</td>
         <td>{{ attendee.badge_type.description }}</td>
         <td>
-            <form method="post" action="../update_attendee/">
-                <input type="hidden" name="id" value="{{ attendee.id }}">
-                <input type="submit" value="Update Info">
-                {% csrf_token %}
-            </form>
-        </td>
-        <td>
         {% if not attendee.valid %}
             Invalid
         {% elif attendee.checked_in %}
@@ -59,6 +52,13 @@
                 {% csrf_token %}
             </form>
         {% endif %}
+        </td>
+        <td>
+            <form method="post" action="../update_attendee/">
+                <input type="hidden" name="id" value="{{ attendee.id }}">
+                <input type="submit" value="Update Info">
+                {% csrf_token %}
+            </form>
         </td>
         <td>
         {% if attendee.valid %}
