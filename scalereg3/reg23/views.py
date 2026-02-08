@@ -281,6 +281,15 @@ def get_unpaid_attendees_from_payment_cookie(cookie_data):
     return unpaid_attendees
 
 
+def record_attendee_agent(attendee, kiosk_agent):
+    assert kiosk_agent
+    attendee.kiosk_agent = kiosk_agent
+    try:
+        attendee.save()
+    except IntegrityError:
+        pass
+
+
 def should_redirect_post_to_sponsorship(request):
     if request.method != 'POST':
         return False
@@ -709,6 +718,11 @@ def payment(request):
 
     total = sum(attendee.ticket_cost() for attendee in unpaid_attendees)
 
+    kiosk_agent = get_kiosk_agent(request)
+    if kiosk_agent:
+        for attendee in unpaid_attendees:
+            record_attendee_agent(attendee, kiosk_agent)
+
     return render(
         request, 'reg_payment.html', {
             'title': 'Registration Payment',
@@ -1103,6 +1117,10 @@ def non_free_upgrade(request):
     maybe_pending_order = try_save_order(request, create_func)
     if isinstance(maybe_pending_order, HttpResponse):
         return maybe_pending_order
+
+    kiosk_agent = get_kiosk_agent(request)
+    if kiosk_agent:
+        record_attendee_agent(attendee, kiosk_agent)
 
     return render(
         request, 'reg_non_free_upgrade.html', {
