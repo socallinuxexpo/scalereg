@@ -525,7 +525,7 @@ def print_attendee(attendee):
         attendee.zip_code,
         str(attendee.id),
         get_parity_code(attendee),
-        '0',  # Reserved for reprint count.
+        str(attendee.reprint_count),
         attendee.badge_type.ticket_type,
         get_payment_amount(attendee),
         ''  # footer
