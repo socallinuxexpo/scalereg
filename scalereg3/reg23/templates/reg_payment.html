@@ -49,6 +49,11 @@
     <input type="hidden" name="PARTNER" value="{{ payflow_partner }} ">
     <input type="hidden" name="TYPE" value="S">
     <input type="hidden" name="USER1" value="{{ order }}">
+    {% if kiosk %}
+    <input type="hidden" name="USER2" value="Y">
+    {% else %}
+    <input type="hidden" name="USER2" value="N">
+    {% endif %}
     <input type="submit" value="Continue With Credit Card Payment" />
     </p>
     {% csrf_token %}

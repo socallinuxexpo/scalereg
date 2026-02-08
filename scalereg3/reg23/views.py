@@ -337,7 +337,7 @@ def create_upgrade(attendee, new_ticket, new_items):
     return upgrade
 
 
-def upgrade_attendee(upgrade, new_order):
+def upgrade_attendee(upgrade, new_order, at_kiosk):
     upgrade.new_order = new_order
     upgrade.valid = True
     upgrade.save()
@@ -345,11 +345,14 @@ def upgrade_attendee(upgrade, new_order):
     attendee = upgrade.attendee
     attendee.badge_type = upgrade.new_badge_type
     attendee.order = new_order
+    if at_kiosk:
+        attendee.checked_in = True
     attendee.save()
     attendee.ordered_items.clear()
     for item in upgrade.new_items.all():
         attendee.ordered_items.add(item)
-    notify_attendee(attendee)
+    if not at_kiosk:
+        notify_attendee(attendee)
 
 
 def generate_mass_add_get_response(content):
@@ -740,6 +743,7 @@ def sale(request):
         'RESULT',
         'RESPMSG',
         'USER1',
+        'USER2',
     )
     r = check_sales_request(request, required_vars)
     if r:
@@ -749,13 +753,14 @@ def sale(request):
     if isinstance(maybe_pending_order, HttpResponseServerError):
         return maybe_pending_order
 
+    at_kiosk = request.POST['USER2'] == 'Y'
     if maybe_pending_order.upgrade:
-        return sale_upgrade(request, maybe_pending_order.upgrade)
-    return sale_registration(request, maybe_pending_order)
+        return sale_upgrade(request, maybe_pending_order.upgrade, at_kiosk)
+    return sale_registration(request, maybe_pending_order, at_kiosk)
 
 
 @csrf_exempt
-def sale_registration(request, pending_order):
+def sale_registration(request, pending_order, at_kiosk):
     maybe_attendee_data = get_pending_order_attendees(pending_order)
     if isinstance(maybe_attendee_data, HttpResponseServerError):
         return maybe_attendee_data
@@ -777,13 +782,16 @@ def sale_registration(request, pending_order):
     for attendee in all_attendees:
         attendee.valid = True
         attendee.order = order
+        if at_kiosk:
+            attendee.checked_in = True
         attendee.save()
-        notify_attendee(attendee)
+        if not at_kiosk:
+            notify_attendee(attendee)
     return HttpResponse('success')
 
 
 @csrf_exempt
-def sale_upgrade(request, upgrade):
+def sale_upgrade(request, upgrade, at_kiosk):
     r = check_payment_amount(request.POST['AMOUNT'], upgrade.upgrade_cost())
     if r:
         return r
@@ -801,7 +809,7 @@ def sale_upgrade(request, upgrade):
     except IntegrityError:
         return HttpResponseServerError('cannot save order')
 
-    upgrade_attendee(upgrade, order)
+    upgrade_attendee(upgrade, order, at_kiosk)
     return HttpResponse('success')
 
 
@@ -875,6 +883,7 @@ def redeem_payment_code(request):
         return render_error(
             request, 'Payment code invalid for the number of attendees')
 
+    at_kiosk = get_kiosk_agent(request)
     for attendee in all_attendees:
         # Remove non-free addon items.
         for item in attendee.ordered_items.all():
@@ -884,8 +893,11 @@ def redeem_payment_code(request):
         attendee.order = payment_code.order
         attendee.valid = True
         attendee.promo = None
+        if at_kiosk:
+            attendee.checked_in = True
         attendee.save()
-        notify_attendee(attendee)
+        if not at_kiosk:
+            notify_attendee(attendee)
 
     payment_code.max_attendees = payment_code.max_attendees - len(
         all_attendees)
@@ -1044,7 +1056,7 @@ def free_upgrade(request):
     if isinstance(maybe_order, HttpResponse):
         return maybe_order
 
-    upgrade_attendee(upgrade, maybe_order)
+    upgrade_attendee(upgrade, maybe_order, get_kiosk_agent(request))
     return render(
         request, 'reg_receipt_upgrade.html', {
             'title': 'Registration Payment Receipt',
