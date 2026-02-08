@@ -419,6 +419,7 @@ class CheckInTest(TestCase):
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, 'Cash Payment')
+        self.assertNotContains(response, 'Reprint 1')
 
         check_in_index = response.text.find('value="Check In"')
         self.assertGreaterEqual(check_in_index, 0)
@@ -436,6 +437,7 @@ class CheckInTest(TestCase):
         self.assertNotContains(response, attendee.full_name())
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
+        self.assertNotContains(response, 'Reprint 1')
 
     def check_attendee_invalid(self, response, attendee):
         self.assertContains(response, 'Search results for:')
@@ -446,12 +448,14 @@ class CheckInTest(TestCase):
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, f'Email {attendee.email}')
+        self.assertNotContains(response, 'Reprint 1')
 
     def check_attendee_already_checked_in(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
         self.assertContains(response, 'Already Checked In')
         self.assertContains(response, 'Search Again')
+        self.assertContains(response, 'Reprint 1')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
 
@@ -794,6 +798,69 @@ class FinishCheckInTest(CheckInTest):
                                'The following attendee has been checked in:')
         self.invalid_attendee.refresh_from_db()
         self.assertFalse(self.invalid_attendee.checked_in)
+
+
+class ReprintTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.normal_user = get_user_model().objects.create_user('user',
+                                                               is_staff=False)
+        cls.ticket = Ticket.objects.create(name='FULL',
+                                           description='Full Pass',
+                                           price=100,
+                                           public=True,
+                                           cash=True,
+                                           upgradable=True)
+        cls.attendee = Attendee.objects.create(badge_type=cls.ticket,
+                                               first_name='Test',
+                                               last_name='User',
+                                               email='attendee@example.com',
+                                               zip_code='12345',
+                                               valid=True)
+
+    def test_get_request_not_logged_in(self):
+        response = self.client.get('/reg23/staff/reprint/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/accounts/login/?next=/reg23/staff/reprint/')
+
+    def test_get_request_logged_in(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.get('/reg23/staff/reprint/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_request_not_logged_in(self):
+        response = self.client.post('/reg23/staff/reprint/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             '/accounts/login/?next=/reg23/staff/reprint/')
+
+    def test_post_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/reprint/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
+
+    def test_valid_reprint(self):
+        self.client.force_login(self.normal_user)
+        self.assertEqual(self.attendee.reprint_count, 0)
+        response = self.client.post('/reg23/staff/reprint/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Reprint Invalid')
+        self.assertContains(response, 'Reprint 1 for Test User.')
+        self.attendee.refresh_from_db()
+        self.assertEqual(self.attendee.reprint_count, 1)
+
+    def test_invalid_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/reprint/', {'id': 9999})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Reprint Invalid')
+        self.assertContains(response, 'ERROR! Reprint failed.')
 
 
 class UpdateAttendeeTest(TestCase):

@@ -254,6 +254,24 @@ def receipt(request):
 
 
 @login_required
+def reprint(request):
+    required_vars = ['id']
+    r = reg23_views.check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendee = reg23_views.get_attendee_for_id(request.POST['id'])
+    if attendee:
+        attendee.reprint_count += 1
+        attendee.save()
+
+    return render(request, 'reg_staff_reprint.html', {
+        'title': 'Attendee Reprint Invalid',
+        'attendee': attendee,
+    })
+
+
+@login_required
 def update_attendee(request):
     required_vars = ['id']
     r = reg23_views.check_vars(request, required_vars)
