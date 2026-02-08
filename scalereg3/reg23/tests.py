@@ -4209,3 +4209,69 @@ class CheckInTest(TestCase):
                                     post_data,
                                     HTTP_USER_AGENT=self.kiosk_agent)
         self.assertContains(response, 'No email information.')
+
+
+@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+class FinishCheckInTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket = Ticket.objects.create(name='T1',
+                                           description='T1 full',
+                                           ticket_type='full',
+                                           price=decimal.Decimal(10),
+                                           public=True,
+                                           cash=False,
+                                           upgradable=False)
+        cls.order = Order.objects.create(order_num='ORDER12345',
+                                         valid=True,
+                                         amount=decimal.Decimal(10),
+                                         payment_type='payflow')
+        cls.attendee = Attendee.objects.create(first_name='Test',
+                                               last_name='User',
+                                               email='test@example.com',
+                                               zip_code='12345',
+                                               badge_type=cls.ticket,
+                                               order=cls.order,
+                                               valid=True)
+        cls.kiosk_agent = 'Mozilla/5.0 SECRET:235'
+
+    def test_get_no_agent(self):
+        response = self.client.get('/reg23/finish_check_in/')
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_no_agent(self):
+        response = self.client.post('/reg23/finish_check_in/', {'id': 1})
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_get_request(self):
+        response = self.client.get('/reg23/finish_check_in/',
+                                   HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertRedirects(response, '/reg23/')
+
+    def test_post_missing_id(self):
+        response = self.client.post('/reg23/finish_check_in/', {},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertContains(response, 'No id information.')
+
+    def test_post_success(self):
+        response = self.client.post('/reg23/finish_check_in/',
+                                    {'id': self.attendee.id},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Checked In')
+        self.assertContains(response, 'Test User')
+        self.assertNotContains(
+            response, 'We had a problem with your registration check-in')
+        self.attendee.refresh_from_db()
+        self.assertTrue(self.attendee.checked_in)
+        self.assertEqual(self.attendee.kiosk_agent, '235')
+
+    def test_post_invalid_id(self):
+        response = self.client.post('/reg23/finish_check_in/', {'id': 9999},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Checked In')
+        self.assertContains(
+            response, 'We had a problem with your registration check-in')
+        self.assertNotContains(response, 'Test User')

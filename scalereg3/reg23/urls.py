@@ -24,6 +24,7 @@ urlpatterns = [
 
     # Misc
     path('check_in/', views.check_in),
+    path('finish_check_in/', views.finish_check_in),
     path('kiosk/', views.kiosk_index),
     path('redeem_payment_code/', views.redeem_payment_code),
     path('reg_lookup/', views.reg_lookup),
