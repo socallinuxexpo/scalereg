@@ -84,8 +84,7 @@
                 <input type="hidden" name="item{{ forloop.counter0 }}"
                        value="{{ item.name }}" />
             {% endfor %}
-            <input type="submit" class="scale_kiosk_bordered"
-                   value="Confirm Upgrade" />
+            <input type="submit" value="Confirm Upgrade" />
             {% csrf_token %}
             </form>
         {% elif changed %}
@@ -114,8 +113,7 @@
                 <input type="hidden" name="item{{ forloop.counter0 }}"
                        value="{{ item.name }}" />
             {% endfor %}
-            <input type="submit" class="scale_kiosk_bordered"
-                   value="Free Upgrade" />
+            <input type="submit" value="Free Upgrade" />
             {% csrf_token %}
             </form>
         {% else %}
@@ -182,8 +180,7 @@
                    value="{{ selected_ticket.name }}" />
             <input type="hidden" name="has_selected_items"
                    value="1" />
-            <input type="submit" class="scale_kiosk_bordered"
-                   value="Select Upgrade Items" />
+            <input type="submit" value="Select Upgrade Items" />
             </p>
             {% csrf_token %}
             </form>
@@ -227,8 +224,7 @@
             <p>
             <input type="hidden" name="id" value="{{ attendee.id }}" />
             <input type="hidden" name="email" value="{{ attendee.email }}" />
-            <input type="submit" class="scale_kiosk_bordered"
-                   value="Select Upgrade Ticket" />
+            <input type="submit" value="Select Upgrade Ticket" />
             </p>
             {% csrf_token %}
             </form>
@@ -236,7 +232,7 @@
     {% endif %}
     <form method="get" action=".">
     <p>
-    <input type="submit" class="scale_kiosk_bordered" value="Start Over" />
+    <input type="submit" value="Start Over" />
     </p>
     </form>
 {% else %}
@@ -272,8 +268,7 @@
     </table>
 
     <br />
-    <input type="submit" class="scale_kiosk_bordered"
-           value="Find Attendee To Upgrade" />
+    <input type="submit" value="Find Attendee To Upgrade" />
     {% csrf_token %}
     </form>
     <br />
@@ -283,15 +278,13 @@
 <h2>Other Options:</h2>
 <p>
 <form method="post" action="..">
-<input type="submit" class="scale_kiosk_bordered"
-       value="Register Another Attendee" />
+<input type="submit" value="Register Another Attendee" />
 {% csrf_token %}
 </form>
 </p>
 <p>
 <form method="get" action="../start_payment/">
-<input type="submit" class="scale_kiosk_bordered"
-       value="Pay For Previous Registrations" />
+<input type="submit" value="Pay For Previous Registrations" />
 </form>
 </p>
 
