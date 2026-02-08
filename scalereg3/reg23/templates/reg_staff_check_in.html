@@ -29,6 +29,7 @@
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
+        <th>Reprint</th>
         <th>Update Info<br />AKA. Transfer</th>
         <th>Options</th>
     </tr>
@@ -49,6 +50,16 @@
             <form method="post" action="../finish_check_in/">
                 <input type="hidden" name="id" value="{{ attendee.id }}">
                 <input type="submit" value="Check In">
+                {% csrf_token %}
+            </form>
+        {% endif %}
+        </td>
+        <td>
+        {% if attendee.checked_in %}
+            <form method="post" action="../reprint/">
+                <input type="hidden" name="id" value="{{ attendee.id }}">
+                <input type="submit"
+                       value="Reprint {{ attendee.reprint_count|add:1 }}">
                 {% csrf_token %}
             </form>
         {% endif %}
