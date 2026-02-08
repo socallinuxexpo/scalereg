@@ -103,9 +103,17 @@ Already paid attendees charged on this order:
 </p>
 {% endif %}
 
+{% if kiosk %}
+<p>
+Thank you for registering.<br />
+Your badge will print shortly.<br />
+Please close this browser when done.
+</p>
+{% else %}
 <p>
 <button type="button" onclick="window.print()">Print Receipt</button>
 </p>
+{% endif %}
 
 </div>
 {% endblock %}

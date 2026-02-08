@@ -1923,6 +1923,7 @@ class SaleTest(TestCase):
             'RESULT': '0',
             'RESPMSG': 'Approved',
             'USER1': '1234567890',
+            'USER2': 'N',
         }
 
     def test_get_request(self):
@@ -1948,9 +1949,24 @@ class SaleTest(TestCase):
         attendee = Attendee.objects.get(id=1)
         self.assertTrue(attendee.valid)
         self.assertTrue(attendee.order)
+        self.assertFalse(attendee.checked_in)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['a@a.com'])
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_post_request_success_at_kiosk(self):
+        post_data = self.post_data.copy()
+        post_data['USER2'] = 'Y'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+        self.assertEqual(Order.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.assertTrue(attendee.valid)
+        self.assertTrue(attendee.order)
+        self.assertTrue(attendee.checked_in)
+
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_post_request_missing_data(self):
         response = self.client.post('/reg23/sale/')
@@ -2329,6 +2345,23 @@ class FinishPaymentTest(TestCase):
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, '$10.00')
+        self.assertContains(response, 'Print Receipt')
+        self.assertNotContains(response, 'Your badge will print shortly')
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    def test_post_request_success_at_kiosk(self):
+        order = Order.objects.create(order_num='1234567890', amount=10)
+        attendee = Attendee.objects.get(id=1)
+        attendee.valid = True
+        attendee.order = order
+        response = self.client.post('/reg23/finish_payment/',
+                                    self.post_data,
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, '$10.00')
+        self.assertContains(response, 'Your badge will print shortly')
+        self.assertNotContains(response, 'Print Receipt')
 
     def test_post_request_sponsorship_redirect(self):
         p = sponsorship_models.Package.objects.create(
@@ -2445,9 +2478,12 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertContains(response, 'Registration Payment Code Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, 'Payment Code: PAYCODE123')
+        self.assertContains(response, 'Print Receipt')
+        self.assertNotContains(response, 'Your badge will print shortly')
 
         attendee = Attendee.objects.get(id=1)
         self.assertTrue(attendee.valid)
+        self.assertFalse(attendee.checked_in)
         self.assertEqual(attendee.order.order_num, 'ORDER12345')
         self.assertEqual(attendee.badge_type, self.t1)
 
@@ -2456,6 +2492,29 @@ class RedeemPaymentCodeTest(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['a@a.com'])
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_post_request_success_at_kiosk(self):
+        response = self.client.post('/reg23/redeem_payment_code/',
+                                    self.post_data,
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+        self.assertContains(response, 'Registration Payment Code Receipt')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Payment Code: PAYCODE123')
+        self.assertContains(response, 'Your badge will print shortly')
+        self.assertNotContains(response, 'Print Receipt')
+
+        attendee = Attendee.objects.get(id=1)
+        self.assertTrue(attendee.valid)
+        self.assertTrue(attendee.checked_in)
+        self.assertEqual(attendee.order.order_num, 'ORDER12345')
+        self.assertEqual(attendee.badge_type, self.t1)
+
+        payment_code = PaymentCode.objects.get(code='PAYCODE123')
+        self.assertEqual(payment_code.max_attendees, 0)
+
+        self.assertEqual(len(mail.outbox), 0)
 
     @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_resets_ticket_type(self):
@@ -2475,9 +2534,12 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertContains(response, 'Registration Payment Code Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, 'Payment Code: PAYCODE123')
+        self.assertContains(response, 'Print Receipt')
+        self.assertNotContains(response, 'Your badge will print shortly')
 
         attendee.refresh_from_db()
         self.assertTrue(attendee.valid)
+        self.assertFalse(attendee.checked_in)
         self.assertEqual(attendee.order.order_num, 'ORDER12345')
         self.assertEqual(attendee.badge_type, self.t1)
 
@@ -2512,9 +2574,12 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertContains(response, 'Registration Payment Code Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, 'Payment Code: PAYCODE123')
+        self.assertContains(response, 'Print Receipt')
+        self.assertNotContains(response, 'Your badge will print shortly')
 
         attendee.refresh_from_db()
         self.assertTrue(attendee.valid)
+        self.assertFalse(attendee.checked_in)
         self.assertEqual(attendee.order.order_num, 'ORDER12345')
         self.assertEqual(attendee.badge_type, self.t1)
         self.assertQuerySetEqual(attendee.ordered_items.all(), [item2])
@@ -3262,8 +3327,10 @@ class FreeUpgradeTest(TestCase):
         self.assertContains(response, 'Y0CQ65ZT4W')
         self.assertContains(response, '$0.00')
         self.assertContains(response, 'T1 Ticket')
+        self.assertContains(response, 'Print Receipt')
         self.assertNotContains(response, 'Items')
         self.assertNotContains(response, 'Order object')
+        self.assertNotContains(response, 'Your badge will print shortly')
 
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket1)
@@ -3325,7 +3392,9 @@ class FreeUpgradeTest(TestCase):
         self.assertContains(response, 'Items')
         self.assertContains(response, 'Free item')
         self.assertContains(response, 'New item')
+        self.assertContains(response, 'Print Receipt')
         self.assertNotContains(response, 'Order object')
+        self.assertNotContains(response, 'Your badge will print shortly')
 
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket1)
@@ -3347,6 +3416,52 @@ class FreeUpgradeTest(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_free_upgrade_at_kiosk(self):
+        random.seed(0)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(Upgrade.objects.count(), 0)
+        post_data = {
+            'id': self.attendee.id,
+            'email': 'foo@a.com',
+            'ticket': 'T1',
+        }
+        response = self.client.post('/reg23/free_upgrade/',
+                                    post_data,
+                                    HTTP_USER_AGENT='Mozilla/5. SECRET:235')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Payment Receipt')
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response, 'foo@a.com')
+        self.assertContains(response, 'Y0CQ65ZT4W')
+        self.assertContains(response, '$0.00')
+        self.assertContains(response, 'T1 Ticket')
+        self.assertContains(response, 'Your badge will print shortly')
+        self.assertNotContains(response, 'Print Receipt')
+        self.assertNotContains(response, 'Items')
+        self.assertNotContains(response, 'Order object')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertTrue(attendee.order)
+        self.assertEqual(attendee.order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(attendee.order.amount, 0)
+        self.assertEqual(attendee.order.payment_type, 'freeup')
+
+        self.assertEqual(Upgrade.objects.count(), 1)
+        upgrade = Upgrade.objects.all()[0]
+        self.assertEqual(upgrade.attendee, attendee)
+        self.assertTrue(upgrade.valid)
+        self.assertEqual(upgrade.old_badge_type.name, 'T2')
+        self.assertEqual(upgrade.old_items.count(), 0)
+        self.assertEqual(upgrade.old_order, self.order)
+        self.assertEqual(upgrade.new_badge_type.name, 'T1')
+        self.assertEqual(upgrade.new_items.count(), 0)
+        self.assertEqual(upgrade.new_order, attendee.order)
+
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_missing_id(self):
         response = self.client.post('/reg23/free_upgrade/', {
@@ -3781,6 +3896,7 @@ class SaleUpgradeTest(TestCase):
             'RESULT': '0',
             'RESPMSG': 'Approved',
             'USER1': 'ORDER67890',
+            'USER2': 'N',
         }
 
     @override_settings(SCALEREG_SEND_MAIL=True)
@@ -3796,9 +3912,29 @@ class SaleUpgradeTest(TestCase):
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket2)
         self.assertEqual(attendee.order, upgrade.new_order)
+        self.assertFalse(attendee.checked_in)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
+
+    @override_settings(SCALEREG_SEND_MAIL=True)
+    def test_post_request_success_at_kiosk(self):
+        post_data = self.post_data.copy()
+        post_data['USER2'] = 'Y'
+        response = self.client.post('/reg23/sale/', post_data)
+        self.assertContains(response, 'success', status_code=200)
+
+        upgrade = Upgrade.objects.get(id=self.upgrade.id)
+        self.assertTrue(upgrade.valid)
+        self.assertTrue(upgrade.new_order)
+        self.assertEqual(upgrade.new_order.order_num, 'ORDER67890')
+
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket2)
+        self.assertEqual(attendee.order, upgrade.new_order)
+        self.assertTrue(attendee.checked_in)
+
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_post_request_incorrect_amount(self):
         post_data = self.post_data.copy()
