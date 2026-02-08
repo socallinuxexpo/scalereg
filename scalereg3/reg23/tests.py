@@ -1773,6 +1773,8 @@ class PaymentTest(TestCase):
         pending_order = PendingOrder.objects.all()[0]
         self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
         self.assertEqual(pending_order.attendees_list(), [1])
+        attendee = Attendee.objects.get(id=1)
+        self.assertEqual(attendee.kiosk_agent, '')
 
     def test_post_request_with_unpaid_promo_attendee(self):
         random.seed(0)
@@ -1789,6 +1791,8 @@ class PaymentTest(TestCase):
         pending_order = PendingOrder.objects.all()[0]
         self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
         self.assertEqual(pending_order.attendees_list(), [3])
+        attendee = Attendee.objects.get(id=3)
+        self.assertEqual(attendee.kiosk_agent, '')
 
     def test_post_request_with_unpaid_attendee_and_existing_order(self):
         random.seed(0)
@@ -1806,6 +1810,8 @@ class PaymentTest(TestCase):
         pending_order = PendingOrder.objects.all()[1]
         self.assertEqual(pending_order.order_num, 'N6ISIGQ8JT')
         self.assertEqual(pending_order.attendees_list(), [1])
+        attendee = Attendee.objects.get(id=1)
+        self.assertEqual(attendee.kiosk_agent, '')
 
     def test_post_request_payment_amount(self):
         random.seed(0)
@@ -1835,6 +1841,28 @@ class PaymentTest(TestCase):
         pending_order = PendingOrder.objects.all()[0]
         self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
         self.assertEqual(pending_order.attendees_list(), [3])
+        attendee = Attendee.objects.get(id=3)
+        self.assertEqual(attendee.kiosk_agent, '')
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    def test_post_request_with_unpaid_attendee_at_kiosk(self):
+        random.seed(0)
+        session = self.client.session
+        session['payment'] = [1]
+        session.save()
+        response = self.client.post('/reg23/payment/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'paying for the following')
+        self.assertContains(response, 'First Last')
+        self.assertContains(response, 'Total: $10.00')
+        self.assertNotContains(response, 'Cannot complete this transaction')
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [1])
+        attendee = Attendee.objects.get(id=1)
+        self.assertEqual(attendee.kiosk_agent, '235')
 
     def test_post_request_with_paid_attendee(self):
         session = self.client.session
@@ -3644,6 +3672,7 @@ class NonFreeUpgradeTest(TestCase):
         # Attendee should not be updated yet.
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertEqual(attendee.kiosk_agent, '')
 
         self.assertEqual(Upgrade.objects.count(), 1)
         upgrade = Upgrade.objects.all()[0]
@@ -3694,6 +3723,7 @@ class NonFreeUpgradeTest(TestCase):
         # Attendee should not be updated yet.
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertEqual(attendee.kiosk_agent, '')
 
         self.assertEqual(Upgrade.objects.count(), 1)
         upgrade = Upgrade.objects.all()[0]
@@ -3744,6 +3774,7 @@ class NonFreeUpgradeTest(TestCase):
         # Attendee should not be updated yet.
         attendee = Attendee.objects.get(id=self.attendee.id)
         self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertEqual(attendee.kiosk_agent, '')
 
         self.assertEqual(Upgrade.objects.count(), 1)
         upgrade = Upgrade.objects.all()[0]
@@ -3769,6 +3800,50 @@ class NonFreeUpgradeTest(TestCase):
         })
         self.assertContains(response, 'No id information.')
         self.check_no_new_db_entries()
+
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    def test_non_free_upgrade_at_kiosk(self):
+        random.seed(0)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(PendingOrder.objects.count(), 0)
+        self.assertEqual(Upgrade.objects.count(), 0)
+        post_data = {
+            'id': self.attendee.id,
+            'email': 'foo@example.com',
+            'ticket': 'T2',
+        }
+        response = self.client.post('/reg23/non_free_upgrade/',
+                                    post_data,
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Upgrade')
+        self.assertContains(response, 'Foo Bar')
+        self.assertContains(response, 'foo@example.com')
+        self.assertContains(response, 'Y0CQ65ZT4W')
+        self.assertContains(response, 'T2 Ticket')
+        self.assertContains(response, '$20.00')
+
+        # Attendee should not be updated yet.
+        attendee = Attendee.objects.get(id=self.attendee.id)
+        self.assertEqual(attendee.badge_type, self.ticket1)
+        self.assertEqual(attendee.kiosk_agent, '235')
+
+        self.assertEqual(Upgrade.objects.count(), 1)
+        upgrade = Upgrade.objects.all()[0]
+        self.assertEqual(upgrade.attendee, attendee)
+        self.assertFalse(upgrade.valid)
+        self.assertEqual(upgrade.old_badge_type.name, 'T1')
+        self.assertEqual(upgrade.old_items.count(), 0)
+        self.assertEqual(upgrade.old_order, self.order)
+        self.assertEqual(upgrade.new_badge_type.name, 'T2')
+        self.assertEqual(upgrade.new_items.count(), 0)
+        self.assertFalse(upgrade.new_order)
+
+        self.assertEqual(PendingOrder.objects.count(), 1)
+        pending_order = PendingOrder.objects.all()[0]
+        self.assertEqual(pending_order.order_num, 'Y0CQ65ZT4W')
+        self.assertEqual(pending_order.attendees_list(), [])
+        self.assertEqual(pending_order.upgrade, upgrade)
 
     def test_attendee_without_order(self):
         self.attendee.order = None
