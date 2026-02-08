@@ -508,6 +508,11 @@ def print_attendee(attendee):
             parity += int(f, 16)
         return str(parity % 10)
 
+    def get_payment_amount(attendee):
+        if attendee.order.payment_type in ('payflow', 'cash'):
+            return f'{attendee.ticket_cost():.2f}'
+        return '0.00'
+
     badge = [
         '',  # header
         attendee.salutation,
@@ -519,17 +524,12 @@ def print_attendee(attendee):
         attendee.phone,
         attendee.zip_code,
         str(attendee.id),
-        get_parity_code(attendee)
+        get_parity_code(attendee),
+        '0',  # Reserved for reprint count.
+        attendee.badge_type.ticket_type,
+        get_payment_amount(attendee),
+        ''  # footer
     ]
-    # Reserved for reprint count.
-    badge.append('0')
-    badge.append(attendee.badge_type.ticket_type)
-    if attendee.order.payment_type in ('payflow', 'cash'):
-        badge.append(f'{attendee.ticket_cost():.2f}')
-    else:
-        badge.append('0.00')
-    badge.append('')  # footer
-
     return '~'.join([entry.replace('~', '') for entry in badge])
 
 
