@@ -299,6 +299,7 @@ class Attendee(models.Model):
     checked_in = models.BooleanField(default=False,
                                      help_text='Only for valid attendees')
     kiosk_agent = models.CharField(max_length=20, blank=True)
+    reprint_count = models.PositiveSmallIntegerField(default=0)
 
     # attendee name
     salutation = models.CharField(max_length=10,
