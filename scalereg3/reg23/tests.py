@@ -4049,3 +4049,163 @@ class SaleUpgradeTest(TestCase):
         self.attendee.ordered_items.add(item)
         response = self.client.post('/reg23/sale/', self.post_data)
         self.assertContains(response, 'bad upgrade', status_code=500)
+
+
+@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+class CheckInTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ticket = Ticket.objects.create(name='T1',
+                                           description='T1 full',
+                                           ticket_type='full',
+                                           price=decimal.Decimal(10),
+                                           public=True,
+                                           cash=False,
+                                           upgradable=False)
+        cls.order = Order.objects.create(order_num='ORDER12345',
+                                         valid=True,
+                                         amount=decimal.Decimal(10),
+                                         payment_type='payflow')
+        cls.attendee = Attendee.objects.create(first_name='Test',
+                                               last_name='User',
+                                               email='test@example.com',
+                                               zip_code='12345',
+                                               badge_type=cls.ticket,
+                                               order=cls.order,
+                                               valid=True)
+        cls.kiosk_agent = 'Mozilla/5.0 SECRET:235'
+
+    def test_get_no_agent(self):
+        response = self.client.get('/reg23/check_in/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_no_agent(self):
+        response = self.client.post('/reg23/check_in/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_get_with_agent(self):
+        response = self.client.get('/reg23/check_in/',
+                                   HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Check In')
+        self.assertContains(response, 'If you have an Express Check-In Code')
+
+    def test_express_check_in_success(self):
+        express_code = self.attendee.checkin_code()
+        response = self.client.post('/reg23/check_in/',
+                                    {'express_code': express_code},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            'The following attendee has been checked in')
+        self.assertContains(response, 'Test User')
+        self.attendee.refresh_from_db()
+        self.assertTrue(self.attendee.checked_in)
+        self.assertEqual(self.attendee.kiosk_agent, '235')
+
+    def test_express_check_in_fail(self):
+        response = self.client.post('/reg23/check_in/',
+                                    {'express_code': 'badcode123'},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'is not a valid express check-in code')
+        self.attendee.refresh_from_db()
+        self.assertFalse(self.attendee.checked_in)
+        self.assertEqual(self.attendee.kiosk_agent, '')
+
+    def test_express_check_in_already_checked_in(self):
+        self.attendee.checked_in = True
+        self.attendee.save()
+        express_code = self.attendee.checkin_code()
+        response = self.client.post('/reg23/check_in/',
+                                    {'express_code': express_code},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee already checked in')
+
+    def test_check_in_search_success(self):
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'test@example.com',
+            'zip_code': '12345',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'Test User')
+        self.assertContains(response, 'Check Me In')
+
+    def test_check_in_search_success_only_email(self):
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'test@example.com',
+            'zip_code': '',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'Test User')
+        self.assertContains(response, 'Check Me In')
+
+    def test_check_in_search_success_only_zip(self):
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': '',
+            'zip_code': '12345',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'Test User')
+        self.assertContains(response, 'Check Me In')
+
+    def test_check_in_search_no_results_first_last_match(self):
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': '',
+            'zip_code': '',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'No registration results found')
+
+    def test_check_in_search_no_results(self):
+        post_data = {
+            'first_name': 'No',
+            'last_name': 'Results',
+            'email': 'none@example.com',
+            'zip_code': '00000',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'No registration results found')
+
+    def test_check_in_search_missing_data(self):
+        post_data = {
+            'first_name': 'No',
+            'last_name': 'Results',
+            'zip_code': '00000',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertContains(response, 'No email information.')

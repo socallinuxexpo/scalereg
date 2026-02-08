@@ -8,15 +8,6 @@ from reg23 import models as reg23_models
 from reg23 import views as reg23_views
 
 
-def get_attendee_from_express_check_in_code(code):
-    code = code.strip().lower()
-    if len(code) != 10:
-        return None
-
-    attendee = reg23_views.get_attendee_for_id(code[:4])
-    return attendee if attendee and attendee.checkin_code() == code else None
-
-
 def add_cash_order_to_attendee(attendee, ticket_cost):
     attendee.valid = True
     attendee.checked_in = True
@@ -151,7 +142,7 @@ def check_in(request):
 
     attendees = []
     if 'express' in request.POST:
-        attendee = get_attendee_from_express_check_in_code(
+        attendee = reg23_views.get_attendee_from_express_check_in_code(
             request.POST['express'])
         if attendee:
             attendees.append(attendee)

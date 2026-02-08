@@ -151,6 +151,93 @@ def check_vars(request, required_post_vars):
     return None
 
 
+def do_check_in(request, attendee, kiosk_agent):
+    record_attendee_agent(attendee, kiosk_agent)
+    attendee.checked_in = True
+    try:
+        attendee.save()
+    except IntegrityError:
+        return render_error(request, 'Unexpected check-in error.')
+
+    return render(request, 'reg_finish_check_in.html', {
+        'title': 'Checked In',
+        'attendee': attendee,
+    })
+
+
+def do_check_in_search(request):
+    required_vars = [
+        'first_name',
+        'last_name',
+        'email',
+        'zip_code',
+    ]
+    r = check_vars(request, required_vars)
+    if r:
+        return r
+
+    attendees = []
+    form = forms.AttendeeLookupForm(request.POST)
+    if form.is_valid():
+        attendees = models.Attendee.objects.filter(
+            valid=True,
+            checked_in=False,
+            email=form.cleaned_data['email'],
+            zip_code=form.cleaned_data['zip_code'])
+    if not attendees:
+        first_name = request.POST['first_name'].strip()
+        last_name = request.POST['last_name'].strip()
+        if first_name and last_name:
+            attendees = models.Attendee.objects.filter(valid=True,
+                                                       checked_in=False,
+                                                       first_name=first_name,
+                                                       last_name=last_name)
+        if attendees:
+            attendees_email = []
+            email = request.POST['email'].strip()
+            if email:
+                attendees_email = attendees.filter(email=email)
+            attendees_zip_code = []
+            zip_code = request.POST['zip_code'].strip()
+            if zip_code:
+                attendees_zip_code = attendees.filter(zip_code=zip_code)
+
+            if attendees_email:
+                attendees = attendees_email
+            elif attendees_zip_code:
+                attendees = attendees_zip_code
+            else:
+                attendees = []
+
+    return render(
+        request, 'reg_check_in.html', {
+            'title': 'Check In',
+            'attendees': attendees,
+            'first_name': request.POST['first_name'],
+            'last_name': request.POST['last_name'],
+            'email': request.POST['email'],
+            'zip_code': request.POST['zip_code'],
+            'search': True,
+        })
+
+
+def do_express_code_check_in(request, express_code, kiosk_agent):
+    attendee = get_attendee_from_express_check_in_code(express_code)
+    if not attendee:
+        return render(
+            request, 'reg_check_in.html', {
+                'title': 'Check In',
+                'express_code': express_code,
+                'express_fail': True,
+            })
+    if attendee.checked_in:
+        return render(request, 'reg_check_in.html', {
+            'title': 'Check In',
+            'reprint': True,
+        })
+    return do_check_in(request, attendee, kiosk_agent)
+
+
 def generate_order_id(existing_ids):
     return utils.generate_unique_id(10, existing_ids)
 
@@ -181,6 +268,15 @@ def get_attendee_for_id(attendee_id):
         return models.Attendee.objects.get(id=attendee_id)
     except (models.Attendee.DoesNotExist, ValueError):
         return None
+
+
+def get_attendee_from_express_check_in_code(code):
+    code = code.strip().lower()
+    if len(code) != 10:
+        return None
+
+    attendee = get_attendee_for_id(code[:4])
+    return attendee if attendee and attendee.checkin_code() == code else None
 
 
 def get_existing_order_ids():
@@ -926,6 +1022,22 @@ def redeem_payment_code(request):
             'step': 7,
             'steps_total': STEPS_TOTAL,
         })
+
+
+def check_in(request):
+    kiosk_agent = get_kiosk_agent(request)
+    if not kiosk_agent:
+        return render_error(request, 'Not in kiosk mode')
+
+    if request.method == 'GET':
+        return render(request, 'reg_check_in.html', {
+            'title': 'Check In',
+        })
+
+    if 'express_code' in request.POST:
+        return do_express_code_check_in(request, request.POST['express_code'],
+                                        kiosk_agent)
+    return do_check_in_search(request)
 
 
 def reg_lookup(request):

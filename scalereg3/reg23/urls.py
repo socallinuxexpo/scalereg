@@ -23,6 +23,7 @@ urlpatterns = [
     path('non_free_upgrade/', views.non_free_upgrade),
 
     # Misc
+    path('check_in/', views.check_in),
     path('kiosk/', views.kiosk_index),
     path('redeem_payment_code/', views.redeem_payment_code),
     path('reg_lookup/', views.reg_lookup),
