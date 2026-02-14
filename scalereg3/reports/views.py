@@ -105,7 +105,7 @@ def regdate_report(request):
     response['Content-Disposition'] = f'attachment; filename="regdate_report_{SCALE_EVENT_DATE.year}.csv"'
     
     writer = csv.writer(response)
-    writer.writerow(['Order Date', 'Days Out', 'Tickets', 'Revenue'])
+    writer.writerow(['date', 'days out from scale', 'tickets', 'revenue'])
     
     for stat in stats:
         order_date = stat['order_date']
