@@ -1,10 +1,17 @@
+import csv
+from datetime import date
+
 from django.apps import apps
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncDate
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import get_resolver
 from django.urls.resolvers import URLPattern
 from django.utils import timezone
 
+SCALE_EVENT_DATE = date(2026, 3, 5)
 
 def get_stats_for_orders(orders, postfix=None, with_revenue=True):
     numbers_key = 'numbers'
@@ -80,3 +87,31 @@ def index(request):
         'title': 'Reports',
         'model_list': model_list
     })
+    
+@staff_member_required
+def regdate_report(request):
+    order_model = apps.get_model('reg23', 'Order')
+
+    stats = order_model.objects.filter(
+        valid=True
+    ).annotate(
+        order_date=TruncDate('date')
+    ).values('order_date').annotate(
+        ticket_count=Count('order_num'),
+        total_revenue=Sum('amount')
+    ).order_by('order_date')
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="regdate_report_{SCALE_EVENT_DATE.year}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Order Date', 'Days Out', 'Tickets', 'Revenue'])
+    
+    for stat in stats:
+        order_date = stat['order_date']
+        days_out = (SCALE_EVENT_DATE- order_date).days
+        tickets =  stat['ticket_count']
+        revenue = stat['total_revenue'] or 0
+        writer.writerow([order_date, days_out, tickets, revenue])
+        
+    return response
