@@ -413,6 +413,7 @@ class CheckInTest(TestCase):
     def check_attendee_found(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
+        self.assertContains(response, attendee.zip_code)
         self.assertContains(response, f'Email {attendee.email}')
         self.assertContains(response, 'Search Again')
         self.assertNotContains(response, 'Attendee not found.')
@@ -435,6 +436,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Attendee not found.')
         self.assertContains(response, 'Search Again')
         self.assertNotContains(response, attendee.full_name())
+        self.assertNotContains(response, attendee.zip_code)
         self.assertNotContains(response, 'Invalid')
         self.assertNotContains(response, 'Already Checked In')
         self.assertNotContains(response, 'Reprint 1')
@@ -442,6 +444,7 @@ class CheckInTest(TestCase):
     def check_attendee_invalid(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
+        self.assertContains(response, attendee.zip_code)
         self.assertContains(response, 'Invalid')
         self.assertContains(response, 'Cash Payment')
         self.assertContains(response, 'Search Again')
@@ -453,6 +456,7 @@ class CheckInTest(TestCase):
     def check_attendee_already_checked_in(self, response, attendee):
         self.assertContains(response, 'Search results for:')
         self.assertContains(response, attendee.full_name())
+        self.assertContains(response, attendee.zip_code)
         self.assertContains(response, 'Already Checked In')
         self.assertContains(response, 'Search Again')
         self.assertContains(response, 'Reprint 1')
