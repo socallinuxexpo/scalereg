@@ -2,6 +2,19 @@
 {% load i18n %}
 {% load reg23_filters %}
 {% block content %}
+<script>
+document.onkeydown = function(evt) {
+  evt = evt || window.event;
+  if (evt.keyCode == 191) {
+    var last_names = document.getElementsByName('last_name');
+    if (last_names && document.activeElement != last_names[0]) {
+      last_names[0].focus();
+      last_names[0].select();
+      evt.preventDefault();
+    }
+  }
+};
+</script>
 <div id="content-main">
 
 {% if search %}
