@@ -140,7 +140,8 @@ SCALEREG_PAYFLOW_PARTNER = ''
 SCALEREG_EXPRESS_CHECKIN_SECRET = ''
 
 # Secret used in browser user agent for identifying kiosks.
-SCALEREG_KIOSK_AGENT_SECRET = 'CHANGE_ME:'
+# Needs to be followed by a colon separator.
+SCALEREG_KIOSK_AGENT_SECRET = 'CHANGE_ME'
 
 # URL for the sponsorship agreement document.
 SCALEREG_SPONSORSHIP_AGREEMENT_URL = 'CHANGE_THIS_URL'
