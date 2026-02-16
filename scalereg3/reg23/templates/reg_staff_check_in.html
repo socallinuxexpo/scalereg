@@ -42,6 +42,7 @@ document.onkeydown = function(evt) {
         <th>Name</th>
         <th>Type</th>
         <th>Status</th>
+        <th>Zip</th>
         <th>Reprint</th>
         <th>Update Info<br />AKA. Transfer</th>
         <th>Options</th>
@@ -67,6 +68,7 @@ document.onkeydown = function(evt) {
             </form>
         {% endif %}
         </td>
+        <td>{{ attendee.zip_code }}</td>
         <td>
         {% if attendee.checked_in %}
             <form method="post" action="../reprint/">
