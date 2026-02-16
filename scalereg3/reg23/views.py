@@ -286,10 +286,11 @@ def get_existing_order_ids():
 
 def get_kiosk_agent(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
-    agent_index = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET)
-    if agent_index < 0:
+    secret_index = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET + ':')
+    if secret_index < 0:
         return ''
-    return user_agent[agent_index + len(settings.SCALEREG_KIOSK_AGENT_SECRET):]
+    agent_index = secret_index + len(settings.SCALEREG_KIOSK_AGENT_SECRET) + 1
+    return user_agent[agent_index:]
 
 
 def get_payment_code(code):

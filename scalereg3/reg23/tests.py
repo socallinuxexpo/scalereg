@@ -150,7 +150,7 @@ class IndexTest(TestCase):
         self.assertNotContains(response, 'Station 235')
         self.assertNotContains(response, '<iframe name="scalereg"')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_get_at_kiosk(self):
         response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
         self.assertEqual(response.status_code, 200)
@@ -159,7 +159,7 @@ class IndexTest(TestCase):
         self.assertNotContains(response, '<iframe name="scalereg"')
         self.assertNotContains(response, 'Brought to you by')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_at_kiosk(self):
         response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
         self.assertEqual(response.status_code, 200)
@@ -362,7 +362,7 @@ class KioskIndexTest(TestCase):
         self.assertNotContains(response, 'Station 235')
         self.assertNotContains(response, 'Close Window')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_get_with_agent(self):
         response = self.client.get('/reg23/kiosk/',
                                    HTTP_USER_AGENT=self.user_agent)
@@ -375,7 +375,7 @@ class KioskIndexTest(TestCase):
         self.assertNotContains(response, 'T1 full')
         self.assertNotContains(response, 'Brought to you by')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_with_agent(self):
         response = self.client.post('/reg23/kiosk/',
                                     HTTP_USER_AGENT=self.user_agent)
@@ -1860,7 +1860,7 @@ class PaymentTest(TestCase):
         attendee = Attendee.objects.get(id=3)
         self.assertEqual(attendee.kiosk_agent, '')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_request_with_unpaid_attendee_at_kiosk(self):
         random.seed(0)
         session = self.client.session
@@ -2392,7 +2392,7 @@ class FinishPaymentTest(TestCase):
         self.assertContains(response, 'Print Receipt')
         self.assertNotContains(response, 'Your badge will print shortly')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_request_success_at_kiosk(self):
         order = Order.objects.create(order_num='1234567890', amount=10)
         attendee = Attendee.objects.get(id=1)
@@ -2537,7 +2537,7 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['a@a.com'])
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_success_at_kiosk(self):
         response = self.client.post('/reg23/redeem_payment_code/',
@@ -3462,7 +3462,7 @@ class FreeUpgradeTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     @override_settings(SCALEREG_SEND_MAIL=True)
     def test_free_upgrade_at_kiosk(self):
         random.seed(0)
@@ -3818,7 +3818,7 @@ class NonFreeUpgradeTest(TestCase):
         self.assertContains(response, 'No id information.')
         self.check_no_new_db_entries()
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_non_free_upgrade_at_kiosk(self):
         random.seed(0)
         self.assertEqual(Order.objects.count(), 1)
@@ -4090,7 +4090,7 @@ class SaleUpgradeTest(TestCase):
         self.assertContains(response, 'bad upgrade', status_code=500)
 
 
-@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
 class CheckInTest(TestCase):
 
     @classmethod
@@ -4250,7 +4250,7 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'No email information.')
 
 
-@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET:')
+@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
 class FinishCheckInTest(TestCase):
 
     @classmethod
