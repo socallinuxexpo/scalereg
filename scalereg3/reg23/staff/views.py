@@ -219,6 +219,7 @@ def finish_check_in(request):
         })
 
     attendee.checked_in = True
+    attendee.kiosk_agent = ''
     try:
         attendee.save()
     except IntegrityError:

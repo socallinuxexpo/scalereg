@@ -843,6 +843,23 @@ class FinishCheckInTest(CheckInTest):
         self.attendee.refresh_from_db()
         self.assertTrue(self.attendee.checked_in)
 
+    def test_valid_attendee_with_kiosk_agent(self):
+        self.client.force_login(self.normal_user)
+        self.assertFalse(self.attendee.checked_in)
+        self.attendee.kiosk_agent = '210'
+        self.attendee.save()
+        response = self.client.post('/reg23/staff/finish_check_in/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Check In')
+        self.assertContains(response,
+                            'The following attendee has been checked in:')
+        self.assertContains(response, self.attendee.full_name())
+        self.assertNotContains(response, 'Error:')
+        self.attendee.refresh_from_db()
+        self.assertTrue(self.attendee.checked_in)
+        self.assertEqual(self.attendee.kiosk_agent, '')
+
     def test_post_missing_id(self):
         self.client.force_login(self.normal_user)
         response = self.client.post('/reg23/staff/finish_check_in/', {})
