@@ -266,6 +266,7 @@ def reprint(request):
     attendee = reg23_views.get_attendee_for_id(request.POST['id'])
     if attendee:
         attendee.reprint_count += 1
+        attendee.kiosk_agent = ''
         attendee.save()
 
     return render(request, 'reg_staff_reprint.html', {
