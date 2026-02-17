@@ -706,6 +706,18 @@ class CheckInTest(TestCase):
         self.check_basic_strings(response)
         self.check_attendee_not_found(response, self.attendee)
 
+    def test_only_spaces_data(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/check_in/', {
+            'express': '   ',
+            'last_name': '  ',
+            'payflow': ' ',
+            'zip_code': ' ',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.check_attendee_not_found(response, self.attendee)
+
     def test_multiple_results(self):
         attendee = Attendee.objects.create(badge_type=self.ticket,
                                            order=self.order,
