@@ -504,6 +504,22 @@ class CheckInTest(TestCase):
             response, f'Express Check In Code: {self.attendee.checkin_code()}')
         self.check_attendee_found(response, self.attendee)
 
+    def test_express_with_space(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post(
+            '/reg23/staff/check_in/', {
+                'express': ' ' + self.attendee.checkin_code(),
+                'last_name': '',
+                'payflow': '',
+                'zip_code': '',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.assertContains(
+            response,
+            f'Express Check In Code:  {self.attendee.checkin_code()}')
+        self.check_attendee_found(response, self.attendee)
+
     def test_express_not_found(self):
         self.client.force_login(self.normal_user)
         response = self.client.post('/reg23/staff/check_in/', {
@@ -547,6 +563,20 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Paypal Payflow Confirmation: PNREF001')
         self.check_attendee_found(response, self.attendee)
 
+    def test_payflow_with_space(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post(
+            '/reg23/staff/check_in/', {
+                'express': '',
+                'last_name': '',
+                'payflow': ' PNREF001',
+                'zip_code': '',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.assertContains(response, 'Paypal Payflow Confirmation:  PNREF001')
+        self.check_attendee_found(response, self.attendee)
+
     def test_payflow_not_found(self):
         self.client.force_login(self.normal_user)
         response = self.client.post('/reg23/staff/check_in/', {
@@ -571,6 +601,19 @@ class CheckInTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.check_basic_strings(response)
         self.assertContains(response, 'Last Name: smi')
+        self.check_attendee_found(response, self.attendee)
+
+    def test_last_name_with_space(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/check_in/', {
+            'express': '',
+            'last_name': 'smi ',
+            'payflow': '',
+            'zip_code': '',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.assertContains(response, 'Last Name: smi ')
         self.check_attendee_found(response, self.attendee)
 
     def test_last_name_not_found(self):
@@ -598,6 +641,19 @@ class CheckInTest(TestCase):
         self.check_basic_strings(response)
         self.assertContains(response, 'Last Name: invalid')
         self.check_attendee_invalid(response, self.invalid_attendee)
+
+    def test_zip_code_with_space(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/check_in/', {
+            'express': '',
+            'last_name': '',
+            'payflow': '',
+            'zip_code': '98765 ',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.assertContains(response, 'Zip Code: 98765 ')
+        self.check_attendee_found(response, self.attendee)
 
     def test_zip_code(self):
         self.client.force_login(self.normal_user)

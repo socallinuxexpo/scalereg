@@ -147,25 +147,27 @@ def check_in(request):
         if attendee:
             attendees.append(attendee)
 
-    if not attendees and 'payflow' in request.POST and request.POST['payflow']:
-        orders = reg23_models.Order.objects.filter(
-            payment_type='payflow', payflow_pnref=request.POST['payflow'])
-        if orders.count() == 1:
+    if not attendees and 'payflow' in request.POST:
+        payflow = request.POST['payflow'].strip()
+        if payflow:
+            orders = reg23_models.Order.objects.filter(payment_type='payflow',
+                                                       payflow_pnref=payflow)
+            if orders.count() == 1:
+                attendees = list(
+                    reg23_models.Attendee.objects.filter(order=orders[0]))
+
+    if not attendees and 'last_name' in request.POST:
+        last_name = request.POST['last_name'].strip()
+        if last_name:
             attendees = list(
-                reg23_models.Attendee.objects.filter(order=orders[0]))
+                reg23_models.Attendee.objects.filter(
+                    last_name__icontains=last_name).order_by('-valid'))
 
-    if not attendees and 'last_name' in request.POST and request.POST[
-            'last_name']:
-        attendees = list(
-            reg23_models.Attendee.objects.filter(
-                last_name__icontains=request.POST['last_name']).order_by(
-                    '-valid'))
-
-    if not attendees and 'zip_code' in request.POST and request.POST[
-            'zip_code']:
-        attendees = list(
-            reg23_models.Attendee.objects.filter(
-                zip_code=request.POST['zip_code']))
+    if not attendees and 'zip_code' in request.POST:
+        zip_code = request.POST['zip_code'].strip()
+        if zip_code:
+            attendees = list(
+                reg23_models.Attendee.objects.filter(zip_code=zip_code))
 
     return render(
         request, 'reg_staff_check_in.html', {
