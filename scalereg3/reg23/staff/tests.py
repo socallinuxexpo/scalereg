@@ -927,12 +927,6 @@ class ReprintTest(TestCase):
         self.assertRedirects(response,
                              '/accounts/login/?next=/reg23/staff/reprint/')
 
-    def test_post_missing_id(self):
-        self.client.force_login(self.normal_user)
-        response = self.client.post('/reg23/staff/reprint/', {})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No id information.')
-
     def test_valid_reprint(self):
         self.client.force_login(self.normal_user)
         self.assertEqual(self.attendee.reprint_count, 0)
@@ -943,6 +937,26 @@ class ReprintTest(TestCase):
         self.assertContains(response, 'Reprint 1 for Test User.')
         self.attendee.refresh_from_db()
         self.assertEqual(self.attendee.reprint_count, 1)
+
+    def test_valid_reprint_with_kiosk_agent(self):
+        self.client.force_login(self.normal_user)
+        self.assertEqual(self.attendee.reprint_count, 0)
+        self.attendee.kiosk_agent = '210'
+        self.attendee.save()
+        response = self.client.post('/reg23/staff/reprint/',
+                                    {'id': self.attendee.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendee Reprint Invalid')
+        self.assertContains(response, 'Reprint 1 for Test User.')
+        self.attendee.refresh_from_db()
+        self.assertEqual(self.attendee.reprint_count, 1)
+        self.assertEqual(self.attendee.kiosk_agent, '')
+
+    def test_post_missing_id(self):
+        self.client.force_login(self.normal_user)
+        response = self.client.post('/reg23/staff/reprint/', {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No id information.')
 
     def test_invalid_id(self):
         self.client.force_login(self.normal_user)
