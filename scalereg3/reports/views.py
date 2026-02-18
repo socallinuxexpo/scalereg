@@ -1,4 +1,5 @@
 import csv
+import io
 from datetime import date
 
 from django.apps import apps
@@ -12,6 +13,7 @@ from django.urls.resolvers import URLPattern
 from django.utils import timezone
 
 SCALE_EVENT_DATE = date(2026, 3, 5)
+
 
 def get_stats_for_orders(orders, postfix=None, with_revenue=True):
     numbers_key = 'numbers'
@@ -87,31 +89,39 @@ def index(request):
         'title': 'Reports',
         'model_list': model_list
     })
-    
+
+
 @staff_member_required
-def regdate_report(request):
+def regdate_report(request, report_name):
     order_model = apps.get_model('reg23', 'Order')
 
-    stats = order_model.objects.filter(
-        valid=True
-    ).annotate(
-        order_date=TruncDate('date')
-    ).values('order_date').annotate(
-        ticket_count=Count('order_num'),
-        total_revenue=Sum('amount')
-    ).order_by('order_date')
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="regdate_report_{SCALE_EVENT_DATE.year}.csv"'
-    
-    writer = csv.writer(response)
+    stats = order_model.objects.filter(valid=True).annotate(
+        order_date=TruncDate('date')).values('order_date').annotate(
+            ticket_count=Count('order_num'),
+            total_revenue=Sum('amount')).order_by('order_date')
+
+    # Build CSV content
+    csv_buffer = io.StringIO()
+    writer = csv.writer(csv_buffer)
     writer.writerow(['date', 'days out from scale', 'tickets', 'revenue'])
-    
+
     for stat in stats:
         order_date = stat['order_date']
-        days_out = (SCALE_EVENT_DATE- order_date).days
-        tickets =  stat['ticket_count']
+        days_out = (SCALE_EVENT_DATE - order_date).days
+        tickets = stat['ticket_count']
         revenue = stat['total_revenue'] or 0
         writer.writerow([order_date, days_out, tickets, revenue])
-        
-    return response
+
+    csv_content = csv_buffer.getvalue()
+
+    # Check if the user requested a CSV download
+    if request.GET.get('download') == 'true':
+        response = HttpResponse(csv_content, content_type='text/csv')
+        response[
+            'Content-Disposition'] = 'attachment; filename="regdate_report.csv"'
+        return response
+
+    return render(request, 'reports_regdate.html', {
+        'title': report_name,
+        'csv_content': csv_content
+    })
