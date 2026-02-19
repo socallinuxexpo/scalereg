@@ -158,6 +158,16 @@ class RegDateReportTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/admin/login/?next=/reports/regdate/')
 
+    def test_html_view(self):
+        self.client.force_login(self.staff_user)
+
+        response = self.client.get('/reports/regdate/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration Date Report')
+        self.assertContains(response, 'Download as CSV')
+        self.assertContains(response,
+                            'date,days_out_from_scale,tickets,revenue')
+
     def test_csv_content_and_format(self):
         self.client.force_login(self.staff_user)
 
@@ -167,7 +177,8 @@ class RegDateReportTest(TestCase):
 
         content = response.content.decode('utf-8').strip().splitlines()
 
-        # Check that the correct number of lines are returned (1 header + 3 data lines)
+        # Check that the correct number of lines are returned
+        # (1 header + 3 data lines)
         self.assertEqual(len(content), 4)
 
         # Check header
@@ -184,7 +195,8 @@ class RegDateReportTest(TestCase):
         day1_date = (timezone.now() - timedelta(days=10)).date()
         day1_days_out = (SCALE_EVENT_DATE - day1_date).days
 
-        # Check that the data lines contain the correct values in order from oldest to newest
+        # Check that the data lines contain the correct values in order
+        # from oldest to newest
         self.assertEqual(content[1], f'{day3_date},{day3_days_out},2,150')
         self.assertEqual(content[2], f'{day2_date},{day2_days_out},3,300')
         self.assertEqual(content[3], f'{day1_date},{day1_days_out},5,250')
