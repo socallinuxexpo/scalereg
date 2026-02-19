@@ -166,7 +166,7 @@ class RegDateReportTest(TestCase):
         self.assertContains(response, 'Registration Date Report')
         self.assertContains(response, 'Download as CSV')
         self.assertContains(response,
-                            'date,days_out_from_scale,tickets,revenue')
+                            'date,days out from scale,tickets,revenue')
 
     def test_csv_content_and_format(self):
         self.client.force_login(self.staff_user)
