@@ -1,9 +1,18 @@
+import csv
+import io
+from datetime import date
+
 from django.apps import apps
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncDate
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import get_resolver
 from django.urls.resolvers import URLPattern
 from django.utils import timezone
+
+SCALE_EVENT_DATE = date(2026, 3, 5)
 
 
 def get_stats_for_orders(orders, postfix=None, with_revenue=True):
@@ -79,4 +88,40 @@ def index(request):
         'user': request.user,
         'title': 'Reports',
         'model_list': model_list
+    })
+
+
+@staff_member_required
+def regdate_report(request, report_name):
+    order_model = apps.get_model('reg23', 'Order')
+
+    stats = order_model.objects.filter(valid=True).annotate(
+        order_date=TruncDate('date')).values('order_date').annotate(
+            ticket_count=Count('order_num'),
+            total_revenue=Sum('amount')).order_by('order_date')
+
+    # Build CSV content
+    csv_buffer = io.StringIO()
+    writer = csv.writer(csv_buffer)
+    writer.writerow(['date', 'days out from scale', 'tickets', 'revenue'])
+
+    for stat in stats:
+        order_date = stat['order_date']
+        days_out = (SCALE_EVENT_DATE - order_date).days
+        tickets = stat['ticket_count']
+        revenue = stat['total_revenue'] or 0
+        writer.writerow([order_date, days_out, tickets, revenue])
+
+    csv_content = csv_buffer.getvalue()
+
+    # Check if the user requested a CSV download
+    if request.GET.get('download') == 'true':
+        response = HttpResponse(csv_content, content_type='text/csv')
+        response[
+            'Content-Disposition'] = 'attachment; filename="regdate_report.csv"'
+        return response
+
+    return render(request, 'reports_regdate.html', {
+        'title': report_name,
+        'csv_content': csv_content
     })

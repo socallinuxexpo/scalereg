@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<p><a href="?download=true">Download as CSV</a></p>
+
+<pre>{{ csv_content }}</pre>
+
+{% endblock %}
