@@ -99,6 +99,106 @@ class SalesDashboardTest(TestCase):
             html=True)
 
 
+class AddonDataTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = get_user_model().objects.create_user('staff',
+                                                              is_staff=True)
+
+        today = timezone.now()
+        day = timezone.timedelta(days=1)
+
+        ticket = apps.get_model('reg23', 'Ticket').objects.create(
+            name='FULL',
+            description='Full Pass',
+            ticket_type='full',
+            price=Decimal('500.00'),
+            public=True,
+            cash=False,
+            upgradable=True,
+        )
+
+        item_a = apps.get_model('reg23', 'Item').objects.create(
+            name='AAA',
+            description='Fake Addon A',
+            price=Decimal('10.00'),
+            active=True,
+            promo=False,
+            ticket_offset=False,
+            applies_to_all=True,
+        )
+        item_b = apps.get_model('reg23', 'Item').objects.create(
+            name='BBB',
+            description='Fake Addon B',
+            price=Decimal('20.00'),
+            active=True,
+            promo=False,
+            ticket_offset=False,
+            applies_to_all=True,
+        )
+
+        order_objects = apps.get_model('reg23', 'Order').objects
+        attendee_objects = apps.get_model('reg23', 'Attendee').objects
+
+        def create_attendee(order_num, date, items, valid=True):
+            order = order_objects.create(
+                order_num=order_num,
+                valid=valid,
+                payment_type='cash',
+                amount=Decimal('500.00'),
+            )
+            order.date = date
+            order.save()
+
+            attendee = attendee_objects.create(
+                badge_type=ticket,
+                order=order,
+                valid=valid,
+                first_name='Test',
+                last_name='User',
+                email='test.user@example.com',
+                zip_code='12345',
+            )
+            attendee.ordered_items.set(items)
+            return attendee
+
+        # Valid orders in different time windows with different addons
+        create_attendee('ORDER1', today, [item_a, item_b])  # within 7 days
+        create_attendee('ORDER2', today - (8 * day),
+                        [item_a])  # within 30 days
+        create_attendee('ORDER3', today - (31 * day), [item_a])  # >30 days
+
+        # Invalid order that should not be counted
+        create_attendee('ORDER4', today, [item_a, item_b], valid=False)
+
+    def test_valid_orders(self):
+        self.client.force_login(self.staff_user)
+
+        response = self.client.get('/reports/sales_dashboard/')
+
+        # item_a: in all 3 valid orders
+        self.assertContains(
+            response,
+            '<tr><td>Fake Addon A <small>(AAA)</small></td><td>1</td><td>2</td><td>3</td></tr>',
+            html=True)
+        # item_b: only in 1 valid order
+        self.assertContains(
+            response,
+            '<tr><td>Fake Addon B <small>(BBB)</small></td><td>1</td><td>1</td><td>1</td></tr>',
+            html=True)
+
+    def test_invalid_orders_are_not_counted(self):
+        self.client.force_login(self.staff_user)
+
+        response = self.client.get('/reports/sales_dashboard/')
+        # item_a total should be 3, not 4 (ORDER4 is invalid)
+        self.assertNotContains(
+            response,
+            '<tr><td>Fake Addon A <small>(AAA)</small></td><td>2</td><td>3</td><td>4</td></tr>',
+            html=True)
+
+
 class RegDateReportTest(TestCase):
 
     @classmethod

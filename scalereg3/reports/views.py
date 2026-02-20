@@ -65,11 +65,43 @@ def get_orders_data():
     return orders_data
 
 
+def get_addon_data():
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    days_30 = today - timezone.timedelta(days=30)
+    days_7 = today - timezone.timedelta(days=7)
+
+    attendee_model = apps.get_model('reg23', 'Attendee')
+    item_model = apps.get_model('reg23', 'Item')
+
+    valid_attendees = attendee_model.objects.filter(valid=True)
+
+    addon_data = []
+    for item in item_model.objects.filter(active=True).order_by('name'):
+        attendees_with_addon = valid_attendees.filter(ordered_items=item)
+
+        data = {
+            'name':
+            item.description,
+            'code':
+            item.name,
+            'numbers':
+            attendees_with_addon.count(),
+            'numbers_30':
+            attendees_with_addon.filter(order__date__gt=days_30).count(),
+            'numbers_7':
+            attendees_with_addon.filter(order__date__gt=days_7).count(),
+        }
+        addon_data.append(data)
+
+    return addon_data
+
+
 @staff_member_required
 def sales_dashboard(request, report_name):
     return render(request, 'reports_sales_dashboard.html', {
         'title': report_name,
         'orders': get_orders_data(),
+        'addons': get_addon_data(),
     })
 
 
