@@ -52,7 +52,8 @@ class AttendeeAdmin(admin.ModelAdmin):
             'fields': ('email', 'zip_code', 'phone')
         }),
         ('Badge Info', {
-            'fields': ('badge_type', 'valid', 'checked_in')
+            'fields': ('badge_type', 'secondary_badge_type', 'valid',
+                       'checked_in', 'kiosk_agent', 'reprint_count')
         }),
         ('Misc', {
             'fields': ('promo', 'order', 'ordered_items', 'answers')
