@@ -19,6 +19,7 @@ class ReceiptTest(TestCase):
 
         cls.ticket = Ticket.objects.create(name='FULL',
                                            description='Full Pass',
+                                           ticket_type='full',
                                            price=100,
                                            public=True,
                                            cash=True,
@@ -146,12 +147,14 @@ class CashPaymentTest(TestCase):
                                                                is_staff=False)
         cls.ticket = Ticket.objects.create(name='CASH',
                                            description='Cash Pass',
+                                           ticket_type='expo',
                                            price=50,
                                            public=True,
                                            cash=True,
                                            upgradable=True)
         cls.non_cash_ticket = Ticket.objects.create(name='FULL',
                                                     description='Full Pass',
+                                                    ticket_type='full',
                                                     price=100,
                                                     public=True,
                                                     cash=False,
@@ -287,6 +290,7 @@ class CashPaymentRegisteredTest(TestCase):
                                                                is_staff=False)
         cls.ticket = Ticket.objects.create(name='CASH',
                                            description='Cash Pass',
+                                           ticket_type='expo',
                                            price=50,
                                            public=True,
                                            cash=True,
@@ -374,6 +378,7 @@ class CheckInTest(TestCase):
                                                                is_staff=False)
         cls.ticket = Ticket.objects.create(name='FULL',
                                            description='Full Pass',
+                                           ticket_type='full',
                                            price=100,
                                            public=True,
                                            cash=True,
@@ -897,6 +902,7 @@ class ReprintTest(TestCase):
                                                                is_staff=False)
         cls.ticket = Ticket.objects.create(name='FULL',
                                            description='Full Pass',
+                                           ticket_type='full',
                                            price=100,
                                            public=True,
                                            cash=True,
@@ -974,6 +980,7 @@ class UpdateAttendeeTest(TestCase):
                                                                is_staff=False)
         cls.ticket = Ticket.objects.create(name='FULL',
                                            description='Full Pass',
+                                           ticket_type='full',
                                            price=100,
                                            public=True,
                                            cash=True,

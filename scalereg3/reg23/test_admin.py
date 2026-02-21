@@ -21,6 +21,7 @@ class AttendeeAdminTest(TestCase):
 
         ticket = Ticket.objects.create(name='FULL',
                                        description='Full Pass',
+                                       ticket_type='full',
                                        price=100,
                                        public=True,
                                        cash=True,
@@ -89,6 +90,7 @@ class PaymentCodeAdminTest(TestCase):
 
         ticket = Ticket.objects.create(name='FULL',
                                        description='Full Pass',
+                                       ticket_type='full',
                                        price=100,
                                        public=True,
                                        cash=True,
@@ -120,12 +122,14 @@ class UpgradeAdminTest(TestCase):
 
         ticket_old = Ticket.objects.create(name='OLD',
                                            description='Old Pass',
+                                           ticket_type='full',
                                            price=50,
                                            public=True,
                                            cash=True,
                                            upgradable=True)
         ticket_new = Ticket.objects.create(name='NEW',
                                            description='New Pass',
+                                           ticket_type='full',
                                            price=100,
                                            public=True,
                                            cash=True,
