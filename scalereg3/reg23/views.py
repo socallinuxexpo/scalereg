@@ -293,9 +293,12 @@ def get_kiosk_agent(request):
     kiosk_id_str = user_agent[agent_index:]
     try:
         kiosk_id = int(kiosk_id_str)
-        return kiosk_id_str if kiosk_id > 0 and kiosk_id < 256 else ''
     except ValueError:
         return ''
+
+    if kiosk_id < 1 or kiosk_id > 255:
+        return ''
+    return kiosk_id_str
 
 
 def get_payment_code(code):
