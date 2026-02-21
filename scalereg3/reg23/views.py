@@ -517,6 +517,11 @@ def print_attendee(attendee):
             return f'{attendee.ticket_cost():.2f}'
         return '0.00'
 
+    def get_secondary_badge(attendee):
+        if attendee.secondary_badge_type:
+            return attendee.secondary_badge_type.ticket_type
+        return ''
+
     badge = [
         '',  # header
         attendee.salutation,
@@ -531,6 +536,7 @@ def print_attendee(attendee):
         get_parity_code(attendee),
         str(attendee.reprint_count),
         attendee.badge_type.ticket_type,
+        get_secondary_badge(attendee),
         get_payment_amount(attendee),
         ''  # footer
     ]
