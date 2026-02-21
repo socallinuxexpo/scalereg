@@ -411,7 +411,7 @@ class CashPaymentRegisteredTest(TestCase):
         self.assertNotContains(response, 'successfully registered!')
 
 
-class CheckInTest(TestCase):
+class CheckInTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -508,6 +508,9 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'Reprint 1')
         self.assertNotContains(response, 'Attendee not found.')
         self.assertNotContains(response, 'Invalid')
+
+
+class CheckInTest(CheckInTestCase):
 
     def test_get_request_not_logged_in(self):
         response = self.client.get('/reg23/staff/check_in/')
@@ -801,7 +804,7 @@ class CheckInTest(TestCase):
         self.check_attendee_already_checked_in(response, self.attendee)
 
 
-class EmailTest(CheckInTest):
+class EmailTest(CheckInTestCase):
 
     def test_get_request_not_logged_in(self):
         response = self.client.get('/reg23/staff/email/')
@@ -854,7 +857,7 @@ class EmailTest(CheckInTest):
         self.assertNotContains(response, 'Emailed ')
 
 
-class FinishCheckInTest(CheckInTest):
+class FinishCheckInTest(CheckInTestCase):
 
     def test_get_request_not_logged_in(self):
         response = self.client.get('/reg23/staff/finish_check_in/')
