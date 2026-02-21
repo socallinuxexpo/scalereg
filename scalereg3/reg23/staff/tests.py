@@ -582,7 +582,7 @@ class CheckInTest(CheckInTestCase):
         self.assertContains(response, 'Express Check In Code: 0000bad')
         self.check_attendee_not_found(response, self.attendee)
 
-    def test_express_not_invalid(self):
+    def test_express_not_valid(self):
         self.client.force_login(self.normal_user)
         response = self.client.post(
             '/reg23/staff/check_in/', {
