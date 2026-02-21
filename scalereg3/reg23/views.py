@@ -290,7 +290,12 @@ def get_kiosk_agent(request):
     if secret_index < 0:
         return ''
     agent_index = secret_index + len(settings.SCALEREG_KIOSK_AGENT_SECRET) + 1
-    return user_agent[agent_index:]
+    kiosk_id_str = user_agent[agent_index:]
+    try:
+        kiosk_id = int(kiosk_id_str)
+        return kiosk_id_str if kiosk_id > 0 and kiosk_id < 256 else ''
+    except ValueError:
+        return ''
 
 
 def get_payment_code(code):
