@@ -29,6 +29,7 @@ TICKET_CHOICES = (
     ('press', 'Press'),
     ('speaker', 'Speaker'),
     ('staff', 'Staff'),
+    ('volunteer', 'Volunteer'),
 )
 
 TICKET_TO_CASH_PAYMENT_MAP = {
@@ -39,6 +40,7 @@ TICKET_TO_CASH_PAYMENT_MAP = {
     'press': 'press',
     'speaker': 'speaker',
     'staff': 'invitee',
+    'volunteer': 'invitee',
 }
 
 TICKET_TO_MASS_ADD_PAYMENT_MAP = {
@@ -49,6 +51,7 @@ TICKET_TO_MASS_ADD_PAYMENT_MAP = {
     'press': 'press',
     'speaker': 'speaker',
     'staff': 'invitee',
+    'volunteer': 'invitee',
 }
 
 
