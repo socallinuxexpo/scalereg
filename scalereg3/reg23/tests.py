@@ -4185,6 +4185,36 @@ class CheckInTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
+    def test_post_empty_id_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_non_numeric_id_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:XY')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_zero_id_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:0')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_out_of_range_id_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:256')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_too_long_id_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:1234')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
     def test_get_with_agent(self):
         response = self.client.get('/reg23/check_in/',
                                    HTTP_USER_AGENT=self.kiosk_agent)
