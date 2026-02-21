@@ -100,6 +100,7 @@ class Order(models.Model):
         return self.order_num
 
 
+# pylint: disable-next=R0903
 class TicketManager(models.Manager):
 
     def get_queryset(self):
@@ -294,6 +295,7 @@ class Question(models.Model):
 
 class Attendee(models.Model):
 
+    # pylint: disable-next=R0901
     class EmailChoices(models.IntegerChoices):
         LOGISTICS_ONLY = 0
         ANNOUNCEMENTS = 1

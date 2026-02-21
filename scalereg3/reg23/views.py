@@ -26,7 +26,7 @@ PAYMENT_COOKIE = 'payment'
 
 
 class UpgradeError(Enum):
-    do_not_call_in_templates = True
+    do_not_call_in_templates = True  # pylint: disable=C0103
     ATTENDEE_NOT_FOUND = 0
     ATTENDEE_NOT_PAID = 1
     ATTENDEE_NOT_ELIGIBLE = 2
@@ -1371,8 +1371,10 @@ def mass_add_attendees(request):
 
 @staff_member_required
 def mass_add_payment_codes(request):
-    csrf_token_value = get_token(request)
-    input_form_html = f'''<form method="post">
+
+    def get_input_form_html(request):
+        csrf_token_value = get_token(request)
+        return f'''<form method="post">
 <p>name,addr,city,state,zip,email,phone,type,max_att</p>
 <textarea name="data" rows="25" cols="80"></textarea><br />
 <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token_value}">
@@ -1380,7 +1382,7 @@ def mass_add_payment_codes(request):
 </form>'''
 
     if request.method == 'GET':
-        return generate_mass_add_get_response(input_form_html)
+        return generate_mass_add_get_response(get_input_form_html(request))
 
     required_vars = ['data']
     r = check_vars(request, required_vars)
@@ -1455,15 +1457,17 @@ def mass_add_payment_codes(request):
         payment_codes_added_count += 1
 
     response.write(f'Total added payment codes: {payment_codes_added_count}\n')
-    response.write(input_form_html)
+    response.write(get_input_form_html(request))
     response.write('</body></html>')
     return response
 
 
 @staff_member_required
 def mass_add_promos(request):
-    csrf_token_value = get_token(request)
-    input_form_html = f'''<form method="post">
+
+    def get_input_form_html(request):
+        csrf_token_value = get_token(request)
+        return f'''<form method="post">
 <p>code,modifier,description</p>
 <textarea name="data" rows="25" cols="80"></textarea><br />
 <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token_value}">
@@ -1471,7 +1475,7 @@ def mass_add_promos(request):
 </form>'''
 
     if request.method == 'GET':
-        return generate_mass_add_get_response(input_form_html)
+        return generate_mass_add_get_response(get_input_form_html(request))
 
     required_vars = ['data']
     r = check_vars(request, required_vars)
@@ -1519,6 +1523,6 @@ def mass_add_promos(request):
         promos_added_count += 1
 
     response.write(f'Total added promos: {promos_added_count}\n')
-    response.write(input_form_html)
+    response.write(get_input_form_html(request))
     response.write('</body></html>')
     return response

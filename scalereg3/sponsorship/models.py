@@ -43,6 +43,7 @@ class Order(models.Model):
     already_paid_sponsor = models.BooleanField(default=False)
 
 
+# pylint: disable-next=R0903
 class PackageManager(models.Manager):
 
     def get_queryset(self):
