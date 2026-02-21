@@ -2864,6 +2864,22 @@ class CheckedInTest(TestCase):
         self.check_response_is_success_text(response)
         self.assertEqual(response.content, b'1')
 
+    def test_get_idsonly_for_reprint(self):
+        Attendee.objects.create(first_name='Another',
+                                last_name='One',
+                                email='a5@a.com',
+                                zip_code='12345',
+                                badge_type=self.ticket,
+                                order=self.order,
+                                valid=True,
+                                checked_in=True,
+                                reprint_count=7)
+
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/checked_in/', {'idsonly': ''})
+        self.check_response_is_success_text(response)
+        self.assertEqual(response.content, b'1\nr5')
+
     def test_get_with_kiosk_agent(self):
         self.attendee4.order = self.order
         self.attendee4.kiosk_agent = '205'
