@@ -160,6 +160,14 @@ class CashPaymentTest(TestCase):
                                                     cash=False,
                                                     upgradable=True)
 
+    def check_attendee_basic_info(self, attendee):
+        self.assertTrue(attendee.valid)
+        self.assertTrue(attendee.checked_in)
+        self.assertEqual(attendee.first_name, 'John')
+        self.assertEqual(attendee.last_name, 'Doe')
+        self.assertEqual(attendee.email, 'john@example.com')
+        self.assertEqual(attendee.zip_code, '12345')
+
     def check_basic_strings(self, response):
         self.assertContains(response, 'Cash Payment')
         self.assertContains(response, 'First Name')
@@ -217,12 +225,45 @@ class CashPaymentTest(TestCase):
         self.assertTrue(attendee.order.valid)
         self.assertEqual(attendee.order.payment_type, 'cash')
         self.assertEqual(attendee.order.amount, 50)
-        self.assertTrue(attendee.valid)
-        self.assertTrue(attendee.checked_in)
-        self.assertEqual(attendee.first_name, 'John')
-        self.assertEqual(attendee.last_name, 'Doe')
-        self.assertEqual(attendee.email, 'john@example.com')
-        self.assertEqual(attendee.zip_code, '12345')
+        self.check_attendee_basic_info(attendee)
+        self.check_basic_strings(response)
+        self.assertContains(response,
+                            'Attendee John Doe successfully registered!')
+        self.assertNotContains(response, 'Error:')
+
+    def test_valid_invitee(self):
+        random.seed(0)
+        self.assertEqual(Attendee.objects.count(), 0)
+        self.assertEqual(Order.objects.count(), 0)
+        self.client.force_login(self.normal_user)
+
+        press_ticket = Ticket.objects.create(name='PRESS',
+                                             description='Press',
+                                             ticket_type='press',
+                                             price=0,
+                                             public=False,
+                                             cash=True,
+                                             upgradable=False)
+        response = self.client.post(
+            '/reg23/staff/cash_payment/', {
+                'TICKET': 'PRESS',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'title': 'Engineer',
+                'org': 'ACME',
+                'email': 'john@example.com',
+                'zip_code': '12345',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Attendee.objects.count(), 1)
+        self.assertEqual(Order.objects.count(), 1)
+        attendee = Attendee.objects.get(id=1)
+        self.assertEqual(attendee.badge_type, press_ticket)
+        self.assertTrue(attendee.order)
+        self.assertTrue(attendee.order.valid)
+        self.assertEqual(attendee.order.payment_type, 'press')
+        self.assertEqual(attendee.order.amount, 0)
+        self.check_attendee_basic_info(attendee)
         self.check_basic_strings(response)
         self.assertContains(response,
                             'Attendee John Doe successfully registered!')

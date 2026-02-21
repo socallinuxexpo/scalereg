@@ -1405,6 +1405,8 @@ def mass_add_payment_codes(request):
             continue
 
         order_num = generate_order_id(get_existing_order_ids())
+        payment_type = models.TICKET_TO_MASS_ADD_PAYMENT_MAP[
+            ticket.ticket_type]
         entry_dict = {
             'order_num': order_num,
             'name': entry[0].strip(),
@@ -1414,7 +1416,7 @@ def mass_add_payment_codes(request):
             'zip_code': entry[4].strip(),
             'email': entry[5].strip(),
             'phone': entry[6].strip(),
-            'payment_type': models.TICKET_TO_PAYMENT_MAP[ticket.ticket_type],
+            'payment_type': payment_type,
         }
         form = forms.MassAddOrderForm(entry_dict)
         if not form.is_valid():
