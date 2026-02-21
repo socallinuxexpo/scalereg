@@ -598,6 +598,23 @@ class CheckInTest(CheckInTestCase):
             f'Express Check In Code: {self.invalid_attendee.checkin_code()}')
         self.check_attendee_invalid(response, self.invalid_attendee)
 
+    def test_express_no_order(self):
+        self.attendee.order = None
+        self.attendee.save()
+        self.client.force_login(self.normal_user)
+        response = self.client.post(
+            '/reg23/staff/check_in/', {
+                'express': self.attendee.checkin_code(),
+                'last_name': '',
+                'payflow': '',
+                'zip_code': '',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.check_basic_strings(response)
+        self.assertContains(
+            response, f'Express Check In Code: {self.attendee.checkin_code()}')
+        self.check_attendee_invalid(response, self.attendee)
+
     def test_payflow(self):
         self.client.force_login(self.normal_user)
         response = self.client.post(

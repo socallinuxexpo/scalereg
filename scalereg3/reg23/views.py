@@ -176,22 +176,21 @@ def do_check_in_search(request):
     if r:
         return r
 
+    attendee_objects = models.Attendee.objects.filter(valid=True,
+                                                      checked_in=False,
+                                                      order__isnull=False)
     attendees = []
     form = forms.AttendeeLookupForm(request.POST)
     if form.is_valid():
-        attendees = models.Attendee.objects.filter(
-            valid=True,
-            checked_in=False,
+        attendees = attendee_objects.filter(
             email=form.cleaned_data['email'],
             zip_code=form.cleaned_data['zip_code'])
     if not attendees:
         first_name = request.POST['first_name'].strip()
         last_name = request.POST['last_name'].strip()
         if first_name and last_name:
-            attendees = models.Attendee.objects.filter(valid=True,
-                                                       checked_in=False,
-                                                       first_name=first_name,
-                                                       last_name=last_name)
+            attendees = attendee_objects.filter(first_name=first_name,
+                                                last_name=last_name)
         if attendees:
             attendees_email = []
             email = request.POST['email'].strip()
@@ -223,7 +222,7 @@ def do_check_in_search(request):
 
 def do_express_code_check_in(request, express_code, kiosk_agent):
     attendee = get_attendee_from_express_check_in_code(express_code)
-    if not attendee:
+    if not attendee or not attendee.order:
         return render(
             request, 'reg_check_in.html', {
                 'title': 'Check In',

@@ -4245,6 +4245,19 @@ class CheckInTest(TestCase):
         self.assertFalse(self.attendee.checked_in)
         self.assertEqual(self.attendee.kiosk_agent, '')
 
+    def test_express_check_in_attendee_without_order(self):
+        self.attendee.order = None
+        self.attendee.save()
+        express_code = self.attendee.checkin_code()
+        response = self.client.post('/reg23/check_in/',
+                                    {'express_code': express_code},
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'is not a valid express check-in code')
+        self.attendee.refresh_from_db()
+        self.assertFalse(self.attendee.checked_in)
+        self.assertEqual(self.attendee.kiosk_agent, '')
+
     def test_express_check_in_already_checked_in(self):
         self.attendee.checked_in = True
         self.attendee.save()
@@ -4338,6 +4351,22 @@ class CheckInTest(TestCase):
                                     post_data,
                                     HTTP_USER_AGENT=self.kiosk_agent)
         self.assertContains(response, 'No email information.')
+
+    def test_check_in_search_attendee_without_order(self):
+        self.attendee.order = None
+        self.attendee.save()
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'test@example.com',
+            'zip_code': '12345',
+        }
+        response = self.client.post('/reg23/check_in/',
+                                    post_data,
+                                    HTTP_USER_AGENT=self.kiosk_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Search results for:')
+        self.assertContains(response, 'No registration results found')
 
 
 @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
