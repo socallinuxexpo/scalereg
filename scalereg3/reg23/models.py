@@ -291,6 +291,11 @@ class Attendee(models.Model):
 
     # badge info
     badge_type = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    secondary_badge_type = models.ForeignKey(Ticket,
+                                             on_delete=models.CASCADE,
+                                             blank=True,
+                                             null=True,
+                                             related_name='secondary_badge')
     order = models.ForeignKey(Order,
                               on_delete=models.CASCADE,
                               blank=True,
