@@ -537,6 +537,7 @@ def print_attendee(attendee):
         str(attendee.reprint_count),
         attendee.badge_type.ticket_type,
         get_secondary_badge(attendee),
+        attendee.kiosk_agent,
         get_payment_amount(attendee),
         ''  # footer
     ]
