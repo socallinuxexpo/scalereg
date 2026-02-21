@@ -2855,13 +2855,33 @@ class CheckedInTest(TestCase):
         response = self.client.get('/reg23/checked_in/')
         self.check_response_is_success_text(response)
         self.assertEqual(response.content,
-                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~')
+                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~~10.00~')
 
     def test_get_idsonly(self):
         self.client.force_login(self.staff_user)
         response = self.client.get('/reg23/checked_in/', {'idsonly': ''})
         self.check_response_is_success_text(response)
         self.assertEqual(response.content, b'1')
+
+    def test_get_with_secondary_badge(self):
+        press_ticket = Ticket.objects.create(name='PRESS',
+                                             description='Press',
+                                             ticket_type='press',
+                                             price=decimal.Decimal(0),
+                                             public=False,
+                                             cash=False,
+                                             upgradable=False)
+        self.attendee4.secondary_badge_type = press_ticket
+        self.attendee4.order = self.order
+        self.attendee4.save()
+
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/reg23/checked_in/')
+        self.check_response_is_success_text(response)
+        attendee1_str = b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~~10.00~'
+        attendee2_str = b'~~No~Order~~~a4@a.com~~12345~4~2~0~full~press~10.00~'
+        self.assertEqual(response.content, b'\n'.join(
+            (attendee1_str, attendee2_str)))
 
     def test_post_specific_ids(self):
         self.client.force_login(self.staff_user)
@@ -2890,8 +2910,8 @@ class CheckedInTest(TestCase):
             '/reg23/checked_in/',
             {'attendees': f'{self.attendee1.id},{attendee5.id}'})
         self.check_response_is_success_text(response)
-        attendee1_str = b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~'
-        attendee5_str = b'~~Another~One~~~a5@a.com~~12345~5~3~7~speaker~0.00~'
+        attendee1_str = b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~~10.00~'
+        attendee5_str = b'~~Another~One~~~a5@a.com~~12345~5~3~7~speaker~~0.00~'
         self.assertEqual(response.content, b'\n'.join(
             (attendee1_str, attendee5_str)))
 
@@ -2926,7 +2946,7 @@ class CheckedInTest(TestCase):
         })
         self.check_response_is_success_text(response)
         self.assertEqual(response.content,
-                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~10.00~')
+                         b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~~10.00~')
 
 
 class MassAddAttendeesTest(TestCase):
