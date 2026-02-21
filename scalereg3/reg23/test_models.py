@@ -6,10 +6,14 @@ from .models import Answer
 from .models import Attendee
 from .models import Item
 from .models import Order
+from .models import PAYMENT_CHOICES
 from .models import PaymentCode
 from .models import PendingOrder
 from .models import PromoCode
 from .models import Question
+from .models import TICKET_CHOICES
+from .models import TICKET_TO_CASH_PAYMENT_MAP
+from .models import TICKET_TO_MASS_ADD_PAYMENT_MAP
 from .models import Ticket
 from .models import Upgrade
 
@@ -82,6 +86,26 @@ class ModelStrTest(TestCase):
                                          old_order=self.order,
                                          new_badge_type=self.ticket)
         self.assertEqual(str(upgrade), '(1) (test@example.com)')
+
+
+class ModelMappingTest(TestCase):
+
+    def test_ticket_to_cash_payment_map(self):
+        self.assertEqual(len(TICKET_CHOICES), len(TICKET_TO_CASH_PAYMENT_MAP))
+        for ticket_type, _ in TICKET_CHOICES:
+            self.assertTrue(ticket_type in TICKET_TO_CASH_PAYMENT_MAP)
+        payment_types = [item[0] for item in PAYMENT_CHOICES]
+        for payment_type in TICKET_TO_CASH_PAYMENT_MAP.values():
+            self.assertTrue(payment_type in payment_types)
+
+    def test_ticket_to_mass_add_payment_map(self):
+        self.assertEqual(len(TICKET_CHOICES),
+                         len(TICKET_TO_MASS_ADD_PAYMENT_MAP))
+        for ticket_type, _ in TICKET_CHOICES:
+            self.assertTrue(ticket_type in TICKET_TO_MASS_ADD_PAYMENT_MAP)
+        payment_types = [item[0] for item in PAYMENT_CHOICES]
+        for payment_type in TICKET_TO_CASH_PAYMENT_MAP.values():
+            self.assertTrue(payment_type in payment_types)
 
 
 class TicketCostTest(TestCase):
