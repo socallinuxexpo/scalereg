@@ -14,6 +14,8 @@ def add_cash_order_to_attendee(attendee, ticket_cost):
 
     order_num = reg23_views.generate_order_id(
         reg23_views.get_existing_order_ids())
+    payment_type = reg23_models.TICKET_TO_CASH_PAYMENT_MAP[
+        attendee.badge_type.ticket_type]
     attendee.order = reg23_models.Order(order_num=order_num,
                                         valid=True,
                                         name=attendee.full_name(),
@@ -23,7 +25,7 @@ def add_cash_order_to_attendee(attendee, ticket_cost):
                                         zip_code=attendee.zip_code,
                                         email=attendee.email,
                                         amount=ticket_cost,
-                                        payment_type='cash')
+                                        payment_type=payment_type)
 
 
 @login_required

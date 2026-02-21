@@ -31,7 +31,17 @@ TICKET_CHOICES = (
     ('staff', 'Staff'),
 )
 
-TICKET_TO_PAYMENT_MAP = {
+TICKET_TO_CASH_PAYMENT_MAP = {
+    'exhibitor': 'exhibitor',
+    'expo': 'cash',
+    'full': 'cash',
+    'kid': 'invitee',
+    'press': 'press',
+    'speaker': 'speaker',
+    'staff': 'invitee',
+}
+
+TICKET_TO_MASS_ADD_PAYMENT_MAP = {
     'exhibitor': 'exhibitor',
     'expo': 'invitee',
     'full': 'invitee',
