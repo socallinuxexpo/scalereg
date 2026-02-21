@@ -2953,6 +2953,15 @@ class CheckedInTest(TestCase):
         self.check_response_is_success_text(response)
         self.assertEqual(response.content, b'')
 
+    def test_post_bad_id(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.post('/reg23/checked_in/',
+                                    {'attendees': '1,ABC'})
+        self.check_response_is_success_text(response)
+        self.assertEqual(
+            response.content,
+            b'~~Checked~In~~~a1@a.com~~12345~1~1~0~full~~~10.00~')
+
     def test_post_empty_ids(self):
         self.client.force_login(self.staff_user)
         response = self.client.post('/reg23/checked_in/', {

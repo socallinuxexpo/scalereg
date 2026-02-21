@@ -1287,7 +1287,12 @@ def checked_in(request):
 
     if request.method == 'POST':
         attendees_data = request.POST.get('attendees', '')
-        attendee_ids = [int(att) for att in attendees_data.split(',') if att]
+        attendee_ids = []
+        for id_str in attendees_data.split(','):
+            try:
+                attendee_ids.append(int(id_str))
+            except ValueError:
+                pass
         attendees = attendees.filter(id__in=attendee_ids)
 
     return HttpResponse('\n'.join([print_attendee(att) for att in attendees]),
