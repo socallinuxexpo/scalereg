@@ -56,7 +56,7 @@ class AttendeeAdmin(admin.ModelAdmin):
                        'checked_in', 'kiosk_agent', 'reprint_count')
         }),
         ('Misc', {
-            'fields': ('promo', 'order', 'ordered_items', 'answers')
+            'fields': ('promo', 'order', 'ordered_items', 'tshirt', 'answers')
         }),
     )
     list_display = ('id', 'first_name', 'last_name', 'email', 'zip_code',

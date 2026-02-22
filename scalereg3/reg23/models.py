@@ -344,6 +344,7 @@ class Attendee(models.Model):
     can_email = models.IntegerField(choices=EmailChoices,
                                     default=EmailChoices.LOGISTICS_ONLY)
     answers = models.ManyToManyField(Answer, blank=True)
+    tshirt = models.CharField(max_length=4, blank=True)
 
     def __str__(self):
         return f'({self.id}) ({self.email})'
