@@ -278,6 +278,13 @@ def get_attendee_from_express_check_in_code(code):
     return attendee if attendee and attendee.checkin_code() == code else None
 
 
+def get_attendee_parity_code(attendee):
+    parity = 0
+    for f in attendee.checkin_code():
+        parity += int(f, 16)
+    return str(parity % 10)
+
+
 def get_existing_order_ids():
     return [x.order_num for x in models.PendingOrder.objects.all()
             ] + [x.order_num for x in models.Order.objects.all()]
@@ -513,12 +520,6 @@ def notify_attendee(attendee):
 
 def print_attendee(attendee):
 
-    def get_parity_code(attendee):
-        parity = 0
-        for f in attendee.checkin_code():
-            parity += int(f, 16)
-        return str(parity % 10)
-
     def get_payment_amount(attendee):
         if attendee.order.payment_type in ('payflow', 'cash'):
             return f'{attendee.ticket_cost():.2f}'
@@ -540,7 +541,7 @@ def print_attendee(attendee):
         attendee.phone,
         attendee.zip_code,
         str(attendee.id),
-        get_parity_code(attendee),
+        get_attendee_parity_code(attendee),
         str(attendee.reprint_count),
         attendee.badge_type.ticket_type,
         get_secondary_badge(attendee),

@@ -1,0 +1,159 @@
+<html>
+  <head>
+    <title>SCALE Badge Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 80%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      .button-blue {
+        background-color: #89CFF0;
+      }
+      .button-pink {
+        background-color: #F4C2C2;
+      }
+      .center-container {
+        display: flex;
+        justify-content: center;
+      }
+      .message {
+        color: {{ color }};
+        font-size: 20px;
+      }
+      .scan-button {
+        border-radius: 3px;
+        font-size: 36px;
+        padding : 10px 20px;
+      }
+      .size-box {
+        border-radius: 3px;
+        font-size: 32px;
+      }
+      .size-button {
+        border-radius: 3px;
+        font-size: 24px;
+        padding : 10px 10px;
+      }
+    </style>
+    <script>
+      function setup() {
+        document.getElementById("scan").disabled = true;
+        window.onFlutterJSChannelQRScanned = function(result) {
+          result = encodeURIComponent(result);
+          size = encodeURIComponent(document.getElementById("size").innerText);
+          window.location.href = `?RESULT=${result}&SIZE=${size}`;
+        }
+      }
+      function setsize(size) {
+        document.getElementById("size").innerText = size;
+        document.getElementById("scan").disabled = false;
+      }
+      function scan() {
+        if (window.FlutterJSChannelQRScanner) {
+            window.FlutterJSChannelQRScanner.postMessage('scan');
+        }
+      }
+    </script>
+  </head>
+  <body onload="setup()">
+    <div class="main-container">
+      <div class="top-section">
+        <p>
+          <span class="size-box">Size:</span>
+          <span class="size-box" id="size">No selected size</span>
+        </p>
+        <p>
+          <span>Scan result:</span>
+          <span class="message">{{ response }}</span>
+        </p>
+      </div>
+      <div class="bottom-section">
+        <p class="center-container">
+          <table border="0" width="350px" height="350px">
+            <tr>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="MS" onclick="setsize('Men Small')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="M2XL" onclick="setsize('Men 2XL')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-pink"
+                       value="WS" onclick="setsize('Women Small')">
+              </td>
+              <td>
+                <input type="button" class="size-button"
+                       value="KS" onclick="setsize('Kid Small')">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="MM" onclick="setsize('Men Medium')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="M3XL" onclick="setsize('Men 3XL')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-pink"
+                       value="WM" onclick="setsize('Women Medium')">
+              </td>
+              <td>
+                <input type="button" class="size-button"
+                       value="KM" onclick="setsize('Kid Medium')">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="ML" onclick="setsize('Men Large')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="M4XL" onclick="setsize('Men 4XL')">
+              </td>
+              <td>
+                <input type="button" class="size-button button-pink"
+                       value="WL" onclick="setsize('Women Large')">
+              </td>
+              <td>
+                <input type="button" class="size-button"
+                       value="KL" onclick="setsize('Kid Large')">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="button" class="size-button button-blue"
+                       value="MXL" onclick="setsize('Men XL')">
+              </td>
+              <td></td>
+              <td>
+                <input type="button" class="size-button button-pink"
+                       value="WXL" onclick="setsize('Women XL')">
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </p>
+        <p class="center-container">
+          <input id="scan" type="button" class="scan-button" value="Scan"
+                 onclick="scan()" />
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
