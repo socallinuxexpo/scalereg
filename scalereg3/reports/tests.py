@@ -172,7 +172,7 @@ class AddonDataTest(TestCase):
             attendee.ordered_items.set(items)
             return attendee
 
-        # Valid orders in different time windows with different addons
+        # Orders in different time windows with different addons
         # <= 7 days
         create_attendee('ORDER1', today, [item_a, item_b])
         # <= 30 days
@@ -180,7 +180,7 @@ class AddonDataTest(TestCase):
         # > 30 days
         create_attendee('ORDER3', today - (31 * day), [item_a])
         # inactive addon - should still be shown
-        create_attendee('ORDER4', today, [item_c])
+        create_attendee('ORDER4', today - (31 * day), [item_c])
 
     def test_addon_orders(self):
         self.client.force_login(self.staff_user)
@@ -197,10 +197,10 @@ class AddonDataTest(TestCase):
             response,
             '<tr><td>Fake Addon B <small>(BBB)</small></td><td>1</td><td>1</td><td>1</td></tr>',
             html=True)
-        # item c: inactive but should still be shown
+        # item_c: inactive but should still be shown
         self.assertContains(
             response,
-            '<tr><td>Fake Addon C <small>(CCC)</small></td><td>1</td><td>1</td><td>1</td></tr>',
+            '<tr><td>Fake Addon C <small>(CCC)</small></td><td>0</td><td>0</td><td>1</td></tr>',
             html=True)
 
 
