@@ -76,20 +76,22 @@ def get_addon_data():
     valid_attendees = attendee_model.objects.filter(valid=True)
 
     addon_data = []
-    for item in item_model.objects.filter(active=True).order_by('name'):
+    for item in item_model.objects.order_by('name'):
         attendees_with_addon = valid_attendees.filter(ordered_items=item)
 
+        name = item.description
+        code = item.name
+        numbers = attendees_with_addon.count()
+        numbers_30 = attendees_with_addon.filter(
+            order__date__gt=days_30).count()
+        numbers_7 = attendees_with_addon.filter(order__date__gt=days_7).count()
+
         data = {
-            'name':
-            item.description,
-            'code':
-            item.name,
-            'numbers':
-            attendees_with_addon.count(),
-            'numbers_30':
-            attendees_with_addon.filter(order__date__gt=days_30).count(),
-            'numbers_7':
-            attendees_with_addon.filter(order__date__gt=days_7).count(),
+            'name': name,
+            'code': code,
+            'numbers': numbers,
+            'numbers_30': numbers_30,
+            'numbers_7': numbers_7,
         }
         addon_data.append(data)
 

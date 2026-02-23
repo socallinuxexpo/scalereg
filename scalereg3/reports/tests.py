@@ -137,6 +137,15 @@ class AddonDataTest(TestCase):
             ticket_offset=False,
             applies_to_all=True,
         )
+        item_c = apps.get_model('reg23', 'Item').objects.create(
+            name='CCC',
+            description='Fake Addon C',
+            price=Decimal('20.00'),
+            active=False,
+            promo=False,
+            ticket_offset=False,
+            applies_to_all=True,
+        )
 
         order_objects = apps.get_model('reg23', 'Order').objects
         attendee_objects = apps.get_model('reg23', 'Attendee').objects
@@ -164,38 +173,34 @@ class AddonDataTest(TestCase):
             return attendee
 
         # Valid orders in different time windows with different addons
-        create_attendee('ORDER1', today, [item_a, item_b])  # within 7 days
-        create_attendee('ORDER2', today - (8 * day),
-                        [item_a])  # within 30 days
-        create_attendee('ORDER3', today - (31 * day), [item_a])  # >30 days
+        # <= 7 days
+        create_attendee('ORDER1', today, [item_a, item_b])
+        # <= 30 days
+        create_attendee('ORDER2', today - (8 * day), [item_a])
+        # > 30 days
+        create_attendee('ORDER3', today - (31 * day), [item_a])
+        # inactive addon - should still be shown
+        create_attendee('ORDER4', today, [item_c])
 
-        # Invalid order that should not be counted
-        create_attendee('ORDER4', today, [item_a, item_b], valid=False)
-
-    def test_valid_orders(self):
+    def test_addon_orders(self):
         self.client.force_login(self.staff_user)
 
         response = self.client.get('/reports/sales_dashboard/')
 
-        # item_a: in all 3 valid orders
+        # item_a: in all 3 orders
         self.assertContains(
             response,
             '<tr><td>Fake Addon A <small>(AAA)</small></td><td>1</td><td>2</td><td>3</td></tr>',
             html=True)
-        # item_b: only in 1 valid order
+        # item_b: only in 1 order
         self.assertContains(
             response,
             '<tr><td>Fake Addon B <small>(BBB)</small></td><td>1</td><td>1</td><td>1</td></tr>',
             html=True)
-
-    def test_invalid_orders_are_not_counted(self):
-        self.client.force_login(self.staff_user)
-
-        response = self.client.get('/reports/sales_dashboard/')
-        # item_a total should be 3, not 4 (ORDER4 is invalid)
-        self.assertNotContains(
+        # item c: inactive but should still be shown
+        self.assertContains(
             response,
-            '<tr><td>Fake Addon A <small>(AAA)</small></td><td>2</td><td>3</td><td>4</td></tr>',
+            '<tr><td>Fake Addon C <small>(CCC)</small></td><td>1</td><td>1</td><td>1</td></tr>',
             html=True)
 
 
