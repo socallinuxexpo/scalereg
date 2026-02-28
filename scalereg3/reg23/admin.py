@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from .models import Answer
 from .models import Attendee
 from .models import Item
+from .models import Kiosk
 from .models import Order
 from .models import PaymentCode
 from .models import PromoCode
@@ -81,6 +82,11 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'price', 'active', 'promo',
                     'ticket_offset')
     list_filter = ('active', 'promo', 'ticket_offset')
+    save_on_top = True
+
+
+class KioskAdmin(admin.ModelAdmin):
+    list_display = ('kiosk_id', 'valid')
     save_on_top = True
 
 
@@ -173,6 +179,7 @@ class UpgradeAdmin(admin.ModelAdmin):
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Item, ItemAdmin)
+admin.site.register(Kiosk, KioskAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PaymentCode, PaymentCodeAdmin)
 admin.site.register(PromoCode, PromoCodeAdmin)

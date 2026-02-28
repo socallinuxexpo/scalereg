@@ -386,6 +386,11 @@ class PendingOrder(models.Model):
         return [int(x) for x in self.attendees.split(',')]
 
 
+class Kiosk(models.Model):
+    kiosk_id = models.CharField(max_length=20, primary_key=True)
+    valid = models.BooleanField(default=False)
+
+
 class PaymentCode(models.Model):
     code = models.CharField(
         max_length=10,
