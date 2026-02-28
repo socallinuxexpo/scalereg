@@ -290,21 +290,32 @@ def get_existing_order_ids():
             ] + [x.order_num for x in models.Order.objects.all()]
 
 
+def get_kiosk_id_and_agent_from_request(request):
+    split_user_agent = request.META.get('HTTP_USER_AGENT', '').split(':')
+    if len(split_user_agent) != 2:
+        return None
+
+    (kiosk_id, kiosk_agent) = split_user_agent
+    if not kiosk_id or not kiosk_agent.isdecimal():
+        return None
+
+    kiosk_agent_value = int(kiosk_agent)
+    if kiosk_agent_value < 1 or kiosk_agent_value > 255:
+        return None
+    return (kiosk_id, kiosk_agent)
+
+
 def get_kiosk_agent(request):
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    secret_index = user_agent.find(settings.SCALEREG_KIOSK_AGENT_SECRET + ':')
-    if secret_index < 0:
-        return ''
-    agent_index = secret_index + len(settings.SCALEREG_KIOSK_AGENT_SECRET) + 1
-    kiosk_id_str = user_agent[agent_index:]
-    try:
-        kiosk_id = int(kiosk_id_str)
-    except ValueError:
+    kiosk_id_and_agent = get_kiosk_id_and_agent_from_request(request)
+    if not kiosk_id_and_agent:
         return ''
 
-    if kiosk_id < 1 or kiosk_id > 255:
+    (kiosk_id, kiosk_agent) = kiosk_id_and_agent
+    try:
+        kiosk = models.Kiosk.objects.get(kiosk_id=kiosk_id)
+    except models.Kiosk.DoesNotExist:
         return ''
-    return kiosk_id_str
+    return kiosk_agent if kiosk.valid else ''
 
 
 def get_payment_code(code):
@@ -635,9 +646,15 @@ def index(request):
 
 
 def kiosk_index(request):
-    kiosk_agent = get_kiosk_agent(request)
-    if not kiosk_agent:
+    kiosk_id_and_agent = get_kiosk_id_and_agent_from_request(request)
+    if not kiosk_id_and_agent:
         return index(request)
+
+    (kiosk_id, kiosk_agent) = kiosk_id_and_agent
+    kiosk, _ = models.Kiosk.objects.get_or_create(kiosk_id=kiosk_id)
+    if not kiosk.valid:
+        return index(request)
+
     return render(request, 'reg_kiosk_index.html', {'agent': kiosk_agent})
 
 

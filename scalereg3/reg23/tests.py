@@ -12,6 +12,7 @@ from sponsorship import models as sponsorship_models
 from .models import Answer
 from .models import Attendee
 from .models import Item
+from .models import Kiosk
 from .models import Order
 from .models import PaymentCode
 from .models import PendingOrder
@@ -74,7 +75,8 @@ class IndexTest(TestCase):
                               upgradable=False,
                               start_date=today + day)
 
-        cls.user_agent = 'Mozilla/5.0 SECRET:235'
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
+        cls.user_agent = 'SECRET:235'
 
     def test_ticket_names(self):
         response = self.client.get('/reg23/')
@@ -150,7 +152,6 @@ class IndexTest(TestCase):
         self.assertNotContains(response, 'Station 235')
         self.assertNotContains(response, '<iframe name="scalereg"')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_get_at_kiosk(self):
         response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
         self.assertEqual(response.status_code, 200)
@@ -159,7 +160,6 @@ class IndexTest(TestCase):
         self.assertNotContains(response, '<iframe name="scalereg"')
         self.assertNotContains(response, 'Brought to you by')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_at_kiosk(self):
         response = self.client.get('/reg23/', HTTP_USER_AGENT=self.user_agent)
         self.assertEqual(response.status_code, 200)
@@ -344,7 +344,9 @@ class KioskIndexTest(TestCase):
                               cash=False,
                               upgradable=False)
 
-        cls.user_agent = 'Mozilla/5.0 SECRET:235'
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
+        cls.user_agent = 'SECRET:235'
+        cls.new_user_agent = 'NEW_SECRET:123'
 
     def test_get_no_agent(self):
         response = self.client.get('/reg23/kiosk/')
@@ -353,6 +355,7 @@ class KioskIndexTest(TestCase):
         self.assertContains(response, 'Brought to you by')
         self.assertNotContains(response, 'Station 235')
         self.assertNotContains(response, 'Close Window')
+        self.assertEqual(Kiosk.objects.count(), 1)
 
     def test_post_no_agent(self):
         response = self.client.post('/reg23/kiosk/')
@@ -361,8 +364,8 @@ class KioskIndexTest(TestCase):
         self.assertContains(response, 'Brought to you by')
         self.assertNotContains(response, 'Station 235')
         self.assertNotContains(response, 'Close Window')
+        self.assertEqual(Kiosk.objects.count(), 1)
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_get_with_agent(self):
         response = self.client.get('/reg23/kiosk/',
                                    HTTP_USER_AGENT=self.user_agent)
@@ -374,8 +377,8 @@ class KioskIndexTest(TestCase):
             '<iframe name="scalereg" src="/static/reg23/kiosk_welcome.html"')
         self.assertNotContains(response, 'T1 full')
         self.assertNotContains(response, 'Brought to you by')
+        self.assertEqual(Kiosk.objects.count(), 1)
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_with_agent(self):
         response = self.client.post('/reg23/kiosk/',
                                     HTTP_USER_AGENT=self.user_agent)
@@ -387,6 +390,27 @@ class KioskIndexTest(TestCase):
             '<iframe name="scalereg" src="/static/reg23/kiosk_welcome.html"')
         self.assertNotContains(response, 'T1 full')
         self.assertNotContains(response, 'Brought to you by')
+        self.assertEqual(Kiosk.objects.count(), 1)
+
+    def test_get_new_agent(self):
+        response = self.client.get('/reg23/kiosk/',
+                                   HTTP_USER_AGENT=self.new_user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertContains(response, 'Brought to you by')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response, 'Close Window')
+        self.assertEqual(Kiosk.objects.count(), 2)
+
+    def test_post_new_agent(self):
+        response = self.client.post('/reg23/kiosk/',
+                                    HTTP_USER_AGENT=self.new_user_agent)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'T1 full')
+        self.assertContains(response, 'Brought to you by')
+        self.assertNotContains(response, 'Station 235')
+        self.assertNotContains(response, 'Close Window')
+        self.assertEqual(Kiosk.objects.count(), 2)
 
 
 class ItemsTest(TestCase):
@@ -1755,6 +1779,7 @@ class PaymentTest(TestCase):
                                 zip_code='99999',
                                 badge_type=t,
                                 promo=p)
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
 
     def test_get_request(self):
         response = self.client.get('/reg23/payment/')
@@ -1860,14 +1885,13 @@ class PaymentTest(TestCase):
         attendee = Attendee.objects.get(id=3)
         self.assertEqual(attendee.kiosk_agent, '')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_request_with_unpaid_attendee_at_kiosk(self):
         random.seed(0)
         session = self.client.session
         session['payment'] = [1]
         session.save()
         response = self.client.post('/reg23/payment/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+                                    HTTP_USER_AGENT='SECRET:235')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'paying for the following')
         self.assertContains(response, 'First Last')
@@ -2369,6 +2393,7 @@ class FinishPaymentTest(TestCase):
                                 zip_code='54321',
                                 badge_type=t,
                                 valid=True)
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
         cls.post_data = {
             'NAME': 'First Last',
             'EMAIL': 'a@a.com',
@@ -2392,7 +2417,6 @@ class FinishPaymentTest(TestCase):
         self.assertContains(response, 'Print Receipt')
         self.assertNotContains(response, 'Your badge will print shortly')
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_post_request_success_at_kiosk(self):
         order = Order.objects.create(order_num='1234567890', amount=10)
         attendee = Attendee.objects.get(id=1)
@@ -2400,7 +2424,7 @@ class FinishPaymentTest(TestCase):
         attendee.order = order
         response = self.client.post('/reg23/finish_payment/',
                                     self.post_data,
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+                                    HTTP_USER_AGENT='SECRET:235')
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, '$10.00')
@@ -2498,6 +2522,7 @@ class RedeemPaymentCodeTest(TestCase):
                                 email='a@a.com',
                                 zip_code='12345',
                                 badge_type=cls.t1)
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
 
         cls.post_data = {
             'code': 'PAYCODE123',
@@ -2537,12 +2562,11 @@ class RedeemPaymentCodeTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['a@a.com'])
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     @override_settings(SCALEREG_SEND_MAIL=True)
     def test_post_request_success_at_kiosk(self):
         response = self.client.post('/reg23/redeem_payment_code/',
                                     self.post_data,
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+                                    HTTP_USER_AGENT='SECRET:235')
         self.assertContains(response, 'Registration Payment Code Receipt')
         self.assertContains(response, 'First Last')
         self.assertContains(response, 'Payment Code: PAYCODE123')
@@ -3405,6 +3429,7 @@ class FreeUpgradeTest(TestCase):
                                                email='foo@a.com',
                                                valid=True,
                                                order=cls.order)
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
 
     def check_no_new_db_entries(self):
         self.assertEqual(Order.objects.count(), 1)
@@ -3522,7 +3547,6 @@ class FreeUpgradeTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['foo@a.com'])
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     @override_settings(SCALEREG_SEND_MAIL=True)
     def test_free_upgrade_at_kiosk(self):
         random.seed(0)
@@ -3535,7 +3559,7 @@ class FreeUpgradeTest(TestCase):
         }
         response = self.client.post('/reg23/free_upgrade/',
                                     post_data,
-                                    HTTP_USER_AGENT='Mozilla/5. SECRET:235')
+                                    HTTP_USER_AGENT='SECRET:235')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Registration Payment Receipt')
         self.assertContains(response, 'Foo Bar')
@@ -3717,6 +3741,7 @@ class NonFreeUpgradeTest(TestCase):
                                                email='foo@example.com',
                                                valid=True,
                                                order=cls.order)
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
 
     def check_no_new_db_entries(self):
         self.assertEqual(Order.objects.count(), 1)
@@ -3878,7 +3903,6 @@ class NonFreeUpgradeTest(TestCase):
         self.assertContains(response, 'No id information.')
         self.check_no_new_db_entries()
 
-    @override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
     def test_non_free_upgrade_at_kiosk(self):
         random.seed(0)
         self.assertEqual(Order.objects.count(), 1)
@@ -3891,7 +3915,7 @@ class NonFreeUpgradeTest(TestCase):
         }
         response = self.client.post('/reg23/non_free_upgrade/',
                                     post_data,
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:235')
+                                    HTTP_USER_AGENT='SECRET:235')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Registration Upgrade')
         self.assertContains(response, 'Foo Bar')
@@ -4150,7 +4174,6 @@ class SaleUpgradeTest(TestCase):
         self.assertContains(response, 'bad upgrade', status_code=500)
 
 
-@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
 class CheckInTest(TestCase):
 
     @classmethod
@@ -4173,7 +4196,8 @@ class CheckInTest(TestCase):
                                                badge_type=cls.ticket,
                                                order=cls.order,
                                                valid=True)
-        cls.kiosk_agent = 'Mozilla/5.0 SECRET:235'
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
+        cls.kiosk_agent = 'SECRET:235'
 
     def test_get_no_agent(self):
         response = self.client.get('/reg23/check_in/')
@@ -4187,31 +4211,56 @@ class CheckInTest(TestCase):
 
     def test_post_empty_id_agent(self):
         response = self.client.post('/reg23/check_in/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:')
+                                    HTTP_USER_AGENT='SECRET:')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_no_separator_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='SECRET')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_too_many_separator_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='SECRET:12:3')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
     def test_post_non_numeric_id_agent(self):
         response = self.client.post('/reg23/check_in/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:XY')
+                                    HTTP_USER_AGENT='SECRET:XY')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
     def test_post_zero_id_agent(self):
         response = self.client.post('/reg23/check_in/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:0')
+                                    HTTP_USER_AGENT='SECRET:0')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
     def test_post_out_of_range_id_agent(self):
         response = self.client.post('/reg23/check_in/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:256')
+                                    HTTP_USER_AGENT='SECRET:256')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
     def test_post_too_long_id_agent(self):
         response = self.client.post('/reg23/check_in/',
-                                    HTTP_USER_AGENT='Mozilla/5.0 SECRET:1234')
+                                    HTTP_USER_AGENT='SECRET:1234')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_unrecognized_agent(self):
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='RET:123')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Not in kiosk mode')
+
+    def test_post_invalid_agent(self):
+        Kiosk.objects.create(kiosk_id='NEW')
+        response = self.client.post('/reg23/check_in/',
+                                    HTTP_USER_AGENT='NEW:123')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Not in kiosk mode')
 
@@ -4369,7 +4418,6 @@ class CheckInTest(TestCase):
         self.assertContains(response, 'No registration results found')
 
 
-@override_settings(SCALEREG_KIOSK_AGENT_SECRET='SECRET')
 class FinishCheckInTest(TestCase):
 
     @classmethod
@@ -4392,7 +4440,8 @@ class FinishCheckInTest(TestCase):
                                                badge_type=cls.ticket,
                                                order=cls.order,
                                                valid=True)
-        cls.kiosk_agent = 'Mozilla/5.0 SECRET:235'
+        Kiosk.objects.create(kiosk_id='SECRET', valid=True)
+        cls.kiosk_agent = 'SECRET:235'
 
     def test_get_no_agent(self):
         response = self.client.get('/reg23/finish_check_in/')
