@@ -70,6 +70,32 @@ function toggleDisplay(id) {
 {% endfor %}
 </table>
 </div>
+
+<h3>Addons
+<a href="javascript:void(0)" onclick="toggleDisplay('orders_addons')"><tt>[*]</tt></a>
+</h3>
+
+<div id="orders_addons">
+{% if addons %}
+<table border="1" class="sortable">
+<tr>
+  <th>Addon</th>
+  <th>7 Days</th>
+  <th>30 Days</th>
+  <th>Total</th>
+</tr>
+{% for addon in addons %}
+<tr>
+  <td>{{ addon.name }} <small>({{ addon.code }})</small></td>
+  <td>{{ addon.numbers_7 }}</td>
+  <td>{{ addon.numbers_30 }}</td>
+  <td>{{ addon.numbers }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+</div>
+    
 {% endif %}
 </div>
 
