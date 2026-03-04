@@ -2902,7 +2902,7 @@ class CheckedInTest(TestCase):
         self.client.force_login(self.staff_user)
         response = self.client.get('/reg23/checked_in/', {'idsonly': ''})
         self.check_response_is_success_text(response)
-        self.assertEqual(response.content, b'1\nr5')
+        self.assertEqual(response.content, b'1\nr7,5')
 
     def test_get_with_kiosk_agent(self):
         self.attendee4.order = self.order

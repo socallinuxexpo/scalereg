@@ -1309,7 +1309,8 @@ def checked_in(request):
     if request.method == 'GET' and 'idsonly' in request.GET:
         results = [str(att.id) for att in attendees.filter(reprint_count=0)]
         results.extend([
-            'r' + str(att.id) for att in attendees.filter(reprint_count__gt=0)
+            f'r{att.reprint_count},{att.id}'
+            for att in attendees.filter(reprint_count__gt=0)
         ])
         return HttpResponse('\n'.join(results), content_type='text/plain')
 
